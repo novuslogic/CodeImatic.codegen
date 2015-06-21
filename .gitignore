@@ -1,0 +1,13 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+*.dcu
+*.local
+*.identcache
+*.todo
+/source/__history/DBSchema.pas.~1~
+/source/__history/DBSchema.pas.~2~
+/source/__history/Zcodegen.dpr.~1~
+/source/__history/Zcodegen.dpr.~2~
+/build/Zcodegen.exe

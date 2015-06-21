@@ -1,0 +1,192 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{02816924-2708-4329-a498-2e52f2d9eea4}</ProjectGuid>
+        <MainSource>Zcodegen.dpr</MainSource>
+        <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+        <DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
+        <DCC_DependencyCheckOutputName>..\..\..\ZenCodeGen.exe</DCC_DependencyCheckOutputName>
+        <FrameworkType>VCL</FrameworkType>
+        <ProjectVersion>14.6</ProjectVersion>
+        <Base>True</Base>
+        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Platform Condition="'$(Platform)'==''">Win32</Platform>
+        <TargetedPlatforms>1</TargetedPlatforms>
+        <AppType>Application</AppType>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Base)'=='true') or '$(Base_Win32)'!=''">
+        <Base_Win32>true</Base_Win32>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Base)'=='true') or '$(Base_Win64)'!=''">
+        <Base_Win64>true</Base_Win64>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_1)'!=''">
+        <Cfg_1>true</Cfg_1>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win32)'!=''">
+        <Cfg_1_Win32>true</Cfg_1_Win32>
+        <CfgParent>Cfg_1</CfgParent>
+        <Cfg_1>true</Cfg_1>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_2)'!=''">
+        <Cfg_2>true</Cfg_2>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win32)'!=''">
+        <Cfg_2_Win32>true</Cfg_2_Win32>
+        <CfgParent>Cfg_2</CfgParent>
+        <Cfg_2>true</Cfg_2>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base)'!=''">
+        <VerInfo_MinorVer>4</VerInfo_MinorVer>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;Winapi;System.Win;$(DCC_Namespace)</DCC_Namespace>
+        <VerInfo_MajorVer>0</VerInfo_MajorVer>
+        <VerInfo_Keys>CompanyName=Novuslogic;FileDescription=;FileVersion=0.4.0.15;InternalName=;LegalCopyright=© Copyright Novuslogic 2011, 2012 - All Rights Reserved;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=0.4.0;Comments=</VerInfo_Keys>
+        <VerInfo_Locale>3081</VerInfo_Locale>
+        <VerInfo_AutoGenVersion>true</VerInfo_AutoGenVersion>
+        <VerInfo_Build>15</VerInfo_Build>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base_Win32)'!=''">
+        <Icon_MainIcon>ZenCodeGen_Icon.ico</Icon_MainIcon>
+        <Debugger_RunParams>-project D:\Projects\MarqueeAppServerClient\Templates\1.7.0\Console\Console.ztp</Debugger_RunParams>
+        <DCC_Namespace>Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
+        <VerInfo_Locale>1033</VerInfo_Locale>
+        <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
+        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base_Win64)'!=''">
+        <Icon_MainIcon>ZenCodeGen_Icon.ico</Icon_MainIcon>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1)'!=''">
+        <Version>7.0</Version>
+        <DCC_DebugInformation>False</DCC_DebugInformation>
+        <DCC_LocalDebugSymbols>False</DCC_LocalDebugSymbols>
+        <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
+        <DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
+        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Locale>1033</VerInfo_Locale>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2)'!=''">
+        <Version>7.0</Version>
+        <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
+        <DCC_ResourcePath>C:\Program Files\ZenCodeGen\Source\NovusCodeLibrary\1.0.0\Core\Infrastructure;C:\Program Files\ZenCodeGen\Source\NovusCodeLibrary\1.0.0\Core;C:\Program Files\ZenCodeGen\Source\NovusCodeLibrary\1.0.0\Core\Utilities;C:\Program Files\ZenCodeGen\Source\NovusCodeLibrary\1.0.0\Core\Parser;C:\Program Files\ZenCodeGen\Source\NovusCodeLibrary\1.0.0\Core\3rdParty;C:\Program Files\ZenCodeGen\Source\NovusCodeLibrary\1.0.0\Core\Log;$(DCC_ResourcePath)</DCC_ResourcePath>
+        <DCC_ObjPath>C:\Program Files\ZenCodeGen\Source\NovusCodeLibrary\1.0.0\Core\Infrastructure;C:\Program Files\ZenCodeGen\Source\NovusCodeLibrary\1.0.0\Core;C:\Program Files\ZenCodeGen\Source\NovusCodeLibrary\1.0.0\Core\Utilities;C:\Program Files\ZenCodeGen\Source\NovusCodeLibrary\1.0.0\Core\Parser;C:\Program Files\ZenCodeGen\Source\NovusCodeLibrary\1.0.0\Core\3rdParty;C:\Program Files\ZenCodeGen\Source\NovusCodeLibrary\1.0.0\Core\Log;$(DCC_ObjPath)</DCC_ObjPath>
+        <DCC_IncludePath>C:\Program Files\ZenCodeGen\Source\NovusCodeLibrary\1.0.0\Core\Infrastructure;C:\Program Files\ZenCodeGen\Source\NovusCodeLibrary\1.0.0\Core;C:\Program Files\ZenCodeGen\Source\NovusCodeLibrary\1.0.0\Core\Utilities;C:\Program Files\ZenCodeGen\Source\NovusCodeLibrary\1.0.0\Core\Parser;C:\Program Files\ZenCodeGen\Source\NovusCodeLibrary\1.0.0\Core\3rdParty;C:\Program Files\ZenCodeGen\Source\NovusCodeLibrary\1.0.0\Core\Log;$(DCC_IncludePath)</DCC_IncludePath>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
+        <DCC_DcuOutput>..\units\win32\</DCC_DcuOutput>
+        <VerInfo_MajorVer>1</VerInfo_MajorVer>
+        <VerInfo_Build>0</VerInfo_Build>
+        <VerInfo_MinorVer>0</VerInfo_MinorVer>
+        <Debugger_RunParams>-project D:\Projects\Tourworkpad\Templates\TourworkpadService\1.0.0\test.ztp -projectconfig D:\Projects\Tourworkpad\Templates\TourworkpadService\1.0.0\test.ztpconfig</Debugger_RunParams>
+        <DCC_ExeOutput>..\build</DCC_ExeOutput>
+        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Locale>1033</VerInfo_Locale>
+    </PropertyGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Delphi.Personality.12</Borland.Personality>
+        <Borland.ProjectType>VCLApplication</Borland.ProjectType>
+        <BorlandProject>
+            <Delphi.Personality>
+                <Parameters>
+                    <Parameters Name="UseLauncher">False</Parameters>
+                    <Parameters Name="LoadAllSymbols">True</Parameters>
+                    <Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
+                    <Parameters Name="RunParams">-project D:\Projects\MarqueeAppServerClient\Templates\1.7.0\Console\Console.ztp</Parameters>
+                </Parameters>
+                <VersionInfo>
+                    <VersionInfo Name="IncludeVerInfo">True</VersionInfo>
+                    <VersionInfo Name="AutoIncBuild">True</VersionInfo>
+                    <VersionInfo Name="MajorVer">0</VersionInfo>
+                    <VersionInfo Name="MinorVer">4</VersionInfo>
+                    <VersionInfo Name="Release">0</VersionInfo>
+                    <VersionInfo Name="Build">39</VersionInfo>
+                    <VersionInfo Name="Debug">False</VersionInfo>
+                    <VersionInfo Name="PreRelease">False</VersionInfo>
+                    <VersionInfo Name="Special">False</VersionInfo>
+                    <VersionInfo Name="Private">False</VersionInfo>
+                    <VersionInfo Name="DLL">False</VersionInfo>
+                    <VersionInfo Name="Locale">3081</VersionInfo>
+                    <VersionInfo Name="CodePage">1252</VersionInfo>
+                </VersionInfo>
+                <VersionInfoKeys>
+                    <VersionInfoKeys Name="CompanyName">Novuslogic</VersionInfoKeys>
+                    <VersionInfoKeys Name="FileDescription"/>
+                    <VersionInfoKeys Name="FileVersion">0.4.0.39</VersionInfoKeys>
+                    <VersionInfoKeys Name="InternalName"/>
+                    <VersionInfoKeys Name="LegalCopyright">© Copyright Novuslogic 2011, 2012 - All Rights Reserved</VersionInfoKeys>
+                    <VersionInfoKeys Name="LegalTrademarks"/>
+                    <VersionInfoKeys Name="OriginalFilename"/>
+                    <VersionInfoKeys Name="ProductName"/>
+                    <VersionInfoKeys Name="ProductVersion">0.4.0</VersionInfoKeys>
+                    <VersionInfoKeys Name="Comments"/>
+                </VersionInfoKeys>
+                <Source>
+                    <Source Name="MainSource">Zcodegen.dpr</Source>
+                </Source>
+                <Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\bcboffice2k180.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\bcbofficexp180.bpl">Embarcadero C++Builder Office XP Servers Package</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k180.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp180.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+                </Excluded_Packages>
+            </Delphi.Personality>
+            <Platforms>
+                <Platform value="Win32">True</Platform>
+                <Platform value="Win64">False</Platform>
+            </Platforms>
+        </BorlandProject>
+        <ProjectFileVersion>12</ProjectFileVersion>
+    </ProjectExtensions>
+    <Import Project="$(BDS)\Bin\CodeGear.Delphi.Targets"/>
+    <ItemGroup>
+        <DelphiCompile Include="$(MainSource)">
+            <MainSource>MainSource</MainSource>
+        </DelphiCompile>
+        <DCCReference Include="Config.pas"/>
+        <DCCReference Include="DMZenCodeGen.pas">
+            <Form>DM</Form>
+            <DesignClass>TDataModule</DesignClass>
+        </DCCReference>
+        <DCCReference Include="DBSchema.pas"/>
+        <DCCReference Include="Properties.pas"/>
+        <DCCReference Include="CodeGenerator.pas"/>
+        <DCCReference Include="Interpreter.pas"/>
+        <DCCReference Include="Language.pas"/>
+        <DCCReference Include="MessagesLog.pas"/>
+        <DCCReference Include="Variables.pas"/>
+        <DCCReference Include="Snippits.pas"/>
+        <DCCReference Include="Project.pas"/>
+        <DCCReference Include="Reservelist.pas"/>
+        <DCCReference Include="XMLList.pas"/>
+        <DCCReference Include="projectconfig.pas"/>
+        <DCCReference Include="3rdParty\EParser.pas"/>
+        <None Include="Zcodegen.todo"/>
+        <BuildConfiguration Include="Debug">
+            <Key>Cfg_2</Key>
+            <CfgParent>Base</CfgParent>
+        </BuildConfiguration>
+        <BuildConfiguration Include="Base">
+            <Key>Base</Key>
+        </BuildConfiguration>
+        <BuildConfiguration Include="Release">
+            <Key>Cfg_1</Key>
+            <CfgParent>Base</CfgParent>
+        </BuildConfiguration>
+    </ItemGroup>
+    <Import Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')" Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj"/>
+</Project>
