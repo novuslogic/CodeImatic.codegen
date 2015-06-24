@@ -88,13 +88,13 @@
         <DCC_IncludePath>C:\Program Files\ZenCodeGen\Source\NovusCodeLibrary\1.0.0\Core\Infrastructure;C:\Program Files\ZenCodeGen\Source\NovusCodeLibrary\1.0.0\Core;C:\Program Files\ZenCodeGen\Source\NovusCodeLibrary\1.0.0\Core\Utilities;C:\Program Files\ZenCodeGen\Source\NovusCodeLibrary\1.0.0\Core\Parser;C:\Program Files\ZenCodeGen\Source\NovusCodeLibrary\1.0.0\Core\3rdParty;C:\Program Files\ZenCodeGen\Source\NovusCodeLibrary\1.0.0\Core\Log;$(DCC_IncludePath)</DCC_IncludePath>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
+        <Icon_MainIcon>$(BDS)\bin\delphi_PROJECTICON.ico</Icon_MainIcon>
         <DCC_DcuOutput>..\units\win32\</DCC_DcuOutput>
         <VerInfo_MajorVer>1</VerInfo_MajorVer>
         <VerInfo_Build>0</VerInfo_Build>
         <VerInfo_MinorVer>0</VerInfo_MinorVer>
-        <Debugger_RunParams>-project D:\Projects\Tourworkpad\Templates\TourworkpadService\1.0.0\test.ztp -projectconfig D:\Projects\Tourworkpad\Templates\TourworkpadService\1.0.0\test.ztpconfig</Debugger_RunParams>
         <DCC_ExeOutput>..\build</DCC_ExeOutput>
-        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=Novuslogic Software;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <VerInfo_Locale>1033</VerInfo_Locale>
     </PropertyGroup>
     <ProjectExtensions>
@@ -114,7 +114,7 @@
                     <VersionInfo Name="MajorVer">0</VersionInfo>
                     <VersionInfo Name="MinorVer">4</VersionInfo>
                     <VersionInfo Name="Release">0</VersionInfo>
-                    <VersionInfo Name="Build">39</VersionInfo>
+                    <VersionInfo Name="Build">43</VersionInfo>
                     <VersionInfo Name="Debug">False</VersionInfo>
                     <VersionInfo Name="PreRelease">False</VersionInfo>
                     <VersionInfo Name="Special">False</VersionInfo>
@@ -126,7 +126,7 @@
                 <VersionInfoKeys>
                     <VersionInfoKeys Name="CompanyName">Novuslogic</VersionInfoKeys>
                     <VersionInfoKeys Name="FileDescription"/>
-                    <VersionInfoKeys Name="FileVersion">0.4.0.39</VersionInfoKeys>
+                    <VersionInfoKeys Name="FileVersion">0.4.0.43</VersionInfoKeys>
                     <VersionInfoKeys Name="InternalName"/>
                     <VersionInfoKeys Name="LegalCopyright">© Copyright Novuslogic 2011, 2012 - All Rights Reserved</VersionInfoKeys>
                     <VersionInfoKeys Name="LegalTrademarks"/>

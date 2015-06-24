@@ -467,9 +467,9 @@ begin
 
           fsLanguage := FCodeGeneratorDetails.Tokens[2];
 
-          if FileExists(oConfig.RootPath + 'Languages\' + fsLanguage + '.xml') then
+          if FileExists(oConfig.Languagesdirectory + fsLanguage + '.xml') then
             begin
-              FLanguage.XMLFileName := oConfig.RootPath + 'Languages\' + fsLanguage + '.xml';
+              FLanguage.XMLFileName := oConfig.Languagesdirectory+ fsLanguage + '.xml';
               FLanguage.LoadXML;
 
               FLanguage.Language := fsLanguage;

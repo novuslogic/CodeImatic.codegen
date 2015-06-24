@@ -6,17 +6,18 @@ Uses SysUtils, NovusXMLBO, Registry, Windows, NovusStringUtils;
 
 Const
   csMessageslogFile = 'Messages.log';
-  csDefaultInstance: String = 'SOFTWARE\ZenCodeGen\Config\';
-  csDBSchemaFile = 'DBSchema.XML';
+  //csDefaultInstance: String = 'SOFTWARE\ZenCodeGen\Config\';
+  //csDBSchemaFile = 'DBSchema.XML';
 
 Type
    TConfig = Class(TNovusXMLBO)
    protected
+      fsDBSchemaFileName: String;
       fsProjectConfigFileName: String;
       fsProjectFileName: String;
       fsRootPath: String;
       fsmessageslogFile: String;
-
+      fsLanguagesDirectory: String;
    private
    public
      constructor Create; virtual; // override;
@@ -42,8 +43,14 @@ Type
         read fsRootPath
         write fsRootPath;
 
+     property DBSchemafilename: string
+        read fsdbschemafilename
+        write fsdbschemafilename;
 
 
+     property Languagesdirectory: string
+       read fslanguagesdirectory
+       write fslanguagesdirectory;
    End;
 
 Var
@@ -102,6 +109,35 @@ begin
            Result := True;
          end;
 
+         if ParamStr(i) = '-dbschemafilename' then
+         begin
+           Inc(i);
+           fsdbschemafilename := ParamStr(i);
+
+           if Not DirectoryExists(TNovusStringUtils.JustPathname(fsProjectConfigFileName)) then
+              begin
+                writeln ('-dbschemafilename ' + TNovusStringUtils.JustPathname(fsProjectConfigFileName) + ' dbschema filrname cannot be found.');
+
+                Exit;
+              end;
+
+           Result := True;
+         end;
+
+         if ParamStr(i) = '-languagesdirectory' then
+         begin
+           Inc(i);
+           fslanguagesdirectory := ParamStr(i);
+
+           if Not DirectoryExists(fslanguagesdirectory) then
+              begin
+                writeln ('-languagesdirectory ' + fslanguagesdirectory + ' languages directory cannot be found.');
+
+                Exit;
+              end;
+
+           Result := True;
+         end;
 
 
 
@@ -112,7 +148,7 @@ begin
 
   if Result = false then
     begin
-      writeln ('-help');
+      writeln ('-error ');
 
       //
     end;
@@ -124,6 +160,7 @@ procedure TConfig.LoadConfig;
 Var
   fhkey_local_machine : TRegistry;
 begin
+  (*
   fhkey_local_machine := TRegistry.Create;
 
   fhkey_local_machine.RootKey := HKEY_LOCAL_MACHINE;
@@ -138,6 +175,7 @@ begin
   fhkey_local_machine.CloseKey;
 
   fhkey_local_machine.Free;
+  *)
 
   if fsRootPath = '' then
     fsRootPath := TNovusStringUtils.RootDirectory;

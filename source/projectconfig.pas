@@ -158,24 +158,28 @@ begin
   fXmlElemlConnectionName := TNovusSimpleXML.FindNode(self.oXMLDocument.Root, 'Connectionname',liIndex);
   While(fXmlElemlConnectionName <> nil) do
     begin
-      // ConnectionName
-      lConnectionName := TConnectionName.Create;
-      lConnectionName.Connectionname := fXmlElemlConnectionName.Properties[0].Value;
+      if fXmlElemlConnectionName.Properties.count > 0 then
+        begin
+          // ConnectionName
+          lConnectionName := TConnectionName.Create;
+          lConnectionName.Connectionname := fXmlElemlConnectionName.Properties[0].Value;
 
-      // Driver
-      fXmlElemlDriver := fXmlElemlConnectionName.Items[0];
+          // Driver
+          fXmlElemlDriver := fXmlElemlConnectionName.Items[0];
 
-      lConnectionName.Auxdriver := GetFieldAsString(fXmlElemlDriver, 'Auxdriver');
-      lConnectionName.Server := GetFieldAsString(fXmlElemlDriver, 'Server');
-      lConnectionName.Database := GetFieldAsString(fXmlElemlDriver, 'Database');
-      lConnectionName.UserID := GetFieldAsString(fXmlElemlDriver, 'UserID');
-      lConnectionName.Password := GetFieldAsString(fXmlElemlDriver, 'Password');
-      lConnectionName.SQLLibrary := GetFieldAsString(fXmlElemlDriver, 'SQLLibrary');
-      lConnectionName.params := GetFieldAsString(fXmlElemlDriver, 'params');
+          lConnectionName.Auxdriver := GetFieldAsString(fXmlElemlDriver, 'Auxdriver');
+          lConnectionName.Server := GetFieldAsString(fXmlElemlDriver, 'Server');
+          lConnectionName.Database := GetFieldAsString(fXmlElemlDriver, 'Database');
+          lConnectionName.UserID := GetFieldAsString(fXmlElemlDriver, 'UserID');
+          lConnectionName.Password := GetFieldAsString(fXmlElemlDriver, 'Password');
+          lConnectionName.SQLLibrary := GetFieldAsString(fXmlElemlDriver, 'SQLLibrary');
+          lConnectionName.params := GetFieldAsString(fXmlElemlDriver, 'params');
 
-      fConnectionNameList.Add(lConnectionName);
+          fConnectionNameList.Add(lConnectionName);
 
-      fXmlElemlConnectionName := TNovusSimpleXML.FindNode(self.oXMLDocument.Root, 'Connectionname',liIndex);
+          fXmlElemlConnectionName := TNovusSimpleXML.FindNode(self.oXMLDocument.Root, 'Connectionname',liIndex);
+        end
+          else fXmlElemlConnectionName := NIL;
     end;
 
 end;

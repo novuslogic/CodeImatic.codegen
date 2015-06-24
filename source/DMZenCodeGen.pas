@@ -87,10 +87,16 @@ begin
   else
     FMesaagesLog := tMessagesLog.Create(foProject.MessageslogPath + oConfig.MessageslogFile, foProject.OutputConsole);
 
+  if not FMesaagesLog.OpenLog(true) then
+    begin
+      foProject.Free;
 
-  FMesaagesLog.OpenLog(true);
+      WriteLn(FMesaagesLog.Filename + ' log file cannot be created.');
 
-  FMesaagesLog.WriteLog('ZenCodeGen - © Copyright Novuslogic 2011 - 2015 All Rights Reserved');
+      Exit;
+    end;
+
+  FMesaagesLog.WriteLog('Zcodegen - © Copyright Novuslogic Software 2011 - 2015 All Rights Reserved');
   FMesaagesLog.WriteLog('Version: ' + TNovusVersionUtils.GetFullVersionNumber);
 
   FMesaagesLog.WriteLog('Project:' + foProject.ProjectFileName);
@@ -222,9 +228,9 @@ begin
               foSnippits.Retrieve;
             end;
 
-          if FileExists(oConfig.RootPath + csDBSchemaFile) then
+          if FileExists(oConfig.dbschemafilename) then
             begin
-              foDBSchema.XMLFilename := oConfig.RootPath + csDBSchemaFile;
+              foDBSchema.XMLFilename := oConfig.dbschemafilename;
               foDBSchema.Retrieve;
             end;
 
