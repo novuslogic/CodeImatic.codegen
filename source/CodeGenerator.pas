@@ -77,12 +77,13 @@ Type
   private
     procedure DoLanguage;
     procedure DoConnections;
-    function DoIncludes: Boolean;
+    function  DoIncludes: Boolean;
     procedure DoProperties;
     procedure DoTrimLines;
     procedure DoDeleteLines;
     function PassTemplateTags(aClearRun: Boolean = false): Boolean;
     function DoInternalIncludes: Boolean;
+    function GetGlobalPropertyValue(aToken: String): String;
   public
     constructor Create(ATemplate: TNovusTemplate; Amessageslog: TMessagesLog; aProject: tProject); virtual;
     destructor Destroy; override;
@@ -495,7 +496,7 @@ begin
           If (FTemplateTag.RawTagEx = FTemplate.OutputDoc.Strings[FTemplateTag.SourceLineNo - 1]) then
             FTemplateTag.TagValue := cDeleteLine;
 
-          fsLanguage := FCodeGeneratorDetails.Tokens[2];
+          fsLanguage := GetGlobalPropertyValue(FCodeGeneratorDetails.Tokens[2]);
 
           if FileExists(oConfig.Languagesdirectory + fsLanguage + '.xml') then
             begin
@@ -507,6 +508,13 @@ begin
           else oMessagesLog.WriteLog('Language: ' + fsLanguage + ' not supported');
         end;
    end;
+end;
+
+function TCodeGenerator.GetGlobalPropertyValue(aToken: String): String;
+begin
+  If Copy(aToken, 1, 2) = '$$' then
+    Result := DM.oProperties.GetProperty(Copy(aToken, 3, Length(aToken) ))
+  else Result := aToken;
 end;
 
 
@@ -533,7 +541,7 @@ begin
           If (FTemplateTag.RawTagEx = FTemplate.OutputDoc.Strings[FTemplateTag.SourceLineNo - 1]) then
             FTemplateTag.TagValue := cDeleteLine;
 
-          lsIncludeFilename := foProject.oProjectConfig.TemplatePath + FCodeGeneratorDetails.Tokens[2];
+          lsIncludeFilename := foProject.oProjectConfig.TemplatePath + GetGlobalPropertyValue(FCodeGeneratorDetails.Tokens[2]);
 
           if FileExists(lsIncludeFilename) then
             begin
