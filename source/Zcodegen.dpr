@@ -13,7 +13,6 @@ uses
   Language in 'Language.pas',
   MessagesLog in 'MessagesLog.pas',
   Variables in 'Variables.pas',
-  Snippits in 'Snippits.pas',
   Project in 'Project.pas',
   Reservelist in 'Reservelist.pas',
   XMLList in 'XMLList.pas',

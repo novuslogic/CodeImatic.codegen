@@ -13,7 +13,6 @@ Type
     fsOutputFile: String;
     fsTemplateFile: String;
     fsPropertiesFile: String;
-    fsSnippitsFile: String;
     fboverrideoutput: Boolean;
   Public
     property PropertiesFile: String
@@ -27,10 +26,6 @@ Type
     property OutputFile: String
        read fsOutputFile
        write fsOutputFile;
-
-    property SnippitsFile: String
-      read fsSnippitsFile
-      write fsSnippitsFile;
 
     property overrideoutput: Boolean
       read fboverrideoutput
@@ -49,6 +44,7 @@ Type
     foProjectConfig: TProjectConfig;
     foProjectItemList: TNovusList;
     fsMessageslogPath: String;
+    fsTemplatePath: String;
     fsProjectFilename: String;
     fbOutputConsole: Boolean;
   public
@@ -125,19 +121,36 @@ begin
     If Assigned(fJvSimpleXmlElem) then
       begin
         Index := 0;
-        aProjectItem.TemplateFile := TNovusSimpleXML.FindNode(fJvSimpleXmlElem, 'template', Index).Value;
-        Index := 0;
-        aProjectItem.propertiesFile := TNovusSimpleXML.FindNode(fJvSimpleXmlElem, 'properties', Index).Value;
-        Index := 0;
-        aProjectItem.snippitsFile := TNovusSimpleXML.FindNode(fJvSimpleXmlElem, 'snippits', Index).Value;
-        Index := 0;
-        if Uppercase(TNovusSimpleXML.FindNode(fJvSimpleXmlElem, 'overrideoutput', Index).Value) = 'TRUE' then
-          aProjectItem.overrideoutput := True
-        else
-           aProjectItem.overrideoutput := false;
-        Index := 0;
-        aProjectItem.OutputFile := TNovusSimpleXML.FindNode(fJvSimpleXmlElem, 'output', Index).Value;
+        if assigned(TNovusSimpleXML.FindNode(fJvSimpleXmlElem, 'template', Index)) then
+          begin
+            Index := 0;
+            aProjectItem.TemplateFile := TNovusSimpleXML.FindNode(fJvSimpleXmlElem, 'template', Index).Value;
+          end;
 
+        Index := 0;
+        if Assigned(TNovusSimpleXML.FindNode(fJvSimpleXmlElem, 'properties', Index)) then
+          begin
+            Index := 0;
+            aProjectItem.propertiesFile := TNovusSimpleXML.FindNode(fJvSimpleXmlElem, 'properties', Index).Value;
+          end;
+
+        Index := 0;
+        if Assigned(TNovusSimpleXML.FindNode(fJvSimpleXmlElem, 'overrideoutput', Index)) then
+          begin
+            Index := 0;
+            if Uppercase(TNovusSimpleXML.FindNode(fJvSimpleXmlElem, 'overrideoutput', Index).Value) = 'TRUE' then
+              aProjectItem.overrideoutput := True
+            else
+               aProjectItem.overrideoutput := false;
+          end
+        else aProjectItem.overrideoutput := false;
+
+        Index := 0;
+        if assigned(TNovusSimpleXML.FindNode(fJvSimpleXmlElem, 'output', Index)) then
+          begin
+            Index := 0;
+            aProjectItem.OutputFile := TNovusSimpleXML.FindNode(fJvSimpleXmlElem, 'output', Index).Value;
+          end;
       end;
   Finally
     Result := True;

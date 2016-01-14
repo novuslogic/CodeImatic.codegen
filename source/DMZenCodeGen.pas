@@ -87,7 +87,9 @@ begin
   else
     FMesaagesLog := tMessagesLog.Create(foProject.MessageslogPath + oConfig.MessageslogFile, foProject.OutputConsole);
 
-  if not FMesaagesLog.OpenLog(true) then
+  FMesaagesLog.OpenLog(true);
+
+  if not FMesaagesLog.IsFileOpen then
     begin
       foProject.Free;
 
@@ -96,7 +98,7 @@ begin
       Exit;
     end;
 
-  FMesaagesLog.WriteLog('Zcodegen - © Copyright Novuslogic Software 2011 - 2015 All Rights Reserved');
+  FMesaagesLog.WriteLog('Zcodegen - © Copyright Novuslogic Software 2011 - 2016 All Rights Reserved');
   FMesaagesLog.WriteLog('Version: ' + TNovusVersionUtils.GetFullVersionNumber);
 
   FMesaagesLog.WriteLog('Project:' + foProject.ProjectFileName);
@@ -183,25 +185,6 @@ begin
             end;
         end;
 
-      Try
-        if foProject.oProjectConfig.IsLoaded then
-          loProjectItem.SnippitsFile := foProject.oProjectConfig.Parseproperties(loProjectItem.SnippitsFile);
-      Except
-        FMesaagesLog.Writelog('SnippitsFile Projectconfig error.');
-
-        Break;
-      End;
-
-      if loProjectItem.SnippitsFile <> '' then
-        begin
-          if Not FileExists(loProjectItem.SnippitsFile) then
-             begin
-               FMesaagesLog.WriteLog('snippits ' + loProjectItem.SnippitsFile + ' cannot be found.');
-
-               Continue;
-             end;
-        end;
-
       If Not TNovusFileUtils.IsFileInUse(loProjectItem.OutputFile) then
         begin
           foProperties := tProperties.Create;
@@ -220,12 +203,6 @@ begin
               foProperties.oMessagesLog :=FMesaagesLog;
               foProperties.XMLFileName := loProjectItem.PropertiesFile;
               foProperties.Retrieve;
-            end;
-
-          if loProjectItem.SnippitsFile <> '' then
-            begin
-              foSnippits.XMLFileName := loProjectItem.SnippitsFile;
-              foSnippits.Retrieve;
             end;
 
           if FileExists(oConfig.dbschemafilename) then

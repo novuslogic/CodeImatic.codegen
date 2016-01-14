@@ -2,7 +2,8 @@ unit projectconfig;
 
 interface
 
-uses XMLList, NovusTemplate, SysUtils, NovusSimpleXML, JvSimpleXml, novuslist;
+uses XMLList, NovusTemplate, SysUtils, NovusSimpleXML, JvSimpleXml, novuslist,
+     NovusStringUtils;
 
 type
    TConnectionName = class
@@ -56,11 +57,11 @@ type
    private
    protected
      fConnectionNameList: tNovuslist;
+     fsTemplatepath: String;
      fsProjectConfigFileName: String;
    public
       constructor Create; override;
       destructor Destroy; override;
-
 
       procedure LoadProjectConfigFile(aProjectConfigFilename: String);
       procedure LoadConnectionNameList;
@@ -71,12 +72,14 @@ type
         read fsProjectConfigFileName
         write fsProjectConfigFileName;
 
-
-
-
       property ConnectionNameList: tNovuslist
         read fConnectionNameList
         write fConnectionNameList;
+
+      property TemplatePath: String
+        read fstemplatePath
+        write fstemplatepath;
+
 
    End;
 
@@ -105,6 +108,8 @@ begin
   ProjectConfigFileName := aProjectConfigFilename;
 
   LoadConnectionNameList;
+
+  fsTemplatePath := TNovusStringUtils.TrailingBackSlash(GetFieldAsString(oXMLDocument.Root, 'templatepath'));
 end;
 
 function TProjectConfig.Parseproperties(aInput: String): String;

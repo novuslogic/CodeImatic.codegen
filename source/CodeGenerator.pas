@@ -14,7 +14,7 @@ Const
 Type
   TCodeGenerator = class;
 
-  TTagType = (ttProperty, ttConnection, ttInterpreter, ttLanguage, ttsnippit);
+  TTagType = (ttProperty, ttConnection, ttInterpreter, ttLanguage, ttInclude);
 
   TCodeGeneratorDetails = class(TObject)
   protected
@@ -77,10 +77,12 @@ Type
   private
     procedure DoLanguage;
     procedure DoConnections;
-    procedure DoSnippit;
+    function DoIncludes: Boolean;
     procedure DoProperties;
     procedure DoTrimLines;
     procedure DoDeleteLines;
+    function PassTemplateTags(aClearRun: Boolean = false): Boolean;
+    function DoInternalIncludes: Boolean;
   public
     constructor Create(ATemplate: TNovusTemplate; Amessageslog: TMessagesLog; aProject: tProject); virtual;
     destructor Destroy; override;
@@ -192,8 +194,8 @@ begin
   if lsToken = 'CONNECTION' then
     Result := ttConnection
   else
-  if lsToken = 'SNIPPIT' then
-    result := ttsnippit
+  if lsToken = 'INCLUDE' then
+    result := ttInclude
   else
   if DM.oProperties.IsPropertyExists(lsToken) then
     Result := ttProperty
@@ -245,6 +247,40 @@ begin
       end;
 end;
 
+function TCodeGenerator.PassTemplateTags(aClearRun: Boolean = false): Boolean;
+Var
+  I: Integer;
+  FTemplateTag: TTemplateTag;
+begin
+  Try
+    if aClearRun then
+      begin
+        FCodeGeneratorList.Clear;
+
+        FTemplate.ParseTemplate;
+      end;
+
+    Result := True;
+
+    for I  := 0 to FTemplate.TemplateTags.Count - 1 do
+      begin
+        FTemplateTag := TTemplateTag(FTemplate.TemplateTags.Items[I]);
+
+        AddTag(FTemplateTag);
+      end;
+    Except
+      Fmessageslog.Errors := True;
+      Fmessageslog.Failed := True;
+
+      Fmessageslog.WriteLog('Error Line No:' + IntToStr(FTemplateTag.SourceLineNo) + ' Position: ' +  IntToStr(FTemplateTag.SourcePos));
+
+      Result := False;
+
+      Exit;
+    End;
+end;
+
+
 
 procedure TCodeGenerator.Execute;
 var
@@ -252,24 +288,18 @@ var
   FTemplateTag: TTemplateTag;
 begin
   Try
-    Try
-      for I  := 0 to FTemplate.TemplateTags.Count - 1 do
-        begin
-          FTemplateTag := TTemplateTag(FTemplate.TemplateTags.Items[I]);
+    // Pass 1
+    If Not PassTemplateTags then Exit;
 
-          AddTag(FTemplateTag);
-        end;
-    Except
-      Fmessageslog.Errors := True;
-      Fmessageslog.Failed := True;
-      Fmessageslog.WriteLog('Error Line No:' + IntToStr(FTemplateTag.SourceLineNo) + ' Position: ' +  IntToStr(FTemplateTag.SourcePos));
+    DoProperties;
 
-      Exit;
-    End;
+    RunPropertyVariables(0,(FCodeGeneratorList.Count - 1));
+
+    DoIncludes;
+
+    // Pass 2
 
     DoLanguage;
-
-    DoSnippit;
 
     DoProperties;
 
@@ -480,6 +510,82 @@ begin
 end;
 
 
+function TCodeGenerator.DoInternalIncludes: Boolean;
+Var
+  I, X, LineNo: integer;
+  FCodeGeneratorDetails: TCodeGeneratorDetails;
+  FTemplateTag: TTemplateTag;
+  lsIncludeFilename: String;
+  lIncludeTemplate: TStringList;
+begin
+  for I := 0 to FCodeGeneratorList.Count - 1 do
+   begin
+      Result := False;
+
+      FCodeGeneratorDetails := TCodeGeneratorDetails(FCodeGeneratorList.Items[i]);
+
+      if FCodeGeneratorDetails.tagType = ttInclude then
+        begin
+          Result := True;
+
+          FTemplateTag := FCodeGeneratorDetails.oTemplateTag;
+
+          If (FTemplateTag.RawTagEx = FTemplate.OutputDoc.Strings[FTemplateTag.SourceLineNo - 1]) then
+            FTemplateTag.TagValue := cDeleteLine;
+
+          lsIncludeFilename := foProject.oProjectConfig.TemplatePath + FCodeGeneratorDetails.Tokens[2];
+
+          if FileExists(lsIncludeFilename) then
+            begin
+              LineNo := FTemplateTag.SourceLineNo -1;
+
+              lIncludeTemplate:= TStringList.Create;
+
+              lIncludeTemplate.LoadFromFile(lsIncludeFilename);
+
+              FTemplate.TemplateDoc.Delete(LineNo);
+
+              for x := 0 to lIncludeTemplate.Count-1 do
+                begin
+                  FTemplate.TemplateDoc.Insert(LineNo, lIncludeTemplate.Strings[x]);
+
+                  Inc(LineNo);
+                end;
+
+              lIncludeTemplate.Free;
+
+              if Not PassTemplateTags(true) then  Result := False;
+            end
+          else
+            begin
+              Result := False;
+
+              Fmessageslog.WriteLog('Cannot find include file=' + lsIncludeFilename);
+
+              Fmessageslog.Errors := True;
+              Fmessageslog.Failed := True;
+
+              Fmessageslog.WriteLog('Error Line No:' + IntToStr(FTemplateTag.SourceLineNo) + ' Position: ' +  IntToStr(FTemplateTag.SourcePos));
+            end;
+
+
+          Break;
+        end;
+   end;
+end;
+
+
+function TCodeGenerator.DoIncludes: Boolean;
+Var
+  lOK: Boolean;
+begin
+  lOK := DoInternalIncludes;
+
+  While(lOK = true) do
+    lOK := DoInternalIncludes;
+end;
+
+
 procedure TCodeGenerator.DoProperties;
 Var
   I: integer;
@@ -517,84 +623,6 @@ begin
             FTemplateTag.TagValue := cDeleteLine;
 
           DM.oConnections.AddConnection(FCodeGeneratorDetails);
-        end;
-   end;
-end;
-
-procedure TCodeGenerator.DoSnippit;
-Var
-  I,X: integer;
-  FTemplateTag: TTemplateTag;
-  FCodeGeneratorDetails: TCodeGeneratorDetails;
-  liNextSourceLineNo: INteger;
-  LTokens: tStringList;
-  LEParser : TFEParser;
-  lsSnippitName: String;
-  lsSnippit: String;
-  lLines: tStringList;
-begin
-
-  for I := 0 to FCodeGeneratorList.Count - 1 do
-   begin
-      FCodeGeneratorDetails := TCodeGeneratorDetails(FCodeGeneratorList.Items[i]);
-
-      if FCodeGeneratorDetails.tagType = ttSnippit then
-        begin
-          FTemplateTag := FCodeGeneratorDetails.oTemplateTag;
-
-          FTemplateTag.TagValue := cDeleteLine;
-
-          if DM.oSnippits.oXMLDocument.XMLData <> '' then
-            begin
-              LTokens := tStringList.Create;
-
-              LEParser := TFEParser.Create;
-
-              LEParser.Expr := FTemplateTag.TagName;
-
-              LEParser.ListTokens(LTokens);
-
-              if Uppercase(LTokens[1]) <> 'name' then
-                begin
-                  if LTokens[2] = '=' then
-                    begin
-                      lsSnippitName := LTokens[3];
-
-                      if DM.oSnippits.IsSnippitNameExists(lsSnippitName) then
-                        begin
-                          liNextSourceLineNo := FTemplateTag.SourceLineNo;
-
-                          lsSnippit := DM.oSnippits.GetFieldAsString(DM.oSnippits.oXMLDocument.Root, lsSnippitName);
-
-                          lLines := TStringList.Create;
-
-                          TNovusStringUtils.String2StringList(lsSnippit, lLines);
-
-                          if lLines.Count > 0 then
-                            if lLines.Strings[0] = #0 then lLines.Delete(0);
-                            
-                          for X := 0 to lLines.Count -1 do
-                            begin
-                              FTemplate.InsertLineNo(liNextSourceLineNo, lLines.Strings[x]);
-
-                              Inc(liNextSourceLineNo);
-                            end;
-
-                          lLines.Free;  
-                        end
-                      else
-                       Fmessageslog.WriteLog('Snippit error: Name "' + lsSnippitName + '" does not exists.');
-                    end
-                 else
-                    Fmessageslog.WriteLog('Incorrect syntax: lack "="');
-                end
-             else
-               Fmessageslog.WriteLog('Incorrect syntax: lack "name"');
-
-             LTokens.Free;
-
-             LEParser.Free;
-           end;
         end;
    end;
 end;

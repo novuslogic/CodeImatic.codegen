@@ -6,8 +6,6 @@ Uses SysUtils, NovusXMLBO, Registry, Windows, NovusStringUtils;
 
 Const
   csMessageslogFile = 'Messages.log';
-  //csDefaultInstance: String = 'SOFTWARE\ZenCodeGen\Config\';
-  //csDBSchemaFile = 'DBSchema.XML';
 
 Type
    TConfig = Class(TNovusXMLBO)
