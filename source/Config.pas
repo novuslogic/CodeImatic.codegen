@@ -84,7 +84,7 @@ begin
 
            if Not DirectoryExists(TNovusStringUtils.JustPathname(fsProjectFileName)) then
               begin
-                writeln ('-project ' + TNovusStringUtils.JustPathname(fsProjectFileName) + ' project filrname cannot be found.');
+                writeln ('-project ' + TNovusStringUtils.JustPathname(fsProjectFileName) + ' project filename cannot be found.');
 
                 Exit;
               end;
@@ -99,7 +99,7 @@ begin
 
            if Not DirectoryExists(TNovusStringUtils.JustPathname(fsProjectConfigFileName)) then
               begin
-                writeln ('-projectconfig ' + TNovusStringUtils.JustPathname(fsProjectConfigFileName) + ' projectconfig filrname cannot be found.');
+                writeln ('-projectconfig ' + TNovusStringUtils.JustPathname(fsProjectConfigFileName) + ' projectconfig filename cannot be found.');
 
                 Exit;
               end;
