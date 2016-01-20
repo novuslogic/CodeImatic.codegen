@@ -77,14 +77,14 @@ begin
   I := 1;
   While Not fbOK do
     begin
-       if ParamStr(i) = '-project' then
+        if ParamStr(i) = '-project' then
          begin
            Inc(i);
            fsProjectFileName := ParamStr(i);
 
-           if Not DirectoryExists(TNovusStringUtils.JustPathname(fsProjectFileName)) then
+           if Not FileExists(fsProjectFileName) then
               begin
-                writeln ('-project ' + TNovusStringUtils.JustPathname(fsProjectFileName) + ' project filename cannot be found.');
+                writeln ('-project ' + TNovusStringUtils.JustFilename(fsProjectFileName) + ' project filename cannot be found.');
 
                 Exit;
               end;
@@ -97,9 +97,9 @@ begin
            Inc(i);
            fsProjectConfigFileName := ParamStr(i);
 
-           if Not DirectoryExists(TNovusStringUtils.JustPathname(fsProjectConfigFileName)) then
+           if Not FileExists(fsProjectConfigFileName) then
               begin
-                writeln ('-projectconfig ' + TNovusStringUtils.JustPathname(fsProjectConfigFileName) + ' projectconfig filename cannot be found.');
+                writeln ('-projectconfig ' + TNovusStringUtils.JustFilename(fsProjectConfigFileName) + ' projectconfig filename cannot be found.');
 
                 Exit;
               end;
@@ -112,9 +112,9 @@ begin
            Inc(i);
            fsdbschemafilename := ParamStr(i);
 
-           if Not DirectoryExists(TNovusStringUtils.JustPathname(fsProjectConfigFileName)) then
+           if Not FileExists(fsProjectConfigFileName) then
               begin
-                writeln ('-dbschemafilename ' + TNovusStringUtils.JustPathname(fsProjectConfigFileName) + ' dbschema filrname cannot be found.');
+                writeln ('-dbschemafilename ' + TNovusStringUtils.JustFilename(fsProjectConfigFileName) + ' dbschema filrname cannot be found.');
 
                 Exit;
               end;
@@ -143,6 +143,21 @@ begin
 
       if I > ParamCount then fbOK := True;
     end;
+
+  if Trim(fsProjectFileName) = '' then
+    begin
+      writeln ('-project filename cannot be found.');
+
+      Result := false;
+    end;
+
+  if Trim(fsProjectConfigFileName) = '' then
+     begin
+       writeln ('-projectconfig filename cannot be found.');
+
+       result := False;
+     end;
+
 
   if Result = false then
     begin
