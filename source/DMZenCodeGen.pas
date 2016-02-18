@@ -185,7 +185,8 @@ begin
             end;
         end;
 
-      If Not TNovusFileUtils.IsFileInUse(loProjectItem.OutputFile) then
+      If (TNovusFileUtils.IsFileInUse(loProjectItem.OutputFile) = false) or
+         (TNovusFileUtils.IsFileReadonly(loProjectItem.OutputFile) = false) then
         begin
           foProperties := tProperties.Create;
           foSnippits := tSnippits.Create;
