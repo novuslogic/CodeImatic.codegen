@@ -3,7 +3,7 @@ unit Project;
 interface
 
 Uses NovusXMLBO, Classes, SysUtils, NovusStringUtils, NovusBO, NovusList,
-     JvSimpleXml, NovusSimpleXML, XMLlist, ProjectConfig;
+     JvSimpleXml, NovusSimpleXML, XMLlist, ProjectConfig, NovusFileUtils;
 
 Type
   TProjectItem = class(TNovusBO)
@@ -160,7 +160,7 @@ end;
 
 function TProject.GetMessageslogPath: String;
 begin
-  Result := TNovusStringUtils.TrailingBackSlash(GetFieldAsString(oXMLDocument.Root, 'messageslogpath'));
+  Result := TNovusFileUtils.TrailingBackSlash(GetFieldAsString(oXMLDocument.Root, 'messageslogpath'));
 end;
 
 function TProject.GetOutputConsole: Boolean;
@@ -183,8 +183,8 @@ begin
 
   ProjectFileName := aProjectFilename;
 
-  if FileExists(aProjectConfigFilename) then
-    foProjectConfig.LoadProjectConfigFile(aProjectConfigFilename);
+  //if FileExists(aProjectConfigFilename) then
+   // foProjectConfig.LoadProjectConfigFile(aProjectConfigFilename);
 
   //Project Items
   Index := 0;

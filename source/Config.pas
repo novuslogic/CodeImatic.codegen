@@ -15,7 +15,7 @@ Type
       fsProjectFileName: String;
       fsRootPath: String;
       fsmessageslogFile: String;
-      fsLanguagesDirectory: String;
+      fsLanguagesPath: String;
    private
    public
      constructor Create; virtual; // override;
@@ -45,10 +45,9 @@ Type
         read fsdbschemafilename
         write fsdbschemafilename;
 
-
-     property Languagesdirectory: string
-       read fslanguagesdirectory
-       write fslanguagesdirectory;
+     property LanguagesPath: string
+       read fsLanguagesPath
+       write fsLanguagesPath;
    End;
 
 Var
@@ -107,6 +106,7 @@ begin
            Result := True;
          end;
 
+         (*
          if ParamStr(i) = '-dbschemafilename' then
          begin
            Inc(i);
@@ -122,21 +122,21 @@ begin
            Result := True;
          end;
 
-         if ParamStr(i) = '-languagesdirectory' then
+         if ParamStr(i) = '-LanguagesPath' then
          begin
            Inc(i);
-           fslanguagesdirectory := ParamStr(i);
+           fsLanguagesPath := ParamStr(i);
 
-           if Not DirectoryExists(fslanguagesdirectory) then
+           if Not DirectoryExists(fsLanguagesPath) then
               begin
-                writeln ('-languagesdirectory ' + fslanguagesdirectory + ' languages directory cannot be found.');
+                writeln ('-LanguagesPath ' + fsLanguagesPath + ' languages directory cannot be found.');
 
                 Exit;
               end;
 
            Result := True;
          end;
-
+         *)
 
 
       Inc(I);

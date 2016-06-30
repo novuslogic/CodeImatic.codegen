@@ -455,7 +455,6 @@ begin
 
         If pos(lsPropertieVariable, Uppercase(FTemplateTag.TagName)) > 0 then
           begin
-            //lsVariableResult := DM.oProperties.GetFieldAsString(DM.oProperties.oXMLDocument.Root, DM.oProperties.NodeNames.Strings[x]);
             lsVariableResult := DM.oProperties.GetProperty(DM.oProperties.NodeNames.Strings[x]);
 
             if FCodeGeneratorDetails.TagType = ttConnection then
@@ -498,9 +497,9 @@ begin
 
           fsLanguage := GetGlobalPropertyValue(FCodeGeneratorDetails.Tokens[2]);
 
-          if FileExists(oConfig.Languagesdirectory + fsLanguage + '.xml') then
+          if FileExists(oConfig.Languagespath + fsLanguage + '.xml') then
             begin
-              FLanguage.XMLFileName := oConfig.Languagesdirectory+ fsLanguage + '.xml';
+              FLanguage.XMLFileName := oConfig.Languagespath+ fsLanguage + '.xml';
               FLanguage.LoadXML;
 
               FLanguage.Language := fsLanguage;

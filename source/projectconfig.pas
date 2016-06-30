@@ -3,7 +3,7 @@ unit projectconfig;
 interface
 
 uses XMLList, NovusTemplate, SysUtils, NovusSimpleXML, JvSimpleXml, novuslist,
-     NovusStringUtils;
+     NovusStringUtils, NovusFileUtils;
 
 type
    TConnectionName = class
@@ -59,11 +59,13 @@ type
      fConnectionNameList: tNovuslist;
      fsTemplatepath: String;
      fsProjectConfigFileName: String;
+     fsDBSchemaPath: String;
+     fsLanguagesPath: String;
    public
       constructor Create; override;
       destructor Destroy; override;
 
-      procedure LoadProjectConfigFile(aProjectConfigFilename: String);
+      function LoadProjectConfigFile(aProjectConfigFilename: String): Boolean;
       procedure LoadConnectionNameList;
       function Parseproperties(aInput: String): String;
       function FindConnectionName(AConnectionName: String): TConnectionName;
@@ -79,6 +81,14 @@ type
       property TemplatePath: String
         read fstemplatePath
         write fstemplatepath;
+
+      property DBSchemaPath: String
+         read fsDBSchemaPath
+         write fsDBSchemaPath;
+
+      property LanguagesPath: String
+         read fsLanguagesPath
+         write fsLanguagesPath;
 
 
    End;
@@ -100,16 +110,24 @@ begin
   fConnectionNameList.Free;
 end;
 
-procedure TProjectConfig.LoadProjectConfigFile(aProjectConfigFilename: String);
+function TProjectConfig.LoadProjectConfigFile(aProjectConfigFilename: String): Boolean;
 begin
-  XMLFileName := aProjectConfigFilename;
-  Retrieve;
+  Result := true;
 
-  ProjectConfigFileName := aProjectConfigFilename;
+  Try
+    XMLFileName := aProjectConfigFilename;
+    Retrieve;
 
-  LoadConnectionNameList;
+    ProjectConfigFileName := aProjectConfigFilename;
 
-  fsTemplatePath := TNovusStringUtils.TrailingBackSlash(GetFieldAsString(oXMLDocument.Root, 'templatepath'));
+    LoadConnectionNameList;
+
+    fsTemplatePath := TNovusFileUtils.TrailingBackSlash(GetFieldAsString(oXMLDocument.Root, 'templatepath'));
+    fsDBSchemaPath := TNovusFileUtils.TrailingBackSlash(GetFieldAsString(oXMLDocument.Root, 'DBSchemaPath'));
+    fsLanguagesPath := TNovusFileUtils.TrailingBackSlash(GetFieldAsString(oXMLDocument.Root, 'LanguagesPath'));
+  Except
+    Result := False;
+  End;
 end;
 
 function TProjectConfig.Parseproperties(aInput: String): String;

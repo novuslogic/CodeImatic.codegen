@@ -80,6 +80,22 @@ Var
 begin
   foProject := tProject.Create;
 
+  foProject.oProjectConfig.ProjectConfigFileName := oConfig.ProjectConfigFileName;
+
+  if Not FileExists(foProject.oProjectConfig.ProjectConfigFileName) then
+    begin
+      writeln ('Projectconfig missing: ' +  foProject.oProjectConfig.ProjectConfigFileName);
+
+      Exit;
+    end;
+
+  if not foProject.oProjectConfig.LoadProjectConfigFile(foProject.oProjectConfig.ProjectConfigFileName) then
+    begin
+      writeln ('Loading errror Projectconfig: ' +  foProject.oProjectConfig.ProjectConfigFileName);
+
+      Exit;
+    end;
+
   foProject.LoadProjectFile(oConfig.ProjectFileName, oConfig.ProjectConfigFileName);
 
   if foProject.oProjectConfig.IsLoaded then
@@ -102,9 +118,31 @@ begin
   FMesaagesLog.WriteLog('Version: ' + TNovusVersionUtils.GetFullVersionNumber);
 
   FMesaagesLog.WriteLog('Project:' + foProject.ProjectFileName);
-  if (foProject.oProjectConfig.ProjectConfigFileName <> '') then
-    FMesaagesLog.WriteLog('Projectconfig:' + foProject.oProjectConfig.ProjectConfigFileName);
 
+  FMesaagesLog.WriteLog('Projectconfig:' + foProject.oProjectConfig.ProjectConfigFileName);
+
+
+  if Not FileExists(foProject.oProjectConfig.DBSchemaPath + 'DBSchema.xml') then
+    begin
+      FMesaagesLog.WriteLog('DBSchema.xml path missing: ' +  foProject.oProjectConfig.DBSchemaPath);
+
+      Exit;
+    end;
+
+  oConfig.dbschemafilename := foProject.oProjectConfig.DBSchemaPath + 'DBSchema.xml';
+
+  FMesaagesLog.WriteLog('DBSchema filename:' + oConfig.dbschemafilename);
+
+  if Not DirectoryExists(foProject.oProjectConfig.LanguagesPath) then
+     begin
+       FMesaagesLog.WriteLog('Languages path missing: ' +  foProject.oProjectConfig.LanguagesPath);
+
+       Exit;
+     end;
+
+  oConfig.LanguagesPath := foProject.oProjectConfig.LanguagesPath;
+
+  FMesaagesLog.WriteLog('Languages path:' + oConfig.LanguagesPath);
 
   for I := 0 to foProject.oProjectItemList.Count - 1 do
     begin
