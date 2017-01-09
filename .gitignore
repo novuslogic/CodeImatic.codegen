@@ -13,3 +13,7 @@
 /build/Zcodegen.exe
 /source/__history
 /bin/Zcodegen.exe
+/build/ZcodeCore.bpi
+/build/ZcodeCore.bpl
+/build/ZcodeCore.dcp
+/build/ZcodeCore.lib

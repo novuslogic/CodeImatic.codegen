@@ -3,7 +3,7 @@ unit Interpreter;
 interface
 
 Uses
-  Classes, EParser, SysUtils, DB, NovusStringUtils, MessagesLog,
+  Classes, EParser, SysUtils, DB, NovusStringUtils, Output,
   NovusList, Variants, Variables, XMLList, Dialogs, NovusGUIDEx;
 
 const
@@ -83,7 +83,7 @@ Type
     fiLoopCounter: Integer;
     fLoopList: tNovusList;
     FTokens: tStringList;
-    Fmessageslog: TMessagesLog;
+    FOutput: TOutput;
     FCodeGeneratorDetails : TObject;
   private
     procedure FailedInterpreter;
@@ -120,7 +120,7 @@ Type
 
     function LoopFunctions(ATokens: tStringList; Var AIndex: Integer; ACommandIndex: Integer; Var ASkipPos: Integer): string;
   public
-    constructor Create(ACodeGenerator: TObject; Amessageslog: TMessagesLog); virtual;
+    constructor Create(ACodeGenerator: TObject; AOutput: TOutput); virtual;
     destructor Destroy; override;
 
     function CommandSyntaxIndexByTokens(ATokens: TStringList): Integer;
@@ -152,7 +152,7 @@ begin
 
   fLoopList := tNovusList.Create(TLoop);
 
-  Fmessageslog := Amessageslog;
+  FOutput := AOutput;
 
   fiLoopCounter := 0;
 end;
@@ -218,17 +218,17 @@ begin
                                 Exit;
                               end
                             else
-                              Fmessageslog.WriteLog('Incorrect syntax: lack ")"');
+                              FOutput.WriteLog('Incorrect syntax: lack ")"');
                           end
                         else
                           begin
-                            Fmessageslog.WriteLog('Error: Field cannot be found.');
+                            FOutput.WriteLog('Error: Field cannot be found.');
                             FailedInterpreter;
                           end;
                      end
                    else
                      begin
-                       Fmessageslog.WriteLog('Incorrect syntax: Index is not a number ');
+                       FOutput.WriteLog('Incorrect syntax: Index is not a number ');
 
                      end;
                 end
@@ -253,7 +253,7 @@ begin
                             end
                           else
                              begin
-                               Fmessageslog.WriteLog('Error: Field cannot be found.');
+                               FOutput.WriteLog('Error: Field cannot be found.');
                                FailedInterpreter;
                              end;
                         end;
@@ -262,21 +262,21 @@ begin
             end
           else
             begin
-              Fmessageslog.WriteLog('Error: Table cannot be found "'+ FTableName+ '"');
+              FOutput.WriteLog('Error: Table cannot be found "'+ FTableName+ '"');
               FailedInterpreter;
             end;
 
           end
         else
           begin
-            Fmessageslog.WriteLog('Error: Connectioname cannot be found "'+ FConnectionName + '"');
+            FOutput.WriteLog('Error: Connectioname cannot be found "'+ FConnectionName + '"');
 
             FailedInterpreter;
           end;
         end
      else
        begin
-         Fmessageslog.WriteLog('Incorrect syntax: lack "("');
+         FOutput.WriteLog('Incorrect syntax: lack "("');
 
        end;
 end;
@@ -316,22 +316,22 @@ begin
                       if liDelimiterCounter = liDelimiterLength then Result := '';
                     end
                   else
-                    Fmessageslog.WriteLog('Incorrect syntax: lack ")"');
+                    FOutput.WriteLog('Incorrect syntax: lack ")"');
                 end
               else
-                Fmessageslog.WriteLog('Incorrect syntax: delimiter length is not a number ');
+                FOutput.WriteLog('Incorrect syntax: delimiter length is not a number ');
 
             end
           else
-            Fmessageslog.WriteLog('Incorrect syntax: delimiter counter is not a number ');
+            FOutput.WriteLog('Incorrect syntax: delimiter counter is not a number ');
 
         end
       else
-         Fmessageslog.WriteLog('Incorrect syntax: delimiter is blank.');
+         FOutput.WriteLog('Incorrect syntax: delimiter is blank.');
     end
      else
        begin
-         Fmessageslog.WriteLog('Incorrect syntax: lack "("');
+         FOutput.WriteLog('Incorrect syntax: lack "("');
 
        end;
 end;
@@ -380,7 +380,7 @@ begin
         end
      else
        begin
-         Fmessageslog.WriteLog('Incorrect syntax: lack "("');
+         FOutput.WriteLog('Incorrect syntax: lack "("');
 
        end;
 end;
@@ -419,34 +419,34 @@ begin
                       Result := loXMLlist.GetValueByIndex(StrToInt(LsStr));
                     end
                   else
-                    Fmessageslog.WriteLog('Incorrect syntax: Index is not a number ');
+                    FOutput.WriteLog('Incorrect syntax: Index is not a number ');
 
                 end
               else
-                 Fmessageslog.WriteLog('Incorrect syntax: Index is blank.');
+                 FOutput.WriteLog('Incorrect syntax: Index is blank.');
 
               if Assigned(loXMLlist) then loXMLlist.Free;
 
             end
           else
             begin
-              Fmessageslog.WriteLog('Error: List filname cannot be found.');
+              FOutput.WriteLog('Error: List filname cannot be found.');
               FailedInterpreter;
             end;
 
         end
       else
-         Fmessageslog.WriteLog('Incorrect syntax: List is blank.');
+         FOutput.WriteLog('Incorrect syntax: List is blank.');
     end
      else
        begin
-         Fmessageslog.WriteLog('Incorrect syntax: lack "("');
+         FOutput.WriteLog('Incorrect syntax: lack "("');
 
        end;
 
 
   if GetNextToken(AIndex, ATokens) <> ')' then
-     Fmessageslog.WriteLog('Incorrect syntax: lack ")"');
+     FOutput.WriteLog('Incorrect syntax: lack ")"');
 end;
 
 function TInterpreter.XMLListName(ATokens: tStringList; Var AIndex: Integer): string;
@@ -483,34 +483,34 @@ begin
                       Result := loXMLlist.GetNameByIndex(StrToInt(LsStr));
                     end
                   else
-                    Fmessageslog.WriteLog('Incorrect syntax: Index is not a number ');
+                    FOutput.WriteLog('Incorrect syntax: Index is not a number ');
 
                 end
               else
-                 Fmessageslog.WriteLog('Incorrect syntax: Index is blank.');
+                 FOutput.WriteLog('Incorrect syntax: Index is blank.');
 
               if Assigned(loXMLlist) then loXMLlist.Free;
 
             end
           else
             begin
-              Fmessageslog.WriteLog('Error: List filname cannot be found.');
+              FOutput.WriteLog('Error: List filname cannot be found.');
               FailedInterpreter;
             end;
 
         end
       else
-         Fmessageslog.WriteLog('Incorrect syntax: List is blank.');
+         FOutput.WriteLog('Incorrect syntax: List is blank.');
     end
      else
        begin
-         Fmessageslog.WriteLog('Incorrect syntax: lack "("');
+         FOutput.WriteLog('Incorrect syntax: lack "("');
 
        end;
 
 
   if GetNextToken(AIndex, ATokens) <> ')' then
-     Fmessageslog.WriteLog('Incorrect syntax: lack ")"');
+     FOutput.WriteLog('Incorrect syntax: lack ")"');
 end;
 
 function TInterpreter.XMLListCount(ATokens: tStringList; Var AIndex: Integer): string;
@@ -540,23 +540,23 @@ begin
               loXMLlist.Retrieve;
 
               Result := IntToStr(loXMLlist.GetCount);
-              
+
               if Assigned(loXMLlist) then loXMLlist.Free;
 
             end
           else
             begin
-              Fmessageslog.WriteLog('Error: List filname cannot be found.');
+              FOutput.WriteLog('Error: List filname cannot be found.');
               FailedInterpreter;
             end;
 
         end
       else
-         Fmessageslog.WriteLog('Incorrect syntax: List is blank.');
+         FOutput.WriteLog('Incorrect syntax: List is blank.');
     end
      else
        begin
-         Fmessageslog.WriteLog('Incorrect syntax: lack "("');
+         FOutput.WriteLog('Incorrect syntax: lack "("');
 
        end;
 end;
@@ -599,13 +599,13 @@ begin
                          end
                        else
                          begin
-                           Fmessageslog.WriteLog('Error: Tablename cannot be found.');
+                           FOutput.WriteLog('Error: Tablename cannot be found.');
                            FailedInterpreter;
                          end;
                       end
                    else
                      begin
-                       Fmessageslog.WriteLog('Incorrect syntax: Index is not a number ');
+                       FOutput.WriteLog('Incorrect syntax: Index is not a number ');
 
                      end;
                end;
@@ -613,13 +613,13 @@ begin
         end
       else
          begin
-            Fmessageslog.WriteLog('Error: Connectioname cannot be found "'+ FConnectionName + '"');
+            FOutput.WriteLog('Error: Connectioname cannot be found "'+ FConnectionName + '"');
             FailedInterpreter;
           end;
        end
      else
        begin
-         Fmessageslog.WriteLog('Incorrect syntax: lack "("');
+         FOutput.WriteLog('Incorrect syntax: lack "("');
 
        end;
 end;
@@ -663,7 +663,7 @@ begin
           Result := ParseVariable(ATokens, AIndex)
       end;
   Except
-    Fmessageslog.WriteExceptLog;
+    FOutput.WriteExceptLog;
     FailedInterpreter;
   end;
 end;
@@ -765,15 +765,15 @@ begin
                     ASkipPos := LiEndPos1;
                   end
                 else
-                  Fmessageslog.WriteLog('Incorrect syntax: lack ")"');
+                  FOutput.WriteLog('Incorrect syntax: lack ")"');
 
               end
             else
-              Fmessageslog.WriteLog('Incorrect syntax: Index is not a number ');
+              FOutput.WriteLog('Incorrect syntax: Index is not a number ');
 
           end
         else
-          Fmessageslog.WriteLog('Incorrect syntax: lack "("');
+          FOutput.WriteLog('Incorrect syntax: lack "("');
       end;
    1: begin
         ASkipPos := 0;
@@ -1069,7 +1069,7 @@ begin
               If TNovusStringUtils.IsNumberStr(lsValue) then
                 FVariable1.Value := FVariable1.Value - TNovusStringUtils.Str2Int(lsValue)
               else
-                Fmessageslog.WriteLog('Incorrect syntax: Is not a number');
+                FOutput.WriteLog('Incorrect syntax: Is not a number');
             end
           else
           If LStr = '+' then
@@ -1079,7 +1079,7 @@ begin
               If TNovusStringUtils.IsNumberStr(lsValue) then
                 FVariable1.Value := FVariable1.Value + TNovusStringUtils.Str2Int(lsValue)
               else
-                Fmessageslog.WriteLog('Incorrect syntax: Is not a number');
+                FOutput.WriteLog('Incorrect syntax: Is not a number');
             end;
         end;
     end
@@ -1094,10 +1094,10 @@ begin
               Result := FVariable1.Value;
             end
           else
-            Fmessageslog.WriteLog('Syntax error: "' + lsVariableName1 + '" not defined');
+            FOutput.WriteLog('Syntax error: "' + lsVariableName1 + '" not defined');
         end
       else
-        Fmessageslog.WriteLog('Incorrect syntax: lack "="');
+        FOutput.WriteLog('Incorrect syntax: lack "="');
     end;
 end;
 
@@ -1223,12 +1223,12 @@ begin
         end
       else
         begin
-          Fmessageslog.WriteLog('Incorrect syntax: lack ")"');
+          FOutput.WriteLog('Incorrect syntax: lack ")"');
         end;
     end
   else
     begin
-      Fmessageslog.WriteLog('Incorrect syntax: lack "("');
+      FOutput.WriteLog('Incorrect syntax: lack "("');
     end;
 end;
 
@@ -1276,7 +1276,7 @@ begin
           Result := LVariable.AsString;
         end
       else
-        Fmessageslog.WriteLog('Syntax Error: variable '+ result + ' cannot be found.');
+        FOutput.WriteLog('Syntax Error: variable '+ result + ' cannot be found.');
 
     end ;
  // else
@@ -1393,38 +1393,38 @@ begin
                       Exit;
                     end
                   else
-                    Fmessageslog.WriteLog('Incorrect syntax: lack ")"');
+                    FOutput.WriteLog('Incorrect syntax: lack ")"');
                 end
                   else
                     begin
-                      Fmessageslog.WriteLog('Error: Field cannot be found.');
+                      FOutput.WriteLog('Error: Field cannot be found.');
                       FailedInterpreter;
                     end;
             end
           else
             begin
-              Fmessageslog.WriteLog('Error: Table cannot be found "'+ FTableName+ '"');
+              FOutput.WriteLog('Error: Table cannot be found "'+ FTableName+ '"');
               FailedInterpreter;
             end;
 
           end
         else
           begin
-            Fmessageslog.WriteLog('Error: Connectioname cannot be found "'+ FConnectionName + '"');
+            FOutput.WriteLog('Error: Connectioname cannot be found "'+ FConnectionName + '"');
 
             FailedInterpreter;
           end;
         end
      else
        begin
-         Fmessageslog.WriteLog('Incorrect syntax: lack "("');
+         FOutput.WriteLog('Incorrect syntax: lack "("');
 
        end;
 end;
 
 procedure TInterpreter.FailedInterpreter;
 begin
-  Fmessageslog.WriteLog('Failed Interpreter.');
+  FOutput.WriteLog('Failed Interpreter.');
 
   fbIsFailedInterpreter := True;
 

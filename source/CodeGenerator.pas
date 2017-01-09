@@ -5,7 +5,7 @@ interface
 
 Uses Classes, NovusTemplate, NovusList, EParser, SysUtils,
      Config, NovusStringUtils, Interpreter, Language, Project,
-     MessagesLog, Variables, NovusUtilities;
+     Output, Variables, NovusUtilities;
 
 Const
   cDeleteLine = '##DELETELINE##';
@@ -67,7 +67,7 @@ Type
   protected
     foProject: tProject;
     fVariables: tVariables;
-    fMessagesLog : tMessagesLog;
+    fOutput : tOutput;
     FLanguage: tLanguage;
     fsLanguage: String;
     FInterpreter : tInterpreter;
@@ -85,7 +85,7 @@ Type
     function DoInternalIncludes: Boolean;
     function GetGlobalPropertyValue(aToken: String): String;
   public
-    constructor Create(ATemplate: TNovusTemplate; Amessageslog: TMessagesLog; aProject: tProject); virtual;
+    constructor Create(ATemplate: TNovusTemplate; AOutput: TOutput; aProject: tProject); virtual;
     destructor Destroy; override;
 
     function IsNonOutputCommandonly(ASourceLineNo: Integer): Boolean;
@@ -108,9 +108,9 @@ Type
        read fVariables
        write FVariables;
 
-    property oMessagesLog : tMessagesLog
-      read fMessagesLog
-      write fMessagesLog;
+    property oOutput : tOutput
+      read fOutput
+      write fOutput;
 
     function IsInterpreter(ATokens: TstringList): boolean;
 
@@ -142,13 +142,13 @@ begin
 
   fVariables := tVariables.Create;
 
-  FMessagesLog := AMessagesLog;
+  FOutput := AOutput;
 
   FTemplate := ATemplate;
 
   FCodeGeneratorList := TNovusList.Create(TCodeGeneratorDetails);
 
-  FInterpreter := tInterpreter.Create(Self, FMessagesLog);
+  FInterpreter := tInterpreter.Create(Self, FOutput);
 
   FLanguage :=  tLanguage.Create;
 end;
@@ -236,7 +236,7 @@ begin
 
             if FInterpreter.IsFailedInterpreter then
               begin
-                Fmessageslog.WriteLog('Line Number: ' + IntToStr(I));
+                FOutput.WriteLog('Line Number: ' + IntToStr(I));
 
                 Break;
               end;
@@ -270,10 +270,10 @@ begin
         AddTag(FTemplateTag);
       end;
     Except
-      Fmessageslog.Errors := True;
-      Fmessageslog.Failed := True;
+      FOutput.Errors := True;
+      FOutput.Failed := True;
 
-      Fmessageslog.WriteLog('Error Line No:' + IntToStr(FTemplateTag.SourceLineNo) + ' Position: ' +  IntToStr(FTemplateTag.SourcePos));
+      FOutput.WriteLog('Error Line No:' + IntToStr(FTemplateTag.SourceLineNo) + ' Position: ' +  IntToStr(FTemplateTag.SourcePos));
 
       Result := False;
 
@@ -316,7 +316,7 @@ begin
 
     DoDeleteLines;
   Except
-    Fmessageslog.WriteLog(TNovusUtilities.GetExceptMess);
+    FOutput.WriteLog(TNovusUtilities.GetExceptMess);
 
     Exit;
   End;
@@ -325,10 +325,10 @@ begin
   {$I-}
 
   Try
-    if not Fmessageslog.Failed then 
+    if not FOutput.Failed then
       FTemplate.OutputDoc.SaveToFile(aOutputFile);
   Except
-    Fmessageslog.WriteLog('Save Error: ' + aOutputFile + ' - ' + TNovusUtilities.GetExceptMess);
+    FOutput.WriteLog('Save Error: ' + aOutputFile + ' - ' + TNovusUtilities.GetExceptMess);
   end;
   {$I+}
 end;
@@ -348,7 +348,7 @@ begin
      if LCodeGeneratorDetails.tagType = ttInterpreter then
        begin
          LTemplateTag := LCodeGeneratorDetails.oTemplateTag;
-         
+
          if LTemplateTag.SourceLineNo = ASourceLineNo then
            begin
              if LTemplateTag.TagName[1] <> '=' then
@@ -504,7 +504,7 @@ begin
 
               FLanguage.Language := fsLanguage;
             end
-          else oMessagesLog.WriteLog('Language: ' + fsLanguage + ' not supported');
+          else oOutput.WriteLog('Language: ' + fsLanguage + ' not supported');
         end;
    end;
 end;
@@ -567,12 +567,12 @@ begin
             begin
               Result := False;
 
-              Fmessageslog.WriteLog('Cannot find include file=' + lsIncludeFilename);
+              FOutput.WriteLog('Cannot find include file=' + lsIncludeFilename);
 
-              Fmessageslog.Errors := True;
-              Fmessageslog.Failed := True;
+              FOutput.Errors := True;
+              FOutput.Failed := True;
 
-              Fmessageslog.WriteLog('Error Line No:' + IntToStr(FTemplateTag.SourceLineNo) + ' Position: ' +  IntToStr(FTemplateTag.SourcePos));
+              FOutput.WriteLog('Error Line No:' + IntToStr(FTemplateTag.SourceLineNo) + ' Position: ' +  IntToStr(FTemplateTag.SourcePos));
             end;
 
 

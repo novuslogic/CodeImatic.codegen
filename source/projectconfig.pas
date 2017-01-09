@@ -140,28 +140,32 @@ begin
 
   if aInput = '' then Exit;
 
-  loTemplate := tNovusTemplate.Create;
+  Try
+    loTemplate := tNovusTemplate.Create;
 
-  loTemplate.StartToken := '[';
-  loTemplate.EndToken := ']';
-  loTemplate.SecondToken := '%';
 
-  loTemplate.TemplateDoc.Text := Trim(aInput);
+    loTemplate.StartToken := '[';
+    loTemplate.EndToken := ']';
+    loTemplate.SecondToken := '%';
 
-  loTemplate.ParseTemplate;
+    loTemplate.TemplateDoc.Text := Trim(aInput);
 
-  For I := 0 to loTemplate.TemplateTags.Count -1 do
-    begin
-      FTemplateTag := TTemplateTag(loTemplate.TemplateTags.items[i]);
+    loTemplate.ParseTemplate;
 
-      FTemplateTag.TagValue := GetFirstNodeName(FTemplateTag.TagName, 'properties');
-    end;
+    For I := 0 to loTemplate.TemplateTags.Count -1 do
+      begin
+        FTemplateTag := TTemplateTag(loTemplate.TemplateTags.items[i]);
 
-  loTemplate.InsertAllTagValues;
+        FTemplateTag.TagValue := GetFirstNodeName(FTemplateTag.TagName, 'properties');
+      end;
 
-  Result := Trim(loTemplate.OutputDoc.Text);
+    loTemplate.InsertAllTagValues;
 
-  loTemplate.Free;
+    Result := Trim(loTemplate.OutputDoc.Text);
+
+  Finally
+    loTemplate.Free;
+  End;
 end;
 
 procedure TProjectConfig.LoadConnectionNameList;

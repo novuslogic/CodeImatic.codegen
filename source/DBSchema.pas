@@ -4,7 +4,7 @@ interface
 
 Uses Classes, NovusList, NovusTemplate, NovusStringParser, SysUtils,
      NovusStringUtils, SDEngine, NovusSQLDirUtils, NovusUtilities,
-     CodeGenerator, DB, SDCommon, MessagesLog, NovusXMLBO,
+     CodeGenerator, DB, SDCommon, Output, NovusXMLBO,
      JvSimpleXml, ProjectConfig;
 
 Type
@@ -66,7 +66,7 @@ Type
 
    tConnectionDetails = class(Tobject)
    protected
-     FMessagesLog: tMessagesLog;
+     FOutput: TOutput;
      FTableNames: tStringlist;
      FDatabase: tSDDatabase;
      fsAuxDriver: String;
@@ -82,7 +82,7 @@ Type
      function GetConnected: Boolean;
      function GetTableNames: tStringList;
    public
-     constructor Create(AMessagesLog: tMessagesLog); virtual;
+     constructor Create(AOutput: TOutput); virtual;
      destructor  Destroy; override;
 
      function TableCount: Integer;
@@ -138,11 +138,11 @@ Type
    tConnections = class(Tobject)
    protected
    private
-      fMessagesLog: tMessagesLog;
+      fOutput: TOutput;
       fProjectConfig: tProjectConfig;
       fConnectionList: tNovusList;
    public
-     constructor Create(AMessagesLog: tMessagesLog; aProjectConfig: tProjectConfig); virtual;
+     constructor Create(AOutput: TOutput; aProjectConfig: tProjectConfig); virtual;
      destructor  Destroy; override;
 
      function FindConnectionName(AConnectionName: String): TConnectionDetails;
@@ -159,7 +159,7 @@ constructor tConnections.Create;
 begin
   inherited Create;
 
-  fMessagesLog := AMessagesLog;
+  fOutput := AOutput;
 
   fProjectConfig := aProjectConfig;
 
@@ -204,7 +204,7 @@ Var
 begin
   Result := False;
 
-  FConnectionDetails := tConnectionDetails.Create(fMessagesLog);
+  FConnectionDetails := tConnectionDetails.Create(fOutput);
 
   FiTokenIndex := 0;
 
@@ -227,7 +227,7 @@ begin
 
                   if Not Assigned(FConnectionName) then
                     begin
-                      fMessagesLog.WriteLog('Connectionname [' + FConnectionDetails.ConnectionName + '] cannot be found in project config.');
+                      fOutput.WriteLog('Connectionname [' + FConnectionDetails.ConnectionName + '] cannot be found in project config.');
 
                       result := False;
 
@@ -327,7 +327,7 @@ constructor tConnectionDetails.Create;
 begin
   inherited Create;
 
-  FMessagesLog := AMessagesLog;
+  FOutput := AOutput;
 
   FTableNames := tStringList.Create;
 
@@ -389,7 +389,7 @@ begin
 
     Result := True;
   Except
-    FMessagesLog.WriteLog('Error: ' + fsConnectionname + ' - ' + TNovusUtilities.GetExceptMess);
+    FOutput.WriteLog('Error: ' + fsConnectionname + ' - ' + TNovusUtilities.GetExceptMess);
 
     Result := False;
   End;

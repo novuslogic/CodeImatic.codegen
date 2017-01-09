@@ -43,7 +43,7 @@ Type
     fbcreateoutputdir: Boolean;
     foProjectConfig: TProjectConfig;
     foProjectItemList: TNovusList;
-    fsMessageslogPath: String;
+    fsOutputPath: String;
     fsTemplatePath: String;
     fsProjectFilename: String;
     fbOutputConsole: Boolean;
@@ -52,7 +52,7 @@ Type
     destructor Destroy; override;
 
 
-    function GetMessageslogPath: String;
+    function GetOutputPath: String;
     function GetOutputConsole: Boolean;
     function GetCreateoutputdir: Boolean;
 
@@ -67,9 +67,9 @@ Type
       read fsProjectFileName
       write fsProjectFileName;
 
-    property MessageslogPath: string
-      read fsMessageslogPath
-      write fsMessageslogPath;
+    property OutputPath: string
+      read fsOutputPath
+      write fsOutputPath;
 
     property  OutputConsole: Boolean
       read  fbOutputConsole
@@ -158,9 +158,9 @@ begin
 end;
 
 
-function TProject.GetMessageslogPath: String;
+function TProject.GetOutputPath: String;
 begin
-  Result := TNovusFileUtils.TrailingBackSlash(GetFieldAsString(oXMLDocument.Root, 'messageslogpath'));
+  Result := TNovusFileUtils.TrailingBackSlash(GetFieldAsString(oXMLDocument.Root, 'Outputpath'));
 end;
 
 function TProject.GetOutputConsole: Boolean;
@@ -177,7 +177,7 @@ begin
   XMLFileName := aProjectFilename;
   Retrieve;
 
-  fsMessageslogPath := GetMessageslogPath;
+  fsOutputPath := GetOutputPath;
   fbOutputConsole := GetoutputConsole;
   fbCreateoutputdir := GetCreateoutputdir;
 

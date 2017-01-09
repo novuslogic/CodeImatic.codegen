@@ -1,4 +1,5 @@
-unit DMZenCodeGen;
+{$I Zcodegen.inc}
+unit Runtime;
 
 interface
 
@@ -9,67 +10,44 @@ uses
   ProjectConfig;
 
 type
-  TDM = class(TDataModule)
-    procedure DataModuleCreate(Sender: TObject);
-    procedure DataModuleDestroy(Sender: TObject);
-    procedure ApplicationEventsException(Sender: TObject; E: Exception);
-  private
-    { Private declarations }
-    foProject: tProject;
-    foDBSchema: TDBSchema;
-    foSnippits : tSnippits;
-    foProperties: tProperties;
-    foConnections: tConnections;
-    foTemplate: TNovusTemplate;
-    foCodeGenerator: tCodeGenerator;
-  public
-    { Public declarations }
-    function RunEnvironment: Boolean;
+   tRuntime = class
+   protected
+   private
+     foProject: tProject;
+     foDBSchema: TDBSchema;
+     foProperties: tProperties;
+     foConnections: tConnections;
+     foTemplate: TNovusTemplate;
+     foCodeGenerator: tCodeGenerator;
+   public
+     function RunEnvironment: Boolean;
 
-    property oProject: TProject
+     property oProject: TProject
       read foProject
       write foProject;
 
-    property oConnections: tConnections
-       read foConnections
-       write foConnections;
+     property oConnections: tConnections
+         read foConnections
+         write foConnections;
 
-    Property oProperties: tProperties
-      read foProperties
-      write foProperties;
+     Property oProperties: tProperties
+        read foProperties
+        write foProperties;
 
-    Property oSnippits: tSnippits
-      read foSnippits
-      write foSnippits;
+     property oDBSchema: TDBSchema
+        read  foDBSchema
+        write  foDBSchema;
+   end;
 
-    property oDBSchema: TDBSchema
-      read  foDBSchema
-      write  foDBSchema;
-  end;
+Var
+  oRuntime: tRuntime;
 
-var
-  DM: TDM;
+
+
 
 implementation
 
-{$R *.dfm}
-
-procedure TDM.ApplicationEventsException(Sender: TObject; E: Exception);
-begin
-  //Showmessage('yes');
-end;
-
-procedure TDM.DataModuleCreate(Sender: TObject);
-begin
-  RunEnvironment;
-end;
-
-procedure TDM.DataModuleDestroy(Sender: TObject);
-begin
-//
-end;
-
-function TDM.RunEnvironment: Boolean;
+function tRuntime.RunEnvironment: Boolean;
 Var
   liIndex, i, x: integer;
   FTemplateTag: TTemplateTag;
@@ -117,10 +95,9 @@ begin
   FMesaagesLog.WriteLog('Zcodegen - © Copyright Novuslogic Software 2011 - 2016 All Rights Reserved');
   FMesaagesLog.WriteLog('Version: ' + TNovusVersionUtils.GetFullVersionNumber);
 
-  FMesaagesLog.WriteLog('Project:' + foProject.ProjectFileName);
+  FMesaagesLog.WriteLog('Project: ' + foProject.ProjectFileName);
 
-  FMesaagesLog.WriteLog('Projectconfig:' + foProject.oProjectConfig.ProjectConfigFileName);
-
+  FMesaagesLog.WriteLog('Projectconfig: ' + foProject.oProjectConfig.ProjectConfigFileName);
 
   if Not FileExists(foProject.oProjectConfig.DBSchemaPath + 'DBSchema.xml') then
     begin
@@ -131,7 +108,7 @@ begin
 
   oConfig.dbschemafilename := foProject.oProjectConfig.DBSchemaPath + 'DBSchema.xml';
 
-  FMesaagesLog.WriteLog('DBSchema filename:' + oConfig.dbschemafilename);
+  FMesaagesLog.WriteLog('DBSchema filename: ' + oConfig.dbschemafilename);
 
   if Not DirectoryExists(foProject.oProjectConfig.LanguagesPath) then
      begin
@@ -142,13 +119,13 @@ begin
 
   oConfig.LanguagesPath := foProject.oProjectConfig.LanguagesPath;
 
-  FMesaagesLog.WriteLog('Languages path:' + oConfig.LanguagesPath);
+  FMesaagesLog.WriteLog('Languages path: ' + oConfig.LanguagesPath);
 
   for I := 0 to foProject.oProjectItemList.Count - 1 do
     begin
       loProjectItem := tProjectItem(foProject.oProjectItemList.items[i]);
 
-      FMesaagesLog.WriteLog('Project Item:' + loProjectItem.ItemName);
+      FMesaagesLog.WriteLog('Project Item: ' + loProjectItem.ItemName);
 
       Try
         if foProject.oProjectConfig.IsLoaded then
@@ -227,7 +204,7 @@ begin
          (TNovusFileUtils.IsFileReadonly(loProjectItem.OutputFile) = false) then
         begin
           foProperties := tProperties.Create;
-          foSnippits := tSnippits.Create;
+
           foDBSchema := TDBSchema.Create;
 
           foTemplate := TNovusTemplate.Create;
@@ -254,10 +231,10 @@ begin
 
           foTemplate.ParseTemplate;
 
-          FMesaagesLog.WriteLog('Template:' + loProjectItem.TemplateFile);
+          FMesaagesLog.WriteLog('Template: ' + loProjectItem.TemplateFile);
 
 
-          FMesaagesLog.WriteLog('Output:' + loProjectItem.OutPutFile);
+          FMesaagesLog.WriteLog('Output: ' + loProjectItem.OutPutFile);
 
           FMesaagesLog.WriteLog('Build started ' + FMesaagesLog.FormatedNow);
 
@@ -281,13 +258,12 @@ begin
 
           foTemplate.Free;
           foProperties.Free;
-          foSnippits.Free;
           foDBSchema.Free;
 
           foCodeGenerator.Free;
         end
       else
-        FMesaagesLog.WriteLog('Output:' + loProjectItem.OutPutFile + ' is read only or file in use.');
+        FMesaagesLog.WriteLog('Output: ' + loProjectItem.OutPutFile + ' is read only or file in use.');
     end;
 
   FMesaagesLog.CloseLog;
@@ -297,6 +273,12 @@ begin
   foProject.Free;
 end;
 
+
+Initialization
+  oRuntime := tRuntime.Create;
+
+finalization
+  oRuntime.Free;
 
 
 end.

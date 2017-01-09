@@ -1,0 +1,48 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{CD395018-18CF-4DB7-A9E3-D377A5FD2239}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="Zcodegen.dproj">
+            <Dependencies>ZcodeCore.dproj</Dependencies>
+        </Projects>
+        <Projects Include="ZcodeCore.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="Zcodegen" DependsOnTargets="ZcodeCore">
+        <MSBuild Projects="Zcodegen.dproj"/>
+    </Target>
+    <Target Name="Zcodegen:Clean" DependsOnTargets="ZcodeCore:Clean">
+        <MSBuild Projects="Zcodegen.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Zcodegen:Make" DependsOnTargets="ZcodeCore:Make">
+        <MSBuild Projects="Zcodegen.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="ZcodeCore">
+        <MSBuild Projects="ZcodeCore.dproj"/>
+    </Target>
+    <Target Name="ZcodeCore:Clean">
+        <MSBuild Projects="ZcodeCore.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ZcodeCore:Make">
+        <MSBuild Projects="ZcodeCore.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="Zcodegen;ZcodeCore"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="Zcodegen:Clean;ZcodeCore:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="Zcodegen:Make;ZcodeCore:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>

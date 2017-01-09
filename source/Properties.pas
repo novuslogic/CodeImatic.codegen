@@ -2,14 +2,14 @@ unit Properties;
 
 interface
 
-Uses NovusXMLBO, Classes, SysUtils, XMLlist, Project, MessagesLog;
+Uses NovusXMLBO, Classes, SysUtils, XMLlist, Project, Output;
 
 Type
   tProperties = class(TXMLlist)
   protected
   private
     foProject: tProject;
-    FoMesaagesLog: tMessagesLog;
+    FoMesaagesLog: TOutput;
   public
     function IsPropertyExists(APropertyName: String): Boolean;
     function GetProperty(APropertyName: String): String;
@@ -18,7 +18,7 @@ Type
       read foProject
       write foProject;
 
-    property oMessagesLog: tMessagesLog
+    property oOutput: TOutput
       read FoMesaagesLog
       write FoMesaagesLog;
   end;

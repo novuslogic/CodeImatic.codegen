@@ -2,20 +2,46 @@ unit Config;
 
 interface
 
-Uses SysUtils, NovusXMLBO, Registry, Windows, NovusStringUtils;
+Uses SysUtils, NovusXMLBO, Registry, Windows, NovusStringUtils, NovusFileUtils,
+     JvSimpleXml, NovusSimpleXML, NovusList;
+
 
 Const
-  csMessageslogFile = 'Messages.log';
+  csOutputFile = 'Output.log';
+  csConfigfile = 'zcodegen.config';
 
 Type
+   TConfigPlugins = class(Tobject)
+   private
+     fsPluginName: String;
+     fsPluginFilename: string;
+     fsPluginFilenamePathname: String;
+   protected
+   public
+     property PluginName: String
+       read fsPluginName
+       write fsPluginName;
+
+     property Pluginfilename: string
+        read fsPluginfilename
+        write fsPluginfilename;
+
+     property PluginFilenamePathname: String
+       read fsPluginFilenamePathname
+       write fsPluginFilenamePathname;
+   end;
+
+
    TConfig = Class(TNovusXMLBO)
    protected
+      fConfigPluginsList: tNovusList;
       fsDBSchemaFileName: String;
       fsProjectConfigFileName: String;
       fsProjectFileName: String;
       fsRootPath: String;
-      fsmessageslogFile: String;
+      fsOutputFile: String;
       fsLanguagesPath: String;
+      fsConfigfile: string;
    private
    public
      constructor Create; virtual; // override;
@@ -33,13 +59,17 @@ Type
        read fsProjectConfigFileName
        write fsProjectConfigFileName;
 
-      property MessageslogFile: String
-        read fsMessageslogFile
-        write fsMessageslogFile;
+      property OutputFile: String
+        read fsOutputFile
+        write fsOutputFile;
 
      property  RootPath: String
         read fsRootPath
         write fsRootPath;
+
+     property Configfile: string
+       read fsConfigfile
+       write fsConfigfile;
 
      property DBSchemafilename: string
         read fsdbschemafilename
@@ -48,6 +78,10 @@ Type
      property LanguagesPath: string
        read fsLanguagesPath
        write fsLanguagesPath;
+
+     property oConfigPluginsList: tNovusList
+       read fConfigPluginsList
+       write fConfigPluginsList;
    End;
 
 Var
@@ -58,10 +92,14 @@ implementation
 constructor TConfig.Create;
 begin
   inherited Create;
+
+  fConfigPluginsList := tNovusList.Create(TConfigPlugins);
 end;
 
 destructor TConfig.Destroy;
 begin
+  fConfigPluginsList.Free;
+
   inherited Destroy;
 end;
 
@@ -106,39 +144,6 @@ begin
            Result := True;
          end;
 
-         (*
-         if ParamStr(i) = '-dbschemafilename' then
-         begin
-           Inc(i);
-           fsdbschemafilename := ParamStr(i);
-
-           if Not FileExists(fsProjectConfigFileName) then
-              begin
-                writeln ('-dbschemafilename ' + TNovusStringUtils.JustFilename(fsProjectConfigFileName) + ' dbschema filrname cannot be found.');
-
-                Exit;
-              end;
-
-           Result := True;
-         end;
-
-         if ParamStr(i) = '-LanguagesPath' then
-         begin
-           Inc(i);
-           fsLanguagesPath := ParamStr(i);
-
-           if Not DirectoryExists(fsLanguagesPath) then
-              begin
-                writeln ('-LanguagesPath ' + fsLanguagesPath + ' languages directory cannot be found.');
-
-                Exit;
-              end;
-
-           Result := True;
-         end;
-         *)
-
-
       Inc(I);
 
       if I > ParamCount then fbOK := True;
@@ -166,32 +171,56 @@ begin
       //
     end;
 
-  fsmessageslogFile := csMessageslogFile;
+  fsOutputFile := csOutputFile;
 end;
 
 procedure TConfig.LoadConfig;
 Var
-  fhkey_local_machine : TRegistry;
+  fPluginElem,
+  fPluginsElem: TJvSimpleXmlElem;
+  i, Index: Integer;
+  fsPluginName,
+  fsPluginFilename: String;
+  loConfigPlugins: TConfigPlugins;
 begin
-  (*
-  fhkey_local_machine := TRegistry.Create;
+if fsRootPath = '' then
+    fsRootPath := TNovusFileUtils.TrailingBackSlash(TNovusStringUtils.RootDirectory);
 
-  fhkey_local_machine.RootKey := HKEY_LOCAL_MACHINE;
+  fsConfigfile := fsRootPath + csConfigfile;
 
-  fhkey_local_machine.Access := KEY_ALL_ACCESS;
-
-  if fhkey_local_machine.OpenKey(csDefaultInstance, false) then
+  if FileExists(fsConfigfile) then
     begin
-      fsRootPath := fhkey_local_machine.ReadString('RootPath');
+      XMLFileName := fsRootPath + csConfigfile;
+      Retrieve;
+
+      Index := 0;
+      fPluginsElem  := TNovusSimpleXML.FindNode(oXMLDocument.Root, 'plugins', Index);
+      if Assigned(fPluginsElem) then
+         begin
+           For I := 0 to fPluginsElem.Items.count -1 do
+             begin
+               loConfigPlugins := TConfigPlugins.Create;
+
+               fsPluginName := fPluginsElem.Items[i].Name;
+
+               Index := 0;
+               fsPluginFilename := '';
+               fPluginElem := TNovusSimpleXML.FindNode(fPluginsElem.Items[i], 'filename', Index);
+               if Assigned(fPluginElem) then
+                 fsPluginFilename := fPluginElem.Value;
+
+               loConfigPlugins.PluginName := fsPluginName;
+               loConfigPlugins.Pluginfilename := fsPluginfilename;
+               loConfigPlugins.PluginFilenamePathname := rootpath + 'plugins\'+ fsPluginfilename;
+
+               fConfigPluginsList.Add(loConfigPlugins);
+             end;
+         end;
+
+
     end;
 
-  fhkey_local_machine.CloseKey;
 
-  fhkey_local_machine.Free;
-  *)
-
-  if fsRootPath = '' then
-    fsRootPath := TNovusStringUtils.RootDirectory;
 
 end;
 
