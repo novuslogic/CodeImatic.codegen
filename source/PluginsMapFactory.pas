@@ -10,7 +10,7 @@ type
   public
     class procedure RegisterClass(AClass: TClass);
     class function FindClass(AClassName: string): TClass;
-    class function FindPlugin(aClassname: String; aOutput: tOutput): tPlugin;
+    class function FindPlugin(aClassname: String; aOutput: tOutput;aPluginName: String): tPlugin;
   end;
 
 var
@@ -43,13 +43,13 @@ begin
   Result := LClass;
 end;
 
-class function TPluginsMapFactory.FindPlugin(aClassname: String; aOutput: tOutput): tPlugin;
+class function TPluginsMapFactory.FindPlugin(aClassname: String; aOutput: tOutput; aPluginName: string): tPlugin;
 Var
   fc : TPluginClass;
   f : TPlugin;
 begin
   fc := TPluginClass(TPluginsMapFactory.FindClass(aClassname));
-  f := fc.Create(aOutput);
+  f := fc.Create(aOutput, aPluginName);
 
   Result := f;
 end;

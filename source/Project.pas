@@ -56,7 +56,9 @@ Type
     function GetOutputConsole: Boolean;
     function GetCreateoutputdir: Boolean;
 
-    procedure LoadProjectFile(aProjectFilename: String; aProjectConfigFilename: String);
+    function GetWorkingdirectory: String;
+
+    function LoadProjectFile(aProjectFilename: String; aProjectConfigFilename: String): boolean;
     function LoadProjectItem(aItemName: String; aProjectItem: TProjectItem): Boolean;
 
     property oProjectItemList: TNovusList
@@ -157,10 +159,40 @@ begin
   end;
 end;
 
+function TProject.GetWorkingdirectory: String;
+var
+  lsWorkingdirectory: String;
+begin
+  Result := '';
+
+  lsWorkingdirectory := Trim(foProjectConfig.workingdirectory);
+
+  if lsWorkingdirectory <> '' then
+    lsWorkingdirectory :=  IncludeTrailingPathDelimiter(foProjectConfig.workingdirectory);
+
+  if (Not DirectoryExists(lsWorkingdirectory))  or (Trim(lsWorkingdirectory) = '') then
+    lsWorkingdirectory := IncludeTrailingPathDelimiter(TNovusFileUtils.AbsoluteFilePath(ProjectFileName));
+
+  result := lsWorkingdirectory;
+end;
+
 
 function TProject.GetOutputPath: String;
+var
+  lsOutputpath: string;
 begin
-  Result := TNovusFileUtils.TrailingBackSlash(GetFieldAsString(oXMLDocument.Root, 'Outputpath'));
+  lsOutputpath := TNovusFileUtils.TrailingBackSlash(GetFieldAsString(oXMLDocument.Root, 'outputpath'));
+
+  if Trim(lsOutputpath) = '' then
+    lsOutputpath := TNovusFileUtils.TrailingBackSlash(GetFieldAsString(oXMLDocument.Root, 'messageslogpath'));
+
+  if Trim(lsOutputPath) = '' then
+    lsOutputPath := GetWorkingdirectory;
+
+  if lsOutputpath <> '' then
+    Result := TNovusStringUtils.TrailingBackSlash(lsOutputpath);
+
+
 end;
 
 function TProject.GetOutputConsole: Boolean;
@@ -168,23 +200,24 @@ begin
   Result := GetFieldAsBoolean(oXMLDocument.Root, 'outputconsole');
 end;
 
-procedure TProject.LoadProjectFile(aProjectFilename: String; aProjectConfigFilename: String);
+function TProject.LoadProjectFile(aProjectFilename: String; aProjectConfigFilename: String): boolean;
 Var
   fJvSimpleXmlElem: TJvSimpleXmlElem;
   Index: Integer;
   loProjectItem: TProjectItem;
 begin
   XMLFileName := aProjectFilename;
-  Retrieve;
+  ProjectFileName := aProjectFilename;
+
+  Result := Retrieve;
+  if not Result then exit;
 
   fsOutputPath := GetOutputPath;
+
   fbOutputConsole := GetoutputConsole;
   fbCreateoutputdir := GetCreateoutputdir;
 
-  ProjectFileName := aProjectFilename;
 
-  //if FileExists(aProjectConfigFilename) then
-   // foProjectConfig.LoadProjectConfigFile(aProjectConfigFilename);
 
   //Project Items
   Index := 0;

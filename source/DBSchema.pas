@@ -153,7 +153,7 @@ Type
 
 implementation
 
-Uses DMZenCodeGen;
+Uses Runtime;
 
 constructor tConnections.Create;
 begin
@@ -436,7 +436,7 @@ begin
   Result.Column_Length := aDataSet.FieldByName('COLUMN_LENGTH').Asinteger;
 
 
-  Result.TypeName := DM.oDBSchema.GetTypeName(Result, fsAuxDriver);
+  Result.TypeName := oRuntime.oDBSchema.GetTypeName(Result, fsAuxDriver);
 
 end;
 

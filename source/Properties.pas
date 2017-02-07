@@ -2,7 +2,7 @@ unit Properties;
 
 interface
 
-Uses NovusXMLBO, Classes, SysUtils, XMLlist, Project, Output;
+Uses NovusXMLBO, Classes, SysUtils, XMLlist, Project, Output, Plugin;
 
 Type
   tProperties = class(TXMLlist)
@@ -13,6 +13,7 @@ Type
   public
     function IsPropertyExists(APropertyName: String): Boolean;
     function GetProperty(APropertyName: String): String;
+    function DoPluginProperty(APropertyName: string): string;
 
     property oProject: tProject
       read foProject
@@ -25,6 +26,8 @@ Type
 
 implementation
 
+uses Runtime;
+
 
 function tProperties.GetProperty(APropertyName: String): String;
 var
@@ -34,11 +37,26 @@ begin
   Try
     if foProject.oProjectConfig.IsLoaded then
       lsGetProperty := foProject.oProjectConfig.Parseproperties(lsGetProperty);
+
   Except
     FoMesaagesLog.Writelog(APropertyName + ' Projectconfig error.');
   End;
 
+
   Result := lsGetProperty;
+end;
+
+
+function tProperties.DoPluginProperty(APropertyName: string): string;
+var
+  loPlugin: TPlugin;
+  I: Integer;
+begin
+   for I := 0 to oRuntime.oPlugins.PluginsList.Count -1 do
+    begin
+      loPlugin := TPlugin(oRuntime.oPlugins.PluginsList.Items[i]);
+
+    end;
 end;
 
 function tProperties.IsPropertyExists(APropertyName: String): Boolean;

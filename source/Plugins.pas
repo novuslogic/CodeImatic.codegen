@@ -17,6 +17,18 @@ type
 
      procedure LoadPlugins;
      procedure UnloadPlugins;
+
+     function FindPlugin(aPluginName: String): TPlugin;
+
+     function IsTagExists(aTagName: string): Boolean;
+     function GetTag(aTagName: string): String;
+
+     function BeforeCodeGen: boolean;
+     function AfterCodeGen: boolean;
+
+     property PluginsList: TList
+       read fPluginsList
+       write fPluginsList;
    end;
 
 implementation
@@ -68,19 +80,6 @@ Var
   FExternalPlugin: IExternalPlugin;
   loConfigPlugins: TConfigPlugins;
 begin
-  // Internal Plugin Class
-
-  I := 0;
-  while (i < PluginsMapFactoryClasses.Count) do
-    begin
-      FPlugin := TPluginsMapFactory.FindPlugin(PluginsMapFactoryClasses.Items[i].ClassName,
-         foOutput );
-
-      fPluginsList.Add(FPlugin);
-
-      Inc(i);
-    end;
-
   //External Plugin
   foOutput.Log('Loading plugins');
 
@@ -103,6 +102,104 @@ begin
           else foOutput.Log('Missing: ' + loConfigPlugins.PluginFilenamePathname);
         end;
 
+    end;
+end;
+
+function TPlugins.BeforeCodeGen: boolean;
+var
+  loPlugin: TPlugin;
+  I: Integer;
+begin
+  Result := False;
+  for I := 0 to fPluginsList.Count -1 do
+    begin
+      loPlugin := TPlugin(fPluginsList.Items[i]);
+      if loPlugin is TCommandLinePlugin then
+        begin
+          Result :=  TCommandLinePlugin(loPlugin).BeforeCodeGen;
+
+          if NOt Result then break;
+
+        end;
+    end;
+end;
+
+function TPlugins.AfterCodeGen: boolean;
+var
+  loPlugin: TPlugin;
+  I: Integer;
+begin
+  Result := False;
+  for I := 0 to fPluginsList.Count -1 do
+    begin
+      loPlugin := TPlugin(fPluginsList.Items[i]);
+      if loPlugin is TCommandLinePlugin then
+        begin
+          Result :=  TCommandLinePlugin(loPlugin).AfterCodeGen;
+
+          if NOt Result then break;
+        end;
+    end;
+end;
+
+
+function TPlugins.IsTagExists(aTagName: string): Boolean;
+var
+  loPlugin: TPlugin;
+  I: Integer;
+begin
+  Result := False;
+  for I := 0 to fPluginsList.Count -1 do
+    begin
+      loPlugin := TPlugin(fPluginsList.Items[i]);
+      if loPlugin is TTagsPlugin then
+        begin
+          if TTagsPlugin(loPlugin).IsTagExists(aTagName) <> -1 then
+            begin
+              Result := True;
+              Break;
+            end;
+        end;
+    end;
+end;
+
+function TPlugins.GetTag(aTagName: string): String;
+var
+  loPlugin: TPlugin;
+  I: Integer;
+begin
+  Result := '';
+  for I := 0 to fPluginsList.Count -1 do
+    begin
+      loPlugin := TPlugin(fPluginsList.Items[i]);
+      if loPlugin is TTagsPlugin then
+        begin
+          if TTagsPlugin(loPlugin).IsTagExists(aTagName) <> -1 then
+            begin
+              Result := TTagsPlugin(loPlugin).GetTag(aTagName);
+
+              Break;
+            end;
+        end;
+    end;
+end;
+
+function TPlugins.FindPlugin(aPluginName: String): TPlugin;
+var
+  loPlugin: TPlugin;
+  I: Integer;
+begin
+  Result := NIL;
+
+  for I := 0 to fPluginsList.Count -1 do
+    begin
+      loPlugin := TPlugin(fPluginsList.Items[i]);
+      if loPlugin.PluginName =  aPluginName then
+        begin
+          Result :=  loPlugin;
+
+          break;
+        end;
     end;
 end;
 

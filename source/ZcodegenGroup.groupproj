@@ -1,6 +1,6 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
-        <ProjectGuid>{CD395018-18CF-4DB7-A9E3-D377A5FD2239}</ProjectGuid>
+        <ProjectGuid>{B4360984-0565-4B49-A61B-3A2B98B7B1BD}</ProjectGuid>
     </PropertyGroup>
     <ItemGroup>
         <Projects Include="Zcodegen.dproj">

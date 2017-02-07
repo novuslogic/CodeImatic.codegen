@@ -4,7 +4,7 @@ interface
 
 Uses
   Classes, EParser, SysUtils, DB, NovusStringUtils, Output,
-  NovusList, Variants, Variables, XMLList, Dialogs, NovusGUIDEx;
+  NovusList, Variants, Variables, XMLList,  NovusGUIDEx;
 
 const
   csCommamdSyntax: array[1..24] of String = (
@@ -141,7 +141,7 @@ Uses
   CodeGenerator,
   reservelist,
   DBSchema,
-  DMZenCodeGen;
+  runtime;
 
 
 constructor TInterpreter.Create;
@@ -181,7 +181,7 @@ begin
     begin
       FConnectionName := GetNextToken(AIndex, ATokens);
 
-      lConnectionDetails := DM.oConnections.FindConnectionName(FConnectionName);
+      lConnectionDetails := oRuntime.oConnections.FindConnectionName(FConnectionName);
       if Assigned(lConnectionDetails) then
         begin
           FTableName := GetNextToken(AIndex, ATokens);
@@ -205,7 +205,7 @@ begin
                                 case ACommandIndex of
                                   0: Result := FFieldDesc.FieldName;
                                   1: begin
-                                       fFieldType := DM.oDBSchema.GetFieldType(FFieldDesc, lConnectionDetails.AuxDriver);
+                                       fFieldType := oRuntime.oDBSchema.GetFieldType(FFieldDesc, lConnectionDetails.AuxDriver);
 
                                        Result := fFieldType.SqlType;
 
@@ -581,7 +581,7 @@ begin
     begin
       FConnectionName := GetNextToken(AIndex, ATokens);
 
-      lConnectionDetails := DM.oConnections.FindConnectionName(FConnectionName);
+      lConnectionDetails := oRuntime.oConnections.FindConnectionName(FConnectionName);
       if Assigned(lConnectionDetails) then
         begin
           case ACommandIndex of
@@ -1280,8 +1280,8 @@ begin
 
     end ;
  // else
- // if DM.oProperties.IsPropertyExists(Result) then
- //   Result := DM.oProperties.GetProperty(Result);
+ // if oRuntime.oProperties.IsPropertyExists(Result) then
+ //   Result := oRuntime.oProperties.GetProperty(Result);
  end;
 
 
@@ -1365,7 +1365,7 @@ begin
     begin
       FConnectionName := GetNextToken(AIndex, ATokens);
 
-      lConnectionDetails := DM.oConnections.FindConnectionName(FConnectionName);
+      lConnectionDetails := oRuntime.oConnections.FindConnectionName(FConnectionName);
       if Assigned(lConnectionDetails) then
         begin
           FTableName := GetNextToken(AIndex, ATokens);
@@ -1380,7 +1380,7 @@ begin
                 begin
                   if GetNextToken(AIndex, ATokens) = ')' then
                     begin
-                      FFieldType := DM.oDBSchema.GetFieldType(FFieldDesc, lConnectionDetails.AuxDriver);
+                      FFieldType := oRuntime.oDBSchema.GetFieldType(FFieldDesc, lConnectionDetails.AuxDriver);
 
                       if FFieldType.SQLFormat = '' then
                         Result := FFieldDesc.FieldName + ' ' + FFieldType.SqlType

@@ -61,10 +61,12 @@ type
      fsProjectConfigFileName: String;
      fsDBSchemaPath: String;
      fsLanguagesPath: String;
+     fsworkingdirectory: string;
    public
       constructor Create; override;
       destructor Destroy; override;
 
+      procedure Loadproperties;
       function LoadProjectConfigFile(aProjectConfigFilename: String): Boolean;
       procedure LoadConnectionNameList;
       function Parseproperties(aInput: String): String;
@@ -90,7 +92,9 @@ type
          read fsLanguagesPath
          write fsLanguagesPath;
 
-
+      property workingdirectory: string
+        read fsworkingdirectory
+        write fsworkingdirectory;
    End;
 
 
@@ -111,20 +115,19 @@ begin
 end;
 
 function TProjectConfig.LoadProjectConfigFile(aProjectConfigFilename: String): Boolean;
+Var
+  liIndex: integer;
 begin
-  Result := true;
-
   Try
     XMLFileName := aProjectConfigFilename;
-    Retrieve;
+    Result := Retrieve;
+    if not Result then Exit;
 
     ProjectConfigFileName := aProjectConfigFilename;
 
     LoadConnectionNameList;
 
-    fsTemplatePath := TNovusFileUtils.TrailingBackSlash(GetFieldAsString(oXMLDocument.Root, 'templatepath'));
-    fsDBSchemaPath := TNovusFileUtils.TrailingBackSlash(GetFieldAsString(oXMLDocument.Root, 'DBSchemaPath'));
-    fsLanguagesPath := TNovusFileUtils.TrailingBackSlash(GetFieldAsString(oXMLDocument.Root, 'LanguagesPath'));
+    Loadproperties;
   Except
     Result := False;
   End;
@@ -168,10 +171,31 @@ begin
   End;
 end;
 
+procedure TProjectConfig.Loadproperties;
+var
+  fXmlElemlproperties: TJvSimpleXmlElem;
+  liIndex, i: Integer;
+begin
+  liIndex := 0;
+  fXmlElemlproperties := TNovusSimpleXML.FindNode(self.oXMLDocument.Root, 'properties',liIndex);
+  if (fXmlElemlproperties <> nil) then
+    begin
+      fsTemplatePath := TNovusFileUtils.TrailingBackSlash(GetFieldAsString(fXmlElemlproperties, 'templatepath'));
+      if Trim(fsTemplatePath) = '' then
+        fsTemplatePath := TNovusFileUtils.TrailingBackSlash(GetFieldAsString(fXmlElemlproperties,'sourcepath'));
+
+      fsDBSchemaPath := TNovusFileUtils.TrailingBackSlash(GetFieldAsString(fXmlElemlproperties,'DBSchemaPath'));
+      fsLanguagesPath := TNovusFileUtils.TrailingBackSlash(GetFieldAsString(fXmlElemlproperties,'LanguagesPath'));
+
+      workingdirectory := TNovusFileUtils.TrailingBackSlash(GetFieldAsString(fXmlElemlproperties,'workingdirectory'));
+    end;
+end;
+
+
+
 procedure TProjectConfig.LoadConnectionNameList;
 Var
   lConnectionName: TConnectionName;
-
   lsConnectionName: string;
   fXmlElemlConnectionName,
   fXmlElemlDriver: TJvSimpleXmlElem;

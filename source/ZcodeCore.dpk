@@ -28,6 +28,21 @@ package ZcodeCore;
 {$IMPLICITBUILD ON}
 
 requires
-  rtl;
+  rtl,
+  NovusCodeLibrary_Core,
+  NovusCodeLibrary_Log,
+  NovusCodeLibrary_XML,
+  NovusCodeLibrary_Parser,
+  NovusCodeLibrary_Plugin,
+  NovusCodeLibrary_Env,
+  vcldb;
+
+contains
+  Plugin in 'Plugin.pas',
+  Output in 'Output.pas',
+  APIBase in 'Plugins\API\APIBase.pas',
+  Runtime in 'Runtime.pas',
+  EParser in '3rdParty\EParser.pas',
+  Config in 'Config.pas';
 
 end.

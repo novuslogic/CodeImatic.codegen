@@ -5,14 +5,15 @@ interface
 
 uses
   SysUtils, Classes, NovusTemplate, Config, DBSchema, NovusFileUtils,
-  Properties, NovusStringUtils, Snippits, dialogs,
-  CodeGenerator, Output, NovusVersionUtils, Project, AppEvnts,
+  Properties, NovusStringUtils, Snippits,  Plugins,
+  CodeGenerator, Output, NovusVersionUtils, Project,
   ProjectConfig;
 
 type
    tRuntime = class
    protected
    private
+     foPlugins: TPlugins;
      foProject: tProject;
      foDBSchema: TDBSchema;
      foProperties: tProperties;
@@ -20,11 +21,17 @@ type
      foTemplate: TNovusTemplate;
      foCodeGenerator: tCodeGenerator;
    public
-     function RunEnvironment: Boolean;
+     function RunEnvironment: Integer;
+
+     function GetVersion(aIndex:Integer): string;
 
      property oProject: TProject
       read foProject
       write foProject;
+
+     property oPlugins: TPlugins
+       read foPlugins
+       write foPlugins;
 
      property oConnections: tConnections
          read foConnections
@@ -47,29 +54,33 @@ Var
 
 implementation
 
-function tRuntime.RunEnvironment: Boolean;
+function tRuntime.RunEnvironment: Integer;
 Var
   liIndex, i, x: integer;
   FTemplateTag: TTemplateTag;
   bOK: Boolean;
   lsPropertieVariable: String;
-  FMesaagesLog: TOutput;
+  FOutput: TOutput;
   loProjectItem: tProjectItem;
 begin
   foProject := tProject.Create;
 
   foProject.oProjectConfig.ProjectConfigFileName := oConfig.ProjectConfigFileName;
 
-  if Not FileExists(foProject.oProjectConfig.ProjectConfigFileName) then
-    begin
-      writeln ('Projectconfig missing: ' +  foProject.oProjectConfig.ProjectConfigFileName);
-
-      Exit;
-    end;
-
   if not foProject.oProjectConfig.LoadProjectConfigFile(foProject.oProjectConfig.ProjectConfigFileName) then
     begin
+      if Not FileExists(foProject.oProjectConfig.ProjectConfigFileName) then
+        begin
+          writeln ('Projectconfig missing: ' +  foProject.oProjectConfig.ProjectConfigFileName);
+
+          foProject.Free;
+
+          Exit;
+        end;
+
       writeln ('Loading errror Projectconfig: ' +  foProject.oProjectConfig.ProjectConfigFileName);
+
+      foProject.Free;
 
       Exit;
     end;
@@ -77,68 +88,84 @@ begin
   foProject.LoadProjectFile(oConfig.ProjectFileName, oConfig.ProjectConfigFileName);
 
   if foProject.oProjectConfig.IsLoaded then
-    FMesaagesLog := TOutput.Create(foProject.oProjectConfig.Parseproperties(foProject.OutputPath) + oConfig.OutputFile, foProject.OutputConsole)
+    Foutput := TOutput.Create(foProject.oProjectConfig.Parseproperties(foProject.OutputPath) + oConfig.OutputFile, foProject.OutputConsole)
   else
-    FMesaagesLog := TOutput.Create(foProject.OutputPath + oConfig.OutputFile, foProject.OutputConsole);
+    Foutput := TOutput.Create(foProject.OutputPath + oConfig.OutputFile, foProject.OutputConsole);
 
-  FMesaagesLog.OpenLog(true);
+  Foutput.OpenLog(true);
 
-  if not FMesaagesLog.IsFileOpen then
+  if not Foutput.IsFileOpen then
     begin
       foProject.Free;
 
-      WriteLn(FMesaagesLog.Filename + ' log file cannot be created.');
+      WriteLn(Foutput.Filename + ' log file cannot be created.');
 
       Exit;
     end;
 
-  FMesaagesLog.WriteLog('Zcodegen - © Copyright Novuslogic Software 2011 - 2016 All Rights Reserved');
-  FMesaagesLog.WriteLog('Version: ' + TNovusVersionUtils.GetFullVersionNumber);
+  Foutput.WriteLog('Zcodegen - © Copyright Novuslogic Software 2011 - 2017 All Rights Reserved');
+  Foutput.WriteLog('Version: ' + GetVersion(0));
 
-  FMesaagesLog.WriteLog('Project: ' + foProject.ProjectFileName);
+  Foutput.WriteLog('Project: ' + foProject.ProjectFileName);
 
-  FMesaagesLog.WriteLog('Projectconfig: ' + foProject.oProjectConfig.ProjectConfigFileName);
+  Foutput.WriteLog('Project Config: ' + foProject.oProjectConfig.ProjectConfigFileName);
 
-  if Not FileExists(foProject.oProjectConfig.DBSchemaPath + 'DBSchema.xml') then
+  if Trim(foProject.oProjectConfig.DBSchemaPath) <> '' then
     begin
-      FMesaagesLog.WriteLog('DBSchema.xml path missing: ' +  foProject.oProjectConfig.DBSchemaPath);
+      if Not FileExists(foProject.oProjectConfig.DBSchemaPath + 'DBSchema.xml') then
+        begin
+          Foutput.WriteLog('DBSchema.xml path missing: ' +  foProject.oProjectConfig.DBSchemaPath);
 
-      Exit;
+          Exit;
+        end;
+
+
+      oConfig.dbschemafilename := foProject.oProjectConfig.DBSchemaPath + 'DBSchema.xml';
+
+      Foutput.WriteLog('DBSchema filename: ' + oConfig.dbschemafilename);
     end;
 
-  oConfig.dbschemafilename := foProject.oProjectConfig.DBSchemaPath + 'DBSchema.xml';
+  if trim(foProject.oProjectConfig.LanguagesPath) <> '' then
+    begin
+      if Not DirectoryExists(foProject.oProjectConfig.LanguagesPath) then
+         begin
+           Foutput.WriteLog('Languages path missing: ' +  foProject.oProjectConfig.LanguagesPath);
 
-  FMesaagesLog.WriteLog('DBSchema filename: ' + oConfig.dbschemafilename);
+           Exit;
+         end;
 
-  if Not DirectoryExists(foProject.oProjectConfig.LanguagesPath) then
-     begin
-       FMesaagesLog.WriteLog('Languages path missing: ' +  foProject.oProjectConfig.LanguagesPath);
+      oConfig.LanguagesPath := foProject.oProjectConfig.LanguagesPath;
 
-       Exit;
-     end;
+      Foutput.WriteLog('Languages path: ' + oConfig.LanguagesPath);
+    end;
 
-  oConfig.LanguagesPath := foProject.oProjectConfig.LanguagesPath;
 
-  FMesaagesLog.WriteLog('Languages path: ' + oConfig.LanguagesPath);
+  foPlugins := TPlugins.Create(FOutput);
+
+  foPlugins.LoadPlugins;
+
 
   for I := 0 to foProject.oProjectItemList.Count - 1 do
     begin
       loProjectItem := tProjectItem(foProject.oProjectItemList.items[i]);
 
-      FMesaagesLog.WriteLog('Project Item: ' + loProjectItem.ItemName);
+      Foutput.WriteLog('Project Item: ' + loProjectItem.ItemName);
 
       Try
         if foProject.oProjectConfig.IsLoaded then
           loProjectItem.templateFile := foProject.oProjectConfig.Parseproperties(loProjectItem.templateFile);
+
+          if TNovusFileUtils.IsValidFolder(loProjectItem.templateFile) then
+            loProjectItem.templateFile := TNovusFileUtils.TrailingBackSlash(loProjectItem.templateFile) + loProjectItem.ItemName;
       Except
-        FMesaagesLog.Writelog('TemplateFile Projectconfig error.');
+        Foutput.Writelog('TemplateFile Projectconfig error.');
 
         Break;
       End;
 
       if Not FileExists(loProjectItem.templateFile) then
         begin
-          FMesaagesLog.WriteLog('template ' + loProjectItem.templateFile + ' cannot be found.');
+          Foutput.WriteLog('template ' + loProjectItem.templateFile + ' cannot be found.');
 
           Continue;
         end;
@@ -146,8 +173,11 @@ begin
       Try
         if foProject.oProjectConfig.IsLoaded then
           loProjectItem.OutputFile := foProject.oProjectConfig.Parseproperties(loProjectItem.OutputFile);
+
+          if TNovusFileUtils.IsValidFolder(loProjectItem.OutputFile) then
+            loProjectItem.OutputFile := TNovusFileUtils.TrailingBackSlash(loProjectItem.OutputFile) + loProjectItem.ItemName;
       Except
-        FMesaagesLog.Writelog('OutputFile Projectconfig error.');
+        Foutput.Writelog('OutputFile Projectconfig error.');
 
         Break;
       End;
@@ -157,7 +187,7 @@ begin
         begin
           if not foProject.Createoutputdir then
             begin
-              fmesaageslog.writelog('output ' + tnovusstringutils.justpathname(loprojectitem.outputfile) + ' ditrectory cannot be found.');
+              Foutput.writelog('output ' + tnovusstringutils.justpathname(loprojectitem.outputfile) + ' ditrectory cannot be found.');
 
               continue;
             end
@@ -165,7 +195,7 @@ begin
              begin
                if Not  CreateDir(TNovusStringUtils.JustPathname(loProjectItem.OutputFile)) then
                  begin
-                   fmesaageslog.writelog('output ' + tnovusstringutils.justpathname(loprojectitem.outputfile) + ' ditrectory cannot be created.');
+                   Foutput.writelog('output ' + tnovusstringutils.justpathname(loprojectitem.outputfile) + ' ditrectory cannot be created.');
 
                    continue;
                  end;
@@ -176,7 +206,7 @@ begin
 
       if (not loProjectItem.overrideoutput) and FileExists(loProjectItem.OutputFile) then
        begin
-         FMesaagesLog.WriteLog('output ' + TNovusStringUtils.JustFilename(loProjectItem.OutputFile) + ' exists - Override Output option off.');
+         Foutput.WriteLog('output ' + TNovusStringUtils.JustFilename(loProjectItem.OutputFile) + ' exists - Override Output option off.');
 
          Continue;
        end;
@@ -185,7 +215,7 @@ begin
         if foProject.oProjectConfig.IsLoaded then
           loProjectItem.propertiesFile := foProject.oProjectConfig.Parseproperties(loProjectItem.propertiesFile);
       Except
-        FMesaagesLog.Writelog('PropertiesFile Projectconfig error.');
+        Foutput.Writelog('PropertiesFile Projectconfig error.');
 
         Break;
       End;
@@ -194,7 +224,7 @@ begin
         begin
          if Not FileExists(loProjectItem.propertiesFile) then
             begin
-              FMesaagesLog.WriteLog('properties ' + loProjectItem.propertiesFile + ' cannot be found.');
+              Foutput.WriteLog('properties ' + loProjectItem.propertiesFile + ' cannot be found.');
 
               Continue;
             end;
@@ -216,7 +246,7 @@ begin
           if loProjectItem.PropertiesFile <> '' then
             begin
               foProperties.oProject := foProject;
-              foProperties.oOutput :=FMesaagesLog;
+              foProperties.oOutput :=Foutput;
               foProperties.XMLFileName := loProjectItem.PropertiesFile;
               foProperties.Retrieve;
             end;
@@ -231,28 +261,28 @@ begin
 
           foTemplate.ParseTemplate;
 
-          FMesaagesLog.WriteLog('Template: ' + loProjectItem.TemplateFile);
+          Foutput.WriteLog('Template: ' + loProjectItem.TemplateFile);
 
 
-          FMesaagesLog.WriteLog('Output: ' + loProjectItem.OutPutFile);
+          Foutput.WriteLog('Output: ' + loProjectItem.OutPutFile);
 
-          FMesaagesLog.WriteLog('Build started ' + FMesaagesLog.FormatedNow);
+          Foutput.WriteLog('Build started ' + Foutput.FormatedNow);
 
-          foConnections := tConnections.Create(FMesaagesLog, foProject.oProjectConfig);
+          foConnections := tConnections.Create(Foutput, foProject.oProjectConfig);
 
-          foCodeGenerator := tCodeGenerator.Create(foTemplate, FMesaagesLog, foProject);
+          foCodeGenerator := tCodeGenerator.Create(foTemplate, Foutput, foProject);
 
           foCodeGenerator.Execute(loProjectItem.OutPutFile);
 
-          if Not FMesaagesLog.Failed then
+          if Not Foutput.Failed then
             begin
-              if Not FMesaagesLog.Errors then
-                FMesaagesLog.WriteLog('Build succeeded ' + FMesaagesLog.FormatedNow)
+              if Not Foutput.Errors then
+                Foutput.WriteLog('Build succeeded ' + Foutput.FormatedNow)
               else
-                FMesaagesLog.WriteLog('Build with errors ' + FMesaagesLog.FormatedNow);
+                Foutput.WriteLog('Build with errors ' + Foutput.FormatedNow);
             end
           else
-            FMesaagesLog.WriteLog('Build failed ' + FMesaagesLog.FormatedNow);
+            Foutput.WriteLog('Build failed ' + Foutput.FormatedNow);
 
           foConnections.Free;
 
@@ -263,14 +293,26 @@ begin
           foCodeGenerator.Free;
         end
       else
-        FMesaagesLog.WriteLog('Output: ' + loProjectItem.OutPutFile + ' is read only or file in use.');
+        Foutput.WriteLog('Output: ' + loProjectItem.OutPutFile + ' is read only or file in use.');
     end;
 
-  FMesaagesLog.CloseLog;
+  foPlugins.UnLoadPlugins;
 
-  FMesaagesLog.Free;
+  foPlugins.Free;
+
+  Foutput.CloseLog;
+
+  Foutput.Free;
 
   foProject.Free;
+end;
+
+function tRuntime.GetVersion(aIndex:Integer): string;
+begin
+  case aIndex of
+    0: Result := TNovusVersionUtils.GetFullVersionNumber;
+    1: Result := TNovusVersionUtils.GetProductName + ' ' + TNovusVersionUtils.GetFullVersionNumber;
+  end;
 end;
 
 

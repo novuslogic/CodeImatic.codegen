@@ -14,7 +14,7 @@ Const
 Type
   TCodeGenerator = class;
 
-  TTagType = (ttProperty, ttConnection, ttInterpreter, ttLanguage, ttInclude);
+  TTagType = (ttProperty, ttConnection, ttInterpreter, ttLanguage, ttInclude, ttUnknown, ttplugintag);
 
   TCodeGeneratorDetails = class(TObject)
   protected
@@ -75,12 +75,17 @@ Type
     FTemplate: tNovusTemplate;
     FCodeGeneratorList: TNovusList;
   private
+    procedure DoPluginTags;
     procedure DoLanguage;
     procedure DoConnections;
     function  DoIncludes: Boolean;
     procedure DoProperties;
     procedure DoTrimLines;
     procedure DoDeleteLines;
+    function DoBeforeCodegenPlugins: Boolean;
+    function DoAfterCodeGenPlugins:  Boolean;
+    function DoBeforeCodeGen: boolean;
+    function DoAfterCodeGen: Boolean;
     function PassTemplateTags(aClearRun: Boolean = false): Boolean;
     function DoInternalIncludes: Boolean;
     function GetGlobalPropertyValue(aToken: String): String;
@@ -131,8 +136,9 @@ Type
 
 implementation
 
-Uses
-  DMZenCodeGen;
+
+uses runtime;
+
 
 constructor TCodeGenerator.Create;
 begin
@@ -170,6 +176,8 @@ function TCodeGenerator.AddTag(ATemplateTag: TTemplateTag): TCodeGeneratorDetail
 Var
   lCodeGeneratorDetails: TCodeGeneratorDetails;
 begin
+  Result := NIL;
+
   lCodeGeneratorDetails := TCodeGeneratorDetails.Create;
 
   lCodeGeneratorDetails.oTemplateTag := ATemplateTag;
@@ -178,17 +186,33 @@ begin
 
   lCodeGeneratorDetails.Execute;
 
-  FCodeGeneratorList.Add(lCodeGeneratorDetails);
+  if lCodeGeneratorDetails.TagType <> ttUnknown then
+    begin
+      FCodeGeneratorList.Add(lCodeGeneratorDetails);
 
-  Result := lCodeGeneratorDetails;
+      Result := lCodeGeneratorDetails;
+    end
+  else
+    lCodeGeneratorDetails.Free;
+
 end;
 
 function TCodeGenerator.GetTagType(ATokens: TstringList): TTagType;
 Var
   lsToken: String;
 begin
+  if ATokens.count = 0 then
+    begin
+      result := ttunknown;
+
+      exit;
+    end;
+
   lsToken := Uppercase(ATokens.Strings[0]);
 
+  if lsToken= '' then
+    result := ttunknown
+  else
   if lsToken = 'LANGUAGE' then
     Result := ttlanguage
   else
@@ -198,7 +222,7 @@ begin
   if lsToken = 'INCLUDE' then
     result := ttInclude
   else
-  if DM.oProperties.IsPropertyExists(lsToken) then
+  if oRuntime.oProperties.IsPropertyExists(lsToken) then
     Result := ttProperty
   else
     Result := ttInterpreter;
@@ -281,6 +305,25 @@ begin
     End;
 end;
 
+function TCodeGenerator.DoBeforeCodeGen: boolean;
+begin
+  Result := True;
+end;
+
+function TCodeGenerator.DoAfterCodeGen: boolean;
+begin
+  Result := True;
+end;
+
+function TCodeGenerator.DoBeforeCodeGenPlugins: boolean;
+begin
+  Result := oRuntime.oPlugins.BeforeCodeGen;
+end;
+
+function TCodeGenerator.DoAfterCodeGenPlugins: boolean;
+begin
+  Result := oRuntime.oPlugins.AfterCodeGen;
+end;
 
 
 procedure TCodeGenerator.Execute;
@@ -289,14 +332,20 @@ var
   FTemplateTag: TTemplateTag;
 begin
   Try
+    if Not DoBeforeCodeGen then Exit;
+
     // Pass 1
     If Not PassTemplateTags then Exit;
 
     DoProperties;
 
+    DoPluginTags;
+
+
     RunPropertyVariables(0,(FCodeGeneratorList.Count - 1));
 
     DoIncludes;
+
 
     // Pass 2
 
@@ -315,6 +364,8 @@ begin
     FTemplate.InsertAllTagValues;
 
     DoDeleteLines;
+
+    DoAfterCodeGen;
   Except
     FOutput.WriteLog(TNovusUtilities.GetExceptMess);
 
@@ -326,7 +377,7 @@ begin
 
   Try
     if not FOutput.Failed then
-      FTemplate.OutputDoc.SaveToFile(aOutputFile);
+      FTemplate.OutputDoc.SaveToFile(aOutputFile, TEncoding.Unicode);
   Except
     FOutput.WriteLog('Save Error: ' + aOutputFile + ' - ' + TNovusUtilities.GetExceptMess);
   end;
@@ -446,16 +497,16 @@ begin
 
      // Default Property value
      if FCodeGeneratorDetails.TagType = ttProperty then
-       FTemplateTag.TagValue:= DM.oProperties.GetProperty(FTemplateTag.TagName);
+       FTemplateTag.TagValue:= oRuntime.oProperties.GetProperty(FTemplateTag.TagName);
 
 
-     for x := 0 to DM.oProperties.NodeNames.Count - 1 do
+     for x := 0 to oRuntime.oProperties.NodeNames.Count - 1 do
       begin
-        lsPropertieVariable := '$$' + Uppercase(DM.oProperties.NodeNames.Strings[x]);
+        lsPropertieVariable := '$$' + Uppercase(oRuntime.oProperties.NodeNames.Strings[x]);
 
         If pos(lsPropertieVariable, Uppercase(FTemplateTag.TagName)) > 0 then
           begin
-            lsVariableResult := DM.oProperties.GetProperty(DM.oProperties.NodeNames.Strings[x]);
+            lsVariableResult := oRuntime.oProperties.GetProperty(oRuntime.oProperties.NodeNames.Strings[x]);
 
             if FCodeGeneratorDetails.TagType = ttConnection then
               begin
@@ -512,7 +563,7 @@ end;
 function TCodeGenerator.GetGlobalPropertyValue(aToken: String): String;
 begin
   If Copy(aToken, 1, 2) = '$$' then
-    Result := DM.oProperties.GetProperty(Copy(aToken, 3, Length(aToken) ))
+    Result := oRuntime.oProperties.GetProperty(Copy(aToken, 3, Length(aToken) ))
   else Result := aToken;
 end;
 
@@ -607,10 +658,37 @@ begin
         begin
           FTemplateTag := FCodeGeneratorDetails.oTemplateTag;
 
-          FTemplateTag.TagValue := DM.oProperties.GetProperty(FTemplateTag.TagName);
+          FTemplateTag.TagValue := oRuntime.oProperties.GetProperty(FTemplateTag.TagName);
         end;
    end;
 end;
+
+procedure TCodeGenerator.DoPluginTags;
+Var
+  I: integer;
+  FTemplateTag: TTemplateTag;
+  FCodeGeneratorDetails: TCodeGeneratorDetails;
+begin
+  for I := 0 to FCodeGeneratorList.Count - 1 do
+   begin
+      FCodeGeneratorDetails := TCodeGeneratorDetails(FCodeGeneratorList.Items[i]);
+
+      if (FCodeGeneratorDetails.tagType = ttInterpreter) then
+        begin
+          FTemplateTag := FCodeGeneratorDetails.oTemplateTag;
+
+          if oRuntime.oPlugins.IsTagExists(FTemplateTag.TagName) then
+            begin
+              FCodeGeneratorDetails.tagType := ttplugintag;
+
+              FTemplateTag.TagValue := oRuntime.oPlugins.GetTag(FTemplateTag.TagName);
+            end;
+        end;
+   end;
+end;
+
+
+
 
 procedure TCodeGenerator.DoConnections;
 Var
@@ -629,7 +707,7 @@ begin
           If (FTemplateTag.RawTagEx = FTemplate.OutputDoc.Strings[FTemplateTag.SourceLineNo - 1]) then
             FTemplateTag.TagValue := cDeleteLine;
 
-          DM.oConnections.AddConnection(FCodeGeneratorDetails);
+          oRuntime.oConnections.AddConnection(FCodeGeneratorDetails);
         end;
    end;
 end;

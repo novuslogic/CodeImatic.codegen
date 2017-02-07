@@ -127,14 +127,14 @@ begin
               end;
 
            Result := True;
-         end;
-
+         end
+        else
         if ParamStr(i) = '-projectconfig' then
-         begin
-           Inc(i);
-           fsProjectConfigFileName := ParamStr(i);
+          begin
+            Inc(i);
+            fsProjectConfigFileName := ParamStr(i);
 
-           if Not FileExists(fsProjectConfigFileName) then
+            if Not FileExists(fsProjectConfigFileName) then
               begin
                 writeln ('-projectconfig ' + TNovusStringUtils.JustFilename(fsProjectConfigFileName) + ' projectconfig filename cannot be found.');
 
@@ -174,6 +174,8 @@ begin
   fsOutputFile := csOutputFile;
 end;
 
+
+
 procedure TConfig.LoadConfig;
 Var
   fPluginElem,
@@ -183,7 +185,7 @@ Var
   fsPluginFilename: String;
   loConfigPlugins: TConfigPlugins;
 begin
-if fsRootPath = '' then
+  if fsRootPath = '' then
     fsRootPath := TNovusFileUtils.TrailingBackSlash(TNovusStringUtils.RootDirectory);
 
   fsConfigfile := fsRootPath + csConfigfile;
@@ -216,12 +218,7 @@ if fsRootPath = '' then
                fConfigPluginsList.Add(loConfigPlugins);
              end;
          end;
-
-
     end;
-
-
-
 end;
 
 Initialization
