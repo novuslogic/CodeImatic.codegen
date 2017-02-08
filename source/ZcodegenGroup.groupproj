@@ -9,6 +9,12 @@
         <Projects Include="ZcodeCore.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="Plugins\SysTags.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Plugins\WebServer.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -35,14 +41,32 @@
     <Target Name="ZcodeCore:Make">
         <MSBuild Projects="ZcodeCore.dproj" Targets="Make"/>
     </Target>
+    <Target Name="SysTags">
+        <MSBuild Projects="Plugins\SysTags.dproj"/>
+    </Target>
+    <Target Name="SysTags:Clean">
+        <MSBuild Projects="Plugins\SysTags.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="SysTags:Make">
+        <MSBuild Projects="Plugins\SysTags.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="WebServer">
+        <MSBuild Projects="Plugins\WebServer.dproj"/>
+    </Target>
+    <Target Name="WebServer:Clean">
+        <MSBuild Projects="Plugins\WebServer.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="WebServer:Make">
+        <MSBuild Projects="Plugins\WebServer.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="Zcodegen;ZcodeCore"/>
+        <CallTarget Targets="Zcodegen;ZcodeCore;SysTags;WebServer"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="Zcodegen:Clean;ZcodeCore:Clean"/>
+        <CallTarget Targets="Zcodegen:Clean;ZcodeCore:Clean;SysTags:Clean;WebServer:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="Zcodegen:Make;ZcodeCore:Make"/>
+        <CallTarget Targets="Zcodegen:Make;ZcodeCore:Make;SysTags:Make;WebServer:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

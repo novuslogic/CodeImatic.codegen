@@ -1,4 +1,3 @@
-
 unit Plugin;
 
 interface
@@ -36,7 +35,7 @@ type
    protected
    public
      function BeforeCodeGen: boolean; virtual;
-     function AfterCodeGEn: boolean; virtual;
+     function AfterCodeGen: boolean; virtual;
      function IsCommandLine(aCommandLine: String): boolean; virtual;
    end;
 

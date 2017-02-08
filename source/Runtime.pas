@@ -64,7 +64,6 @@ Var
   loProjectItem: tProjectItem;
 begin
   foProject := tProject.Create;
-
   foProject.oProjectConfig.ProjectConfigFileName := oConfig.ProjectConfigFileName;
 
   if not foProject.oProjectConfig.LoadProjectConfigFile(foProject.oProjectConfig.ProjectConfigFileName) then

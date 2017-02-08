@@ -6,9 +6,9 @@ program Zcodegen;
 uses
   Sharemem,
   System.SysUtils,
-  runtime,
   Config,
   output,
+  runtime,
   DBSchema in 'DBSchema.pas',
   Properties in 'Properties.pas',
   CodeGenerator in 'CodeGenerator.pas',

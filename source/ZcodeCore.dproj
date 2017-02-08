@@ -40,6 +40,8 @@
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
+        <DCC_OutputNeverBuildDcps>true</DCC_OutputNeverBuildDcps>
+        <RuntimeOnlyPackage>true</RuntimeOnlyPackage>
         <DCC_F>false</DCC_F>
         <GenDll>true</GenDll>
         <DCC_BplOutput>D:\Projects\Zcodegen\build\</DCC_BplOutput>
