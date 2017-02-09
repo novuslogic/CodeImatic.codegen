@@ -82,10 +82,6 @@ Type
     procedure DoProperties;
     procedure DoTrimLines;
     procedure DoDeleteLines;
-    function DoBeforeCodegenPlugins: Boolean;
-    function DoAfterCodeGenPlugins:  Boolean;
-    function DoBeforeCodeGen: boolean;
-    function DoAfterCodeGen: Boolean;
     function PassTemplateTags(aClearRun: Boolean = false): Boolean;
     function DoInternalIncludes: Boolean;
     function GetGlobalPropertyValue(aToken: String): String;
@@ -305,35 +301,12 @@ begin
     End;
 end;
 
-function TCodeGenerator.DoBeforeCodeGen: boolean;
-begin
-  Result := True;
-end;
-
-function TCodeGenerator.DoAfterCodeGen: boolean;
-begin
-  Result := True;
-end;
-
-function TCodeGenerator.DoBeforeCodeGenPlugins: boolean;
-begin
-  Result := oRuntime.oPlugins.BeforeCodeGen;
-end;
-
-function TCodeGenerator.DoAfterCodeGenPlugins: boolean;
-begin
-  Result := oRuntime.oPlugins.AfterCodeGen;
-end;
-
-
 procedure TCodeGenerator.Execute;
 var
   I: integer;
   FTemplateTag: TTemplateTag;
 begin
   Try
-    if Not DoBeforeCodeGen then Exit;
-
     // Pass 1
     If Not PassTemplateTags then Exit;
 
@@ -364,8 +337,6 @@ begin
     FTemplate.InsertAllTagValues;
 
     DoDeleteLines;
-
-    DoAfterCodeGen;
   Except
     FOutput.WriteLog(TNovusUtilities.GetExceptMess);
 

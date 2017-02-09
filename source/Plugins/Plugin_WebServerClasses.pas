@@ -80,17 +80,20 @@ end;
 // tPlugin_WebServerBase
 function tPlugin_WebServerBase.BeforeCodeGen: boolean;
 begin
-  Result := False;
+  Result := true;
+
 end;
 
 function tPlugin_WebServerBase.AfterCodeGen: boolean;
 begin
-  Result := False;
+  Result := true;
+
+  oOutput.Log('Running WebServer');
 end;
 
 function tPlugin_WebServerBase.IsCommandLine(aCommandLine: string): boolean;
 begin
-  Result := Uppercase(aCommandLine) = 'WEBSERVER';
+  Result := Uppercase(aCommandLine) = '-WEBSERVER';
 end;
 
 

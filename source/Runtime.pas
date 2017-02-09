@@ -143,6 +143,7 @@ begin
 
   foPlugins.LoadPlugins;
 
+  foPlugins.BeforeCodeGen;
 
   for I := 0 to foProject.oProjectItemList.Count - 1 do
     begin
@@ -294,6 +295,8 @@ begin
       else
         Foutput.WriteLog('Output: ' + loProjectItem.OutPutFile + ' is read only or file in use.');
     end;
+
+  foPlugins.AfterCodeGen;
 
   foPlugins.UnLoadPlugins;
 

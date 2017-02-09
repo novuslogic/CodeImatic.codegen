@@ -20,6 +20,8 @@ type
 
      function FindPlugin(aPluginName: String): TPlugin;
 
+     function IsCommandLine(aCommandLinePlugin: TCommandLinePlugin): boolean;
+
      function IsTagExists(aTagName: string): Boolean;
      function GetTag(aTagName: string): String;
 
@@ -105,22 +107,42 @@ begin
     end;
 end;
 
+function TPlugins.IsCommandLine(aCommandLinePlugin: TCommandLinePlugin): boolean;
+var
+  I: integer;
+begin
+  Result := false;
+
+  for I := 0 to ParamCount do
+    begin
+      if aCommandLinePlugin.IsCommandLine(ParamStr(i)) then
+        begin
+          Result := true;
+          Break;
+        end;
+    end;
+
+
+end;
+
+
 function TPlugins.BeforeCodeGen: boolean;
 var
   loPlugin: TPlugin;
   I: Integer;
 begin
-  Result := False;
+  Result := True;
+
   for I := 0 to fPluginsList.Count -1 do
     begin
       loPlugin := TPlugin(fPluginsList.Items[i]);
       if loPlugin is TCommandLinePlugin then
         begin
-          Result :=  TCommandLinePlugin(loPlugin).BeforeCodeGen;
+          if IsCommandLine(TCommandLinePlugin(loPlugin)) then
+            Result :=  TCommandLinePlugin(loPlugin).BeforeCodeGen;
 
           if NOt Result then break;
-
-        end;
+      end;
     end;
 end;
 
@@ -129,13 +151,15 @@ var
   loPlugin: TPlugin;
   I: Integer;
 begin
-  Result := False;
+  Result := true;
+
   for I := 0 to fPluginsList.Count -1 do
     begin
       loPlugin := TPlugin(fPluginsList.Items[i]);
       if loPlugin is TCommandLinePlugin then
         begin
-          Result :=  TCommandLinePlugin(loPlugin).AfterCodeGen;
+          if IsCommandLine(TCommandLinePlugin(loPlugin)) then
+            Result :=  TCommandLinePlugin(loPlugin).AfterCodeGen;
 
           if NOt Result then break;
         end;
