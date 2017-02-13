@@ -36,6 +36,7 @@ requires
   NovusCodeLibrary_Parser,
   NovusCodeLibrary_Plugin,
   NovusCodeLibrary_Env,
+  NovusCodeLibrary_SQLDir,
   vcldb;
 
 contains

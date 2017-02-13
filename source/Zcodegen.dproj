@@ -47,14 +47,14 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
-        <DCC_BplOutput>D:\Projects\Zcodegen\build\</DCC_BplOutput>
+        <DCC_BplOutput>..\build\</DCC_BplOutput>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_MajorVer>0</VerInfo_MajorVer>
         <VerInfo_MinorVer>5</VerInfo_MinorVer>
-        <DCC_DcpOutput>D:\Projects\Zcodegen\build\</DCC_DcpOutput>
-        <DCC_DcuOutput>D:\Projects\Zcodegen\units\Win32</DCC_DcuOutput>
-        <DCC_ExeOutput>D:\Projects\Zcodegen\build\</DCC_ExeOutput>
-        <DCC_UnitSearchPath>D:\Projects\Zcodegen\build\;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_DcpOutput>..\build\</DCC_DcpOutput>
+        <DCC_DcuOutput>..\units\Win32</DCC_DcuOutput>
+        <DCC_ExeOutput>..\build\</DCC_ExeOutput>
+        <DCC_UnitSearchPath>..\build\;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DCC_UsePackage>vcl;rtl;ZcodeCore;$(DCC_UsePackage)</DCC_UsePackage>
         <UsePackages>true</UsePackages>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
@@ -97,13 +97,13 @@
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
-        <VerInfo_Build>4</VerInfo_Build>
-        <DCC_UnitSearchPath>D:\Projects\Zcodegen\source;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
-        <Debugger_CWD>D:\Projects\Zautomatic\zautomatic.github.io</Debugger_CWD>
-        <Debugger_DebugSourcePath>D:\Projects\Zcodegen\source;$(Debugger_DebugSourcePath)</Debugger_DebugSourcePath>
-        <Debugger_RunParams>-project zautomatic.zcproject -projectconfig zautomatic.zcconfig -webserver</Debugger_RunParams>
+        <DCC_DcpOutput>..\build\</DCC_DcpOutput>
+        <VerInfo_Build>8</VerInfo_Build>
+        <Debugger_CWD>D:\Projects\AIMS\5.0.0\Deploy\Source</Debugger_CWD>
+        <Debugger_DebugSourcePath>D:\Projects\Zcodegen\source;D:\Delphi Components\NovuscodeLibrary\Source\Core\Utilities\;$(Debugger_DebugSourcePath)</Debugger_DebugSourcePath>
+        <Debugger_RunParams>-project D:\Projects\AIMS\5.0.0\Deploy\Source\deploy.zcproject -projectconfig D:\Projects\AIMS\5.0.0\Deploy\Source\deploy.zcpconfig</Debugger_RunParams>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=0.5.0.4;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=Zcodegen;ProductVersion=0.5.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=0.5.0.8;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=Zcodegen;ProductVersion=0.5.0.0;Comments=</VerInfo_Keys>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">

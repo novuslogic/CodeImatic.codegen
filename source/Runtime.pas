@@ -175,7 +175,10 @@ begin
           loProjectItem.OutputFile := foProject.oProjectConfig.Parseproperties(loProjectItem.OutputFile);
 
           if TNovusFileUtils.IsValidFolder(loProjectItem.OutputFile) then
-            loProjectItem.OutputFile := TNovusFileUtils.TrailingBackSlash(loProjectItem.OutputFile) + loProjectItem.ItemName;
+            begin
+              if ExtractFilename(loProjectItem.OutputFile) = '' then
+                loProjectItem.OutputFile := TNovusFileUtils.TrailingBackSlash(loProjectItem.OutputFile) + loProjectItem.ItemName;
+            end;
       Except
         Foutput.Writelog('OutputFile Projectconfig error.');
 
@@ -187,7 +190,7 @@ begin
         begin
           if not foProject.Createoutputdir then
             begin
-              Foutput.writelog('output ' + tnovusstringutils.justpathname(loprojectitem.outputfile) + ' ditrectory cannot be found.');
+              Foutput.writelog('output ' + tnovusstringutils.justpathname(loprojectitem.outputfile) + ' directory cannot be found.');
 
               continue;
             end
@@ -195,7 +198,7 @@ begin
              begin
                if Not  CreateDir(TNovusStringUtils.JustPathname(loProjectItem.OutputFile)) then
                  begin
-                   Foutput.writelog('output ' + tnovusstringutils.justpathname(loprojectitem.outputfile) + ' ditrectory cannot be created.');
+                   Foutput.writelog('output ' + tnovusstringutils.justpathname(loprojectitem.outputfile) + ' directory cannot be created.');
 
                    continue;
                  end;
