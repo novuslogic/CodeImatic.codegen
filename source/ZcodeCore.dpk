@@ -44,6 +44,8 @@ contains
   APIBase in 'Plugins\API\APIBase.pas',
   Runtime in 'Runtime.pas',
   EParser in '3rdParty\EParser.pas',
-  Config in 'Config.pas';
+  Config in 'Config.pas',
+  Project in 'Project.pas',
+  projectconfig in 'projectconfig.pas';
 
 end.

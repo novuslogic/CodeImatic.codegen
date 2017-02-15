@@ -139,7 +139,7 @@ begin
     end;
 
 
-  foPlugins := TPlugins.Create(FOutput);
+  foPlugins := TPlugins.Create(FOutput, foProject);
 
   foPlugins.LoadPlugins;
 
@@ -262,7 +262,6 @@ begin
           foTemplate.ParseTemplate;
 
           Foutput.WriteLog('Template: ' + loProjectItem.TemplateFile);
-
 
           Foutput.WriteLog('Output: ' + loProjectItem.OutPutFile);
 

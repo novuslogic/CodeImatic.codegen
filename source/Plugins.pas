@@ -2,17 +2,18 @@ unit Plugins;
 
 interface
 
-uses  NovusPlugin, Config, Output,Classes, SysUtils, PluginsMapFactory, Plugin;
+uses  NovusPlugin, Config, Output,Classes, SysUtils, PluginsMapFactory, Plugin, Project;
 
 type
    TPlugins = class
    private
    protected
+     foProject: tProject;
      foOutput: TOutput;
      FExternalPlugins: TNovusPlugins;
      fPluginsList: TList;
    public
-     constructor Create(aOutput: tOutput);
+     constructor Create(aOutput: tOutput; aProject: Tproject);
      destructor Destroy; override;
 
      procedure LoadPlugins;
@@ -40,6 +41,8 @@ Uses Runtime;
 constructor TPlugins.create;
 begin
   foOutput:= aOutput;
+
+  foProject := aProject;
 
   FExternalPlugins := TNovusPlugins.Create;
 
@@ -97,7 +100,7 @@ begin
                 begin
                   FExternalPlugin := IExternalPlugin(FExternalPlugins.Plugins[FExternalPlugins.PluginCount-1]);
 
-                  fPluginsList.Add(FExternalPlugin.CreatePlugin(foOutput));
+                  fPluginsList.Add(FExternalPlugin.CreatePlugin(foOutput, foProject));
                   foOutput.Log('Loaded: ' + FExternalPlugin.PluginName);
                 end;
             end

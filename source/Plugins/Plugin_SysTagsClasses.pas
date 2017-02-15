@@ -2,7 +2,7 @@ unit Plugin_SysTagsClasses;
 
 interface
 
-uses Classes,Plugin, NovusPlugin, NovusVersionUtils,
+uses Classes,Plugin, NovusPlugin, NovusVersionUtils, Project,
     Output, SysUtils, System.Generics.Defaults,  runtime,
     APIBase ;
 
@@ -12,7 +12,7 @@ type
   private
   protected
   public
-    constructor Create(aOutput: tOutput; aPluginName: String); override;
+    constructor Create(aOutput: tOutput; aPluginName: String; aProject: TProject); override;
     destructor Destroy; override;
 
     function GetTag(aTagName: String): String; override;
@@ -23,6 +23,7 @@ type
   TPlugin_SysTags = class( TSingletonImplementation, INovusPlugin, IExternalPlugin)
   private
   protected
+    foProject: TProject;
     FPlugin_SysTags: tPlugin_SysTagsBase;
   public
     function GetPluginName: string; safecall;
@@ -32,7 +33,7 @@ type
 
     property PluginName: string read GetPluginName;
 
-    function CreatePlugin(aOutput: tOutput): TPlugin; safecall;
+    function CreatePlugin(aOutput: tOutput; aProject: Tproject): TPlugin; safecall;
 
   end;
 
@@ -43,9 +44,9 @@ implementation
 var
   _Plugin_SysTags: TPlugin_SysTags = nil;
 
-constructor tPlugin_SysTagsBase.Create(aOutput: tOutput; aPluginName: String);
+constructor tPlugin_SysTagsBase.Create(aOutput: tOutput; aPluginName: String; aProject: TProject);
 begin
-  Inherited Create(aOutput,aPluginName);
+  Inherited Create(aOutput,aPluginName, aProject);
 end;
 
 
@@ -64,9 +65,11 @@ procedure tPlugin_SysTags.Initialize;
 begin
 end;
 
-function tPlugin_SysTags.CreatePlugin(aOutput: tOutput): TPlugin; safecall;
+function tPlugin_SysTags.CreatePlugin(aOutput: tOutput; aProject: TProject): TPlugin; safecall;
 begin
-  FPlugin_SysTags := tPlugin_SysTagsBase.Create(aOutput, GetPluginName);
+  foProject := aProject;
+
+  FPlugin_SysTags := tPlugin_SysTagsBase.Create(aOutput, GetPluginName, foProject);
 
   Result := FPlugin_SysTags;
 end;

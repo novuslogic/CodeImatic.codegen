@@ -13,7 +13,7 @@ type
   public
     constructor Create(AFilename: String;aOutputConsole: Boolean);  virtual;
 
-    procedure Log(const aMsg: string);
+    procedure Log(const aMsg: string; aConsoleOnly: boolean = false);
     procedure LogFormat(const aFormat: string; const Args: array of const);
 
     procedure InternalError;
@@ -40,7 +40,7 @@ begin
 end;
 
 
-procedure TOutput.Log(const aMsg: string);
+procedure TOutput.Log(const aMsg: string; aConsoleOnly: boolean = false);
 begin
   WriteLog(aMsg);
 end;

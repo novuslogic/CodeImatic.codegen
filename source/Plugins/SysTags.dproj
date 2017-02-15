@@ -72,6 +72,9 @@
         <DCC_RemoteDebug>true</DCC_RemoteDebug>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
+        <Debugger_CWD>D:\Projects\Zautomatic\zautomatic.github.io</Debugger_CWD>
+        <Debugger_RunParams>-project zautomatic.zcproject -projectconfig zautomatic.zcconfig</Debugger_RunParams>
+        <Debugger_HostApplication>D:\Projects\Zcodegen\build\Zcodegen.exe</Debugger_HostApplication>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <DCC_RemoteDebug>false</DCC_RemoteDebug>

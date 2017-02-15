@@ -2,9 +2,10 @@ unit Plugin_WebServerClasses;
 
 interface
 
-uses Classes,Plugin, NovusPlugin, NovusVersionUtils,
+uses Classes,Plugin, NovusPlugin, NovusVersionUtils,Project,
     Output, SysUtils, System.Generics.Defaults,  runtime,
-    APIBase ;
+    APIBase, IdBaseComponent, IdComponent, IdTCPServer, IdHTTPServer, StdCtrls,
+    ExtCtrls, HTTPApp;
 
 
 type
@@ -12,7 +13,7 @@ type
   private
   protected
   public
-    constructor Create(aOutput: tOutput; aPluginName: String); override;
+    constructor Create(aOutput: tOutput; aPluginName: String; aProject: TProject); override;
     destructor Destroy; override;
 
     function IsCommandLine(aCommandLine: String): boolean; override;
@@ -32,7 +33,7 @@ type
 
     property PluginName: string read GetPluginName;
 
-    function CreatePlugin(aOutput: tOutput): TPlugin; safecall;
+    function CreatePlugin(aOutput: tOutput; aProject: TProject): TPlugin; safecall;
 
   end;
 
@@ -43,9 +44,9 @@ implementation
 var
   _Plugin_WebServer: TPlugin_WebServer = nil;
 
-constructor tPlugin_WebServerBase.Create(aOutput: tOutput; aPluginName: String);
+constructor tPlugin_WebServerBase.Create(aOutput: tOutput; aPluginName: String; aProject: TProject);
 begin
-  Inherited Create(aOutput,aPluginName);
+  Inherited Create(aOutput,aPluginName, aProject);
 end;
 
 
@@ -64,9 +65,9 @@ procedure tPlugin_WebServer.Initialize;
 begin
 end;
 
-function tPlugin_WebServer.CreatePlugin(aOutput: tOutput): TPlugin; safecall;
+function tPlugin_WebServer.CreatePlugin(aOutput: tOutput; aProject: TProject): TPlugin; safecall;
 begin
-  FPlugin_WebServer := tPlugin_WebServerBase.Create(aOutput, GetPluginName);
+  FPlugin_WebServer := tPlugin_WebServerBase.Create(aOutput, GetPluginName, aProject);
 
   Result := FPlugin_WebServer;
 end;
@@ -86,9 +87,21 @@ end;
 
 function tPlugin_WebServerBase.AfterCodeGen: boolean;
 begin
-  Result := true;
+  Result := false;
 
-  oOutput.Log('Running WebServer');
+  if oProject.OutputConsole = false then
+    oOutput.Log('Cannot run WebServer with Project otpion of OutputConsole = false')
+  else
+    begin
+      Result := true;
+
+      oOutput.Log('WebServer running ...');
+
+
+
+
+
+    end;
 end;
 
 function tPlugin_WebServerBase.IsCommandLine(aCommandLine: string): boolean;

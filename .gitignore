@@ -21,3 +21,6 @@
 /source/Plugins/__history
 /source/Plugins/API/__history/APIBase.pas.~1~
 /build
+/source/ZcodeCore_project.tvsconfig
+/source/ZcodegenGroup_prjgroup.tvsconfig
+/source/Zcodegen_project.tvsconfig

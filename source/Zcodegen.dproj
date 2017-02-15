@@ -97,13 +97,13 @@
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
-        <VerInfo_Build>4</VerInfo_Build>
+        <VerInfo_Build>17</VerInfo_Build>
         <DCC_UnitSearchPath>D:\Projects\Zcodegen\source;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <Debugger_CWD>D:\Projects\Zautomatic\zautomatic.github.io</Debugger_CWD>
         <Debugger_DebugSourcePath>D:\Projects\Zcodegen\source;$(Debugger_DebugSourcePath)</Debugger_DebugSourcePath>
         <Debugger_RunParams>-project zautomatic.zcproject -projectconfig zautomatic.zcconfig -webserver</Debugger_RunParams>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=0.5.0.4;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=Zcodegen;ProductVersion=0.5.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=0.5.0.17;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=Zcodegen;ProductVersion=0.5.0.0;Comments=</VerInfo_Keys>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
@@ -115,10 +115,8 @@
         <DCCReference Include="Interpreter.pas"/>
         <DCCReference Include="Language.pas"/>
         <DCCReference Include="Variables.pas"/>
-        <DCCReference Include="Project.pas"/>
         <DCCReference Include="Reservelist.pas"/>
         <DCCReference Include="XMLList.pas"/>
-        <DCCReference Include="projectconfig.pas"/>
         <DCCReference Include="Plugins.pas"/>
         <DCCReference Include="PluginsMapFactory.pas"/>
         <BuildConfiguration Include="Debug">

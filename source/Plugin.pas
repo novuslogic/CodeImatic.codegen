@@ -2,16 +2,21 @@ unit Plugin;
 
 interface
 
-uses classes, Output, NovusPlugin;
+uses classes, Output, NovusPlugin, Project;
 
 type
    TPlugin = class(TPersistent)
    private
    protected
+     foProject: tProject;
      foOutput: tOutput;
      fsPluginName: String;
    public
-     constructor Create(aOutput: tOutput; aPluginName: String); virtual;
+     constructor Create(aOutput: tOutput; aPluginName: String; aProject: tProject); virtual;
+
+     property oProject: Tproject
+       read foProject
+       write foProject;
 
      property oOutput: tOutput
        read foOutput
@@ -43,7 +48,7 @@ type
    IExternalPlugin = interface(INovusPlugin)
      ['{155A396A-9457-4C48-A787-0C9582361B45}']
 
-     function  CreatePlugin(aOutput: tOutput):TPlugin safecall;
+     function  CreatePlugin(aOutput: tOutput; aProject: tProject):TPlugin safecall;
    end;
 
 
@@ -53,6 +58,7 @@ implementation
 
 constructor TPlugin.create;
 begin
+  foProject := aProject;
   foOutput:= aOutput;
   fsPluginName := aPluginName;
 end;
