@@ -5,7 +5,7 @@ interface
 uses Classes,Plugin, NovusPlugin, NovusVersionUtils,Project,
     Output, SysUtils, System.Generics.Defaults,  runtime,
     APIBase, IdBaseComponent, IdComponent, IdTCPServer, IdHTTPServer, StdCtrls,
-    ExtCtrls, HTTPApp;
+    ExtCtrls, HTTPApp, Windows, NovusConsoleUtils, Plugin_WebServerEngine;
 
 
 type
@@ -86,6 +86,8 @@ begin
 end;
 
 function tPlugin_WebServerBase.AfterCodeGen: boolean;
+var
+  loPlugin_WebServerEngine: TPlugin_WebServerEngine;
 begin
   Result := false;
 
@@ -95,12 +97,13 @@ begin
     begin
       Result := true;
 
-      oOutput.Log('WebServer running ...');
+      Try
+        loPlugin_WebServerEngine:= TPlugin_WebServerEngine.Create(oOutput);
 
-
-
-
-
+        loPlugin_WebServerEngine.Execute;
+      Finally
+        loPlugin_WebServerEngine.Free;
+      End;
     end;
 end;
 

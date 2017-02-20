@@ -98,12 +98,12 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
         <DCC_DcpOutput>..\build\</DCC_DcpOutput>
-        <VerInfo_Build>8</VerInfo_Build>
+        <VerInfo_Build>17</VerInfo_Build>
         <Debugger_CWD>D:\Projects\AIMS\5.0.0\Deploy\Source</Debugger_CWD>
         <Debugger_DebugSourcePath>D:\Projects\Zcodegen\source;D:\Delphi Components\NovuscodeLibrary\Source\Core\Utilities\;$(Debugger_DebugSourcePath)</Debugger_DebugSourcePath>
         <Debugger_RunParams>-project D:\Projects\AIMS\5.0.0\Deploy\Source\deploy.zcproject -projectconfig D:\Projects\AIMS\5.0.0\Deploy\Source\deploy.zcpconfig</Debugger_RunParams>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=0.5.0.8;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=Zcodegen;ProductVersion=0.5.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=0.5.0.17;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=Zcodegen;ProductVersion=0.5.0.0;Comments=</VerInfo_Keys>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
@@ -115,10 +115,8 @@
         <DCCReference Include="Interpreter.pas"/>
         <DCCReference Include="Language.pas"/>
         <DCCReference Include="Variables.pas"/>
-        <DCCReference Include="Project.pas"/>
         <DCCReference Include="Reservelist.pas"/>
         <DCCReference Include="XMLList.pas"/>
-        <DCCReference Include="projectconfig.pas"/>
         <DCCReference Include="Plugins.pas"/>
         <DCCReference Include="PluginsMapFactory.pas"/>
         <BuildConfiguration Include="Debug">
