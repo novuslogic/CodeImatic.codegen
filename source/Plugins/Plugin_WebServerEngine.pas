@@ -4,7 +4,8 @@ interface
 
 Uses Output, APIBase, IdBaseComponent, IdComponent, IdTCPServer, IdHTTPServer, StdCtrls,
     ExtCtrls, HTTPApp, Windows, NovusConsoleUtils, SysUtils, IdCustomHTTPServer, IdContext,
-    Classes, NovusFileUtils, IdServerIOHandler, IdSSL, IdSSLOpenSSL, NovusStringUtils;
+    Classes, NovusFileUtils, IdServerIOHandler, IdSSL, IdSSLOpenSSL, NovusStringUtils,
+    NovusIndyUtils;
 
 Type
   TPlugin_WebServerEngine = class(Tobject)
@@ -23,6 +24,8 @@ Type
     function GetSSLPassword: string;
     function GetPort: integer;
     function GetSSLPath: String;
+    function GetAddress: String;
+    function GetServer: String;
   public
     constructor Create(aOutput: tOutput);
     destructor Destroy; override;
@@ -46,6 +49,12 @@ Type
 
     property SSLPath: string
       read GetSSLPath;
+
+    property Address: String
+      read GetAddress;
+
+    property Server: String
+      read GetServer;
  end;
 
 implementation
@@ -80,13 +89,12 @@ begin
 
   (*
   case CtrlType of
-    CTRL_C_EVENT : S := 'CTRL_C_EVENT';
-    CTRL_BREAK_EVENT : S := 'CTRL_BREAK_EVENT';
-    CTRL_CLOSE_EVENT : S := 'CTRL_CLOSE_EVENT';
-    CTRL_LOGOFF_EVENT : S := 'CTRL_LOGOFF_EVENT';
-    CTRL_SHUTDOWN_EVENT : S := 'CTRL_SHUTDOWN_EVENT';
-    else
-    S := 'UNKNOWN_EVENT';
+    CTRL_C_EVENT : S :;
+    CTRL_BREAK_EVENT : ;
+    CTRL_CLOSE_EVENT : ;
+    CTRL_LOGOFF_EVENT : ;
+    CTRL_SHUTDOWN_EVENT : ;
+
   end;
   *)
 
@@ -111,42 +119,49 @@ var
   ch: char;
 begin
   Try
-    FHTTPServer.DefaultPort := Port;
+    foOutput.Log('Starting WebServer ...');
 
-    if UseSSL then
+    if not TNovusIndyUtils.IsTCPPortUsed(Port, Server) then
       begin
-        FHTTPServer.IOHandler := fServerIOHandlerSSLOpenSSL;
+        FHTTPServer.DefaultPort := Port;
 
-        fServerIOHandlerSSLOpenSSL.SSLOptions.KeyFile:= SSLPath +  'sample.key';
-        fServerIOHandlerSSLOpenSSL.SSLOptions.CertFile:= SSLPath + 'sample.crt';
-        fServerIOHandlerSSLOpenSSL.SSLOptions.RootCertFile:= SSLPath  + 'sampleRoot.pem';
-      end;
+        if UseSSL then
+          begin
+            FHTTPServer.IOHandler := fServerIOHandlerSSLOpenSSL;
 
+            fServerIOHandlerSSLOpenSSL.SSLOptions.KeyFile:= SSLPath +  'sample.key';
+            fServerIOHandlerSSLOpenSSL.SSLOptions.CertFile:= SSLPath + 'sample.crt';
+            fServerIOHandlerSSLOpenSSL.SSLOptions.RootCertFile:= SSLPath  + 'sampleRoot.pem';
+          end;
 
+        foOutput.Log('WebServer address: ' + address);
 
-    foOutput.Log('WebServer address: ' + IntToStr(FHTTPServer.DefaultPort));
+        FHTTPServer.Active := true;
 
-    FHTTPServer.Active := true;
+        foOutput.Log('WebServer running ... press ctrl-c to stop.');
 
-    foOutput.Log('WebServer running ... press ctrl-c to stop.');
+        stdin := TNovusConsoleUtils.GetStdInputHandle;
 
-    stdin := TNovusConsoleUtils.GetStdInputHandle;
+        SetConsoleCtrlHandler(@ConProc, True);
 
-    SetConsoleCtrlHandler(@ConProc, True);
+        FCtrlflag := -1;
+        start := GetTickCount;
+        Repeat
+          If TNovusConsoleUtils.IsAvailableKey( stdin ) Then
+            begin
+              if FCtrlflag = CTRL_C_EVENT then break;
 
-    FCtrlflag := -1;
-    start := GetTickCount;
-    Repeat
-      If TNovusConsoleUtils.IsAvailableKey( stdin ) Then
-        begin
-          if FCtrlflag = CTRL_C_EVENT then break;
-
-        end
-      Else
-        Sleep( 20 );
-    Until false;
+            end
+          Else
+            Sleep( 20 );
+        Until false;
+      end
+    else
+      foOutput.Log('tcp port not open ... '+ Server + ':' + IntToStr(Port) + ' cannot start Webserver.');
   Except
+    foOutput.InternalError;
 
+    foOutput.Log('Cannot start Webserver.');
   End;
 end;
 
@@ -247,6 +262,20 @@ end;
 function tPlugin_WebServerEngine.GetSSLPath: String;
 begin
   result := TNovusFileUtils.TrailingBackSlash(TNovusStringUtils.RootDirectory) + 'SSL\'
+end;
+
+function tPlugin_WebServerEngine.GetAddress: String;
+begin
+  if UseSSL then result := 'https://'
+  else
+    result := 'http://';
+
+  result := result + Server + ':' +  IntToStr(Port);
+end;
+
+function tPlugin_WebServerEngine.GetServer: string;
+begin
+  Result := '127.0.0.1';
 end;
 
 end.
