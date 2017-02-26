@@ -3,7 +3,7 @@ unit Config;
 interface
 
 Uses SysUtils, NovusXMLBO, Registry, Windows, NovusStringUtils, NovusFileUtils,
-     JvSimpleXml, NovusSimpleXML, NovusList;
+     JvSimpleXml, NovusSimpleXML, NovusList, Properties;
 
 
 Const
@@ -16,8 +16,12 @@ Type
      fsPluginName: String;
      fsPluginFilename: string;
      fsPluginFilenamePathname: String;
+     foProperties: tProperties;
    protected
    public
+     constructor Create;
+     destructor Destroy; override;
+
      property PluginName: String
        read fsPluginName
        write fsPluginName;
@@ -29,6 +33,10 @@ Type
      property PluginFilenamePathname: String
        read fsPluginFilenamePathname
        write fsPluginFilenamePathname;
+
+     property oProperties: tProperties
+       read foProperties
+       write foProperties;
    end;
 
 
@@ -174,10 +182,9 @@ begin
   fsOutputFile := csOutputFile;
 end;
 
-
-
 procedure TConfig.LoadConfig;
 Var
+  fPluginProperties,
   fPluginElem,
   fPluginsElem: TJvSimpleXmlElem;
   i, Index: Integer;
@@ -211,15 +218,35 @@ begin
                if Assigned(fPluginElem) then
                  fsPluginFilename := fPluginElem.Value;
 
+               Index := 0;
+               fPluginProperties := TNovusSimpleXML.FindNode(fPluginsElem.Items[i], 'properties', Index);
+               if Assigned(fPluginProperties) then
+                 loConfigPlugins.oProperties.oXMLDocument.Root := TJvSimpleXMLElemClassic(fPluginProperties);
+
                loConfigPlugins.PluginName := fsPluginName;
                loConfigPlugins.Pluginfilename := fsPluginfilename;
                loConfigPlugins.PluginFilenamePathname := rootpath + 'plugins\'+ fsPluginfilename;
+
 
                fConfigPluginsList.Add(loConfigPlugins);
              end;
          end;
     end;
 end;
+
+
+constructor TConfigPlugins.Create;
+begin
+  foProperties:= tProperties.Create;
+end;
+
+destructor TConfigPlugins.Destroy;
+begin
+  foProperties.oXMLDocument.Root := nil;
+
+  foProperties.Free;
+end;
+
 
 Initialization
   oConfig := tConfig.Create;

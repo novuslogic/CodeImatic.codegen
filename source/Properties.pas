@@ -2,7 +2,7 @@ unit Properties;
 
 interface
 
-Uses NovusXMLBO, Classes, SysUtils, XMLlist, Project, Output, Plugin;
+Uses NovusXMLBO, Classes, SysUtils, XMLlist, Project, Output;
 
 Type
   tProperties = class(TXMLlist)
@@ -26,7 +26,7 @@ Type
 
 implementation
 
-uses Runtime;
+uses Runtime, Plugin;
 
 
 function tProperties.GetProperty(APropertyName: String): String;

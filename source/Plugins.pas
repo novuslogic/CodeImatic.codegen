@@ -100,7 +100,7 @@ begin
                 begin
                   FExternalPlugin := IExternalPlugin(FExternalPlugins.Plugins[FExternalPlugins.PluginCount-1]);
 
-                  fPluginsList.Add(FExternalPlugin.CreatePlugin(foOutput, foProject));
+                  fPluginsList.Add(FExternalPlugin.CreatePlugin(foOutput, foProject, loConfigPlugins));
                   foOutput.Log('Loaded: ' + FExternalPlugin.PluginName);
                 end;
             end

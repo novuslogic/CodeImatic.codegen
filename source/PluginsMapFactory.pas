@@ -3,14 +3,14 @@ unit PluginsMapFactory;
 
 interface
 
-Uses Plugin, Output, Contnrs, Project;
+Uses Plugin, Output, Contnrs, Project, config;
 
 type
   TPluginsMapFactory = class(Tobject)
   public
     class procedure RegisterClass(AClass: TClass);
     class function FindClass(AClassName: string): TClass;
-    class function FindPlugin(aClassname: String; aOutput: tOutput;aPluginName: String; aProject: TProject): tPlugin;
+    class function FindPlugin(aClassname: String; aOutput: tOutput;aPluginName: String; aProject: TProject; aConfigPlugins: tConfigPlugins): tPlugin;
   end;
 
 var
@@ -43,13 +43,13 @@ begin
   Result := LClass;
 end;
 
-class function TPluginsMapFactory.FindPlugin(aClassname: String; aOutput: tOutput; aPluginName: string; aProject: Tproject): tPlugin;
+class function TPluginsMapFactory.FindPlugin(aClassname: String; aOutput: tOutput; aPluginName: string; aProject: Tproject; aConfigPlugins: tConfigPlugins): tPlugin;
 Var
   fc : TPluginClass;
   f : TPlugin;
 begin
   fc := TPluginClass(TPluginsMapFactory.FindClass(aClassname));
-  f := fc.Create(aOutput, aPluginName, aProject);
+  f := fc.Create(aOutput, aPluginName, aProject, aConfigPlugins);
 
   Result := f;
 end;

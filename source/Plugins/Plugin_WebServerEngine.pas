@@ -5,7 +5,7 @@ interface
 Uses Output, APIBase, IdBaseComponent, IdComponent, IdTCPServer, IdHTTPServer, StdCtrls,
     ExtCtrls, HTTPApp, Windows, NovusConsoleUtils, SysUtils, IdCustomHTTPServer, IdContext,
     Classes, NovusFileUtils, IdServerIOHandler, IdSSL, IdSSLOpenSSL, NovusStringUtils,
-    NovusIndyUtils;
+    NovusIndyUtils, Config, Project;
 
 Type
   TPlugin_WebServerEngine = class(Tobject)
@@ -14,6 +14,7 @@ Type
     fServerIOHandlerSSLOpenSSL: TIdServerIOHandlerSSLOpenSSL;
     fHTTPServer: TIdHTTPServer;
     foOutput: TOutput;
+    foConfigPlugins : TConfigPlugins;
 
     procedure ServerIOHandlerSSLOpenSSLGetPassword(var Password: string);
     procedure HTTPServerCommandGet(AContext: TIdContext;
@@ -26,8 +27,11 @@ Type
     function GetSSLPath: String;
     function GetAddress: String;
     function GetServer: String;
+    function GetSSLKeyFile: string;
+    function GetSSLCertFile: String;
+    function GetSSLRootCertFile: String;
   public
-    constructor Create(aOutput: tOutput);
+    constructor Create(aOutput: tOutput; aProject: tProject; aConfigPlugins: tConfigPlugins);
     destructor Destroy; override;
 
     function Execute: Boolean;
@@ -55,6 +59,15 @@ Type
 
     property Server: String
       read GetServer;
+
+    property SSLKeyFile: String
+       read GetSSLKeyFile;
+
+    property SSLCertFile: string
+       read GetSSLCertFile;
+
+    property SSLRootCertFile: string
+       read GetSSLRootCertFile;
  end;
 
 implementation
@@ -62,9 +75,10 @@ implementation
 var
   FCtrlflag: integer;
 
-constructor tPlugin_WebServerEngine.Create(aOutput: tOutput);
+constructor tPlugin_WebServerEngine.Create(aOutput: tOutput; aProject: tProject; aConfigPlugins: tConfigPlugins);
 begin
   foOutput := aOutput;
+  foConfigPlugins := aConfigPlugins;
 
   FHTTPServer := TIdHTTPServer.Create(nil);
 
@@ -109,6 +123,9 @@ end;
 function tPlugin_WebServerEngine.GetDefaultDocument: string;
 begin
   Result := 'index.html';
+  if foConfigPlugins.oProperties.IsPropertyExists('DefaultDocument') then
+    Result := foConfigPlugins.oProperties.GetProperty('DefaultDocument');
+
 end;
 
 
@@ -129,9 +146,9 @@ begin
           begin
             FHTTPServer.IOHandler := fServerIOHandlerSSLOpenSSL;
 
-            fServerIOHandlerSSLOpenSSL.SSLOptions.KeyFile:= SSLPath +  'sample.key';
-            fServerIOHandlerSSLOpenSSL.SSLOptions.CertFile:= SSLPath + 'sample.crt';
-            fServerIOHandlerSSLOpenSSL.SSLOptions.RootCertFile:= SSLPath  + 'sampleRoot.pem';
+            fServerIOHandlerSSLOpenSSL.SSLOptions.KeyFile:= SSLPath +  SSLKeyFile;
+            fServerIOHandlerSSLOpenSSL.SSLOptions.CertFile:= SSLPath + SSLCertFile;
+            fServerIOHandlerSSLOpenSSL.SSLOptions.RootCertFile:= SSLPath  + SSLRootCertFile;
           end;
 
         foOutput.Log('WebServer address: ' + address);
@@ -155,13 +172,19 @@ begin
           Else
             Sleep( 20 );
         Until false;
+
+        FHTTPServer.Active := false;
+
+        foOutput.Log('Stopping WebServer.');
       end
     else
-      foOutput.Log('tcp port not open ... '+ Server + ':' + IntToStr(Port) + ' cannot start Webserver.');
+      foOutput.Log('tcp port not open ... '+ Server + ':' + IntToStr(Port) + ' cannot start WebServer.');
   Except
     foOutput.InternalError;
 
-    foOutput.Log('Cannot start Webserver.');
+    foOutput.Log('Cannot start WebServer.');
+
+    FHTTPServer.Active := false;
   End;
 end;
 
@@ -256,7 +279,7 @@ end;
 
 function tPlugin_WebServerEngine.GetPort: integer;
 begin
-  result := 8080;
+  result := 8081;
 end;
 
 function tPlugin_WebServerEngine.GetSSLPath: String;
@@ -276,6 +299,21 @@ end;
 function tPlugin_WebServerEngine.GetServer: string;
 begin
   Result := '127.0.0.1';
+end;
+
+function tPlugin_WebServerEngine.GetSSLKeyFile: string;
+begin
+  Result := 'sample.key';
+end;
+
+function tPlugin_WebServerEngine.GetSSLCertFile: String;
+begin
+  result := 'sample.crt';
+end;
+
+function tPlugin_WebServerEngine.GetSSLRootCertFile: String;
+begin
+  result := 'sampleRoot.pem';
 end;
 
 end.

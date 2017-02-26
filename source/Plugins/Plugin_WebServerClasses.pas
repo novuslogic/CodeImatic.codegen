@@ -3,7 +3,7 @@ unit Plugin_WebServerClasses;
 interface
 
 uses Classes,Plugin, NovusPlugin, NovusVersionUtils,Project,
-    Output, SysUtils, System.Generics.Defaults,  runtime,
+    Output, SysUtils, System.Generics.Defaults,  runtime, config,
     APIBase, IdBaseComponent, IdComponent, IdTCPServer, IdHTTPServer, StdCtrls,
     ExtCtrls, HTTPApp, Windows, NovusConsoleUtils, Plugin_WebServerEngine;
 
@@ -13,7 +13,7 @@ type
   private
   protected
   public
-    constructor Create(aOutput: tOutput; aPluginName: String; aProject: TProject); override;
+    constructor Create(aOutput: tOutput; aPluginName: String; aProject: TProject; aConfigPlugins: TConfigPlugins); override;
     destructor Destroy; override;
 
     function IsCommandLine(aCommandLine: String): boolean; override;
@@ -33,7 +33,7 @@ type
 
     property PluginName: string read GetPluginName;
 
-    function CreatePlugin(aOutput: tOutput; aProject: TProject): TPlugin; safecall;
+    function CreatePlugin(aOutput: tOutput; aProject: TProject; aConfigPlugins: TConfigPlugins): TPlugin; safecall;
 
   end;
 
@@ -44,9 +44,9 @@ implementation
 var
   _Plugin_WebServer: TPlugin_WebServer = nil;
 
-constructor tPlugin_WebServerBase.Create(aOutput: tOutput; aPluginName: String; aProject: TProject);
+constructor tPlugin_WebServerBase.Create(aOutput: tOutput; aPluginName: String; aProject: TProject; aConfigPlugins: TConfigPlugins);
 begin
-  Inherited Create(aOutput,aPluginName, aProject);
+  Inherited Create(aOutput,aPluginName, aProject, aConfigPlugins);
 end;
 
 
@@ -65,9 +65,9 @@ procedure tPlugin_WebServer.Initialize;
 begin
 end;
 
-function tPlugin_WebServer.CreatePlugin(aOutput: tOutput; aProject: TProject): TPlugin; safecall;
+function tPlugin_WebServer.CreatePlugin(aOutput: tOutput; aProject: TProject; aConfigPlugins: TConfigPlugins): TPlugin; safecall;
 begin
-  FPlugin_WebServer := tPlugin_WebServerBase.Create(aOutput, GetPluginName, aProject);
+  FPlugin_WebServer := tPlugin_WebServerBase.Create(aOutput, GetPluginName, aProject, aConfigPlugins);
 
   Result := FPlugin_WebServer;
 end;
@@ -92,13 +92,13 @@ begin
   Result := false;
 
   if oProject.OutputConsole = false then
-    oOutput.Log('Cannot run WebServer with Project otpion of OutputConsole = false')
+    oOutput.Log('Cannot run WebServer with Project option of OutputConsole = false')
   else
     begin
       Result := true;
 
       Try
-        loPlugin_WebServerEngine:= TPlugin_WebServerEngine.Create(oOutput);
+        loPlugin_WebServerEngine:= TPlugin_WebServerEngine.Create(oOutput, oProject, oConfigPlugins);
 
         loPlugin_WebServerEngine.Execute;
       Finally
