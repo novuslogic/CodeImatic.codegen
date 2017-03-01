@@ -1,7 +1,7 @@
 Zcodegen
 ========
 
-Zcodegen is a template driven source code generator.
+Zcodegen is a template driven source code and static website generator.
 
 
 Dependencies
