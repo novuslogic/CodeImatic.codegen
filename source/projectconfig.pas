@@ -56,6 +56,7 @@ type
    tProjectConfig = Class(TXMLList)
    private
    protected
+     fsOutputPath:String;
      fConnectionNameList: tNovuslist;
      fsTemplatepath: String;
      fsProjectConfigFileName: String;
@@ -67,6 +68,7 @@ type
      function GetDBSchemaPath: String;
      function GetLanguagesPath: String;
      function Getworkingdirectory: string;
+     function GetOutputPath: String;
 
    public
       constructor Create; override;
@@ -97,6 +99,9 @@ type
 
       property workingdirectory: string
         read Getworkingdirectory;
+
+      property Outputpath: string
+        read GetOutputPath;
    End;
 
 
@@ -293,6 +298,15 @@ begin
     fsworkingdirectory := TNovusFileUtils.TrailingBackSlash( Loadproperties('workingdirectory'));
 
   Result := fsworkingdirectory;
+end;
+
+function TProjectConfig.GetOutputPath: string;
+begin
+
+  if Trim(fsOutputPath) = '' then
+    fsOutputPath := TNovusFileUtils.TrailingBackSlash( Loadproperties('outputpath'));
+
+  Result := fsOutputPath;
 end;
 
 

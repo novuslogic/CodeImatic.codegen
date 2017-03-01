@@ -3,7 +3,7 @@ unit Config;
 interface
 
 Uses SysUtils, NovusXMLBO, Registry, Windows, NovusStringUtils, NovusFileUtils,
-     JvSimpleXml, NovusSimpleXML, NovusList, Properties;
+     JvSimpleXml, NovusSimpleXML, NovusList, ConfigProperties;
 
 
 Const
@@ -16,7 +16,7 @@ Type
      fsPluginName: String;
      fsPluginFilename: string;
      fsPluginFilenamePathname: String;
-     foProperties: tProperties;
+     foConfigProperties: tConfigProperties;
    protected
    public
      constructor Create;
@@ -34,9 +34,9 @@ Type
        read fsPluginFilenamePathname
        write fsPluginFilenamePathname;
 
-     property oProperties: tProperties
-       read foProperties
-       write foProperties;
+     property oConfigProperties: tConfigProperties
+       read foConfigProperties
+       write foConfigProperties;
    end;
 
 
@@ -221,7 +221,7 @@ begin
                Index := 0;
                fPluginProperties := TNovusSimpleXML.FindNode(fPluginsElem.Items[i], 'properties', Index);
                if Assigned(fPluginProperties) then
-                 loConfigPlugins.oProperties.oXMLDocument.Root := TJvSimpleXMLElemClassic(fPluginProperties);
+                 loConfigPlugins.oConfigProperties.oProperties := fPluginProperties;
 
                loConfigPlugins.PluginName := fsPluginName;
                loConfigPlugins.Pluginfilename := fsPluginfilename;
@@ -237,14 +237,12 @@ end;
 
 constructor TConfigPlugins.Create;
 begin
-  foProperties:= tProperties.Create;
-end;
+  foConfigProperties:= tConfigProperties.Create;
+end;
 
 destructor TConfigPlugins.Destroy;
 begin
-  foProperties.oXMLDocument.Root := nil;
-
-  foProperties.Free;
+  foConfigProperties.Free;
 end;
 
 

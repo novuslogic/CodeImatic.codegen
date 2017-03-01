@@ -47,6 +47,7 @@ contains
   EParser in '3rdParty\EParser.pas',
   Config in 'Config.pas',
   Project in 'Project.pas',
-  projectconfig in 'projectconfig.pas';
+  projectconfig in 'projectconfig.pas',
+  ConfigProperties in 'ConfigProperties.pas';
 
 end.

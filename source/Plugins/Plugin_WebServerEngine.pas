@@ -14,6 +14,7 @@ Type
     fServerIOHandlerSSLOpenSSL: TIdServerIOHandlerSSLOpenSSL;
     fHTTPServer: TIdHTTPServer;
     foOutput: TOutput;
+    foProject: tProject;
     foConfigPlugins : TConfigPlugins;
 
     procedure ServerIOHandlerSSLOpenSSLGetPassword(var Password: string);
@@ -79,6 +80,7 @@ constructor tPlugin_WebServerEngine.Create(aOutput: tOutput; aProject: tProject;
 begin
   foOutput := aOutput;
   foConfigPlugins := aConfigPlugins;
+  foProject := aProject;
 
   FHTTPServer := TIdHTTPServer.Create(nil);
 
@@ -117,14 +119,16 @@ end;
 
 function tPlugin_WebServerEngine.GetOutputPath: string;
 begin
-  Result := TNovusFileUtils.TrailingBackSlash('D:\Projects\Zautomatic\zautomatic.github.io\Site');
+  Result :=foProject.oProjectConfig.Outputpath;
+  if Result = '' then
+    Result := foProject.BasePath;
 end;
 
 function tPlugin_WebServerEngine.GetDefaultDocument: string;
 begin
   Result := 'index.html';
-  if foConfigPlugins.oProperties.IsPropertyExists('DefaultDocument') then
-    Result := foConfigPlugins.oProperties.GetProperty('DefaultDocument');
+  if foConfigPlugins.oConfigProperties.IsPropertyExists('DefaultDocument') then
+    Result := foConfigPlugins.oConfigProperties.GetProperty('DefaultDocument');
 
 end;
 
@@ -269,17 +273,23 @@ end;
 
 function tPlugin_WebServerEngine.GetUseSSL: boolean;
 begin
-  Result := true;
+  Result := false;
+  if foConfigPlugins.oConfigProperties.IsPropertyExists('UseSSL') then
+    Result := TNovusStringUtils.IsBoolean(foConfigPlugins.oConfigProperties.GetProperty('UseSSL'));
 end;
 
 function tPlugin_WebServerEngine.GetSSLPassword: String;
 begin
-  Result := 'aaaa';
+  result := '';
+  if foConfigPlugins.oConfigProperties.IsPropertyExists('SSLPassword') then
+    Result := foConfigPlugins.oConfigProperties.GetProperty('SSLPassword');
 end;
 
 function tPlugin_WebServerEngine.GetPort: integer;
 begin
-  result := 8081;
+  result := 8080;
+  if foConfigPlugins.oConfigProperties.IsPropertyExists('Port') then
+    Result := TNovusStringUtils.Str2Int(foConfigPlugins.oConfigProperties.GetProperty('Port'));
 end;
 
 function tPlugin_WebServerEngine.GetSSLPath: String;
@@ -298,22 +308,30 @@ end;
 
 function tPlugin_WebServerEngine.GetServer: string;
 begin
-  Result := '127.0.0.1';
+  Result := '';
+  if foConfigPlugins.oConfigProperties.IsPropertyExists('Server') then
+    Result := foConfigPlugins.oConfigProperties.GetProperty('Server');
 end;
 
 function tPlugin_WebServerEngine.GetSSLKeyFile: string;
 begin
-  Result := 'sample.key';
+  Result := '';
+  if foConfigPlugins.oConfigProperties.IsPropertyExists('SSLKeyFile') then
+    Result := foConfigPlugins.oConfigProperties.GetProperty('SSLKeyFile');
 end;
 
 function tPlugin_WebServerEngine.GetSSLCertFile: String;
 begin
-  result := 'sample.crt';
+  result := '';
+  if foConfigPlugins.oConfigProperties.IsPropertyExists('SSLCertFile') then
+    Result := foConfigPlugins.oConfigProperties.GetProperty('SSLCertFile');
 end;
 
 function tPlugin_WebServerEngine.GetSSLRootCertFile: String;
 begin
-  result := 'sampleRoot.pem';
+  result := '';
+  if foConfigPlugins.oConfigProperties.IsPropertyExists('SSLCertFile') then
+    Result := foConfigPlugins.oConfigProperties.GetProperty('SSLCertFile');
 end;
 
 end.

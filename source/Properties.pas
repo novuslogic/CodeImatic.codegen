@@ -9,7 +9,7 @@ Type
   protected
   private
     foProject: tProject;
-    FoMesaagesLog: TOutput;
+    FoOutput: TOutput;
   public
     function IsPropertyExists(APropertyName: String): Boolean;
     function GetProperty(APropertyName: String): String;
@@ -20,8 +20,8 @@ Type
       write foProject;
 
     property oOutput: TOutput
-      read FoMesaagesLog
-      write FoMesaagesLog;
+      read FoOutput
+      write FoOutput;
   end;
 
 implementation
@@ -39,9 +39,8 @@ begin
       lsGetProperty := foProject.oProjectConfig.Parseproperties(lsGetProperty);
 
   Except
-    FoMesaagesLog.Writelog(APropertyName + ' Projectconfig error.');
+    FoOutput.Writelog(APropertyName + ' Projectconfig error.');
   End;
-
 
   Result := lsGetProperty;
 end;

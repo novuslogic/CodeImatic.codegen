@@ -87,9 +87,9 @@ begin
   foProject.LoadProjectFile(oConfig.ProjectFileName, oConfig.ProjectConfigFileName);
 
   if foProject.oProjectConfig.IsLoaded then
-    Foutput := TOutput.Create(foProject.oProjectConfig.Parseproperties(foProject.OutputPath) + oConfig.OutputFile, foProject.OutputConsole)
+    Foutput := TOutput.Create(foProject.oProjectConfig.Parseproperties(foProject.BasePath) + oConfig.OutputFile, foProject.OutputConsole)
   else
-    Foutput := TOutput.Create(foProject.OutputPath + oConfig.OutputFile, foProject.OutputConsole);
+    Foutput := TOutput.Create(foProject.BasePath + oConfig.OutputFile, foProject.OutputConsole);
 
   Foutput.OpenLog(true);
 

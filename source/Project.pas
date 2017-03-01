@@ -43,7 +43,7 @@ Type
     fbcreateoutputdir: Boolean;
     foProjectConfig: TProjectConfig;
     foProjectItemList: TNovusList;
-    fsOutputPath: String;
+    fsBasePath: String;
     fsTemplatePath: String;
     fsProjectFilename: String;
     fbOutputConsole: Boolean;
@@ -52,7 +52,7 @@ Type
     destructor Destroy; override;
 
 
-    function GetOutputPath: String;
+    function GetBasePath: String;
     function GetOutputConsole: Boolean;
     function GetCreateoutputdir: Boolean;
 
@@ -69,9 +69,9 @@ Type
       read fsProjectFileName
       write fsProjectFileName;
 
-    property OutputPath: string
-      read fsOutputPath
-      write fsOutputPath;
+    property BasePath: string
+      read fsBasePath
+      write fsBasePath;
 
     property  OutputConsole: Boolean
       read  fbOutputConsole
@@ -177,7 +177,7 @@ begin
 end;
 
 
-function TProject.GetOutputPath: String;
+function TProject.GetBasePath: String;
 var
   lsOutputpath: string;
 begin
@@ -191,8 +191,6 @@ begin
 
   if lsOutputpath <> '' then
     Result := TNovusStringUtils.TrailingBackSlash(lsOutputpath);
-
-
 end;
 
 function TProject.GetOutputConsole: Boolean;
@@ -212,7 +210,7 @@ begin
   Result := Retrieve;
   if not Result then exit;
 
-  fsOutputPath := GetOutputPath;
+  fsBasePath := GetBasePath;
 
   fbOutputConsole := GetoutputConsole;
   fbCreateoutputdir := GetCreateoutputdir;
