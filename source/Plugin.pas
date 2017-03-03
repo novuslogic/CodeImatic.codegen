@@ -40,6 +40,13 @@ type
      function IsTagExists(aTagName: String): Integer; virtual;
    end;
 
+
+   TConvertPlugin = class(TPlugin)
+   private
+   protected
+   public
+   end;
+
    TCommandLinePlugin = class(TPlugin)
    private
    protected

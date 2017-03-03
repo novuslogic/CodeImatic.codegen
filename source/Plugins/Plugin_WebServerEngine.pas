@@ -275,7 +275,7 @@ function tPlugin_WebServerEngine.GetUseSSL: boolean;
 begin
   Result := false;
   if foConfigPlugins.oConfigProperties.IsPropertyExists('UseSSL') then
-    Result := TNovusStringUtils.IsBoolean(foConfigPlugins.oConfigProperties.GetProperty('UseSSL'));
+    Result := TNovusStringUtils.StrToBoolean(foConfigPlugins.oConfigProperties.GetProperty('UseSSL'));
 end;
 
 function tPlugin_WebServerEngine.GetSSLPassword: String;
@@ -330,8 +330,8 @@ end;
 function tPlugin_WebServerEngine.GetSSLRootCertFile: String;
 begin
   result := '';
-  if foConfigPlugins.oConfigProperties.IsPropertyExists('SSLCertFile') then
-    Result := foConfigPlugins.oConfigProperties.GetProperty('SSLCertFile');
+  if foConfigPlugins.oConfigProperties.IsPropertyExists('SSLRootCertFile') then
+    Result := foConfigPlugins.oConfigProperties.GetProperty('SSLRootCertFile');
 end;
 
 end.

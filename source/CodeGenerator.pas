@@ -337,6 +337,9 @@ begin
     FTemplate.InsertAllTagValues;
 
     DoDeleteLines;
+
+
+
   Except
     FOutput.WriteLog(TNovusUtilities.GetExceptMess);
 
@@ -429,10 +432,6 @@ begin
         end;
     end;
 end;
-
-
-
-
 
 procedure TCodeGenerator.DoDeleteLines;
 Var
