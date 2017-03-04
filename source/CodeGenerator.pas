@@ -65,13 +65,13 @@ Type
 
   TCodeGenerator = class(TObject)
   protected
-    foProject: tProject;
+    fProject: tProject;
     fVariables: tVariables;
     fOutput : tOutput;
     FLanguage: tLanguage;
     fsLanguage: String;
     FInterpreter : tInterpreter;
-
+    fProjectItem: tProjectItem;
     FTemplate: tNovusTemplate;
     FCodeGeneratorList: TNovusList;
   private
@@ -82,11 +82,12 @@ Type
     procedure DoProperties;
     procedure DoTrimLines;
     procedure DoDeleteLines;
+    procedure DoPostProcessorPlugins(var aOutputFile: string);
     function PassTemplateTags(aClearRun: Boolean = false): Boolean;
     function DoInternalIncludes: Boolean;
     function GetGlobalPropertyValue(aToken: String): String;
   public
-    constructor Create(ATemplate: TNovusTemplate; AOutput: TOutput; aProject: tProject); virtual;
+    constructor Create(ATemplate: TNovusTemplate; AOutput: TOutput; aProject: tProject; aProjectItem: tProjectItem); virtual;
     destructor Destroy; override;
 
     function IsNonOutputCommandonly(ASourceLineNo: Integer): Boolean;
@@ -140,7 +141,9 @@ constructor TCodeGenerator.Create;
 begin
   inherited Create;
 
-  foProject := aProject;
+  fProjectItem:= aProjectItem;
+
+  fProject := aProject;
 
   fVariables := tVariables.Create;
 
@@ -314,7 +317,6 @@ begin
 
     DoPluginTags;
 
-
     RunPropertyVariables(0,(FCodeGeneratorList.Count - 1));
 
     DoIncludes;
@@ -338,10 +340,12 @@ begin
 
     DoDeleteLines;
 
-
+    DoPostProcessorPlugins(aOutputFile);
 
   Except
     FOutput.WriteLog(TNovusUtilities.GetExceptMess);
+
+    FOutput.Failed := true;
 
     Exit;
   End;
@@ -356,6 +360,12 @@ begin
     FOutput.WriteLog('Save Error: ' + aOutputFile + ' - ' + TNovusUtilities.GetExceptMess);
   end;
   {$I+}
+end;
+
+
+procedure TCodeGenerator.DoPostProcessorPlugins(var aOutputFile: string);
+begin
+  oRuntime.oPlugins.PostProcessor(fProjectItem, fTemplate, aOutputFile);
 end;
 
 function TCodeGenerator.IsNonOutputCommandOnly(ASourceLineNo: Integer): Boolean;
@@ -561,7 +571,7 @@ begin
           If (FTemplateTag.RawTagEx = FTemplate.OutputDoc.Strings[FTemplateTag.SourceLineNo - 1]) then
             FTemplateTag.TagValue := cDeleteLine;
 
-          lsIncludeFilename := foProject.oProjectConfig.TemplatePath + GetGlobalPropertyValue(FCodeGeneratorDetails.Tokens[2]);
+          lsIncludeFilename := fProject.oProjectConfig.TemplatePath + GetGlobalPropertyValue(FCodeGeneratorDetails.Tokens[2]);
 
           if FileExists(lsIncludeFilename) then
             begin
@@ -656,9 +666,6 @@ begin
         end;
    end;
 end;
-
-
-
 
 procedure TCodeGenerator.DoConnections;
 Var

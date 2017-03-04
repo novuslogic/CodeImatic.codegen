@@ -2,18 +2,20 @@ unit Plugin_MarkdownClasses;
 
 interface
 
-uses Classes,Plugin, NovusPlugin, NovusVersionUtils, Project,
+uses Classes,Plugin, NovusPlugin, NovusVersionUtils, Project, NovusTemplate,
     Output, SysUtils, System.Generics.Defaults,  runtime, Config,
-    APIBase ;
+    APIBase, MarkdownDaringFireball, MarkdownProcessor ;
 
 
 type
-  tPlugin_MarkdownBase = class(TConvertPlugin)
+  tPlugin_MarkdownBase = class( TPostProcessorPlugin)
   private
   protected
   public
     constructor Create(aOutput: tOutput; aPluginName: String; aProject: TProject; aConfigPlugins: tConfigPlugins); override;
     destructor Destroy; override;
+
+    function PostProcessor(aProjectItem: tProjectItem; aTemplate: tNovusTemplate;var aOutputFile: string): boolean; override;
   end;
 
   TPlugin_Markdown = class( TSingletonImplementation, INovusPlugin, IExternalPlugin)
@@ -77,6 +79,44 @@ begin
 end;
 
 // tPlugin_MarkdownBase
+
+function tPlugin_MarkdownBase.PostProcessor(aProjectItem: tProjectItem; aTemplate: tNovusTemplate; var aOutputFile: string): boolean;
+Var
+  fMarkdownprocessor: TMarkdownDaringFireball;
+  fsProcessed: string;
+begin
+  result := false;
+
+  foOutput.Log('Postprocessor:' + pluginname);
+
+  Try
+    Try
+      fMarkdownprocessor:= TMarkdownDaringFireball.Create;
+
+      fsProcessed := fMarkdownprocessor.process(aTemplate.OutputDoc.Text);
+
+      aTemplate.OutputDoc.Text := fsProcessed;
+
+      aOutputFile := ChangeFileExt(aOutputFile, '.html');
+
+      foOutput.Log('New output:' + aOutputFile);
+
+      result := true;
+    Except
+      result := false;
+
+      foOutput.InternalError;
+    End;
+
+
+
+  Finally
+    fMarkdownprocessor.Free;
+  End;
+
+
+
+end;
 
 
 function GetPluginObject: INovusPlugin;

@@ -176,7 +176,7 @@ begin
 
           if TNovusFileUtils.IsValidFolder(loProjectItem.OutputFile) then
             begin
-              if ExtractFilename(loProjectItem.OutputFile) = '' then
+              //if ExtractFilename(loProjectItem.OutputFile) = '' then
                 loProjectItem.OutputFile := TNovusFileUtils.TrailingBackSlash(loProjectItem.OutputFile) + loProjectItem.ItemName;
             end;
       Except
@@ -272,7 +272,7 @@ begin
 
           foConnections := tConnections.Create(Foutput, foProject.oProjectConfig);
 
-          foCodeGenerator := tCodeGenerator.Create(foTemplate, Foutput, foProject);
+          foCodeGenerator := tCodeGenerator.Create(foTemplate, Foutput, foProject, loProjectItem);
 
           foCodeGenerator.Execute(loProjectItem.OutPutFile);
 
@@ -298,7 +298,7 @@ begin
         Foutput.WriteLog('Output: ' + loProjectItem.OutPutFile + ' is read only or file in use.');
     end;
 
-  foPlugins.AfterCodeGen;
+  if Not Foutput.Failed then foPlugins.AfterCodeGen;
 
   foPlugins.UnLoadPlugins;
 

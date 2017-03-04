@@ -14,6 +14,7 @@ Type
     fsTemplateFile: String;
     fsPropertiesFile: String;
     fboverrideoutput: Boolean;
+    fsPostprocessor: string;
   Public
     property PropertiesFile: String
        read fsPropertiesFile
@@ -33,7 +34,11 @@ Type
 
     property ItemName: String
       read fsItemName
-      write fsItemName;  
+      write fsItemName;
+
+    property PostProcessor: String
+      read fsPostProcessor
+      write fsPostProcessor;
   end;
 
 
@@ -129,11 +134,24 @@ begin
             aProjectItem.TemplateFile := TNovusSimpleXML.FindNode(fJvSimpleXmlElem, 'template', Index).Value;
           end;
 
+        if assigned(TNovusSimpleXML.FindNode(fJvSimpleXmlElem, 'source', Index)) then
+          begin
+            Index := 0;
+            aProjectItem.TemplateFile := TNovusSimpleXML.FindNode(fJvSimpleXmlElem, 'source', Index).Value;
+          end;
+
         Index := 0;
         if Assigned(TNovusSimpleXML.FindNode(fJvSimpleXmlElem, 'properties', Index)) then
           begin
             Index := 0;
             aProjectItem.propertiesFile := TNovusSimpleXML.FindNode(fJvSimpleXmlElem, 'properties', Index).Value;
+          end;
+
+          Index := 0;
+        if Assigned(TNovusSimpleXML.FindNode(fJvSimpleXmlElem, 'postprocessor', Index)) then
+          begin
+            Index := 0;
+            aProjectItem.postprocessor := Uppercase(TNovusSimpleXML.FindNode(fJvSimpleXmlElem, 'postprocessor', Index).Value);
           end;
 
         Index := 0;

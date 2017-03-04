@@ -2,7 +2,8 @@ unit Plugins;
 
 interface
 
-uses  NovusPlugin, Config, Output,Classes, SysUtils, PluginsMapFactory, Plugin, Project;
+uses  NovusPlugin, Config, Output,Classes, SysUtils, PluginsMapFactory, Plugin, Project,
+      NovusTemplate;
 
 type
    TPlugins = class
@@ -25,6 +26,7 @@ type
 
      function IsTagExists(aTagName: string): Boolean;
      function GetTag(aTagName: string): String;
+     function PostProcessor(aProjectItem: tProjectItem; aTemplate: tNovusTemplate; var aOutputFile: string): boolean;
 
      function BeforeCodeGen: boolean;
      function AfterCodeGen: boolean;
@@ -189,6 +191,33 @@ begin
         end;
     end;
 end;
+
+
+function TPlugins.PostProcessor(aProjectItem: tProjectItem; aTemplate: tNovusTemplate; var aOutputFile: string): boolean;
+var
+  loPlugin: TPlugin;
+  I: Integer;
+begin
+  for I := 0 to fPluginsList.Count -1 do
+    begin
+      loPlugin := TPlugin(fPluginsList.Items[i]);
+      if loPlugin is TPostProcessorPlugin then
+        begin
+          if aProjectItem.PostProcessor<> '' then
+            begin
+              if uppercase(TPostProcessorPlugin(loPlugin).PluginName) = Uppercase(aProjectItem.PostProcessor) then
+                begin
+                  if TPostProcessorPlugin(loPlugin).PostProcessor(aProjectItem, aTemplate, aOutputFile) = false then
+                    Fooutput.Failed := true;
+
+                  break;
+                end;
+            end;
+
+        end;
+    end;
+end;
+
 
 function TPlugins.GetTag(aTagName: string): String;
 var

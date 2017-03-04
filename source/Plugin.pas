@@ -2,7 +2,7 @@ unit Plugin;
 
 interface
 
-uses classes, Output, NovusPlugin, Project, config;
+uses classes, Output, NovusPlugin, Project, config, NovusTemplate;
 
 type
    TPlugin = class(TPersistent)
@@ -41,10 +41,11 @@ type
    end;
 
 
-   TConvertPlugin = class(TPlugin)
+   TPostProcessorPlugin = class(TPlugin)
    private
    protected
    public
+     function PostProcessor(aProjectItem: tProjectItem; aTemplate: tNovusTemplate; var aOutputFile: string): boolean; virtual;
    end;
 
    TCommandLinePlugin = class(TPlugin)
@@ -101,5 +102,11 @@ function TCommandLinePlugin.IsCommandLine(aCommandLine: String): boolean;
 begin
   Result := False;
 end;
+
+function TPostProcessorPlugin.PostProcessor(aProjectItem: tProjectItem; aTemplate: tNovusTemplate; var aOutputFile: string): boolean;
+begin
+  Result := false;
+end;
+
 
 end.
