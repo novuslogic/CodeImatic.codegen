@@ -254,7 +254,7 @@ begin
       if not aResponseInfo.HeaderHasBeenWritten then
       begin
         aResponseInfo.ResponseNo := 404;
-        aResponseInfo.ResponseText := 'Document not found';
+        aResponseInfo.ResponseText := 'Document not found.';
 
         aResponseInfo.WriteHeader;
       end;

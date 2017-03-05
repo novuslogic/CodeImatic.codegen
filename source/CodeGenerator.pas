@@ -554,7 +554,7 @@ Var
   FCodeGeneratorDetails: TCodeGeneratorDetails;
   FTemplateTag: TTemplateTag;
   lsIncludeFilename: String;
-  lIncludeTemplate: TStringList;
+  FIncludeTemplate: TStringList;
 begin
   for I := 0 to FCodeGeneratorList.Count - 1 do
    begin
@@ -577,20 +577,23 @@ begin
             begin
               LineNo := FTemplateTag.SourceLineNo -1;
 
-              lIncludeTemplate:= TStringList.Create;
+              FIncludeTemplate:= TStringList.Create;
 
-              lIncludeTemplate.LoadFromFile(lsIncludeFilename);
+              FIncludeTemplate.LoadFromFile(lsIncludeFilename);
+
+              //Post Processor
+              oRuntime.oPlugins.PostProcessor(lsIncludeFilename, FIncludeTemplate);
 
               FTemplate.TemplateDoc.Delete(LineNo);
 
-              for x := 0 to lIncludeTemplate.Count-1 do
+              for x := 0 to FIncludeTemplate.Count-1 do
                 begin
-                  FTemplate.TemplateDoc.Insert(LineNo, lIncludeTemplate.Strings[x]);
+                  FTemplate.TemplateDoc.Insert(LineNo, FIncludeTemplate.Strings[x]);
 
                   Inc(LineNo);
                 end;
 
-              lIncludeTemplate.Free;
+              FIncludeTemplate.Free;
 
               if Not PassTemplateTags(true) then  Result := False;
             end
@@ -717,10 +720,6 @@ begin
 
   FTagType := FCodeGenerator.GetTagType(FTokens);
 end;
-
-
-
-
 
 
 end.

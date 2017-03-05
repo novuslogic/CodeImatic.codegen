@@ -44,8 +44,17 @@ type
    TPostProcessorPlugin = class(TPlugin)
    private
    protected
+     function Getsourceextension: string; virtual;
+     function Getoutputextension: string; virtual;
    public
-     function PostProcessor(aProjectItem: tProjectItem; aTemplate: tNovusTemplate; var aOutputFile: string): boolean; virtual;
+     function PostProcessor(aProjectItem: tProjectItem; aTemplate: tNovusTemplate; var aOutputFile: string): boolean; overload; virtual;
+     function PostProcessor(aFilename: String; var aTemplateDoc: tstringlist): boolean;  overload; virtual;
+
+     property Sourceextension: string
+       read Getsourceextension;
+
+      property outputextension: string
+       read Getoutputextension;
    end;
 
    TCommandLinePlugin = class(TPlugin)
@@ -106,6 +115,21 @@ end;
 function TPostProcessorPlugin.PostProcessor(aProjectItem: tProjectItem; aTemplate: tNovusTemplate; var aOutputFile: string): boolean;
 begin
   Result := false;
+end;
+
+function TPostProcessorPlugin.PostProcessor(aFilename: String; var aTemplateDoc: tstringlist): boolean;
+begin
+  Result := false;
+end;
+
+function TPostProcessorPlugin.Getsourceextension: string;
+begin
+  Result := '';
+end;
+
+function TPostProcessorPlugin.Getoutputextension: string;
+begin
+  Result := '';
 end;
 
 

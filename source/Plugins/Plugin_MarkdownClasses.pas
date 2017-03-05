@@ -3,7 +3,7 @@ unit Plugin_MarkdownClasses;
 interface
 
 uses Classes,Plugin, NovusPlugin, NovusVersionUtils, Project, NovusTemplate,
-    Output, SysUtils, System.Generics.Defaults,  runtime, Config,
+    Output, SysUtils, System.Generics.Defaults,  runtime, Config,  NovusStringUtils,
     APIBase, MarkdownDaringFireball, MarkdownProcessor ;
 
 
@@ -11,11 +11,16 @@ type
   tPlugin_MarkdownBase = class( TPostProcessorPlugin)
   private
   protected
+    function Getoutputextension: string; override;
+    function Getsourceextension: string; override;
   public
     constructor Create(aOutput: tOutput; aPluginName: String; aProject: TProject; aConfigPlugins: tConfigPlugins); override;
     destructor Destroy; override;
 
-    function PostProcessor(aProjectItem: tProjectItem; aTemplate: tNovusTemplate;var aOutputFile: string): boolean; override;
+    function PostProcessor(aProjectItem: tProjectItem; aTemplate: tNovusTemplate;var aOutputFile: string): boolean; overload; override;
+    function PostProcessor(aFilename: String; var aTemplateDoc: tStringlist): boolean; overload; override;
+
+
   end;
 
   TPlugin_Markdown = class( TSingletonImplementation, INovusPlugin, IExternalPlugin)
@@ -23,6 +28,7 @@ type
   protected
     foProject: TProject;
     FPlugin_Markdown: tPlugin_MarkdownBase;
+
   public
     function GetPluginName: string; safecall;
 
@@ -32,6 +38,7 @@ type
     property PluginName: string read GetPluginName;
 
     function CreatePlugin(aOutput: tOutput; aProject: Tproject; aConfigPlugins: TConfigPlugins): TPlugin; safecall;
+
 
   end;
 
@@ -80,12 +87,26 @@ end;
 
 // tPlugin_MarkdownBase
 
-function tPlugin_MarkdownBase.PostProcessor(aProjectItem: tProjectItem; aTemplate: tNovusTemplate; var aOutputFile: string): boolean;
+function tPlugin_MarkdownBase.Getoutputextension: String;
+begin
+  Result := 'html';
+  if foConfigPlugins.oConfigProperties.IsPropertyExists('outputextension') then
+    Result := foConfigPlugins.oConfigProperties.GetProperty('outputextension');
+end;
+
+function tPlugin_MarkdownBase.Getsourceextension: String;
+begin
+  Result := 'md';
+  if foConfigPlugins.oConfigProperties.IsPropertyExists('sourceextension') then
+    Result := foConfigPlugins.oConfigProperties.GetProperty('sourceextension');
+end;
+
+function  tPlugin_MarkdownBase.PostProcessor(aFilename: string; var aTemplateDoc: tStringlist): boolean;
 Var
   fMarkdownprocessor: TMarkdownDaringFireball;
   fsProcessed: string;
 begin
-  result := false;
+  Result := False;    result := false;
 
   foOutput.Log('Postprocessor:' + pluginname);
 
@@ -93,13 +114,9 @@ begin
     Try
       fMarkdownprocessor:= TMarkdownDaringFireball.Create;
 
-      fsProcessed := fMarkdownprocessor.process(aTemplate.OutputDoc.Text);
+      fsProcessed := fMarkdownprocessor.process(aTemplateDoc.Text);
 
-      aTemplate.OutputDoc.Text := fsProcessed;
-
-      aOutputFile := ChangeFileExt(aOutputFile, '.html');
-
-      foOutput.Log('New output:' + aOutputFile);
+      aTemplateDoc.Text := fsProcessed;
 
       result := true;
     Except
@@ -115,6 +132,43 @@ begin
   End;
 
 
+
+end;
+
+function tPlugin_MarkdownBase.PostProcessor(aProjectItem: tProjectItem; aTemplate: tNovusTemplate; var aOutputFile: string): boolean;
+Var
+  fMarkdownprocessor: TMarkdownDaringFireball;
+  fsProcessed: string;
+begin
+  result := false;
+
+  foOutput.Log('Postprocessor:' + pluginname);
+
+  Try
+    Try
+      fMarkdownprocessor:= TMarkdownDaringFireball.Create;
+
+      fsProcessed := fMarkdownprocessor.process(aTemplate.OutputDoc.Text);
+
+
+      aTemplate.OutputDoc.Text := fsProcessed;
+
+      aOutputFile := ChangeFileExt(aOutputFile, '.' + outputextension);
+
+      foOutput.Log('New output:' + aOutputFile);
+
+      result := true;
+    Except
+      result := false;
+
+      foOutput.InternalError;
+    End;
+
+
+
+  Finally
+    fMarkdownprocessor.Free;
+  End;
 
 end;
 

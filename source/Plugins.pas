@@ -26,7 +26,9 @@ type
 
      function IsTagExists(aTagName: string): Boolean;
      function GetTag(aTagName: string): String;
-     function PostProcessor(aProjectItem: tProjectItem; aTemplate: tNovusTemplate; var aOutputFile: string): boolean;
+
+     function PostProcessor(aProjectItem: tProjectItem; aTemplate: tNovusTemplate; var aOutputFile: string): boolean; overload;
+     function PostProcessor(aFilename: string; var aTemplateDoc: tStringlist): boolean; overload;
 
      function BeforeCodeGen: boolean;
      function AfterCodeGen: boolean;
@@ -192,11 +194,11 @@ begin
     end;
 end;
 
-
 function TPlugins.PostProcessor(aProjectItem: tProjectItem; aTemplate: tNovusTemplate; var aOutputFile: string): boolean;
 var
   loPlugin: TPlugin;
   I: Integer;
+  fssourceextension: string;
 begin
   for I := 0 to fPluginsList.Count -1 do
     begin
@@ -212,8 +214,33 @@ begin
 
                   break;
                 end;
+            end
+          else
+          if (CompareText('.'+TPostProcessorPlugin(loPlugin).sourceextension,  ExtractFileExt(aProjectItem.TemplateFile)) =0) then
+            begin
+             if TPostProcessorPlugin(loPlugin).PostProcessor(aProjectItem, aTemplate, aOutputFile) = false then
+               Fooutput.Failed := true;
             end;
+        end;
+    end;
+end;
 
+function TPlugins.PostProcessor(aFilename: string; var aTemplateDoc: tStringlist): boolean;
+var
+  loPlugin: TPlugin;
+  I: Integer;
+  fssourceextension: string;
+begin
+  for I := 0 to fPluginsList.Count -1 do
+    begin
+      loPlugin := TPlugin(fPluginsList.Items[i]);
+      if loPlugin is TPostProcessorPlugin then
+        begin
+          if (CompareText('.'+TPostProcessorPlugin(loPlugin).sourceextension,  ExtractFileExt(aFilename)) =0) then
+            begin
+             if TPostProcessorPlugin(loPlugin).PostProcessor(aFilename, aTemplateDoc) = false then
+               Fooutput.Failed := true;
+            end;
         end;
     end;
 end;
