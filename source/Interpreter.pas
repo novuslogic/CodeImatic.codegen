@@ -3,7 +3,7 @@ unit Interpreter;
 interface
 
 Uses
-  Classes, EParser, SysUtils, DB, NovusStringUtils, Output,
+  Classes, ExpressionParser, SysUtils, DB, NovusStringUtils, Output,
   NovusList, Variants, Variables, XMLList,  NovusGUIDEx;
 
 const
@@ -87,6 +87,8 @@ Type
     FCodeGeneratorDetails : TObject;
   private
     procedure FailedInterpreter;
+    function ParseCommand(aCommand: string): string;
+
     function IsRepeat(ACodeGeneratorDetails: TObject): Boolean;
     function IsEndRepeat(ACodeGeneratorDetails: TObject): Boolean;
     function FindEndRepeatIndexPos(AIndex: INteger): INteger;
@@ -626,36 +628,46 @@ end;
 
 
 function TInterpreter.GetNextCommand(ATokens: tStringList; Var AIndex: Integer;Var ASkipPos: INteger;ASubCommand: Boolean = False;ASubVariable:Boolean = False): String;
+Var
+  lsNextCommand: string;
 begin
   Result := '';
   if ASubCommand then
      Result := ATokens[AIndex];
   try
-    case CommandSyntaxIndex(ATokens[AIndex]) of
-      1: Result := FieldFunctions(ATokens,AIndex, 0);
-      2: Result := FieldFunctions(ATokens,AIndex, 1);
-      3: Result := Functions(ATokens,AIndex, 0);
-      4: Result := Functions(ATokens,AIndex, 1);
-      5: Result := Functions(ATokens,AIndex, 2);
-      6: result := Functions(ATokens,AIndex, 3);
-      7: result := Functions(ATokens,AIndex, 4);
-      8: Result := LoopFunctions(ATokens,AIndex, 0, ASkipPos);
-      9: Result := LoopFunctions(ATokens,AIndex, 1, ASkipPos);
-      10: Result := FieldFunctions(ATokens,AIndex, 2);
-      11: Result := Functions(ATokens,AIndex, 5);
-      12: result := procedures(ATokens,AIndex, 0);
-      13: Result := TableFunctions(ATokens,AIndex, 0);
-      14: Result := TableFunctions(ATokens,AIndex, 1);
-      15: result := FieldAsSQL(ATokens,AIndex);
-      16: result := Delimiter(ATokens,AIndex);
-      17, 18: result := Reservelist(ATokens,AIndex, 0);
-      19: result := XMLlistIndex(ATokens,AIndex);
-      20: result := XMLlistCount(ATokens,AIndex);
-      21: result := XMLlistName(ATokens,AIndex);
-      22: result := procedures(ATokens,AIndex, 1);
-      23: result := Reservelist(ATokens,AIndex, 1);
-      24: Result := FieldFunctions(ATokens,AIndex, 3);
-    end;
+    lsNextCommand := ATokens[AIndex];
+
+    Result := ParseCommand(lsNextCommand);
+
+    // classic functions
+    if Result = '' then
+      begin
+        case CommandSyntaxIndex(lsNextCommand ) of
+          1: Result := FieldFunctions(ATokens,AIndex, 0);
+          2: Result := FieldFunctions(ATokens,AIndex, 1);
+          3: Result := Functions(ATokens,AIndex, 0);
+          4: Result := Functions(ATokens,AIndex, 1);
+          5: Result := Functions(ATokens,AIndex, 2);
+          6: result := Functions(ATokens,AIndex, 3);
+          7: result := Functions(ATokens,AIndex, 4);
+          8: Result := LoopFunctions(ATokens,AIndex, 0, ASkipPos);
+          9: Result := LoopFunctions(ATokens,AIndex, 1, ASkipPos);
+          10: Result := FieldFunctions(ATokens,AIndex, 2);
+          11: Result := Functions(ATokens,AIndex, 5);
+          12: result := procedures(ATokens,AIndex, 0);
+          13: Result := TableFunctions(ATokens,AIndex, 0);
+          14: Result := TableFunctions(ATokens,AIndex, 1);
+          15: result := FieldAsSQL(ATokens,AIndex);
+          16: result := Delimiter(ATokens,AIndex);
+          17, 18: result := Reservelist(ATokens,AIndex, 0);
+          19: result := XMLlistIndex(ATokens,AIndex);
+          20: result := XMLlistCount(ATokens,AIndex);
+          21: result := XMLlistName(ATokens,AIndex);
+          22: result := procedures(ATokens,AIndex, 1);
+          23: result := Reservelist(ATokens,AIndex, 1);
+          24: Result := FieldFunctions(ATokens,AIndex, 3);
+        end;
+      end;
 
     if Not ASubCommand then
       begin
@@ -1163,6 +1175,9 @@ end;
 
 
 
+
+
+
 function TInterpreter.CommandSyntaxIndexByTokens(ATokens: TStringList): Integer;
 Var
   I,X: Integer;
@@ -1279,9 +1294,6 @@ begin
         FOutput.WriteLog('Syntax Error: variable '+ result + ' cannot be found.');
 
     end ;
- // else
- // if oRuntime.oProperties.IsPropertyExists(Result) then
- //   Result := oRuntime.oProperties.GetProperty(Result);
  end;
 
 
@@ -1429,6 +1441,12 @@ begin
   fbIsFailedInterpreter := True;
 
 end;
+
+function TInterpreter.ParseCommand(aCommand: string): String;
+begin
+  Result := aCommand;
+end;
+
 
 
 

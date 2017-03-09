@@ -3,7 +3,7 @@ unit CodeGenerator;
 interface
 
 
-Uses Classes, NovusTemplate, NovusList, EParser, SysUtils,
+Uses Classes, NovusTemplate, NovusList, ExpressionParser, SysUtils,
      Config, NovusStringUtils, Interpreter, Language, Project,
      Output, Variables, NovusUtilities;
 
@@ -14,7 +14,7 @@ Const
 Type
   TCodeGenerator = class;
 
-  TTagType = (ttProperty, ttConnection, ttInterpreter, ttLanguage, ttInclude, ttUnknown, ttplugintag);
+  TTagType = (ttProperty, ttConnection, ttInterpreter, ttLanguage, ttInclude, ttUnknown, ttplugintag, ttprojectitem);
 
   TCodeGeneratorDetails = class(TObject)
   protected
@@ -40,7 +40,6 @@ Type
     property oProject: tProject
       read foProject
       write foProject;
-
 
     property oTemplateTag: TTemplateTag
       read FTemplateTag
@@ -75,7 +74,7 @@ Type
     FTemplate: tNovusTemplate;
     FCodeGeneratorList: TNovusList;
   private
-    procedure DoPluginTags;
+//    procedure DoPluginTags;
     procedure DoLanguage;
     procedure DoConnections;
     function  DoIncludes: Boolean;
@@ -221,6 +220,9 @@ begin
   if lsToken = 'INCLUDE' then
     result := ttInclude
   else
+  if lsToken = 'PROJECTITEM' then
+    result := ttprojectitem
+  else
   if oRuntime.oProperties.IsPropertyExists(lsToken) then
     Result := ttProperty
   else
@@ -315,7 +317,7 @@ begin
 
     DoProperties;
 
-    DoPluginTags;
+   // DoPluginTags;
 
     RunPropertyVariables(0,(FCodeGeneratorList.Count - 1));
 
@@ -476,9 +478,11 @@ begin
      FTemplateTag := FCodeGeneratorDetails.oTemplateTag;
 
      // Default Property value
+     if FCodeGeneratorDetails.TagType = ttprojectitem then
+       FTemplateTag.TagValue:= fProjectItem.GetProperty(FCodeGeneratorDetails.Tokens)
+     else
      if FCodeGeneratorDetails.TagType = ttProperty then
        FTemplateTag.TagValue:= oRuntime.oProperties.GetProperty(FTemplateTag.TagName);
-
 
      for x := 0 to oRuntime.oProperties.NodeNames.Count - 1 do
       begin
@@ -646,6 +650,7 @@ begin
    end;
 end;
 
+(*
 procedure TCodeGenerator.DoPluginTags;
 Var
   I: integer;
@@ -669,6 +674,7 @@ begin
         end;
    end;
 end;
+*)
 
 procedure TCodeGenerator.DoConnections;
 Var

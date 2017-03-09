@@ -218,8 +218,10 @@ begin
           else
           if (CompareText('.'+TPostProcessorPlugin(loPlugin).sourceextension,  ExtractFileExt(aProjectItem.TemplateFile)) =0) then
             begin
-             if TPostProcessorPlugin(loPlugin).PostProcessor(aProjectItem, aTemplate, aOutputFile) = false then
-               Fooutput.Failed := true;
+              if TPostProcessorPlugin(loPlugin).PostProcessor(aProjectItem, aTemplate, aOutputFile) = false then
+                Fooutput.Failed := true;
+
+              break;
             end;
         end;
     end;

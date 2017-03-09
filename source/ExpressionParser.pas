@@ -1,4 +1,4 @@
-unit EParser;
+unit ExpressionParser;
 
 interface
 
@@ -133,7 +133,10 @@ begin
   while (FExpr[FExprID]=';') and (FExprID<=FLExpr) do
      Inc(FExprID);
 
-  //Check if End of Expression
+  while (FExpr[FExprID]='.') and (FExprID<=FLExpr) do
+     Inc(FExprID);
+
+   //Check if End of Expression
   if FExpr[FExprID]=EndSymbol then
   begin
     FToken := '';
@@ -186,16 +189,20 @@ begin
 
     exit;
   end;
+
   //Variable
   if (IsAlpha(FExpr[FExprID])) or (FExpr[FExprID] ='$') then
   begin
     FToken := '';
     while (not IsDelim(FExpr[FExprID])) and
          (Expr[FExprID]<>EndSymbol) and
-         (FExpr[FExprID]<>';') do
+         ((FExpr[FExprID]<>';')) do
     begin
       FToken := FToken+FExpr[FExprID];
+
       Inc(FExprID);
+
+      if FExpr[FExprID] = '.' then break;
     end;
     FTokenType := ttString;
     exit;

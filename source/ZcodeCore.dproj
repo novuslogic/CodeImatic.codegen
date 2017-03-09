@@ -114,7 +114,7 @@
         <DCCReference Include="Output.pas"/>
         <DCCReference Include="Plugins\API\APIBase.pas"/>
         <DCCReference Include="Runtime.pas"/>
-        <DCCReference Include="3rdParty\EParser.pas"/>
+        <DCCReference Include="ExpressionParser.pas"/>
         <DCCReference Include="Config.pas"/>
         <DCCReference Include="Project.pas"/>
         <DCCReference Include="projectconfig.pas"/>
@@ -490,13 +490,13 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Android" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
+                <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME)"/>
-                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
             </Deployment>
         </BorlandProject>
         <ProjectFileVersion>12</ProjectFileVersion>

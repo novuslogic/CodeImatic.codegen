@@ -15,7 +15,10 @@ Type
     fsPropertiesFile: String;
     fboverrideoutput: Boolean;
     fsPostprocessor: string;
+    fJvSimpleXmlElem: TJvSimpleXmlElem;
   Public
+    function GetProperty(aTokens: tStringList): String;
+
     property PropertiesFile: String
        read fsPropertiesFile
        write fsPropertiesFile;
@@ -39,6 +42,10 @@ Type
     property PostProcessor: String
       read fsPostProcessor
       write fsPostProcessor;
+
+    property XmlElem: TJvSimpleXmlElem
+      read fJvSimpleXmlElem
+      write fJvSimpleXmlElem;
   end;
 
 
@@ -127,6 +134,8 @@ begin
 
     If Assigned(fJvSimpleXmlElem) then
       begin
+        aProjectItem.XmlElem := fJvSimpleXmlElem;
+
         Index := 0;
         if assigned(TNovusSimpleXML.FindNode(fJvSimpleXmlElem, 'template', Index)) then
           begin
@@ -134,6 +143,7 @@ begin
             aProjectItem.TemplateFile := TNovusSimpleXML.FindNode(fJvSimpleXmlElem, 'template', Index).Value;
           end;
 
+        Index := 0;
         if assigned(TNovusSimpleXML.FindNode(fJvSimpleXmlElem, 'source', Index)) then
           begin
             Index := 0;
@@ -256,6 +266,36 @@ end;
 function TProject.GetCreateoutputdir: Boolean;
 begin
   Result := GetFieldAsBoolean(oXMLDocument.Root, 'Createoutputdir');
+end;
+
+// ProjectItem
+
+function TProjectItem.GetProperty(aTokens: tStringList): String;
+var
+  Index: integer;
+begin
+  result := '';
+
+  if aTokens.Count > 1 then
+    begin
+      if Trim(Uppercase(aTokens[1]))= 'NAME' then
+        result := ItemName
+      else
+         begin
+           Index := 0;
+           if assigned(TNovusSimpleXML.FindNode(fJvSimpleXmlElem, Trim(Uppercase(aTokens[1])), Index)) then
+             begin
+               Index := 0;
+               Result := TNovusSimpleXML.FindNode(fJvSimpleXmlElem, Trim(Uppercase(aTokens[1])), Index).Value;
+             end;
+
+         end;
+
+
+    end;
+
+
+
 end;
 
 
