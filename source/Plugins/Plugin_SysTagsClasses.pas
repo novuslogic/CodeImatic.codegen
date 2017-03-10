@@ -58,7 +58,7 @@ end;
 // Plugin_SysTags
 function tPlugin_SysTags.GetPluginName: string;
 begin
-  Result := 'SysTags';
+  Result := 'Sys';
 end;
 
 procedure tPlugin_SysTags.Initialize;
@@ -92,7 +92,7 @@ end;
 function tPlugin_SysTagsBase.IsTagExists(aTagName: String): Integer;
 begin
   Result := -1;
-  if atagName = 'ZCVERSION' then
+  if uppercase(atagName) = 'VERSION' then
     Result := 0;
 end;
 

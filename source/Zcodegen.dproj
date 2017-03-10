@@ -98,11 +98,11 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
         <DCC_DcpOutput>..\build\</DCC_DcpOutput>
-        <VerInfo_Build>86</VerInfo_Build>
+        <VerInfo_Build>96</VerInfo_Build>
         <Debugger_CWD>D:\Projects\NovuscodeLibrary\Scripts</Debugger_CWD>
         <Debugger_RunParams>-project packages.zcproject -projectconfig packages.zcconfig </Debugger_RunParams>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=0.5.0.86;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=Zcodegen;ProductVersion=0.5.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=0.5.0.96;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=Zcodegen;ProductVersion=0.5.0.0;Comments=</VerInfo_Keys>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">

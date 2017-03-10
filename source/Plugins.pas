@@ -24,8 +24,8 @@ type
 
      function IsCommandLine(aCommandLinePlugin: TCommandLinePlugin): boolean;
 
-     function IsTagExists(aTagName: string): Boolean;
-     function GetTag(aTagName: string): String;
+     function IsTagExists(aPluginName: String; aTagName: string): Boolean;
+     function GetTag(aPluginName: String;aTagName: string): String;
 
      function PostProcessor(aProjectItem: tProjectItem; aTemplate: tNovusTemplate; var aOutputFile: string): boolean; overload;
      function PostProcessor(aFilename: string; var aTemplateDoc: tStringlist): boolean; overload;
@@ -174,7 +174,7 @@ begin
 end;
 
 
-function TPlugins.IsTagExists(aTagName: string): Boolean;
+function TPlugins.IsTagExists(aPluginName: string;aTagName: string): Boolean;
 var
   loPlugin: TPlugin;
   I: Integer;
@@ -185,10 +185,13 @@ begin
       loPlugin := TPlugin(fPluginsList.Items[i]);
       if loPlugin is TTagsPlugin then
         begin
-          if TTagsPlugin(loPlugin).IsTagExists(aTagName) <> -1 then
+          if Uppercase(TTagsPlugin(loPlugin).PluginName) = Uppercase(aPluginName) then
             begin
-              Result := True;
-              Break;
+              if TTagsPlugin(loPlugin).IsTagExists(aTagName) <> -1 then
+                begin
+                  Result := True;
+                  Break;
+                end;
             end;
         end;
     end;
@@ -248,7 +251,7 @@ begin
 end;
 
 
-function TPlugins.GetTag(aTagName: string): String;
+function TPlugins.GetTag(aPluginName: String;aTagName: string): String;
 var
   loPlugin: TPlugin;
   I: Integer;
@@ -259,11 +262,14 @@ begin
       loPlugin := TPlugin(fPluginsList.Items[i]);
       if loPlugin is TTagsPlugin then
         begin
-          if TTagsPlugin(loPlugin).IsTagExists(aTagName) <> -1 then
+          if Uppercase(TTagsPlugin(loPlugin).PluginName) = Uppercase(aPluginName) then
             begin
-              Result := TTagsPlugin(loPlugin).GetTag(aTagName);
+              if TTagsPlugin(loPlugin).IsTagExists(aTagName) <> -1 then
+                begin
+                  Result := TTagsPlugin(loPlugin).GetTag(aTagName);
 
-              Break;
+                  Break;
+                end;
             end;
         end;
     end;

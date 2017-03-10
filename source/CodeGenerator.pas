@@ -74,7 +74,7 @@ Type
     FTemplate: tNovusTemplate;
     FCodeGeneratorList: TNovusList;
   private
-//    procedure DoPluginTags;
+    procedure DoPluginTags;
     procedure DoLanguage;
     procedure DoConnections;
     function  DoIncludes: Boolean;
@@ -197,7 +197,8 @@ end;
 
 function TCodeGenerator.GetTagType(ATokens: TstringList): TTagType;
 Var
-  lsToken: String;
+  lsToken1: String;
+  lsToken2: string;
 begin
   if ATokens.count = 0 then
     begin
@@ -206,25 +207,30 @@ begin
       exit;
     end;
 
-  lsToken := Uppercase(ATokens.Strings[0]);
+  lsToken1 := Uppercase(ATokens.Strings[0]);
+  if ATokens.Count > 1 then
+    lsToken2 := Uppercase(ATokens.Strings[1]);
 
-  if lsToken= '' then
+  if lsToken1= '' then
     result := ttunknown
   else
-  if lsToken = 'LANGUAGE' then
+  if lsToken1 = 'LANGUAGE' then
     Result := ttlanguage
   else
-  if lsToken = 'CONNECTION' then
+  if lsToken1 = 'CONNECTION' then
     Result := ttConnection
   else
-  if lsToken = 'INCLUDE' then
+  if lsToken1 = 'INCLUDE' then
     result := ttInclude
   else
-  if lsToken = 'PROJECTITEM' then
+  if lsToken1 = 'PROJECTITEM' then
     result := ttprojectitem
   else
-  if oRuntime.oProperties.IsPropertyExists(lsToken) then
+  if oRuntime.oProperties.IsPropertyExists(lsToken1) then
     Result := ttProperty
+  else
+  if oRuntime.oPlugins.IsTagExists(lsToken1,lsToken2 ) then
+    Result := ttplugintag
   else
     Result := ttInterpreter;
 end;
@@ -317,7 +323,7 @@ begin
 
     DoProperties;
 
-   // DoPluginTags;
+    DoPluginTags;
 
     RunPropertyVariables(0,(FCodeGeneratorList.Count - 1));
 
@@ -329,6 +335,8 @@ begin
     DoLanguage;
 
     DoProperties;
+
+    DoPluginTags;
 
     RunPropertyVariables(0,(FCodeGeneratorList.Count - 1));
 
@@ -650,7 +658,7 @@ begin
    end;
 end;
 
-(*
+
 procedure TCodeGenerator.DoPluginTags;
 Var
   I: integer;
@@ -661,20 +669,23 @@ begin
    begin
       FCodeGeneratorDetails := TCodeGeneratorDetails(FCodeGeneratorList.Items[i]);
 
-      if (FCodeGeneratorDetails.tagType = ttInterpreter) then
+      if (FCodeGeneratorDetails.tagType = ttPluginTag) then
         begin
           FTemplateTag := FCodeGeneratorDetails.oTemplateTag;
 
-          if oRuntime.oPlugins.IsTagExists(FTemplateTag.TagName) then
+          if FCodeGeneratorDetails.Tokens.Count > 1 then
             begin
-              FCodeGeneratorDetails.tagType := ttplugintag;
-
-              FTemplateTag.TagValue := oRuntime.oPlugins.GetTag(FTemplateTag.TagName);
-            end;
+              if oRuntime.oPlugins.IsTagExists(FCodeGeneratorDetails.Tokens[0], FCodeGeneratorDetails.Tokens[1]) then
+                begin
+                  FTemplateTag.TagValue := oRuntime.oPlugins.GetTag(FCodeGeneratorDetails.Tokens[0], FCodeGeneratorDetails.Tokens[1]);
+                end;
+            end
+         else
+          FTemplateTag.TagValue := '';
         end;
    end;
 end;
-*)
+
 
 procedure TCodeGenerator.DoConnections;
 Var
