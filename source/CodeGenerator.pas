@@ -14,7 +14,7 @@ Const
 Type
   TCodeGenerator = class;
 
-  TTagType = (ttProperty, ttConnection, ttInterpreter, ttLanguage, ttInclude, ttUnknown, ttplugintag, ttprojectitem);
+  TTagType = (ttProperty, ttConnection, ttInterpreter, ttLanguage, ttInclude, ttUnknown, ttplugintag, ttprojectitem, ttPropertyEx);
 
   TCodeGeneratorDetails = class(TObject)
   protected
@@ -26,6 +26,8 @@ Type
     FTemplateTag: TTemplateTag;
     FTokens: tStringlist;
     LiLoopID: Integer;
+    function GetToken1: string;
+    function GetToken2: string;
   private
   public
     constructor Create; virtual;
@@ -60,6 +62,12 @@ Type
     property LoopID: Integer
       read liLoopId
       write liLoopId;
+
+    property Token2: string
+      read GetToken2;
+
+    property Token1: string
+      read GetToken1;
   end;
 
   TCodeGenerator = class(TObject)
@@ -84,7 +92,6 @@ Type
     procedure DoPostProcessorPlugins(var aOutputFile: string);
     function PassTemplateTags(aClearRun: Boolean = false): Boolean;
     function DoInternalIncludes: Boolean;
-    function GetGlobalPropertyValue(aToken: String): String;
   public
     constructor Create(ATemplate: TNovusTemplate; AOutput: TOutput; aProject: tProject; aProjectItem: tProjectItem); virtual;
     destructor Destroy; override;
@@ -115,7 +122,8 @@ Type
 
     function IsInterpreter(ATokens: TstringList): boolean;
 
-    function GetTagType(ATokens: TstringList): TTagType;
+    class function GetTagType(aToken1: string; aToken2: string): TTagType;
+
 
     procedure Execute(aOutputFile: String);
 
@@ -126,6 +134,10 @@ Type
     property Template: TNovusTemplate
       read FTemplate
       write FTemplate;
+
+    property oProjectItem: TProjectItem
+      read fProjectItem
+      write fProjectItem;
   end;
 
 
@@ -133,7 +145,7 @@ Type
 implementation
 
 
-uses runtime;
+uses runtime, TokenParser;
 
 
 constructor TCodeGenerator.Create;
@@ -195,41 +207,39 @@ begin
 
 end;
 
-function TCodeGenerator.GetTagType(ATokens: TstringList): TTagType;
-Var
-  lsToken1: String;
-  lsToken2: string;
+class function TCodeGenerator.GetTagType(aToken1: string; aToken2: string): TTagType;
 begin
-  if ATokens.count = 0 then
+  if aToken1 = '' then
     begin
       result := ttunknown;
 
       exit;
     end;
 
-  lsToken1 := Uppercase(ATokens.Strings[0]);
-  if ATokens.Count > 1 then
-    lsToken2 := Uppercase(ATokens.Strings[1]);
-
-  if lsToken1= '' then
+  if aToken1= '' then
     result := ttunknown
   else
-  if lsToken1 = 'LANGUAGE' then
+  if aToken1 = 'LANGUAGE' then
     Result := ttlanguage
   else
-  if lsToken1 = 'CONNECTION' then
+  if aToken1 = 'CONNECTION' then
     Result := ttConnection
   else
-  if lsToken1 = 'INCLUDE' then
+  if aToken1 = 'INCLUDE' then
     result := ttInclude
   else
-  if lsToken1 = 'PROJECTITEM' then
+  if aToken1 = 'PROJECTITEM' then
     result := ttprojectitem
   else
-  if oRuntime.oProperties.IsPropertyExists(lsToken1) then
+  if aToken1 = 'PROPERTIES' then
+   begin
+     Result := ttPropertyEx;
+   end
+  else
+  if oRuntime.oProperties.IsPropertyExists(aToken1) then
     Result := ttProperty
   else
-  if oRuntime.oPlugins.IsTagExists(lsToken1,lsToken2 ) then
+  if (oRuntime.oPlugins.IsTagExists(aToken1,aToken2 ) or oRuntime.oPlugins.IsPluginNameExists(aToken1)) then
     Result := ttplugintag
   else
     Result := ttInterpreter;
@@ -489,8 +499,18 @@ begin
      if FCodeGeneratorDetails.TagType = ttprojectitem then
        FTemplateTag.TagValue:= fProjectItem.GetProperty(FCodeGeneratorDetails.Tokens)
      else
-     if FCodeGeneratorDetails.TagType = ttProperty then
-       FTemplateTag.TagValue:= oRuntime.oProperties.GetProperty(FTemplateTag.TagName);
+     if (FCodeGeneratorDetails.TagType = ttProperty) or  (FCodeGeneratorDetails.TagType = ttPropertyEx) then
+       begin
+         if (FCodeGeneratorDetails.TagType = ttProperty) then
+           FTemplateTag.TagValue:= oRuntime.oProperties.GetProperty(FTemplateTag.TagName)
+         else
+         if (FCodeGeneratorDetails.TagType = ttPropertyEx) then
+         begin
+           FTemplateTag.TagValue:= oRuntime.oProperties.GetProperty(FCodeGeneratorDetails.Token2)
+
+
+         end;
+       end;
 
      for x := 0 to oRuntime.oProperties.NodeNames.Count - 1 do
       begin
@@ -526,6 +546,7 @@ Var
   I: integer;
   FTemplateTag: TTemplateTag;
   FCodeGeneratorDetails: TCodeGeneratorDetails;
+  FiIndex: Integer;
 begin
   for I := 0 to FCodeGeneratorList.Count - 1 do
    begin
@@ -538,7 +559,8 @@ begin
           If (FTemplateTag.RawTagEx = FTemplate.OutputDoc.Strings[FTemplateTag.SourceLineNo - 1]) then
             FTemplateTag.TagValue := cDeleteLine;
 
-          fsLanguage := GetGlobalPropertyValue(FCodeGeneratorDetails.Tokens[2]);
+          FiIndex := 0;
+          fsLanguage := tTokenParser.ParseToken( Self, FCodeGeneratorDetails.Tokens[2], fProjectItem, fVariables, fOutput, NIL, FiIndex);
 
           if FileExists(oConfig.Languagespath + fsLanguage + '.xml') then
             begin
@@ -552,13 +574,6 @@ begin
    end;
 end;
 
-function TCodeGenerator.GetGlobalPropertyValue(aToken: String): String;
-begin
-  If Copy(aToken, 1, 2) = '$$' then
-    Result := oRuntime.oProperties.GetProperty(Copy(aToken, 3, Length(aToken) ))
-  else Result := aToken;
-end;
-
 
 function TCodeGenerator.DoInternalIncludes: Boolean;
 Var
@@ -567,6 +582,7 @@ Var
   FTemplateTag: TTemplateTag;
   lsIncludeFilename: String;
   FIncludeTemplate: TStringList;
+  FiINdex: Integer;
 begin
   for I := 0 to FCodeGeneratorList.Count - 1 do
    begin
@@ -583,7 +599,8 @@ begin
           If (FTemplateTag.RawTagEx = FTemplate.OutputDoc.Strings[FTemplateTag.SourceLineNo - 1]) then
             FTemplateTag.TagValue := cDeleteLine;
 
-          lsIncludeFilename := fProject.oProjectConfig.TemplatePath + GetGlobalPropertyValue(FCodeGeneratorDetails.Tokens[2]);
+          FiIndex := 0;
+          lsIncludeFilename := fProject.oProjectConfig.TemplatePath + tTokenParser.ParseToken(Self, FCodeGeneratorDetails.Tokens[2], fProjectItem, fVariables, FOutput, NIL, FiIndex);
 
           if FileExists(lsIncludeFilename) then
             begin
@@ -654,6 +671,13 @@ begin
           FTemplateTag := FCodeGeneratorDetails.oTemplateTag;
 
           FTemplateTag.TagValue := oRuntime.oProperties.GetProperty(FTemplateTag.TagName);
+        end
+      else
+      if FCodeGeneratorDetails.tagType = ttPropertyEx then
+        begin
+          FTemplateTag := FCodeGeneratorDetails.oTemplateTag;
+
+          FTemplateTag.TagValue := oRuntime.oProperties.GetProperty(FCodeGeneratorDetails.Token2);
         end;
    end;
 end;
@@ -728,6 +752,8 @@ begin
 end;
 
 procedure TCodeGeneratorDetails.Execute;
+var
+  lsToken1, lsToken2: string;
 begin
   fsDefaultTagName := oTemplateTag.TagName;
 
@@ -735,7 +761,23 @@ begin
 
   FEParser.ListTokens(FTokens);
 
-  FTagType := FCodeGenerator.GetTagType(FTokens);
+  lsToken1 := Uppercase(FTokens.Strings[0]);
+  if fTokens.Count > 1 then
+    lsToken2 := Uppercase(FTokens.Strings[1]);
+
+  FTagType := FCodeGenerator.GetTagType(lsToken1,lsToken2   );
+end;
+
+function TCodeGeneratorDetails.GetToken1: string;
+begin
+  Result := Tokens[0];
+end;
+
+function TCodeGeneratorDetails.GetToken2: string;
+begin
+  Result := '';
+  if Tokens.Count > 1 then
+    Result := Tokens[1];
 end;
 
 

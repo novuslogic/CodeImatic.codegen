@@ -167,6 +167,8 @@ begin
         begin
           Foutput.WriteLog('template ' + loProjectItem.templateFile + ' cannot be found.');
 
+          Foutput.Failed := True;
+
           Continue;
         end;
 

@@ -4,7 +4,7 @@ interface
 
 Uses
   Classes, ExpressionParser, SysUtils, DB, NovusStringUtils, Output,
-  NovusList, Variants, Variables, XMLList,  NovusGUIDEx;
+  NovusList, Variants, Variables, XMLList,  NovusGUIDEx, ScriptEngine, TokenParser;
 
 const
   csCommamdSyntax: array[1..24] of String = (
@@ -75,9 +75,9 @@ Type
 
   End;
 
-
   TInterpreter = Class(Tobject)
   protected
+    foScriptEngine: TScriptEngine;
     fbIsFailedInterpreter: Boolean;
     FCodeGenerator: tObject;
     fiLoopCounter: Integer;
@@ -93,7 +93,7 @@ Type
     function IsEndRepeat(ACodeGeneratorDetails: TObject): Boolean;
     function FindEndRepeatIndexPos(AIndex: INteger): INteger;
     function FindLoop(ALoopType:TLoopType; ALoopID: Integer): TLoop;
-    function GetVariableName(AVariableName: String): String;
+    //function CleanVariableName(AVariableName: String): String;
     function GetNextCommand(ATokens: tStringList; Var AIndex: Integer; Var ASkipPOs: Integer;ASubCommand: Boolean = False;ASubVariable:Boolean = False ): String;
     procedure AddVariable(AVariableName: String;AValue: Variant);
 
@@ -109,7 +109,7 @@ Type
 
     function ParseVariable(ATokens: tStringList; Var AIndex: Integer;ASubCommand: Boolean = False): String;
 
-    function GetNextToken(Var AIndex: Integer; ATokens: tStringlist): String;
+
 
     function Functions(ATokens: tStringList; Var AIndex: Integer; ACommandIndex: Integer): String;
     function Procedures(ATokens: tStringList; Var AIndex: Integer; ACommandIndex: Integer): String;
@@ -124,6 +124,8 @@ Type
   public
     constructor Create(ACodeGenerator: TObject; AOutput: TOutput); virtual;
     destructor Destroy; override;
+
+    function GetNextToken(Var AIndex: Integer; ATokens: tStringlist): String;
 
     function CommandSyntaxIndexByTokens(ATokens: TStringList): Integer;
     function CommandSyntaxIndex(ACommand: String): integer;
@@ -157,11 +159,14 @@ begin
   FOutput := AOutput;
 
   fiLoopCounter := 0;
+
+  foScriptEngine:= TScriptEngine.Create(AOutput);
 end;
 
 destructor TInterpreter.Destroy;
 begin
   fLoopList.Free;
+  foScriptEngine.Free;
 
   inherited;
 end;
@@ -673,6 +678,9 @@ begin
       begin
         if Pos('$', ATokens[AIndex]) = 1  then
           Result := ParseVariable(ATokens, AIndex)
+        else
+        if Pos('$$', ATokens[AIndex]) = 1  then
+          result := tTokenParser.ParseToken(Self, ATokens[AIndex], TCodeGenerator(FCodeGenerator).oProjectItem, TCodeGenerator(FCodeGenerator).oVariables, fOutput, ATokens,AIndex);
       end;
   Except
     FOutput.WriteExceptLog;
@@ -957,10 +965,10 @@ begin
   end;
 end;
 
-function TInterpreter.GetVariableName(AVariableName: String): String;
-begin
-  Result := Copy(AVariableName, 2, Length(AVariableName));
-end;
+//function TInterpreter.CleanVariableName(AVariableName: String): String;
+//begin
+//  Result := Copy(AVariableName, 2, Length(AVariableName));
+//end;
 
 
 function TInterpreter.FindLoop(ALoopType:TLoopType; ALoopID: Integer): TLoop;
@@ -1007,7 +1015,7 @@ begin
   Result := '';
   FOut := False;
 
-  lsVariableName1  := GetVariableName(ATokens[AIndex]);
+  lsVariableName1  := TVariables.CleanVariableName(ATokens[AIndex]);
 
   if ATokens[0] = '=' then FOut := True;
 
@@ -1019,6 +1027,8 @@ begin
         begin
           lsValue := GetToken;
 
+          lsValue := tTokenParser.ParseToken(Self, lsValue, TCodeGenerator(FCodeGenerator).oProjectItem,TCodeGenerator(FCodeGenerator).oVariables, fOutput, ATokens,AIndex);
+
           If TNovusStringUtils.IsNumberStr(lsValue) then
             begin
               if Pos('.', lsValue) > 0 then
@@ -1028,13 +1038,7 @@ begin
             end
           else
             AddVariable(lsVariableName1, lsValue);
-          (*
-          If TNovusStringUtils.IsAlphaStr(lsValue) then
-            begin
-              AddVariable(lsVariableName1, lsValue);
 
-            end;
-          *)
         end
       else
         begin
@@ -1043,7 +1047,7 @@ begin
           X := -1;
           if Pos('$', lsValue) = 1 then
             begin
-              lsVariableName2  := GetVariableName(lsValue);
+              lsVariableName2  := TVariables.CleanVariableName(lsValue);
 
               X := VariableExistsIndex(lsVariableName2);
             end;
@@ -1106,7 +1110,11 @@ begin
               Result := FVariable1.Value;
             end
           else
-            FOutput.WriteLog('Syntax error: "' + lsVariableName1 + '" not defined');
+            begin
+              FOutput.WriteLog('Syntax error: "' + lsVariableName1 + '" not defined');
+              FOutput.Failed := true;
+            end;
+
         end
       else
         FOutput.WriteLog('Incorrect syntax: lack "="');
@@ -1122,6 +1130,7 @@ function TInterpreter.Execute(ACodeGeneratorDetails: tObject; Var ASkipPos: Inte
 Var
   FIndex: Integer;
   Fout: Boolean;
+  fsScript: string;
 begin
   Result := '';
 
@@ -1139,6 +1148,12 @@ begin
       Fout := True;
       FIndex := 1;
     end;
+
+
+  //fsScript := tCodeGeneratorDetails(ACodeGeneratorDetails).oTemplateTag.TagName;
+
+  //fbIsFailedInterpreter := (not foScriptEngine.ExecuteScript(fsScript));
+  //if fbIsFailedInterpreter = true then Exit;
 
   if Fout = True then
     begin
@@ -1283,7 +1298,7 @@ begin
 
   if Pos('$', Result) = 1  then
     begin
-      I := VariableExistsIndex(GetVariableName(Result));
+      I := VariableExistsIndex(TVariables.CleanVariableName(Result));
       if I <> -1 then
         begin
           LVariable := GetVariablebyIndex(i);

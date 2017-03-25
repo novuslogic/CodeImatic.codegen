@@ -30,6 +30,7 @@ package ZcodeCore;
 
 requires
   rtl,
+  PascalScript_Core_D22,
   NovusCodeLibrary_Core,
   NovusCodeLibrary_Log,
   NovusCodeLibrary_XML,
@@ -48,6 +49,8 @@ contains
   Config in 'Config.pas',
   Project in 'Project.pas',
   projectconfig in 'projectconfig.pas',
-  ConfigProperties in 'ConfigProperties.pas';
+  ConfigProperties in 'ConfigProperties.pas',
+  ScriptEngine in 'ScriptEngine.pas',
+  TokenParser in 'TokenParser.pas';
 
 end.

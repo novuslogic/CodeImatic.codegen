@@ -24,3 +24,4 @@
 /source/ZcodeCore_project.tvsconfig
 /source/ZcodegenGroup_prjgroup.tvsconfig
 /source/Zcodegen_project.tvsconfig
+*.stat

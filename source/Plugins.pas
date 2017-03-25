@@ -22,6 +22,8 @@ type
 
      function FindPlugin(aPluginName: String): TPlugin;
 
+     function IsPluginNameExists(aPluginName: string): Boolean;
+
      function IsCommandLine(aCommandLinePlugin: TCommandLinePlugin): boolean;
 
      function IsTagExists(aPluginName: String; aTagName: string): Boolean;
@@ -174,6 +176,13 @@ begin
 end;
 
 
+function TPlugins.IsPluginNameExists(aPluginName: string): Boolean;
+begin
+  Result := False;
+
+  if Assigned(FindPlugin(aPluginName)) then Result := true;
+end;
+
 function TPlugins.IsTagExists(aPluginName: string;aTagName: string): Boolean;
 var
   loPlugin: TPlugin;
@@ -285,7 +294,7 @@ begin
   for I := 0 to fPluginsList.Count -1 do
     begin
       loPlugin := TPlugin(fPluginsList.Items[i]);
-      if loPlugin.PluginName =  aPluginName then
+      if Uppercase(Trim(loPlugin.PluginName)) =  Uppercase(Trim(aPluginName)) then
         begin
           Result :=  loPlugin;
 

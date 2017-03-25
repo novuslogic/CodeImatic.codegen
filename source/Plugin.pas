@@ -2,7 +2,7 @@ unit Plugin;
 
 interface
 
-uses classes, Output, NovusPlugin, Project, config, NovusTemplate;
+uses classes, Output, NovusPlugin, Project, config, NovusTemplate, uPSRuntime, uPSCompiler;
 
 type
    TPlugin = class(TPersistent)
@@ -38,6 +38,16 @@ type
    public
      function GetTag(aTagName: String): String; virtual;
      function IsTagExists(aTagName: String): Integer; virtual;
+   end;
+
+   TPascalScriptPlugin = class(TPlugin)
+   private
+   protected
+   public
+     function CustomOnUses(aCompiler: TPSPascalCompiler): Boolean; virtual;
+     procedure RegisterFunctions(aExec: TPSExec); virtual;
+     procedure SetVariantToClasses(aExec: TPSExec); virtual;
+     procedure RegisterImports; virtual;
    end;
 
 
@@ -130,6 +140,26 @@ end;
 function TPostProcessorPlugin.Getoutputextension: string;
 begin
   Result := '';
+end;
+
+function TPascalScriptPlugin.CustomOnUses(aCompiler: TPSPascalCompiler): Boolean;
+begin
+  result := false;
+end;
+
+procedure TPascalScriptPlugin.RegisterFunctions(aExec: TPSExec);
+begin
+  //
+end;
+
+procedure TPascalScriptPlugin.SetVariantToClasses(aExec: TPSExec);
+begin
+  //
+end;
+
+procedure TPascalScriptPlugin.RegisterImports;
+begin
+  //
 end;
 
 

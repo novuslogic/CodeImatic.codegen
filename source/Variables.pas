@@ -33,6 +33,8 @@ Type
     procedure AddVariable(AVariableName: String;AValue: Variant);
     function VariableExistsIndex(AVariableName: String): Integer;
     function GetVariableByIndex(AIndex: Integer): TVariable;
+    function GetVariableByName(aVariableName: String): TVariable;
+    class function CleanVariableName(AVariableName: String): String;
   end;
 
 
@@ -97,6 +99,23 @@ begin
     Result := NIL;
   End;
 end;
+
+function TVariables.GetVariableByName(aVariableName: String): TVariable;
+Var
+  liIndex: Integer;
+begin
+  Result := NIL;
+
+  liIndex := VariableExistsIndex(aVariableName);
+  if LiIndex = -1 then Exit;
+  Result :=  GetVariablebyIndex(LiIndex);
+end;
+
+class function TVariables.CleanVariableName(AVariableName: String): String;
+begin
+  Result := Copy(AVariableName, 2, Length(AVariableName));
+end;
+
 
 //  TVariable
 function TVariable.AsString: String;

@@ -4,7 +4,7 @@ interface
 
 uses Classes,Plugin, NovusPlugin, NovusVersionUtils, Project,
     Output, SysUtils, System.Generics.Defaults,  runtime, Config,
-    APIBase ;
+    APIBase, NovusGUIDEx;
 
 
 type
@@ -85,7 +85,7 @@ function tPlugin_SysTagsBase.GetTag(aTagName: String): String;
 begin
    case IsTagExists(aTagName) of
    0: result := oRuntime.GetVersion(1);
-
+   1: result := TGuidExUtils.NewGuidString;
    end;
 end;
 
@@ -93,7 +93,10 @@ function tPlugin_SysTagsBase.IsTagExists(aTagName: String): Integer;
 begin
   Result := -1;
   if uppercase(atagName) = 'VERSION' then
-    Result := 0;
+    Result := 0
+  else
+  if uppercase(aTagName) = 'NEWGUIDSTRING' then
+    result := 1;
 end;
 
 
