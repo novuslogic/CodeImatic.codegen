@@ -86,6 +86,7 @@ begin
    case IsTagExists(aTagName) of
    0: result := oRuntime.GetVersion(1);
    1: result := TGuidExUtils.NewGuidString;
+   2: result := TGuidExUtils.NewGuidNoBracketsString;
    end;
 end;
 
@@ -95,8 +96,10 @@ begin
   if uppercase(atagName) = 'VERSION' then
     Result := 0
   else
-  if uppercase(aTagName) = 'NEWGUIDSTRING' then
+  if uppercase(aTagName) = 'NEWGUID' then
     result := 1;
+  if uppercase(aTagName) = 'NEWGUIDNOBRACKETS' then
+    result := 2;
 end;
 
 

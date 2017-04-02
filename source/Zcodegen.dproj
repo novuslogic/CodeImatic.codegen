@@ -98,11 +98,11 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
         <DCC_DcpOutput>..\build\</DCC_DcpOutput>
-        <VerInfo_Build>141</VerInfo_Build>
-        <Debugger_CWD>D:\Projects\Zcodegen\samples\StaticWebsite</Debugger_CWD>
-        <Debugger_RunParams>-project StaticWebsite.zcproject -projectconfig StaticWebsite.zcconfig  -webserver</Debugger_RunParams>
+        <VerInfo_Build>160</VerInfo_Build>
+        <Debugger_CWD>D:\Projects\NovuscodeLibrary\Scripts</Debugger_CWD>
+        <Debugger_RunParams>-project D:\Projects\NovuscodeLibrary\Scripts\packages.zcproject -projectconfig D:\Projects\NovuscodeLibrary\Scripts\packages.zcconfig -var DELPHIVER=&quot;DELPHIXE4&quot;</Debugger_RunParams>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=0.5.0.141;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=Zcodegen;ProductVersion=0.5.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=0.5.0.160;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=Zcodegen;ProductVersion=0.5.0.0;Comments=</VerInfo_Keys>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
@@ -486,13 +486,13 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
+                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Android" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
-                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
             </Deployment>
         </BorlandProject>
         <ProjectFileVersion>12</ProjectFileVersion>

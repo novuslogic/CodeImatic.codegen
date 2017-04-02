@@ -51,6 +51,8 @@ contains
   projectconfig in 'projectconfig.pas',
   ConfigProperties in 'ConfigProperties.pas',
   ScriptEngine in 'ScriptEngine.pas',
-  TokenParser in 'TokenParser.pas';
+  TokenParser in 'TokenParser.pas',
+  ProjectconfigParser in 'ProjectconfigParser.pas',
+  VariablesCmdLine in 'VariablesCmdLine.pas';
 
 end.

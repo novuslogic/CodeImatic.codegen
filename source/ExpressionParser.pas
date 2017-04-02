@@ -29,7 +29,7 @@ type
   TTokenType=(ttDelimiter, ttNumber, ttQuote, ttString, ttFinished);
 
   //Main parser class
-  TFEParser = class
+  TExpressionParser = class
   private
     FExpr : String;
     FLExpr : Integer;
@@ -70,7 +70,7 @@ type
 
 implementation
 
-{ TFEParser }
+{ TExpressionParser }
 
 const
   EndSymbol='~';
@@ -82,7 +82,7 @@ const
   );
 
 
-procedure TFEParser.ArithOp(Op: Char; Res, Res2: PPRes);
+procedure TExpressionParser.ArithOp(Op: Char; Res, Res2: PPRes);
 begin
   case Op of
     '+':try
@@ -96,13 +96,13 @@ begin
   end;
 end;
 
-function TFEParser.GetExpr: String;
+function TExpressionParser.GetExpr: String;
 begin
   Result := FExpr;
 //  System.Delete(Result, Length(Result)-1, 1);
 end;
 
-function TFEParser.Get_Result: Boolean;
+function TExpressionParser.Get_Result: Boolean;
 var
   PRes : TPRes;
 begin
@@ -119,7 +119,7 @@ begin
 end;
 
 //Get next token
-procedure TFEParser.Get_Token;
+procedure TExpressionParser.Get_Token;
 begin
   //Spaces
   while (FExpr[FExprID]=' ') and (FExprID<=FLExpr) do
@@ -210,27 +210,27 @@ begin
 end;
 
 
-function TFEParser.IsAlpha(C: Char): Boolean;
+function TExpressionParser.IsAlpha(C: Char): Boolean;
 begin
   Result := C in ['A'..'Z', 'a'..'z'];
 end;
 
-function TFEParser.IsDelim(C: Char): Boolean;
+function TExpressionParser.IsDelim(C: Char): Boolean;
 begin
   Result := Pos(C, ' ,+-<>=/*%^()')<>0;
 end;
 
-function TFEParser.IsDigit(C: Char): Boolean;
+function TExpressionParser.IsDigit(C: Char): Boolean;
 begin
   Result := C in ['0'..'9','.']
 end;
 
-function TFEParser.IsQuote(C : Char) : Boolean;
+function TExpressionParser.IsQuote(C : Char) : Boolean;
 begin
   Result := C in ['''','"']
 end;
 
-procedure TFEParser.Level1(Res: PPRes);
+procedure TExpressionParser.Level1(Res: PPRes);
 var
   Res2 : TPRes;
   Op : String;
@@ -246,7 +246,7 @@ begin
 end;
 
 
-procedure TFEParser.Level2(Res: PPRes);
+procedure TExpressionParser.Level2(Res: PPRes);
 var
   Res2 : TPRes;
   Op : String;
@@ -262,7 +262,7 @@ begin
   end;
 end;
 
-procedure TFEParser.Level3(Res: PPRes);
+procedure TExpressionParser.Level3(Res: PPRes);
 var
   Res2 : TPRes;
   Op : Char;
@@ -277,7 +277,7 @@ begin
   end;
 end;
 
-procedure TFEParser.Level4(Res: PPRes);
+procedure TExpressionParser.Level4(Res: PPRes);
 var
   Res2 : TPRes;
   Op : Char;
@@ -291,7 +291,7 @@ begin
     ArithOp(Op, Res, @Res2);
   end;
 end;
-procedure TFEParser.Level5(Res: PPRes);
+procedure TExpressionParser.Level5(Res: PPRes);
 var
   Op : Char;
 begin
@@ -306,7 +306,7 @@ begin
     UnaryOp(Op, Res);
 end;
 
-procedure TFEParser.Level6(Res: PPRes);
+procedure TExpressionParser.Level6(Res: PPRes);
 begin
   if (FToken='(') and (FTokenType=ttDelimiter) then
   begin
@@ -319,7 +319,7 @@ begin
     Primitive(Res);
 end;
 
-procedure TFEParser.ListTokens(Str: TStrings);
+procedure TExpressionParser.ListTokens(Str: TStrings);
 begin
   while (FExprID<>-1) and (FExprID<=FLExpr) do
   begin
@@ -332,7 +332,7 @@ begin
   end;
 end;
 
-procedure TFEParser.LogConOp(Op: String; Res, Res2: PPRes);
+procedure TExpressionParser.LogConOp(Op: String; Res, Res2: PPRes);
 begin
   if (Res^.Res<>trBool) or (Res2^.Res<>trBool) then
     raise TParserException.CreatePE(pBadSyntax);
@@ -351,7 +351,7 @@ begin
   end;
 end;
 
-procedure TFEParser.LogOp(Op: String; Res, Res2: PPRes);
+procedure TExpressionParser.LogOp(Op: String; Res, Res2: PPRes);
 begin
   Res^.Res := trBool;
   if Op='=' then
@@ -382,7 +382,7 @@ begin
   end;
 end;
 
-procedure TFEParser.Primitive(Res: PPRes);
+procedure TExpressionParser.Primitive(Res: PPRes);
 begin
   if FTokenType=ttNumber then
   begin
@@ -399,20 +399,20 @@ begin
   end;
 end;
 
-procedure TFEParser.SetExpr(const VExpr: String);
+procedure TExpressionParser.SetExpr(const VExpr: String);
 begin
   FExpr := VExpr+EndSymbol;
   FLExpr := Length(FExpr);
   FExprID := 1
 end;
 
-procedure TFEParser.UnaryOp(Op: Char; Res: PPRes);
+procedure TExpressionParser.UnaryOp(Op: Char; Res: PPRes);
 begin
   if Op='-' then
     Res^.Value := FloatToStr(StrToFloat(Res^.Value)*(-1));
 end;
 
-function TFEParser.ValueByName(VName: String): String;
+function TExpressionParser.ValueByName(VName: String): String;
 begin
   Result := VName;
 end;

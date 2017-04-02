@@ -3,7 +3,8 @@ unit Config;
 interface
 
 Uses SysUtils, NovusXMLBO, Registry, Windows, NovusStringUtils, NovusFileUtils,
-     JvSimpleXml, NovusSimpleXML, NovusList, ConfigProperties;
+     JvSimpleXml, NovusSimpleXML, NovusList, ConfigProperties, NovusEnvironment,
+     Classes, VariablesCmdLine;
 
 
 Const
@@ -42,6 +43,8 @@ Type
 
    TConfig = Class(TNovusXMLBO)
    protected
+      fsVarCmdLine: String;
+      fVariablesCmdLine: tVariablesCmdLine;
       fConfigPluginsList: tNovusList;
       fsDBSchemaFileName: String;
       fsProjectConfigFileName: String;
@@ -90,6 +93,11 @@ Type
      property oConfigPluginsList: tNovusList
        read fConfigPluginsList
        write fConfigPluginsList;
+
+     property oVariablesCmdLine: tvariablesCmdLine
+       read fVariablesCmdLine
+       write fVariablesCmdLine;
+
    End;
 
 Var
@@ -101,12 +109,16 @@ constructor TConfig.Create;
 begin
   inherited Create;
 
+  fVariablesCmdLine:= tVariablesCmdLine.Create;
+
   fConfigPluginsList := tNovusList.Create(TConfigPlugins);
 end;
 
 destructor TConfig.Destroy;
 begin
   fConfigPluginsList.Free;
+
+  fVariablesCmdLine.Free;
 
   inherited Destroy;
 end;
@@ -115,49 +127,37 @@ function TConfig.ParseParams: Boolean;
 Var
   I: integer;
   fbOK: Boolean;
+  lVarCmdLineStrList: TStringList;
 begin
-  Result := False;
+  Result := True;
 
-  fbOK := false;
-  I := 1;
-  While Not fbOK do
+  if FindCmdLineSwitch('project', true) then
     begin
-        if ParamStr(i) = '-project' then
-         begin
-           Inc(i);
-           fsProjectFileName := ParamStr(i);
+      FindCmdLineSwitch('project', fsProjectFileName, True, [clstValueNextParam, clstValueAppended]);
 
-           if Not FileExists(fsProjectFileName) then
-              begin
-                writeln ('-project ' + TNovusStringUtils.JustFilename(fsProjectFileName) + ' project filename cannot be found.');
+      if Not FileExists(fsProjectFileName) then
+        begin
+          writeln ('-project ' + TNovusStringUtils.JustFilename(fsProjectFileName) + ' project filename cannot be found.');
 
-                Exit;
-              end;
+          result := false;
+        end;
+    end
+  else Result := false;
 
-           Result := True;
-         end
-        else
-        if ParamStr(i) = '-projectconfig' then
-          begin
-            Inc(i);
-            fsProjectConfigFileName := ParamStr(i);
+  if FindCmdLineSwitch('projectconfig', true) then
+    begin
+      FindCmdLineSwitch('projectconfig', fsProjectConfigFileName, True, [clstValueNextParam, clstValueAppended]);
 
-            if Not FileExists(fsProjectConfigFileName) then
-              begin
-                writeln ('-projectconfig ' + TNovusStringUtils.JustFilename(fsProjectConfigFileName) + ' projectconfig filename cannot be found.');
+      if Not FileExists(fsProjectConfigFileName) then
+        begin
+          writeln ('-projectconfig ' + TNovusStringUtils.JustFilename(fsProjectConfigFileName) + ' projectconfig filename cannot be found.');
 
-                Exit;
-              end;
+          Result := False;
+        end;
+    end
+  else Result := False;
 
-           Result := True;
-         end;
-
-      Inc(I);
-
-      if I > ParamCount then fbOK := True;
-    end;
-
-  if Trim(fsProjectFileName) = '' then
+   if Trim(fsProjectFileName) = '' then
     begin
       writeln ('-project filename cannot be found.');
 
@@ -171,10 +171,22 @@ begin
        result := False;
      end;
 
+  if Result = True then
+     begin
+      if FindCmdLineSwitch('var', true) then
+        begin
+          FindCmdLineSwitch('var', fsVarCmdLine, True, [clstValueNextParam, clstValueAppended]);
+
+          Result := fVariablesCmdLine.AddVarCmdLine(fsVarCmdLine);
+        end;
+     end;
 
   if Result = false then
     begin
-      writeln ('-error ');
+      if fVariablesCmdLine.Failed then
+        writeln('-error: ' + fVariablesCmdLine.Error)
+      else
+        writeln ('-error ');
 
       //
     end;

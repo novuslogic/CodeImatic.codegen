@@ -78,6 +78,8 @@ type
       function LoadProjectConfigFile(aProjectConfigFilename: String): Boolean;
       procedure LoadConnectionNameList;
       function Parseproperties(aInput: String): String;
+      function GetProperties(aInput: String): String;
+
       function FindConnectionName(AConnectionName: String): TConnectionName;
 
       property ProjectConfigFileName: String
@@ -177,6 +179,21 @@ begin
     loTemplate.Free;
   End;
 end;
+
+function TProjectConfig.Getproperties(aInput: String): String;
+Var
+  loTemplate: tNovusTemplate;
+  I: INteger;
+  FTemplateTag: TTemplateTag;
+begin
+  result := aInput;
+
+  if aInput = '' then Exit;
+
+  Result := GetFirstNodeName(aInput, 'properties');
+end;
+
+
 
 function TProjectConfig.Loadproperties(aPropertyName: String): String;
 var

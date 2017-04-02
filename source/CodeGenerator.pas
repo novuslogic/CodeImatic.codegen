@@ -14,7 +14,7 @@ Const
 Type
   TCodeGenerator = class;
 
-  TTagType = (ttProperty, ttConnection, ttInterpreter, ttLanguage, ttInclude, ttUnknown, ttplugintag, ttprojectitem, ttPropertyEx);
+  TTagType = (ttProperty, ttConnection, ttInterpreter, ttLanguage, ttInclude, ttUnknown, ttplugintag, ttprojectitem, ttPropertyEx, ttConfigProperties, ttVariableCmdLine);
 
   TCodeGeneratorDetails = class(TObject)
   protected
@@ -22,7 +22,7 @@ Type
     fsDefaultTagName: String;
     FCodeGenerator: TCodeGenerator;
     FTagType: tTagType;
-    FEParser: tFEParser;
+    ExpressionParser: tExpressionParser;
     FTemplateTag: TTemplateTag;
     FTokens: tStringlist;
     LiLoopID: Integer;
@@ -138,6 +138,10 @@ Type
     property oProjectItem: TProjectItem
       read fProjectItem
       write fProjectItem;
+
+   property oProject: TProject
+      read fProject
+      write fProject;
   end;
 
 
@@ -236,7 +240,17 @@ begin
      Result := ttPropertyEx;
    end
   else
-  if oRuntime.oProperties.IsPropertyExists(aToken1) then
+  if aToken1 = 'CONFIGPROPERTIES' then
+   begin
+     Result := ttConfigProperties;
+   end
+  else
+  if aToken1 = 'VARIABLECMDLINE' then
+   begin
+     Result := ttVariableCmdLine;
+   end
+  else
+  if Assigned(oRuntime.oProperties) and (oRuntime.oProperties.IsPropertyExists(aToken1)) then
     Result := ttProperty
   else
   if (oRuntime.oPlugins.IsTagExists(aToken1,aToken2 ) or oRuntime.oPlugins.IsPluginNameExists(aToken1)) then
@@ -497,7 +511,10 @@ begin
 
      // Default Property value
      if FCodeGeneratorDetails.TagType = ttprojectitem then
-       FTemplateTag.TagValue:= fProjectItem.GetProperty(FCodeGeneratorDetails.Tokens)
+       begin
+         if FCodeGeneratorDetails.Tokens.Count > 1 then
+           FTemplateTag.TagValue:= fProjectItem.GetProperty(FCodeGeneratorDetails.Tokens[1], fProject);
+       end
      else
      if (FCodeGeneratorDetails.TagType = ttProperty) or  (FCodeGeneratorDetails.TagType = ttPropertyEx) then
        begin
@@ -560,7 +577,7 @@ begin
             FTemplateTag.TagValue := cDeleteLine;
 
           FiIndex := 0;
-          fsLanguage := tTokenParser.ParseToken( Self, FCodeGeneratorDetails.Tokens[2], fProjectItem, fVariables, fOutput, NIL, FiIndex);
+          fsLanguage := tTokenParser.ParseToken( Self, FCodeGeneratorDetails.Tokens[2], fProjectItem, fVariables, fOutput, NIL, FiIndex, fProject);
 
           if FileExists(oConfig.Languagespath + fsLanguage + '.xml') then
             begin
@@ -600,7 +617,7 @@ begin
             FTemplateTag.TagValue := cDeleteLine;
 
           FiIndex := 0;
-          lsIncludeFilename := fProject.oProjectConfig.TemplatePath + tTokenParser.ParseToken(Self, FCodeGeneratorDetails.Tokens[2], fProjectItem, fVariables, FOutput, NIL, FiIndex);
+          lsIncludeFilename := fProject.oProjectConfig.TemplatePath + tTokenParser.ParseToken(Self, FCodeGeneratorDetails.Tokens[2], fProjectItem, fVariables, FOutput, NIL, FiIndex, fProject);
 
           if FileExists(lsIncludeFilename) then
             begin
@@ -737,14 +754,14 @@ constructor TCodeGeneratorDetails.Create;
 begin
   inherited Create;
 
-  FEParser := TFEParser.Create;
+  ExpressionParser := TExpressionParser.Create;
 
   FTokens := tStringlist.Create;
 end;
 
 destructor TCodeGeneratorDetails.Destroy;
 begin
-  FEParser.Free;
+  ExpressionParser.Free;
 
   FTokens.Free;
 
@@ -757,9 +774,9 @@ var
 begin
   fsDefaultTagName := oTemplateTag.TagName;
 
-  FEParser.Expr := oTemplateTag.TagName;
+  ExpressionParser.Expr := oTemplateTag.TagName;
 
-  FEParser.ListTokens(FTokens);
+  ExpressionParser.ListTokens(FTokens);
 
   lsToken1 := Uppercase(FTokens.Strings[0]);
   if fTokens.Count > 1 then

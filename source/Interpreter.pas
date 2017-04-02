@@ -93,7 +93,7 @@ Type
     function IsEndRepeat(ACodeGeneratorDetails: TObject): Boolean;
     function FindEndRepeatIndexPos(AIndex: INteger): INteger;
     function FindLoop(ALoopType:TLoopType; ALoopID: Integer): TLoop;
-    //function CleanVariableName(AVariableName: String): String;
+
     function GetNextCommand(ATokens: tStringList; Var AIndex: Integer; Var ASkipPOs: Integer;ASubCommand: Boolean = False;ASubVariable:Boolean = False ): String;
     procedure AddVariable(AVariableName: String;AValue: Variant);
 
@@ -676,11 +676,11 @@ begin
 
     if Not ASubCommand then
       begin
+        if Pos('$$', ATokens[AIndex]) = 1  then
+          result := tTokenParser.ParseToken(Self, ATokens[AIndex], TCodeGenerator(FCodeGenerator).oProjectItem, TCodeGenerator(FCodeGenerator).oVariables, fOutput, ATokens,AIndex, TCodeGenerator(FCodeGenerator).oProject)
+        else
         if Pos('$', ATokens[AIndex]) = 1  then
           Result := ParseVariable(ATokens, AIndex)
-        else
-        if Pos('$$', ATokens[AIndex]) = 1  then
-          result := tTokenParser.ParseToken(Self, ATokens[AIndex], TCodeGenerator(FCodeGenerator).oProjectItem, TCodeGenerator(FCodeGenerator).oVariables, fOutput, ATokens,AIndex);
       end;
   Except
     FOutput.WriteExceptLog;
@@ -1027,7 +1027,7 @@ begin
         begin
           lsValue := GetToken;
 
-          lsValue := tTokenParser.ParseToken(Self, lsValue, TCodeGenerator(FCodeGenerator).oProjectItem,TCodeGenerator(FCodeGenerator).oVariables, fOutput, ATokens,AIndex);
+          lsValue := tTokenParser.ParseToken(Self, lsValue, TCodeGenerator(FCodeGenerator).oProjectItem,TCodeGenerator(FCodeGenerator).oVariables, fOutput, ATokens,AIndex, TCodeGenerator(FCodeGenerator).oProject);
 
           If TNovusStringUtils.IsNumberStr(lsValue) then
             begin
@@ -1196,7 +1196,7 @@ end;
 function TInterpreter.CommandSyntaxIndexByTokens(ATokens: TStringList): Integer;
 Var
   I,X: Integer;
-  lEParser: TFEParser;
+  lEParser: TExpressionParser;
   lTokens: tStringList;
 begin
   Result := -1;
@@ -1204,7 +1204,7 @@ begin
   For I := 1 to Length(csCommamdSyntax) do
     begin
       Try
-      lEParser := TFEParser.Create;
+      lEParser := TExpressionParser.Create;
       lTokens := tStringList.Create;
 
       lEParser.Expr := csCommamdSyntax[i];

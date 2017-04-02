@@ -25,6 +25,7 @@ type
 
      function GetVersion(aIndex:Integer): string;
 
+
      property oProject: TProject
       read foProject
       write foProject;
@@ -49,10 +50,9 @@ type
 Var
   oRuntime: tRuntime;
 
-
-
-
 implementation
+
+uses ProjectconfigParser;
 
 function tRuntime.RunEnvironment: Integer;
 Var
@@ -87,7 +87,7 @@ begin
   foProject.LoadProjectFile(oConfig.ProjectFileName, oConfig.ProjectConfigFileName);
 
   if foProject.oProjectConfig.IsLoaded then
-    Foutput := TOutput.Create(foProject.oProjectConfig.Parseproperties(foProject.BasePath) + oConfig.OutputFile, foProject.OutputConsole)
+    Foutput := TOutput.Create(tProjectconfigParser.ParseProjectconfig(foProject.BasePath, foProject) + oConfig.OutputFile, foProject.OutputConsole)
   else
     Foutput := TOutput.Create(foProject.BasePath + oConfig.OutputFile, foProject.OutputConsole);
 
@@ -153,7 +153,7 @@ begin
 
       Try
         if foProject.oProjectConfig.IsLoaded then
-          loProjectItem.templateFile := foProject.oProjectConfig.Parseproperties(loProjectItem.templateFile);
+          loProjectItem.templateFile := tProjectconfigParser.ParseProjectconfig(loProjectItem.templateFile, foProject);
 
           if TNovusFileUtils.IsValidFolder(loProjectItem.templateFile) then
             loProjectItem.templateFile := TNovusFileUtils.TrailingBackSlash(loProjectItem.templateFile) + loProjectItem.ItemName;
@@ -174,7 +174,7 @@ begin
 
       Try
         if foProject.oProjectConfig.IsLoaded then
-          loProjectItem.OutputFile := foProject.oProjectConfig.Parseproperties(loProjectItem.OutputFile);
+          loProjectItem.OutputFile := tProjectconfigParser.ParseProjectconfig(loProjectItem.OutputFile, foProject);
 
           if TNovusFileUtils.IsValidFolder(loProjectItem.OutputFile) then
             begin
@@ -218,7 +218,7 @@ begin
 
       Try
         if foProject.oProjectConfig.IsLoaded then
-          loProjectItem.propertiesFile := foProject.oProjectConfig.Parseproperties(loProjectItem.propertiesFile);
+          loProjectItem.propertiesFile := tProjectconfigParser.ParseProjectconfig(loProjectItem.propertiesFile, foProject);
       Except
         Foutput.Writelog('PropertiesFile Projectconfig error.');
 
@@ -320,6 +320,7 @@ begin
     1: Result := TNovusVersionUtils.GetProductName + ' ' + TNovusVersionUtils.GetFullVersionNumber;
   end;
 end;
+
 
 
 Initialization

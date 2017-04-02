@@ -5,7 +5,10 @@ interface
 Uses NovusXMLBO, Classes, SysUtils, NovusStringUtils, NovusBO, NovusList,
      JvSimpleXml, NovusSimpleXML, XMLlist, ProjectConfig, NovusFileUtils;
 
+
 Type
+  TProject = class;
+
   TProjectItem = class(TNovusBO)
   protected
   private
@@ -17,7 +20,7 @@ Type
     fsPostprocessor: string;
     fJvSimpleXmlElem: TJvSimpleXmlElem;
   Public
-    function GetProperty(aTokens: tStringList): String;
+    function GetProperty(aToken: String; aProject: TProject): String;
 
     property PropertiesFile: String
        read fsPropertiesFile
@@ -100,6 +103,8 @@ Type
   end;
 
 implementation
+
+uses Runtime, ProjectConfigParser;
 
 
 constructor TProject.Create;
@@ -270,32 +275,29 @@ end;
 
 // ProjectItem
 
-function TProjectItem.GetProperty(aTokens: tStringList): String;
+function TProjectItem.GetProperty(aToken: string; aProject: TProject): String;
 var
   Index: integer;
 begin
   result := '';
 
-  if aTokens.Count > 1 then
+  if aToken <> '' then
     begin
-      if Trim(Uppercase(aTokens[1]))= 'NAME' then
+      if Trim(Uppercase(aToken))= 'NAME' then
         result := ItemName
       else
          begin
            Index := 0;
-           if assigned(TNovusSimpleXML.FindNode(fJvSimpleXmlElem, Trim(Uppercase(aTokens[1])), Index)) then
+           if assigned(TNovusSimpleXML.FindNode(fJvSimpleXmlElem, Trim(AToken), Index)) then
              begin
                Index := 0;
-               Result := TNovusSimpleXML.FindNode(fJvSimpleXmlElem, Trim(Uppercase(aTokens[1])), Index).Value;
+               Result := TNovusSimpleXML.FindNode(fJvSimpleXmlElem, Trim(Uppercase(aToken)), Index).Value;
              end;
 
          end;
 
-
+      Result := tProjectConfigParser.ParseProjectConfig(Result, aProject);
     end;
-
-
-
 end;
 
 

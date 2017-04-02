@@ -9,22 +9,23 @@ type
    protected
    private
    public
-     class function ParseToken(aObject: TObject;aToken: String; aProjectItem: tProjectItem; aVariables: TVariables;aOutput: Toutput; ATokens: tStringList; Var aIndex: Integer): String;
+     class function ParseToken(aObject: TObject;aToken: String; aProjectItem: tProjectItem; aVariables: TVariables;aOutput: Toutput; ATokens: tStringList; Var aIndex: Integer; aProject: TProject): String;
    end;
 
 implementation
 
-uses CodeGenerator, Runtime, Interpreter;
+uses CodeGenerator, Runtime, Interpreter, Config;
 
-class function tTokenParser.ParseToken(aObject: TObject; aToken: String;aProjectItem: tProjectItem; aVariables: TVariables; aOutput: Toutput; ATokens: tStringList; Var aIndex: Integer): String;
+class function tTokenParser.ParseToken(aObject: TObject; aToken: String;aProjectItem: tProjectItem; aVariables: TVariables; aOutput: Toutput; ATokens: tStringList; Var aIndex: Integer; aProject: TProject): String;
 var
   fsToken: String;
-  lEParser: tFEParser;
+  lEParser: tExpressionParser;
   lTokens: TStringlist;
   lTagType: tTagType;
   lsValue : String;
   loVarable: tVariable;
   lsToken1, lsToken2: string;
+  lVariable: TVariable;
 begin
   Result := aToken;
 
@@ -45,7 +46,7 @@ begin
           Try
             lTokens := TStringList.Create;
 
-            lEParser:= tFEParser.Create;
+            lEParser:= tExpressionParser.Create;
 
             lEParser.Expr := fsToken;
 
@@ -63,7 +64,6 @@ begin
           End
         end;
 
-
         lTagType := TCodeGenerator.GetTagType(lsToken1,lsToken2 );
 
         case lTagType of
@@ -80,7 +80,10 @@ begin
                  Result := oRuntime.oProperties.GetProperty(lsToken2);
                end;
           end;
-          ttprojectitem: Result := aProjectItem.GetProperty(lTokens);
+          ttprojectitem: begin
+                  Result := aProjectItem.GetProperty(lsToken2, aProject);
+
+              end;
           ttplugintag: begin
               if aObject is tInterpreter then
                begin
@@ -93,6 +96,17 @@ begin
                 begin
                   Result := oRuntime.oPlugins.GetTag(lsToken1, lsToken2);
                 end;
+          end;
+          ttVariableCmdLine: begin
+            lVariable := oConfig.oVariablesCmdLine.GetVariableByName(lsToken2);
+
+            if Assigned(lVariable) then
+              Result := lVariable.Value;
+
+          end;
+
+          ttConfigProperties: begin
+            result := aProject.oProjectConfig.Getproperties(lsToken2);
           end;
 
           ttUnknown: begin

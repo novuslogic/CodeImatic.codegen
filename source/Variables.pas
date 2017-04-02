@@ -2,12 +2,15 @@ unit Variables;
 
 interface
 
-Uses Variants, NovusList, SysUtils;
+Uses Variants, NovusList, SysUtils, Output;
 
 Type
+
+
+
   TVariable = class(TObject)
   protected
-     fsVariableName: String;
+       fsVariableName: String;
      FValue: Variant;
   private
   public
@@ -35,6 +38,7 @@ Type
     function GetVariableByIndex(AIndex: Integer): TVariable;
     function GetVariableByName(aVariableName: String): TVariable;
     class function CleanVariableName(AVariableName: String): String;
+
   end;
 
 
