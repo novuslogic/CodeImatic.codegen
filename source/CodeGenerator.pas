@@ -502,6 +502,7 @@ Var
   lsPropertieVariable: String;
   lsVariableResult: String;
   FCodeGeneratorDetails: TCodeGeneratorDetails;
+  FVariable: TVariable;
 begin
   for I := AStartPos to AEndPos do
    begin
@@ -510,6 +511,22 @@ begin
      FTemplateTag := FCodeGeneratorDetails.oTemplateTag;
 
      // Default Property value
+     if FCodeGeneratorDetails.TagType = ttVariableCmdLine then
+       begin
+         if FCodeGeneratorDetails.Tokens.Count > 1 then
+           begin
+             FVariable :=  oConfig.oVariablesCmdLine.GetVariableByName(FCodeGeneratorDetails.Tokens[1]);
+             if Assigned(FVariable) then
+               FTemplateTag.TagValue:= FVariable.Value;
+           end;
+       end
+     else
+     if FCodeGeneratorDetails.TagType =  ttConfigProperties then
+       begin
+         if FCodeGeneratorDetails.Tokens.Count > 1 then
+           FTemplateTag.TagValue:= fProject.oProjectConfig.Getproperties(FCodeGeneratorDetails.Tokens[1]);
+       end
+     else
      if FCodeGeneratorDetails.TagType = ttprojectitem then
        begin
          if FCodeGeneratorDetails.Tokens.Count > 1 then

@@ -13,6 +13,7 @@ type
    tRuntime = class
    protected
    private
+     fsworkingdirectory: string;
      foPlugins: TPlugins;
      foProject: tProject;
      foDBSchema: TDBSchema;
@@ -66,6 +67,13 @@ begin
   foProject := tProject.Create;
   foProject.oProjectConfig.ProjectConfigFileName := oConfig.ProjectConfigFileName;
 
+  fsworkingdirectory := TNovusFileUtils.TrailingBackSlash(ExtractFilePath(oConfig.ProjectConfigFileName));
+  if Trim(fsworkingdirectory) = '' then
+     fsworkingdirectory := TNovusFileUtils.TrailingBackSlash(TNovusFileUtils.AbsoluteFilePath(oConfig.ProjectConfigFileName));
+
+  if Trim(TNovusStringUtils.JustFilename(oConfig.ProjectConfigFileName)) = trim(oConfig.ProjectConfigFileName) then
+      foProject.oProjectConfig.ProjectConfigFileName := fsworkingdirectory + oConfig.ProjectConfigFileName;
+
   if not foProject.oProjectConfig.LoadProjectConfigFile(foProject.oProjectConfig.ProjectConfigFileName) then
     begin
       if Not FileExists(foProject.oProjectConfig.ProjectConfigFileName) then
@@ -84,12 +92,13 @@ begin
       Exit;
     end;
 
+
   foProject.LoadProjectFile(oConfig.ProjectFileName, oConfig.ProjectConfigFileName);
 
   if foProject.oProjectConfig.IsLoaded then
-    Foutput := TOutput.Create(tProjectconfigParser.ParseProjectconfig(foProject.BasePath, foProject) + oConfig.OutputFile, foProject.OutputConsole)
+    Foutput := TOutput.Create(tProjectconfigParser.ParseProjectconfig(foProject.BasePath, foProject) + oConfig.OutputlogFilename, foProject.OutputConsole)
   else
-    Foutput := TOutput.Create(foProject.BasePath + oConfig.OutputFile, foProject.OutputConsole);
+    Foutput := TOutput.Create(foProject.BasePath + oConfig.OutputlogFilename, foProject.OutputConsole);
 
   Foutput.OpenLog(true);
 

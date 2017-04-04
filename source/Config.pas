@@ -8,7 +8,7 @@ Uses SysUtils, NovusXMLBO, Registry, Windows, NovusStringUtils, NovusFileUtils,
 
 
 Const
-  csOutputFile = 'Output.log';
+  csOutputFile = 'output.log';
   csConfigfile = 'zcodegen.config';
 
 Type
@@ -43,6 +43,7 @@ Type
 
    TConfig = Class(TNovusXMLBO)
    protected
+      fsOutputlogFilename: string;
       fsVarCmdLine: String;
       fVariablesCmdLine: tVariablesCmdLine;
       fConfigPluginsList: tNovusList;
@@ -50,7 +51,6 @@ Type
       fsProjectConfigFileName: String;
       fsProjectFileName: String;
       fsRootPath: String;
-      fsOutputFile: String;
       fsLanguagesPath: String;
       fsConfigfile: string;
    private
@@ -69,10 +69,6 @@ Type
      property ProjectConfigFileName: String
        read fsProjectConfigFileName
        write fsProjectConfigFileName;
-
-      property OutputFile: String
-        read fsOutputFile
-        write fsOutputFile;
 
      property  RootPath: String
         read fsRootPath
@@ -98,6 +94,9 @@ Type
        read fVariablesCmdLine
        write fVariablesCmdLine;
 
+     property OutputlogFilename: string
+       read fsOutputlogFilename
+       write fsOutputlogFilename;
    End;
 
 Var
@@ -131,6 +130,8 @@ Var
 begin
   Result := True;
 
+  fsOutputlogFilename := csOutputFile;
+
   if FindCmdLineSwitch('project', true) then
     begin
       FindCmdLineSwitch('project', fsProjectFileName, True, [clstValueNextParam, clstValueAppended]);
@@ -157,7 +158,10 @@ begin
     end
   else Result := False;
 
-   if Trim(fsProjectFileName) = '' then
+  if FindCmdLineSwitch('outputlog', true) then
+    FindCmdLineSwitch('outputlog', fsOutputlogFilename, True, [clstValueNextParam, clstValueAppended]);
+
+  if Trim(fsProjectFileName) = '' then
     begin
       writeln ('-project filename cannot be found.');
 
@@ -190,8 +194,6 @@ begin
 
       //
     end;
-
-  fsOutputFile := csOutputFile;
 end;
 
 procedure TConfig.LoadConfig;
