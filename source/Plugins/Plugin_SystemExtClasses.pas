@@ -121,7 +121,7 @@ begin
   if Global = nil then begin result := false; exit; end;
   PStart := Stack.Count - 1;
 
- // oRuntime.oAPI_Output.WriteLog(Stack.GetString(PStart));
+ // oRuntime.oAPI_Output.Log(Stack.GetString(PStart));
 
   Result := True;
 end;

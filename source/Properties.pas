@@ -35,10 +35,12 @@ var
 begin
   lsGetProperty := GetFieldAsString(oXMLDocument.Root, APropertyName);
   Try
-    if foProject.oProjectConfig.IsLoaded then
-      lsGetProperty := tProjectconfigParser.ParseProjectconfig(lsGetProperty,foProject);
+    if Assigned(foProject) then
+      if foProject.oProjectConfig.IsLoaded then
+         lsGetProperty := tProjectconfigParser.ParseProjectconfig(lsGetProperty,foProject);
   Except
-    FoOutput.Writelog(APropertyName + ' Projectconfig error.');
+    FoOutput.log(APropertyName + ' Projectconfig error.');
+
   End;
 
   Result := lsGetProperty;

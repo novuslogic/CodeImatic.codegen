@@ -3,58 +3,14 @@ unit Project;
 interface
 
 Uses NovusXMLBO, Classes, SysUtils, NovusStringUtils, NovusBO, NovusList,
-     JvSimpleXml, NovusSimpleXML, XMLlist, ProjectConfig, NovusFileUtils;
+     JvSimpleXml, NovusSimpleXML, XMLlist, ProjectConfig, NovusFileUtils, Output;
 
 
 Type
-  TProject = class;
-
-  TProjectItem = class(TNovusBO)
-  protected
-  private
-    fsItemName: String;
-    fsOutputFile: String;
-    fsTemplateFile: String;
-    fsPropertiesFile: String;
-    fboverrideoutput: Boolean;
-    fsPostprocessor: string;
-    fJvSimpleXmlElem: TJvSimpleXmlElem;
-  Public
-    function GetProperty(aToken: String; aProject: TProject): String;
-
-    property PropertiesFile: String
-       read fsPropertiesFile
-       write fsPropertiesFile;
-
-    property TemplateFile: String
-      read fsTemplateFile
-      write fsTemplateFile;
-
-    property OutputFile: String
-       read fsOutputFile
-       write fsOutputFile;
-
-    property overrideoutput: Boolean
-      read fboverrideoutput
-      write fboverrideoutput;
-
-    property ItemName: String
-      read fsItemName
-      write fsItemName;
-
-    property PostProcessor: String
-      read fsPostProcessor
-      write fsPostProcessor;
-
-    property XmlElem: TJvSimpleXmlElem
-      read fJvSimpleXmlElem
-      write fJvSimpleXmlElem;
-  end;
-
-
   TProject = class(TXMLlist)
   protected
   private
+    foOutput: TOutput;
     fbcreateoutputdir: Boolean;
     foProjectConfig: TProjectConfig;
     foProjectItemList: TNovusList;
@@ -66,15 +22,13 @@ Type
     constructor Create; override;
     destructor Destroy; override;
 
-
     function GetBasePath: String;
     function GetOutputConsole: Boolean;
     function GetCreateoutputdir: Boolean;
 
     function GetWorkingdirectory: String;
 
-    function LoadProjectFile(aProjectFilename: String; aProjectConfigFilename: String): boolean;
-    function LoadProjectItem(aItemName: String; aProjectItem: TProjectItem): Boolean;
+    function LoadProjectFile(aProjectFilename: String; aProjectConfigFilename: String; aOutput: TOutput): boolean;
 
     property oProjectItemList: TNovusList
       read foProjectItemList
@@ -104,7 +58,7 @@ Type
 
 implementation
 
-uses Runtime, ProjectConfigParser;
+uses Runtime, ProjectConfigParser, ProjectItem, ProjectClasses;
 
 
 constructor TProject.Create;
@@ -126,6 +80,7 @@ begin
   inherited;
 end;
 
+(*
 function TProject.LoadProjectItem(aItemName: String; aProjectItem: TProjectItem): Boolean;
 Var
   fJvSimpleXmlElem: TJvSimpleXmlElem;
@@ -191,7 +146,7 @@ begin
     Result := True;
   end;
 end;
-
+*)
 function TProject.GetWorkingdirectory: String;
 var
   lsWorkingdirectory: String;
@@ -231,12 +186,14 @@ begin
   Result := GetFieldAsBoolean(oXMLDocument.Root, 'outputconsole');
 end;
 
-function TProject.LoadProjectFile(aProjectFilename: String; aProjectConfigFilename: String): boolean;
+function TProject.LoadProjectFile(aProjectFilename: String; aProjectConfigFilename: String; aOutput: TOutput): boolean;
 Var
   fJvSimpleXmlElem: TJvSimpleXmlElem;
   Index: Integer;
   loProjectItem: TProjectItem;
 begin
+  foOutput := aOutput;
+
   XMLFileName := aProjectFilename;
   ProjectFileName := aProjectFilename;
 
@@ -248,18 +205,16 @@ begin
   fbOutputConsole := GetoutputConsole;
   fbCreateoutputdir := GetCreateoutputdir;
 
-
-
   //Project Items
   Index := 0;
   fJvSimpleXmlElem  := TNovusSimpleXML.FindNode(oXMLDocument.Root, 'projectitem', Index);
   While(fJvSimpleXmlElem <> NIL) do
     begin
-      loProjectItem:= TProjectItem.Create;
+      loProjectItem:= TProjectItem.Create(self, foOutput);
 
       loProjectItem.ItemName := fJvSimpleXmlElem.Properties[0].Value;
 
-      LoadProjectItem(loProjectItem.ItemName, loProjectItem);
+      tProjectCLasses.LoadProjectItem(Self, loProjectItem.ItemName, loProjectItem);
 
       oProjectItemList.Add(loProjectItem);
 
@@ -273,32 +228,7 @@ begin
   Result := GetFieldAsBoolean(oXMLDocument.Root, 'Createoutputdir');
 end;
 
-// ProjectItem
 
-function TProjectItem.GetProperty(aToken: string; aProject: TProject): String;
-var
-  Index: integer;
-begin
-  result := '';
-
-  if aToken <> '' then
-    begin
-      if Trim(Uppercase(aToken))= 'NAME' then
-        result := ItemName
-      else
-         begin
-           Index := 0;
-           if assigned(TNovusSimpleXML.FindNode(fJvSimpleXmlElem, Trim(AToken), Index)) then
-             begin
-               Index := 0;
-               Result := TNovusSimpleXML.FindNode(fJvSimpleXmlElem, Trim(Uppercase(aToken)), Index).Value;
-             end;
-
-         end;
-
-      Result := tProjectConfigParser.ParseProjectConfig(Result, aProject);
-    end;
-end;
 
 
 

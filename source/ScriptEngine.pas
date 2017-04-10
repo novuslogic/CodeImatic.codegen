@@ -128,7 +128,7 @@ begin
   FCompiler.AllowNoBegin := True;
   FCompiler.AllowNoEnd := True; // AllowNoBegin and AllowNoEnd allows it that begin and end are not required in a script.
 
-  //foAPI_Output.WriteLog('Compiling ... ');
+  //foAPI_Output.Log('Compiling ... ');
 
   if not FCompiler.Compile(aScript) then  // Compile the Pascal script into bytecode.
   begin
@@ -146,7 +146,7 @@ begin
   FCompiler.GetOutput(fsData); // Save the output of the compiler in the string Data.
   FCompiler.Free; // After compiling the script, there is no need for the compiler anymore.
 
-//  foAPI_Output.WriteLog('Executing ... ');
+//  foAPI_Output.Log('Executing ... ');
 
 
     Try
@@ -158,7 +158,7 @@ begin
 
       if not FExec.LoadData(fsData) then
       begin
-        foOutput.WriteLog('[Error] : Could not load data: '+TIFErrorToString(FExec.ExceptionCode, FExec.ExceptionString));
+        foOutput.Log('[Error] : Could not load data: '+TIFErrorToString(FExec.ExceptionCode, FExec.ExceptionString));
 
         foOutput.Failed := true
       end
@@ -170,7 +170,7 @@ begin
 
             if not fbOK then
                begin
-                 foOutput.WriteLog('[Runtime Error] : ' + TIFErrorToString(FExec.ExceptionCode, FExec.ExceptionString) +
+                 foOutput.Log('[Runtime Error] : ' + TIFErrorToString(FExec.ExceptionCode, FExec.ExceptionString) +
                     ' in ' + IntToStr(FExec.ExceptionProcNo) + ' at ' + IntToSTr(FExec.ExceptionPos));
 
                  foOutput.Failed := true;
@@ -191,7 +191,7 @@ var
 begin
   for i := 0 to FCompiler.MsgCount - 1 do
     begin
-      foOutput.WriteLog(FCompiler.Msg[i].MessageToString)
+      foOutput.LogError(FCompiler.Msg[i].MessageToString)
     end;
 end;
 

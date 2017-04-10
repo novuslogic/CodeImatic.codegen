@@ -2,7 +2,7 @@ unit ProjectconfigParser;
 
 interface
 
-uses ExpressionParser, system.Classes,  Variables, output, SysUtils, Project;
+uses ExpressionParser, system.Classes,  Variables, output, SysUtils, Project, TagType, tagTypeParser;
 
 
 type
@@ -30,7 +30,11 @@ var
   FTagType: TTagType;
   lVariable: TVariable;
 begin
-  Try
+  Result := '';
+
+  if aItemName= '' then Exit;
+
+  Try
     lEParser:= tExpressionParser.Create;
     lTokens:= tStringList.Create;
     loTemplate := tNovusTemplate.Create;
@@ -59,7 +63,7 @@ begin
                lsToken2 := lTokens.Strings[1];
            end;
 
-         FTagType := TCodeGenerator.GetTagType(lsToken1,lsToken2);
+         FTagType := TTagTypeParser.ParseTagType(NIL, lsToken1,lsToken2);
 
          case FtagType of
            ttVariableCmdLine:

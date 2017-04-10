@@ -2,7 +2,7 @@ unit Plugins;
 
 interface
 
-uses  NovusPlugin, Config, Output,Classes, SysUtils, PluginsMapFactory, Plugin, Project,
+uses  NovusPlugin, Config, Output,Classes, SysUtils, PluginsMapFactory, Plugin, Project, ProjectItem,
       NovusTemplate;
 
 type

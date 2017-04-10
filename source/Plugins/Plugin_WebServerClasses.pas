@@ -3,7 +3,7 @@ unit Plugin_WebServerClasses;
 interface
 
 uses Classes,Plugin, NovusPlugin, NovusVersionUtils,Project,
-    Output, SysUtils, System.Generics.Defaults,  runtime, config,
+    Output, SysUtils, System.Generics.Defaults,  runtime, config, TagType,
     APIBase, IdBaseComponent, IdComponent, IdTCPServer, IdHTTPServer, StdCtrls,
     ExtCtrls, HTTPApp, Windows, NovusConsoleUtils, Plugin_WebServerEngine;
 

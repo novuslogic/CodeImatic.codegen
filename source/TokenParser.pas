@@ -2,7 +2,7 @@ unit TokenParser;
 
 interface
 
-uses ExpressionParser, system.Classes, Project, Variables, output, SysUtils;
+uses  ProjectItem, system.Classes, Project, Variables, output, SysUtils, TagType;
 
 type
    tTokenParser = class
@@ -14,7 +14,7 @@ type
 
 implementation
 
-uses CodeGenerator, Runtime, Interpreter, Config;
+uses CodeGenerator, Runtime, Interpreter, Config, ExpressionParser, TagTypeParser;
 
 class function tTokenParser.ParseToken(aObject: TObject; aToken: String;aProjectItem: tProjectItem; aVariables: TVariables; aOutput: Toutput; ATokens: tStringList; Var aIndex: Integer; aProject: TProject): String;
 var
@@ -64,10 +64,10 @@ begin
           End
         end;
 
-        lTagType := TCodeGenerator.GetTagType(lsToken1,lsToken2 );
+        lTagType := TTagTypeParser.ParseTagType(aProjectItem, lsToken1,lsToken2 );
 
         case lTagType of
-          ttProperty: Result := oRuntime.oProperties.GetProperty(fsToken);
+          ttProperty: Result := aProjectItem.oProperties.GetProperty(fsToken);
           ttPropertyEx: begin
              if aObject is tInterpreter then
                begin
@@ -77,7 +77,7 @@ begin
 
              if lsToken2 <> '' then
                begin
-                 Result := oRuntime.oProperties.GetProperty(lsToken2);
+                 Result := aProjectItem.oProperties.GetProperty(lsToken2);
                end;
           end;
           ttprojectitem: begin
@@ -110,8 +110,7 @@ begin
           end;
 
           ttUnknown: begin
-             aOutput.WriteLog('Syntax Error: Tag '+ lsToken1 + ' cannot be found.');
-              aOutput.Failed := true;
+             aOutput.LogError('Syntax Error: Tag '+ lsToken1 + ' cannot be found.');
 
           end;
         end;
@@ -125,15 +124,13 @@ begin
           loVarable := aVariables.GetVariableByName(lsValue);
           if Not Assigned(loVarable) then
             begin
-              aOutput.WriteLog('Syntax Error: variable '+ lsValue + ' cannot be found.');
-              aOutput.Failed := true;
+              aOutput.LogError('Syntax Error: variable '+ lsValue + ' cannot be found.');
             end
           else Result := loVarable.Value;
         end
       else
         begin
-          aOutput.WriteLog('Syntax Error: variable '+ lsValue + ' cannot be found.');
-          aOutput.Failed := true;
+          aOutput.LogError('Syntax Error: variable '+ lsValue + ' cannot be found.');
         end;
     end;
 end;

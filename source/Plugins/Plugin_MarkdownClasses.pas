@@ -4,7 +4,7 @@ interface
 
 uses Classes,Plugin, NovusPlugin, NovusVersionUtils, Project, NovusTemplate,
     Output, SysUtils, System.Generics.Defaults,  runtime, Config,  NovusStringUtils,
-    APIBase, MarkdownDaringFireball, MarkdownProcessor ;
+    APIBase, MarkdownDaringFireball, MarkdownProcessor, ProjectItem, TagType ;
 
 
 type

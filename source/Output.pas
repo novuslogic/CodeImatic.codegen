@@ -2,7 +2,7 @@ unit Output;
 
 interface
 
-Uses NovusLog, SysUtils;
+Uses NovusLog, SysUtils, NovusUtilities;
 
 type
   Toutput = class(TNovusLogFile)
@@ -10,11 +10,13 @@ type
   protected
     fbErrors: Boolean;
     fbFailed: Boolean;
+    fbconsoleoutputonly: Boolean;
   public
-    constructor Create(AFilename: String;aOutputConsole: Boolean);  virtual;
+    procedure InitLog(AFilename: String;aOutputConsole: Boolean; aConsoleoutputonly: boolean);
 
-    procedure Log(const aMsg: string; aConsoleOnly: boolean = false);
+    procedure Log(const aMsg: string);
     procedure LogFormat(const aFormat: string; const Args: array of const);
+    procedure LogError(const aMsg: String);
 
     procedure InternalError;
 
@@ -30,31 +32,47 @@ type
 
 implementation
 
-constructor Toutput.Create(AFilename: String;aOutputConsole: Boolean);
+procedure Toutput.InitLog(AFilename: String;aOutputConsole: Boolean; aConsoleoutputonly: Boolean);
 begin
   OutputConsole := aOutputConsole;
 
-  inherited Create(AFilename);
+  fbConsoleoutputonly := aConsoleoutputonly;
+
+  Filename := AFilename;
 
   fbErrors := False;
 end;
 
 
-procedure TOutput.Log(const aMsg: string; aConsoleOnly: boolean = false);
+procedure TOutput.Log(const aMsg: string);
 begin
-  WriteLog(aMsg);
+  if fbConsoleoutputonly then
+    Writeln(aMsg)
+  else
+    WriteLog(aMsg);
+end;
+
+
+procedure TOutput.LogError(const aMsg: String);
+begin
+  Log(aMsg);
+
+  Failed := true;
 end;
 
 procedure TOutput.LogFormat(const aFormat: string; const Args: array of const);
 begin
-  WriteLog(SysUtils.format(aFormat, Args));
+  Log(SysUtils.format(aFormat, Args));
 end;
 
 procedure TOutput.InternalError;
 begin
-   Log(WriteExceptLog);
+  if fbConsoleoutputonly then
+    WriteLn(TNovusUtilities.GetExceptMess)
+  else
+    WriteExceptLog;
 
-   Failed := true;
+  Failed := true;
 end;
 
 end.

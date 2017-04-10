@@ -53,6 +53,11 @@ contains
   ScriptEngine in 'ScriptEngine.pas',
   TokenParser in 'TokenParser.pas',
   ProjectconfigParser in 'ProjectconfigParser.pas',
-  VariablesCmdLine in 'VariablesCmdLine.pas';
+  VariablesCmdLine in 'VariablesCmdLine.pas',
+  ProjectItem in 'ProjectItem.pas',
+  ProjectClasses in 'ProjectClasses.pas',
+  CodeGeneratorDetails in 'CodeGeneratorDetails.pas',
+  TagType in 'TagType.pas',
+  TagTypeParser in 'TagTypeParser.pas';
 
 end.

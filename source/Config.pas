@@ -8,7 +8,7 @@ Uses SysUtils, NovusXMLBO, Registry, Windows, NovusStringUtils, NovusFileUtils,
 
 
 Const
-  csOutputFile = 'output.log';
+  csOutputFile = 'zcoutput.log';
   csConfigfile = 'zcodegen.config';
 
 Type
@@ -43,6 +43,7 @@ Type
 
    TConfig = Class(TNovusXMLBO)
    protected
+      fbConsoleOutputOnly: Boolean;
       fsOutputlogFilename: string;
       fsVarCmdLine: String;
       fVariablesCmdLine: tVariablesCmdLine;
@@ -97,6 +98,10 @@ Type
      property OutputlogFilename: string
        read fsOutputlogFilename
        write fsOutputlogFilename;
+
+     property ConsoleOutputOnly: boolean
+        read fbConsoleOutputOnly
+        write fbConsoleOutputOnly;
    End;
 
 Var
@@ -160,6 +165,10 @@ begin
 
   if FindCmdLineSwitch('outputlog', true) then
     FindCmdLineSwitch('outputlog', fsOutputlogFilename, True, [clstValueNextParam, clstValueAppended]);
+
+  ConsoleOutputOnly := False;
+  if FindCmdLineSwitch('consoleoutputonly', true) then
+     ConsoleOutputOnly := True;
 
   if Trim(fsProjectFileName) = '' then
     begin

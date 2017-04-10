@@ -4,7 +4,7 @@ interface
 
 Uses Classes, NovusList, NovusTemplate, NovusStringParser, SysUtils,
      NovusStringUtils, SDEngine, NovusSQLDirUtils, NovusUtilities,
-     CodeGenerator, DB, SDCommon, Output, NovusXMLBO,
+     DB, SDCommon, Output, NovusXMLBO, CodeGeneratorDetails,
      JvSimpleXml, ProjectConfig;
 
 Type
@@ -66,6 +66,7 @@ Type
 
    tConnectionDetails = class(Tobject)
    protected
+     foProjectItem: tObject;
      FOutput: TOutput;
      FTableNames: tStringlist;
      FDatabase: tSDDatabase;
@@ -82,7 +83,7 @@ Type
      function GetConnected: Boolean;
      function GetTableNames: tStringList;
    public
-     constructor Create(AOutput: TOutput); virtual;
+     constructor Create(AOutput: TOutput; aProjectItem: tObject); virtual;
      destructor  Destroy; override;
 
      function TableCount: Integer;
@@ -138,11 +139,12 @@ Type
    tConnections = class(Tobject)
    protected
    private
-      fOutput: TOutput;
-      fProjectConfig: tProjectConfig;
-      fConnectionList: tNovusList;
+     foProjectItem: tObject;
+     fOutput: TOutput;
+     fProjectConfig: tProjectConfig;
+     fConnectionList: tNovusList;
    public
-     constructor Create(AOutput: TOutput; aProjectConfig: tProjectConfig); virtual;
+     constructor Create(AOutput: TOutput; aProjectConfig: tProjectConfig; aProjectItem: Tobject); virtual;
      destructor  Destroy; override;
 
      function FindConnectionName(AConnectionName: String): TConnectionDetails;
@@ -153,11 +155,13 @@ Type
 
 implementation
 
-Uses Runtime;
+Uses Runtime, ProjectItem;
 
 constructor tConnections.Create;
 begin
   inherited Create;
+
+  foProjectItem := aProjectItem;
 
   fOutput := AOutput;
 
@@ -204,8 +208,7 @@ Var
 begin
   Result := False;
 
-  FConnectionDetails := tConnectionDetails.Create(fOutput);
-
+  FConnectionDetails := tConnectionDetails.Create(fOutput, foProjectItem);
   FiTokenIndex := 0;
 
   while (FiTokenIndex < ACodeGeneratorDetails.Tokens.Count - 1) do
@@ -227,7 +230,7 @@ begin
 
                   if Not Assigned(FConnectionName) then
                     begin
-                      fOutput.WriteLog('Connectionname [' + FConnectionDetails.ConnectionName + '] cannot be found in project config.');
+                      fOutput.Log('Connectionname [' + FConnectionDetails.ConnectionName + '] cannot be found in project config.');
 
                       result := False;
 
@@ -327,6 +330,8 @@ constructor tConnectionDetails.Create;
 begin
   inherited Create;
 
+  foProjectItem := aProjectItem;
+
   FOutput := AOutput;
 
   FTableNames := tStringList.Create;
@@ -389,7 +394,7 @@ begin
 
     Result := True;
   Except
-    FOutput.WriteLog('Error: ' + fsConnectionname + ' - ' + TNovusUtilities.GetExceptMess);
+    FOutput.Log('Error: ' + fsConnectionname + ' - ' + TNovusUtilities.GetExceptMess);
 
     Result := False;
   End;
@@ -436,7 +441,7 @@ begin
   Result.Column_Length := aDataSet.FieldByName('COLUMN_LENGTH').Asinteger;
 
 
-  Result.TypeName := oRuntime.oDBSchema.GetTypeName(Result, fsAuxDriver);
+  Result.TypeName := (foProjectItem as tProjectItem).oDBSchema.GetTypeName(Result, fsAuxDriver);
 
 end;
 

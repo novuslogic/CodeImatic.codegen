@@ -2,7 +2,7 @@ unit Plugin;
 
 interface
 
-uses classes, Output, NovusPlugin, Project, config, NovusTemplate, uPSRuntime, uPSCompiler;
+uses classes, Output, NovusPlugin, Project, ProjectItem, config, NovusTemplate, uPSRuntime, uPSCompiler;
 
 type
    TPlugin = class(TPersistent)
