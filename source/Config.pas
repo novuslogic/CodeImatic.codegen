@@ -54,6 +54,7 @@ Type
       fsRootPath: String;
       fsLanguagesPath: String;
       fsConfigfile: string;
+      fsworkingdirectory: String;
    private
    public
      constructor Create; virtual; // override;
@@ -102,6 +103,10 @@ Type
      property ConsoleOutputOnly: boolean
         read fbConsoleOutputOnly
         write fbConsoleOutputOnly;
+
+     property workingdirectory: String
+       read fsworkingdirectory
+       write fsworkingdirectory;
    End;
 
 Var
@@ -165,6 +170,9 @@ begin
 
   if FindCmdLineSwitch('outputlog', true) then
     FindCmdLineSwitch('outputlog', fsOutputlogFilename, True, [clstValueNextParam, clstValueAppended]);
+
+  if FindCmdLineSwitch('workingdirectory', true) then
+    FindCmdLineSwitch('workingdirectory', fsworkingdirectory, True, [clstValueNextParam, clstValueAppended]);
 
   ConsoleOutputOnly := False;
   if FindCmdLineSwitch('consoleoutputonly', true) then

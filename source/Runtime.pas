@@ -16,16 +16,10 @@ type
      fsworkingdirectory: string;
      foPlugins: TPlugins;
      foProject: tProject;
-    // foDBSchema: TDBSchema;
-    // foProperties: tProperties;
-    // foConnections: tConnections;
-    // foTemplate: TNovusTemplate;
-     //foCodeGenerator: tCodeGenerator;
    public
      function RunEnvironment: Integer;
 
      function GetVersion(aIndex:Integer): string;
-
 
      property oProject: TProject
       read foProject
@@ -66,12 +60,22 @@ Var
   FOutput: TOutput;
   loProjectItem: tProjectItem;
 begin
+  Result := -1;
+
+  if Trim(oConfig.workingdirectory) = '' then
+    begin
+      fsworkingdirectory := TNovusFileUtils.TrailingBackSlash(ExtractFilePath(oConfig.ProjectConfigFileName));
+      if Trim(fsworkingdirectory) = '' then
+         fsworkingdirectory := TNovusFileUtils.TrailingBackSlash(TNovusFileUtils.AbsoluteFilePath(oConfig.ProjectConfigFileName));
+    end
+  else
+    fsworkingdirectory := TNovusFileUtils.TrailingBackSlash(oConfig.workingdirectory);
+
+  if not DirectoryExists(fsworkingdirectory) then Exit;
+
+
   foProject := tProject.Create;
   foProject.oProjectConfig.ProjectConfigFileName := oConfig.ProjectConfigFileName;
-
-  fsworkingdirectory := TNovusFileUtils.TrailingBackSlash(ExtractFilePath(oConfig.ProjectConfigFileName));
-  if Trim(fsworkingdirectory) = '' then
-     fsworkingdirectory := TNovusFileUtils.TrailingBackSlash(TNovusFileUtils.AbsoluteFilePath(oConfig.ProjectConfigFileName));
 
   if Trim(TNovusStringUtils.JustFilename(oConfig.ProjectConfigFileName)) = trim(oConfig.ProjectConfigFileName) then
       foProject.oProjectConfig.ProjectConfigFileName := fsworkingdirectory + oConfig.ProjectConfigFileName;
@@ -161,8 +165,6 @@ begin
 
   foPlugins.BeforeCodeGen;
 
-
-
   for I := 0 to foProject.oProjectItemList.Count - 1 do
     begin
       loProjectItem := tProjectItem(foProject.oProjectItemList.items[i]);
@@ -226,7 +228,6 @@ begin
              end;
         end;
 
-
       if (not loProjectItem.overrideoutput) and FileExists(loProjectItem.OutputFile) then
        begin
          FOutput.Log('output ' + TNovusStringUtils.JustFilename(loProjectItem.OutputFile) + ' exists - Override Output option off.');
@@ -257,85 +258,18 @@ begin
          (TNovusFileUtils.IsFileReadonly(loProjectItem.OutputFile) = false) then
         begin
           loProjectItem.Execute;
-
-          (*
-          foProperties := tProperties.Create;
-
-          foDBSchema := TDBSchema.Create;
-
-          foTemplate := TNovusTemplate.Create;
-
-          foTemplate.StartToken := '<';
-          foTemplate.EndToken := '>';
-          foTemplate.SecondToken := '%';
-          *)
-          (*
-          if loProjectItem.PropertiesFile <> '' then
-            begin
-              foProperties.oProject := foProject;
-              foProperties.oOutput :=Foutput;
-              foProperties.XMLFileName := loProjectItem.PropertiesFile;
-              foProperties.Retrieve;
-            end;
-
-          if FileExists(oConfig.dbschemafilename) then
-            begin
-              foDBSchema.XMLFilename := oConfig.dbschemafilename;
-              foDBSchema.Retrieve;
-            end;
-
-          foTemplate.TemplateDoc.LoadFromFile(loProjectItem.TemplateFile);
-
-          foTemplate.ParseTemplate;
-
-          FOutput.Log('Template: ' + loProjectItem.TemplateFile);
-
-          FOutput.Log('Output: ' + loProjectItem.OutPutFile);
-
-          FOutput.Log('Build started ' + Foutput.FormatedNow);
-
-          foConnections := tConnections.Create(Foutput, foProject.oProjectConfig);
-
-          foCodeGenerator := tCodeGenerator.Create(foTemplate, Foutput, foProject, loProjectItem);
-
-          foCodeGenerator.Execute(loProjectItem.OutPutFile);
-
-          if Not Foutput.Failed then
-            begin
-              if Not Foutput.Errors then
-                FOutput.Log('Build succeeded ' + Foutput.FormatedNow)
-              else
-                FOutput.Log('Build with errors ' + Foutput.FormatedNow);
-            end
-          else
-            FOutput.LogError('Build failed ' + Foutput.FormatedNow);
-                        (*
-          FreeandNil(foConnections);
-
-          FreeandNil(foTemplate);
-          FreeandNil(foProperties);
-          FreeandNil(foDBSchema);
-
-          FreeandNil(foCodeGenerator);
-          *)
         end
       else
         FOutput.Log('Output: ' + loProjectItem.OutPutFile + ' is read only or file in use.');
     end;
-
-  //FreeandNil(foConnections);
-
-  //FreeandNil(foTemplate);
-  //FreeandNil(foProperties);
-  //FreeandNil(foDBSchema);
-
-  //FreeandNil(foCodeGenerator);
 
   if Not Foutput.Failed then foPlugins.AfterCodeGen;
 
   foPlugins.UnLoadPlugins;
 
   foPlugins.Free;
+
+  if Not Foutput.Failed then Result := 0;
 
   if Not oConfig.ConsoleOutputOnly then
     Foutput.CloseLog;
