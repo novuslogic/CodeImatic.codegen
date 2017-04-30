@@ -1,4 +1,16 @@
-
 System tags
 
-ZCVERSION - Zcodegen version
+SYS.VERSION - Zcodegen version
+
+Reserved tags
+
+SYS
+PROPERTIES
+CONNECTION
+INCLUDE
+LAYOUT
+PROJECTITEM
+CONFIGPROPERTIES
+VARIABLECMDLINE
+
+Please do not use thes as properties tags

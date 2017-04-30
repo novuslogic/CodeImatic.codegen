@@ -283,7 +283,7 @@ function tRuntime.GetVersion(aIndex:Integer): string;
 begin
   case aIndex of
     0: Result := TNovusVersionUtils.GetFullVersionNumber;
-    1: Result := TNovusVersionUtils.GetProductName + ' ' + TNovusVersionUtils.GetFullVersionNumber;
+    1: Result := Trim(TNovusVersionUtils.GetProductName) + ' ' + TNovusVersionUtils.GetFullVersionNumber;
   end;
 end;
 

@@ -63,7 +63,7 @@ begin
                lsToken2 := lTokens.Strings[1];
            end;
 
-         FTagType := TTagTypeParser.ParseTagType(NIL, lsToken1,lsToken2);
+         FTagType := TTagTypeParser.ParseTagType(NIL, NIL,lsToken1,lsToken2);
 
          case FtagType of
            ttVariableCmdLine:

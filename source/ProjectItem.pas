@@ -3,7 +3,7 @@ unit ProjectItem;
 interface
 
 Uses NovusBO, JvSimpleXml, Project, SysUtils, NovusSimpleXML, ProjectConfigParser,
-     DBSchema, Properties, NovusTemplate, CodeGenerator, Output;
+     DBSchema, Properties, NovusTemplate, CodeGenerator, Output, Template;
 
 type
   TProjectItem = class(TObject)
@@ -15,7 +15,7 @@ type
     foProperties: tProperties;
     foConnections: tConnections;
     foCodeGenerator: tCodeGenerator;
-    foTemplate: TNovusTemplate;
+    foTemplate: TTemplate;
     fsItemName: String;
     fsOutputFile: String;
     fsTemplateFile: String;
@@ -27,7 +27,7 @@ type
     constructor Create(aProject: TProject;aOutput: Toutput);
     destructor Destroy; override;
 
-    procedure Execute;
+    function Execute: Boolean;
 
     function GetProperty(aToken: String; aProject: TProject): String;
 
@@ -92,11 +92,7 @@ begin
 
   foDBSchema := TDBSchema.Create;
 
-  foTemplate := TNovusTemplate.Create;
-
-  foTemplate.StartToken := '<';
-  foTemplate.EndToken := '>';
-  foTemplate.SecondToken := '%';
+  foTemplate := TTemplate.CreateTemplate;
 end;
 
 destructor TProjectItem.Destroy;
@@ -137,9 +133,11 @@ begin
     end;
 end;
 
-procedure TProjectItem.Execute;
+function TProjectItem.Execute: Boolean;
 begin
   Try
+    Result := false;
+
     if PropertiesFile <> '' then
       begin
         foProperties.oProject := foProject;
@@ -154,9 +152,8 @@ begin
         fodbschema.retrieve;
       end;
 
-    foTemplate.TemplateDoc.LoadFromFile(TemplateFile);
+    foConnections := tConnections.Create(Fooutput, foProject.oProjectConfig, Self);
 
-    foTemplate.ParseTemplate;
 
     FoOutput.Log('Template/Source : ' + fsTemplateFile);
 
@@ -164,7 +161,9 @@ begin
 
     FoOutput.Log('Build started ' + Fooutput.FormatedNow);
 
-    foConnections := tConnections.Create(Fooutput, foProject.oProjectConfig, Self);
+    foTemplate.TemplateDoc.LoadFromFile(TemplateFile);
+
+    foTemplate.ParseTemplate;
 
     foCodeGenerator := tCodeGenerator.Create(foTemplate, Fooutput, foProject, Self);
 
@@ -179,6 +178,8 @@ begin
       end
     else
       FoOutput.LogError('Build failed ' + Fooutput.FormatedNow);
+
+    Result := (Not Fooutput.Failed);
   Except
     FoOutput.InternalError;
   End;

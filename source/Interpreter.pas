@@ -828,7 +828,7 @@ begin
 
         LCodeGenerator := (FoCodeGenerator As TCodeGenerator);
 
-        LTemplate := LCodeGenerator.Template;
+        LTemplate := LCodeGenerator.oTemplate;
 
         liLastNextSourceLineNo := liStartSourceLineNo;
 

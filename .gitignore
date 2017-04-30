@@ -25,3 +25,6 @@
 /source/ZcodegenGroup_prjgroup.tvsconfig
 /source/Zcodegen_project.tvsconfig
 *.stat
+/source/Plugins/DocGen.dpr
+/source/Plugins/DocGen.dproj
+/source/Plugins/DocGen.res

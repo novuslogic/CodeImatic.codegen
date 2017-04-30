@@ -9,6 +9,7 @@ type
 
   TCodeGeneratorDetails = class(TObject)
   protected
+    foCodeGenerator: TObject;
     foProject: tProject;
     fsDefaultTagName: String;
     FTagType: tTagType;
@@ -21,7 +22,7 @@ type
     function GetToken2: string;
   private
   public
-    constructor Create(aProjectItem: TObject); virtual;
+    constructor Create(aProjectItem: TObject; aCodeGenerator: Tobject); virtual;
     destructor Destroy; override;
 
     procedure Execute;
@@ -75,7 +76,7 @@ begin
   if fTokens.Count > 1 then
     lsToken2 := Uppercase(FTokens.Strings[1]);
 
-  FTagType := TTagTypeParser.ParseTagType(foProjectItem, lsToken1,lsToken2   );
+  FTagType := TTagTypeParser.ParseTagType(foProjectItem, foCodeGenerator, lsToken1,lsToken2   );
 end;
 
 function TCodeGeneratorDetails.GetToken1: string;
@@ -93,6 +94,8 @@ end;
 constructor TCodeGeneratorDetails.Create;
 begin
   inherited Create;
+
+  foCodeGenerator := aCodeGenerator;
 
   foProjectItem := aProjectItem;
 

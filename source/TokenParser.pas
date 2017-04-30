@@ -5,18 +5,114 @@ interface
 uses  ProjectItem, system.Classes, Project, Variables, output, SysUtils, TagType;
 
 type
-   tTokenParser = class
+   tTokenProcessor = class(TStringList)
+   private
+     fiIndex: Integer;
+   protected
+   public
+     constructor Create; overload;
+     function GetNextToken: string;
+     function IsNextTokenEquals: boolean;
+   end;
+
+   tTokenParser = class(Tobject)
    protected
    private
    public
-     class function ParseToken(aObject: TObject;aToken: String; aProjectItem: tProjectItem; aVariables: TVariables;aOutput: Toutput; ATokens: tStringList; Var aIndex: Integer; aProject: TProject): String;
+     class function ParseToken(aObject: TObject; aToken: String;aProjectItem: tProjectItem; aVariables: TVariables; aOutput: Toutput; ATokens: tStringList; Var aIndex: Integer; aProject: TProject): String;
+
+     class function ParseExpressionToken(aObject: TObject;aToken: String; aProjectItem: tProjectItem; aProject: TProject; aVariables: TVariables;aOutput: Toutput): tTokenProcessor; overload;
+     class function ParseExpressionToken(aToken: string): tTokenProcessor; overload;
    end;
 
 implementation
 
 uses CodeGenerator, Runtime, Interpreter, Config, ExpressionParser, TagTypeParser;
 
-class function tTokenParser.ParseToken(aObject: TObject; aToken: String;aProjectItem: tProjectItem; aVariables: TVariables; aOutput: Toutput; ATokens: tStringList; Var aIndex: Integer; aProject: TProject): String;
+
+// Token Processor
+constructor tTokenProcessor.Create;
+begin
+  fiIndex:= 0;
+end;
+
+function tTokenProcessor.GetNextToken: String;
+begin
+  Result := '';
+
+  if fiIndex > Count then  Exit;
+
+  if Count > 0 then
+    Result := Trim(Strings[fiIndex]);
+
+  Inc(fiIndex);
+end;
+
+function tTokenProcessor.IsNextTokenEquals: boolean;
+begin
+ Result := GetNextToken = '=';
+end;
+
+// TokenParser
+
+class function tTokenParser.ParseExpressionToken(aObject: TObject;aToken: String; aProjectItem: tProjectItem; aProject: TProject; aVariables: TVariables;aOutput: Toutput): tTokenProcessor;
+Var
+  lEParser: tExpressionParser;
+  I: Integer;
+  lsNewToken: string;
+  FiIndex: Integer;
+begin
+  Result := NIL;
+
+  if not Assigned(aProject) or Not Assigned(aProjectItem) then Exit;
+
+  Try
+    Result := tTokenProcessor.Create;
+
+    lEParser:= tExpressionParser.Create;
+
+    lEParser.Expr := aToken;
+
+    lEParser.ListTokens(Result);
+
+    for I := 0 to Result.Count -1 do
+      begin
+        FiIndex := 0;
+        Result.Strings[i] := ParseToken(aObject,  Result.Strings[i], aProjectItem, aVariables, aOutput, NIL, FiIndex, aProject);
+      end;
+  Except
+    aOutput.InternalError;
+  End;
+end;
+
+class function tTokenParser.ParseExpressionToken(aToken: string): tTokenProcessor;
+Var
+  lEParser: tExpressionParser;
+  I: Integer;
+  lsNewToken: string;
+  FiIndex: Integer;
+begin
+  Result := NIL;
+
+  if Trim(aToken) = '' then Exit;
+
+
+  Try
+    Result := tTokenProcessor.Create;
+
+    lEParser:= tExpressionParser.Create;
+
+    lEParser.Expr := aToken;
+
+    lEParser.ListTokens(Result);
+
+  Except
+    //aOutput.InternalError;
+  End;
+end;
+
+
+class function tTokenParser.ParseToken;
 var
   fsToken: String;
   lEParser: tExpressionParser;
@@ -37,8 +133,7 @@ begin
         begin
           lsToken1 := fsToken;
 
-//          lsToken2
-
+          lTagType := TTagTypeParser.ParseTagType(aProjectItem, NIL, lsToken1,'' );
         end
       else
       if aObject is TCodeGenerator then
@@ -61,10 +156,12 @@ begin
            Finally
             lEParser.Free;
             lTokens.Free;
-          End
-        end;
+          End;
 
-        lTagType := TTagTypeParser.ParseTagType(aProjectItem, lsToken1,lsToken2 );
+          lTagType := TTagTypeParser.ParseTagType(aProjectItem, (aObject as TCodeGenerator), lsToken1,lsToken2 );
+        end
+        else
+          lTagType := TTagTypeParser.ParseTagType(aProjectItem, NIL, lsToken1,lsToken2 );
 
         case lTagType of
           ttProperty: Result := aProjectItem.oProperties.GetProperty(fsToken);
