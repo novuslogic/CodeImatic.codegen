@@ -55,11 +55,13 @@ contains
   ProjectconfigParser in 'ProjectconfigParser.pas',
   VariablesCmdLine in 'VariablesCmdLine.pas',
   ProjectItem in 'ProjectItem.pas',
-  ProjectClasses in 'ProjectClasses.pas',
+  ProjectItemLoader in 'ProjectItemLoader.pas',
   CodeGeneratorDetails in 'CodeGeneratorDetails.pas',
   TagType in 'TagType.pas',
   TagTypeParser in 'TagTypeParser.pas',
   Layout in 'Layout.pas',
-  Template in 'Template.pas';
+  Template in 'Template.pas',
+  ProjectFolder in 'ProjectFolder.pas',
+  Loader in 'Loader.pas';
 
 end.

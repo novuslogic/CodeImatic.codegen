@@ -21,9 +21,6 @@
         <Projects Include="Plugins\SystemExt.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="Plugins\DocGen.dproj">
-            <Dependencies/>
-        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -86,23 +83,14 @@
     <Target Name="SystemExt:Make">
         <MSBuild Projects="Plugins\SystemExt.dproj" Targets="Make"/>
     </Target>
-    <Target Name="DocGen">
-        <MSBuild Projects="Plugins\DocGen.dproj"/>
-    </Target>
-    <Target Name="DocGen:Clean">
-        <MSBuild Projects="Plugins\DocGen.dproj" Targets="Clean"/>
-    </Target>
-    <Target Name="DocGen:Make">
-        <MSBuild Projects="Plugins\DocGen.dproj" Targets="Make"/>
-    </Target>
     <Target Name="Build">
-        <CallTarget Targets="Zcodegen;ZcodeCore;SysTags;WebServer;Markdown;SystemExt;DocGen"/>
+        <CallTarget Targets="Zcodegen;ZcodeCore;SysTags;WebServer;Markdown;SystemExt"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="Zcodegen:Clean;ZcodeCore:Clean;SysTags:Clean;WebServer:Clean;Markdown:Clean;SystemExt:Clean;DocGen:Clean"/>
+        <CallTarget Targets="Zcodegen:Clean;ZcodeCore:Clean;SysTags:Clean;WebServer:Clean;Markdown:Clean;SystemExt:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="Zcodegen:Make;ZcodeCore:Make;SysTags:Make;WebServer:Make;Markdown:Make;SystemExt:Make;DocGen:Make"/>
+        <CallTarget Targets="Zcodegen:Make;ZcodeCore:Make;SysTags:Make;WebServer:Make;Markdown:Make;SystemExt:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

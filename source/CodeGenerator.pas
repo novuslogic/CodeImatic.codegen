@@ -80,7 +80,7 @@ Type
 
 implementation
 
-uses runtime, TokenParser, ProjectClasses, ProjectItem, Layout, TagTypeParser;
+uses runtime, TokenParser, ProjectItemLoader, ProjectItem, Layout, TagTypeParser;
 
 constructor TCodeGenerator.Create;
 begin

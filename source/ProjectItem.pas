@@ -3,12 +3,104 @@ unit ProjectItem;
 interface
 
 Uses NovusBO, JvSimpleXml, Project, SysUtils, NovusSimpleXML, ProjectConfigParser,
-     DBSchema, Properties, NovusTemplate, CodeGenerator, Output, Template;
+     DBSchema, Properties, NovusTemplate, CodeGenerator, Output, Template, NovusFileUtils,
+     NovusList;
 
 type
+  TProjectItem = class;
+
+  tFileType = class
+  private
+    fbIsFolder: Boolean;
+    fbIsTemplateFile: Boolean;
+    fsFullPathname: String;
+  protected
+  public
+    property IsFolder: Boolean read fbIsFolder write fbIsFolder;
+
+    property IsTemplateFile: Boolean read fbIsTemplateFile
+      write fbIsTemplateFile;
+
+    property FullPathname: String
+       read fsFullPathname
+       write fsFullPathName;
+  end;
+
+  tFilterFile = class(tFileType)
+  private
+  protected
+  public
+  end;
+
+  tTemplateFile= class(tFileType)
+  private
+  protected
+    fspostprocessor: string;
+  public
+    property postprocessor: string
+      read fspostprocessor
+      write fspostprocessor;
+  end;
+
+  tSourceFile = class(tFileType)
+  private
+  protected
+
+    fsSourceFullPathname: String;
+    fsDestFullPathname: String;
+  public
+    property SourceFullPathname: String
+      read fsSourceFullPathname
+      write fsSourceFullPathname;
+
+    property DestFullPathname: string
+      read fsDestFullPathname
+      write fsDestFullPathname;
+   end;
+
+  tFilters = class(tnovusList)
+  private
+  protected
+  public
+    function AddFile(aFullPathname: string): tFilterFile;
+  end;
+
+  tTemplates = class(tnovusList)
+  private
+  protected
+  public
+    function AddFile(aFullPathname: string; aPostProcessor: String): tTemplateFile;
+  end;
+
+  tSourceFiles = class(tnovusList)
+  private
+  protected
+    foTemplates: tTemplates;
+    foFilters: tFilters;
+    fsFolder: String;
+  public
+    constructor Create(aProjectItem: TProjectItem;aOutput: Toutput); overload;
+    destructor Destroy; override;
+
+    function AddFile(aSourceFullPathname: string): tSourceFile;
+
+    property oFilters: tFilters
+      read foFilters
+      write foFilters;
+
+    property oTemplates: tTemplates
+      read foTemplates
+      write foTemplates;
+
+    property Folder: String
+      read fsFolder
+      write fsFolder;
+  end;
+
   TProjectItem = class(TObject)
   protected
   private
+    foSourceFiles: tSourceFiles;
     foProject: TProject;
     foOutput: TOutput;
     foDBSchema: TDBSchema;
@@ -17,12 +109,14 @@ type
     foCodeGenerator: tCodeGenerator;
     foTemplate: TTemplate;
     fsItemName: String;
+    fsItemFolder: String;
     fsOutputFile: String;
     fsTemplateFile: String;
     fsPropertiesFile: String;
     fboverrideoutput: Boolean;
     fsPostprocessor: string;
     fJvSimpleXmlElem: TJvSimpleXmlElem;
+    function GetName: String;
   Public
     constructor Create(aProject: TProject;aOutput: Toutput);
     destructor Destroy; override;
@@ -30,6 +124,9 @@ type
     function Execute: Boolean;
 
     function GetProperty(aToken: String; aProject: TProject): String;
+
+    property Name: String
+       read GetName;
 
     property PropertiesFile: String
        read fsPropertiesFile
@@ -51,13 +148,13 @@ type
       read fsItemName
       write fsItemName;
 
+    property ItemFolder: String
+      read fsItemFolder
+      write fsItemFolder;
+
     property PostProcessor: String
       read fsPostProcessor
       write fsPostProcessor;
-
-    property XmlElem: TJvSimpleXmlElem
-      read fJvSimpleXmlElem
-      write fJvSimpleXmlElem;
 
     property oConnections: tConnections
          read foConnections
@@ -74,12 +171,18 @@ type
     property oCodeGenerator: tCodeGenerator
       read foCodeGenerator
       write foCodeGenerator;
+
+    property oSourceFiles: tSourceFiles
+      read foSourceFiles
+      write foSourceFiles;
+
+
   end;
 
 
 implementation
 
-Uses Config;
+Uses Config, ProjectFolder;
 
 
 constructor TProjectItem.Create(aProject: TProject;aOutput: Toutput);
@@ -93,10 +196,14 @@ begin
   foDBSchema := TDBSchema.Create;
 
   foTemplate := TTemplate.CreateTemplate;
+
+  foSourceFiles:= tSourceFiles.Create(Self, foOutput);
 end;
 
 destructor TProjectItem.Destroy;
 begin
+  foSourceFiles.Free;
+
   FreeandNil(foConnections);
 
   FreeandNil(foTemplate);
@@ -134,56 +241,163 @@ begin
 end;
 
 function TProjectItem.Execute: Boolean;
+Var
+  loProjectFolder: tProjectFolder;
 begin
   Try
-    Result := false;
+    result := false;
 
     if PropertiesFile <> '' then
-      begin
-        foProperties.oProject := foProject;
-        foProperties.oOutput :=Fooutput;
-        foProperties.XMLFileName := PropertiesFile;
-        foProperties.Retrieve;
-      end;
+    begin
+      foProperties.oProject := foProject;
+      foProperties.oOutput := foOutput;
+      foProperties.XMLFileName := PropertiesFile;
+      foProperties.Retrieve;
+    end;
 
     if fileexists(oconfig.dbschemafilename) then
+    begin
+      foDBSchema.XMLFileName := oconfig.dbschemafilename;
+      foDBSchema.Retrieve;
+    end;
+
+    foConnections := tConnections.Create(foOutput,
+      foProject.oProjectConfig, Self);
+
+    if ItemFolder <> '' then
       begin
-        fodbschema.xmlfilename := oconfig.dbschemafilename;
-        fodbschema.retrieve;
-      end;
+        Try
+          foOutput.Log('Build started ' + foOutput.FormatedNow);
 
-    foConnections := tConnections.Create(Fooutput, foProject.oProjectConfig, Self);
+          loProjectFolder:= tProjectFolder.Create(foOutput, foProject,self);
 
+          loProjectFolder.Execute;
 
-    FoOutput.Log('Template/Source : ' + fsTemplateFile);
+          if Not foOutput.Failed then
+            begin
+              if Not foOutput.Errors then
+                foOutput.Log('Build succeeded ' + foOutput.FormatedNow)
+              else
+                foOutput.Log('Build with errors ' + foOutput.FormatedNow);
+            end
+            else
+              foOutput.LogError('Build failed ' + foOutput.FormatedNow);
 
-    FoOutput.Log('Output: ' + fsOutPutFile);
-
-    FoOutput.Log('Build started ' + Fooutput.FormatedNow);
-
-    foTemplate.TemplateDoc.LoadFromFile(TemplateFile);
-
-    foTemplate.ParseTemplate;
-
-    foCodeGenerator := tCodeGenerator.Create(foTemplate, Fooutput, foProject, Self);
-
-    foCodeGenerator.Execute(fsOutPutFile);
-
-    if Not Fooutput.Failed then
-      begin
-        if Not Fooutput.Errors then
-          FoOutput.Log('Build succeeded ' + Fooutput.FormatedNow)
-        else
-          FoOutput.Log('Build with errors ' + Fooutput.FormatedNow);
+           result := (Not foOutput.Failed);
+        Finally
+          loProjectFolder.Free;
+        End;
       end
     else
-      FoOutput.LogError('Build failed ' + Fooutput.FormatedNow);
+    if ItemName <> '' then
+    begin
+      foOutput.Log('Template/Source : ' + fsTemplateFile);
 
-    Result := (Not Fooutput.Failed);
+      foOutput.Log('Output: ' + fsOutputFile);
+
+      foOutput.Log('Build started ' + foOutput.FormatedNow);
+
+      foTemplate.TemplateDoc.LoadFromFile(TemplateFile);
+
+      foTemplate.ParseTemplate;
+
+      foCodeGenerator := tCodeGenerator.Create(foTemplate, foOutput,
+        foProject, Self);
+
+      foCodeGenerator.Execute(fsOutputFile);
+
+      if Not foOutput.Failed then
+      begin
+        if Not foOutput.Errors then
+          foOutput.Log('Build succeeded ' + foOutput.FormatedNow)
+        else
+          foOutput.Log('Build with errors ' + foOutput.FormatedNow);
+      end
+      else
+        foOutput.LogError('Build failed ' + foOutput.FormatedNow);
+
+      result := (Not foOutput.Failed);
+
+    end;
   Except
-    FoOutput.InternalError;
+    foOutput.InternalError;
   End;
 end;
+
+function TProjectItem.GetName: String;
+begin
+  if ItemName <> '' then
+    Result := ItemName
+  else
+    Result := ItemFolder;
+end;
+
+
+// tSourceFiles
+constructor tSourceFiles.Create(aProjectItem: TProjectItem;aOutput: Toutput);
+begin
+  Initclass(tSourceFile);
+
+  foFilters:= tFilters.Create(tFilterFile);
+
+  foTemplates := tTemplates.Create(tTemplateFile);
+end;
+
+destructor tSourceFiles.Destroy;
+begin
+  foFilters.Free;
+  foTemplates.Free;
+
+  inherited;
+end;
+
+
+
+
+function tSourceFiles.AddFile(aSourceFullPathname: string): tSourceFile;
+var
+  loSourceFile: tSourceFile;
+begin
+  loSourceFile:= tSourceFile.Create;
+  loSourceFile.SourceFullPathname := Trim(aSourceFullPathname);
+  loSourceFile.IsFolder := TNovusFileUtils.IsValidFolder(loSourceFile.SourceFullPathname);
+  loSourceFile.IsTemplateFile := false;
+
+
+  Add(loSourceFile);
+
+end;
+
+
+// tFilters
+function tFilters.AddFile(aFullPathname: string): tFilterFile;
+var
+  loFilterFile: tFilterFile;
+begin
+  loFilterFile:= tFilterFile.Create;
+  loFilterFile.FullPathname := Trim(aFullPathname);
+  loFilterFile.IsFolder := false; //TNovusFileUtils.IsValidFolder(loFilterFile.FullPathname);
+  loFilterFile.IsTemplateFile := false;
+
+  Add(loFilterFile);
+end;
+
+// Templateiles
+function tTemplates.AddFile(aFullPathname: string; aPostProcessor: String): tTemplateFile;
+var
+  loTemplateFile: tTemplateFile;
+begin
+  loTemplateFile:= tTemplateFile.Create;
+  loTemplateFile.FullPathname := Trim(aFullPathname);
+  loTemplateFile.IsFolder := false; //TNovusFileUtils.IsValidFolder(loFilterFile.FullPathname);
+  loTemplateFile.IsTemplateFile := true;
+  loTemplateFile.postprocessor := aPostProcessor;
+
+  Add(loTemplateFile);
+
+  Result := loTemplateFile;
+end;
+
 
 
 end.

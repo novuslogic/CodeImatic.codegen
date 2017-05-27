@@ -97,13 +97,13 @@
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
-        <Debugger_DebugSourcePath>D:\Projects\NovuscodeLibrary\Source\Core\Parser\;$(Debugger_DebugSourcePath)</Debugger_DebugSourcePath>
+        <Debugger_DebugSourcePath>D:\Projects\NovuscodeLibrary\Source\Core\Utilities\jvcl\;$(Debugger_DebugSourcePath)</Debugger_DebugSourcePath>
         <DCC_DcpOutput>..\build\</DCC_DcpOutput>
-        <VerInfo_Build>226</VerInfo_Build>
-        <Debugger_CWD>D:\Projects\Zautomatic\zautomatic.github.io</Debugger_CWD>
+        <VerInfo_Build>253</VerInfo_Build>
+        <Debugger_CWD>D:\Projects\ZautomaticPro\zautomatic.com</Debugger_CWD>
         <Debugger_RunParams>-project zautomatic.zcproject -projectconfig zautomatic.zcconfig -webserver</Debugger_RunParams>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=0.5.0.226;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=Zcodegen;ProductVersion=0.5.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=0.5.0.253;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=Zcodegen;ProductVersion=0.5.0.0;Comments=</VerInfo_Keys>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
