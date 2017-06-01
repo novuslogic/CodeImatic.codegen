@@ -20,10 +20,7 @@ Type
 
     function Load: boolean; override;
 
-    {
-    class function LoadProjectItemName(aProject: Tproject; aItemName: String;
-      aProjectItem: TProjectItem): boolean;
-    }
+    function GetValue(aValue: String): String; override;
 
     class function LoadProjectItem(aProject: Tproject;
       aProjectItem: TProjectItem; aNode: TJvSimpleXmlElem;
@@ -32,7 +29,7 @@ Type
 
 implementation
 
-Uses novusSimpleXML;
+Uses novusSimpleXML, ProjectconfigParser;
 
 constructor TProjectItemLoader.Create(aProject: Tproject;
   aProjectItem: TProjectItem; aNode: TJvSimpleXmlElem; aOutput: tOutput);
@@ -68,90 +65,7 @@ begin
   End;
 end;
 
-{
-class function TProjectItemLoader.LoadProjectItemName(aProject: Tproject;
-  aItemName: String; aProjectItem: TProjectItem): boolean;
-Var
-  fJvSimpleXmlElem: TJvSimpleXmlElem;
-  Index: Integer;
-  FNode: TJvSimpleXmlElem;
-begin
-  Result := False;
 
-  Try
-    fJvSimpleXmlElem := TnovusSimpleXML.FindNodeByValue
-      (aProject.oXMLDocument.Root, 'projectitem', 'name', aItemName);
-
-    If Assigned(fJvSimpleXmlElem) then
-    begin
-    //  aProjectItem.XmlElem := fJvSimpleXmlElem;
-
-      Index := 0;
-      if Assigned(TnovusSimpleXML.FindNode(fJvSimpleXmlElem, 'template', Index))
-      then
-      begin
-        Index := 0;
-        aProjectItem.TemplateFile := TnovusSimpleXML.FindNode(fJvSimpleXmlElem,
-          'template', Index).Value;
-
-      end;
-
-      Index := 0;
-      if Assigned(TnovusSimpleXML.FindNode(fJvSimpleXmlElem, 'source', Index))
-      then
-      begin
-        Index := 0;
-        aProjectItem.TemplateFile := TnovusSimpleXML.FindNode(fJvSimpleXmlElem,
-          'source', Index).Value;
-      end;
-
-      Index := 0;
-      if Assigned(TnovusSimpleXML.FindNode(fJvSimpleXmlElem, 'properties',
-        Index)) then
-      begin
-        Index := 0;
-        aProjectItem.propertiesFile := TnovusSimpleXML.FindNode
-          (fJvSimpleXmlElem, 'properties', Index).Value;
-      end;
-
-      Index := 0;
-      if Assigned(TnovusSimpleXML.FindNode(fJvSimpleXmlElem, 'postprocessor',
-        Index)) then
-      begin
-        Index := 0;
-        aProjectItem.postprocessor :=
-          Uppercase(TnovusSimpleXML.FindNode(fJvSimpleXmlElem, 'postprocessor',
-          Index).Value);
-      end;
-
-      Index := 0;
-      if Assigned(TnovusSimpleXML.FindNode(fJvSimpleXmlElem, 'overrideoutput',
-        Index)) then
-      begin
-        Index := 0;
-        if Uppercase(TnovusSimpleXML.FindNode(fJvSimpleXmlElem,
-          'overrideoutput', Index).Value) = 'TRUE' then
-          aProjectItem.overrideoutput := True
-        else
-          aProjectItem.overrideoutput := False;
-      end
-      else
-        aProjectItem.overrideoutput := False;
-
-      Index := 0;
-      if Assigned(TnovusSimpleXML.FindNode(fJvSimpleXmlElem, 'output', Index))
-      then
-      begin
-        Index := 0;
-        aProjectItem.OutputFile := TnovusSimpleXML.FindNode(fJvSimpleXmlElem,
-          'output', Index).Value;
-      end;
-    end;
-  Finally
-    Result := True;
-  end;
-end;
-}
 function TProjectItemLoader.Load: boolean;
 Var
   FNodeLoader,
@@ -171,11 +85,11 @@ begin
 
   if FRootNodeLoader.PropertyName = 'FOLDER' then
   begin
-    foProjectItem.ItemFolder := FrootNodeLoader.PropertyValue
+    foProjectItem.ItemFolder := GetValue(FrootNodeLoader.PropertyValue)
   end
   else if FRootNodeLoader.PropertyName = 'NAME' then
   begin
-    foProjectItem.ItemName := FRootNodeLoader.PropertyValue
+    foProjectItem.ItemName := GetValue(FRootNodeLoader.PropertyValue)
   end
   else
   begin
@@ -187,16 +101,16 @@ begin
 
   FNodeLoader := GetNode(FRootNodeLoader, 'properties');
   if FNodeLoader.IsExists then
-    foProjectItem.propertiesFile := FNodeLoader.Value;
+    foProjectItem.propertiesFile := GetValue(FNodeLoader.Value);
 
   foProjectItem.overrideoutput := false;
   FNodeLoader := GetNode(FRootNodeLoader, 'overrideoutput');
   if FNodeLoader.IsExists then
-    foProjectItem.overrideoutput := TNovusStringUtils.IsBoolean(FNodeLoader.Value);
+    foProjectItem.overrideoutput := TNovusStringUtils.IsBoolean(GetValue(FNodeLoader.Value));
 
   FNodeLoader := GetNode(FRootNodeLoader, 'output');
   if FNodeLoader.IsExists then
-   foProjectItem.OutputFile := FNodeLoader.Value
+    foProjectItem.OutputFile := GetValue(FNodeLoader.Value)
   else
    begin
     foOutput.LogError(foProjectItem.Name + ': projectitem.output required.');
@@ -207,11 +121,11 @@ begin
     begin
       FNodeLoader := GetNode(FRootNodeLoader, 'template');
       if FNodeLoader.IsExists then
-       foProjectItem.TemplateFile := FNodeLoader.Value;
+       foProjectItem.TemplateFile := GetValue(FNodeLoader.Value);
 
       FNodeLoader := GetNode(FRootNodeLoader, 'source');
       if FNodeLoader.IsExists then
-       foProjectItem.TemplateFile := FNodeLoader.Value;
+       foProjectItem.TemplateFile := GetValue(FNodeLoader.Value);
       if Trim(foProjectItem.TemplateFile) = '' then
          begin
            foOutput.LogError(foProjectItem.Name + ': projectitem.source or projectitem.template required.');
@@ -220,7 +134,7 @@ begin
 
       FNodeLoader := GetNode(FRootNodeLoader, 'postprocessor');
       if FNodeLoader.IsExists then
-       foProjectItem.postprocessor := FNodeLoader.Value
+       foProjectItem.postprocessor := GetValue(FNodeLoader.Value);
     end;
   if FRootNodeLoader.PropertyName = 'FOLDER' then
     begin
@@ -228,7 +142,9 @@ begin
       if FSrcFileNodeLoader.IsExists then
         begin
           if FSrcFileNodeLoader.PropertyName = 'FOLDER' then
-            foProjectItem.oSourceFiles.Folder := FSrcFileNodeLoader.PropertyValue
+            begin
+              foProjectItem.oSourceFiles.Folder := TNovusFileUtils.TrailingBackSlash(GetValue(FSrcFileNodeLoader.PropertyValue));
+            end
           else
             begin
               foOutput.LogError(foProjectItem.Name + ': projectitem.sourcefiles.folder required.');
@@ -244,17 +160,19 @@ begin
                 begin
                   if (FTmpFilesNodeLoader.PropertyName = 'NAME') then
                      begin
-                       lsFullPathname := FTmpFilesNodeLoader.PropertyValue;
+                       lsFullPathname :=
+                         GetValue(FTmpFilesNodeLoader.PropertyValue);
 
-                       FNodeLoader := GetNode(FTmpFilesNodeLoader, 'postprocessor');
+                       FNodeLoader := GetNode(FTmpFilesNodeLoader,
+                         'postprocessor');
                        if FNodeLoader.IsExists then
-                         lspostprocessor := FNodeLoader.Value;
+                         lspostprocessor := GetValue(FNodeLoader.Value);
 
                        foProjectItem.oSourceFiles.oTemplates.AddFile
-                         (foProjectItem.oSourceFiles.Folder +
-                         TNovusFileUtils.TrailingBackSlash(lsFullPathname), lspostprocessor);
+                         (foProjectItem.oSourceFiles.Folder + lsFullPathname,
+                         lsFullPathname, lspostprocessor);
                      end
-                   else
+                     else
                      begin
                        foOutput.LogError(foProjectItem.Name + ': projectitem.sourcefiles.templates.file.name required.');
                        Result := False;
@@ -275,11 +193,12 @@ begin
                 begin
                   if (FFltFilesNodeLoader.PropertyName = 'NAME') then
                      begin
-                       lsFullPathname := FFltFilesNodeLoader.PropertyValue;
+                       lsFullPathname :=
+                         GetValue(FFltFilesNodeLoader.PropertyValue);
 
-                        foProjectItem.oSourceFiles.oFilters.AddFile
-                          (foProjectItem.oSourceFiles.Folder +
-                          TNovusFileUtils.TrailingBackSlash(lsFullPathname));
+                       foProjectItem.oSourceFiles.oFilters.AddFile
+                         (foProjectItem.oSourceFiles.Folder + lsFullPathname,
+                         lsFullPathname);
                      end
                    else
                      begin
@@ -294,9 +213,12 @@ begin
         end;
 
     end;
+end;
 
-
-
+function TProjectItemLoader.GetValue(aValue: String): String;
+begin
+  Result := tProjectconfigParser.ParseProjectconfig
+          (aValue, foProject);
 end;
 
 end.

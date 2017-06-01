@@ -4,7 +4,7 @@ interface
 
 Uses NovusBO, JvSimpleXml, Project, SysUtils, NovusSimpleXML, ProjectConfigParser,
      DBSchema, Properties, NovusTemplate, CodeGenerator, Output, Template, NovusFileUtils,
-     NovusList;
+     NovusList, System.RegularExpressions;
 
 type
   TProjectItem = class;
@@ -14,6 +14,7 @@ type
     fbIsFolder: Boolean;
     fbIsTemplateFile: Boolean;
     fsFullPathname: String;
+    fsfilename: String;
   protected
   public
     property IsFolder: Boolean read fbIsFolder write fbIsFolder;
@@ -21,12 +22,16 @@ type
     property IsTemplateFile: Boolean read fbIsTemplateFile
       write fbIsTemplateFile;
 
+    property Filename: String
+      read fsFilename
+      write fsFilename;
+
     property FullPathname: String
        read fsFullPathname
        write fsFullPathName;
   end;
 
-  tFilterFile = class(tFileType)
+  tFiltered = class(tFileType)
   private
   protected
   public
@@ -45,44 +50,47 @@ type
   tSourceFile = class(tFileType)
   private
   protected
-
-    fsSourceFullPathname: String;
+    fbIsFiltered: Boolean;
     fsDestFullPathname: String;
   public
-    property SourceFullPathname: String
-      read fsSourceFullPathname
-      write fsSourceFullPathname;
-
     property DestFullPathname: string
       read fsDestFullPathname
       write fsDestFullPathname;
+
+    property IsFiltered: boolean
+      read fbIsFiltered
+      write fbIsfiltered;
    end;
 
   tFilters = class(tnovusList)
   private
   protected
   public
-    function AddFile(aFullPathname: string): tFilterFile;
+    function AddFile(aFullPathname: string; aFilename: String): tFiltered;
   end;
 
   tTemplates = class(tnovusList)
   private
   protected
   public
-    function AddFile(aFullPathname: string; aPostProcessor: String): tTemplateFile;
+    function AddFile(aFullPathname: string; aFilename: String; aPostProcessor: String): tTemplateFile;
   end;
 
   tSourceFiles = class(tnovusList)
   private
   protected
+    foProject: tProject;
     foTemplates: tTemplates;
     foFilters: tFilters;
     fsFolder: String;
   public
-    constructor Create(aProjectItem: TProjectItem;aOutput: Toutput); overload;
+    constructor Create(aProject:tProject;aProjectItem: TProjectItem;aOutput: Toutput); overload;
     destructor Destroy; override;
 
-    function AddFile(aSourceFullPathname: string): tSourceFile;
+    function AddFile(aFullPathname: string; aFilename: String): tSourceFile;
+    function IsTemplateFile(aFullPathname: string): boolean;
+    function IsFiltered(aFullPathname: string): boolean;
+    function WildcardToRegex(aPattern: string): String;
 
     property oFilters: tFilters
       read foFilters
@@ -197,7 +205,7 @@ begin
 
   foTemplate := TTemplate.CreateTemplate;
 
-  foSourceFiles:= tSourceFiles.Create(Self, foOutput);
+  foSourceFiles:= tSourceFiles.Create(foProject, Self, foOutput);
 end;
 
 destructor TProjectItem.Destroy;
@@ -334,11 +342,13 @@ end;
 
 
 // tSourceFiles
-constructor tSourceFiles.Create(aProjectItem: TProjectItem;aOutput: Toutput);
+constructor tSourceFiles.Create(aProject:tProject;aProjectItem: TProjectItem;aOutput: Toutput);
 begin
   Initclass(tSourceFile);
 
-  foFilters:= tFilters.Create(tFilterFile);
+  foProject := aProject;
+
+  foFilters:= tFilters.Create(tFiltered);
 
   foTemplates := tTemplates.Create(tTemplateFile);
 end;
@@ -351,39 +361,92 @@ begin
   inherited;
 end;
 
-
-
-
-function tSourceFiles.AddFile(aSourceFullPathname: string): tSourceFile;
+function tSourceFiles.AddFile(aFullPathname: string; aFilename: String): tSourceFile;
 var
   loSourceFile: tSourceFile;
+  fsSourcefullpathname: string;
 begin
-  loSourceFile:= tSourceFile.Create;
-  loSourceFile.SourceFullPathname := Trim(aSourceFullPathname);
-  loSourceFile.IsFolder := TNovusFileUtils.IsValidFolder(loSourceFile.SourceFullPathname);
-  loSourceFile.IsTemplateFile := false;
+  try
+    loSourceFile:= tSourceFile.Create;
+    loSourceFile.FullPathname := Trim(aFullPathname);
+    loSourceFile.IsFolder := TNovusFileUtils.IsValidFolder(aFullPathname);
+    loSourceFile.Filename := aFilename;
+
+    loSourceFile.IsTemplateFile := false;
+    if loSourceFile.IsFolder = false then
+      loSourceFile.IsTemplateFile := IsTemplateFile(aFullPathname);
+
+    loSourceFile.IsFiltered := IsFiltered(aFullPathname);
+
+    Add(loSourceFile);
+  finally
+    Result := loSourceFile;
+  end;
+end;
 
 
-  Add(loSourceFile);
+function tSourceFiles.IsFiltered(aFullPathname: string): boolean;
+var
+  foFilterd: tFiltered;
+  I: integer;
+  fsfullpathname,
+  fsWildcard: string;
+begin
+  Result := False;
 
+  for I := 0 to oFilters.Count - 1 do
+    begin
+      foFilterd:= tFiltered(oFilters.Items[i]);
+
+      fsWildcard := WildcardToRegex(foFilterd.FullPathname);
+
+      result := TRegEx.IsMatch(aFullPathname, fsWildcard, [TRegExOption.roIgnoreCase]);
+      if Result then break;
+    end;
+end;
+
+function tSourceFiles.IsTemplateFile(aFullPathname: string): boolean;
+var
+  foTemplateFile: tTemplateFile;
+  I: integer;
+  fsfullpathname,
+  fsWildcard: string;
+begin
+  Result := False;
+
+  for I := 0 to oTemplates.Count - 1 do
+    begin
+      foTemplateFile:= tTemplateFile(oTemplates.Items[i]);
+
+      fsWildcard := WildcardToRegex(foTemplateFile.Filename);
+
+      result := TRegEx.IsMatch(aFullPathname, fsWildcard, [TRegExOption.roIgnoreCase]);
+      if Result then break;
+    end;
+end;
+
+function tSourceFiles.WildcardToRegex(aPattern: string): String;
+begin
+ result := TRegEx.Escape(aPattern, true);
 end;
 
 
 // tFilters
-function tFilters.AddFile(aFullPathname: string): tFilterFile;
+function tFilters.AddFile(aFullPathname: string; aFilename: String): tFiltered;
 var
-  loFilterFile: tFilterFile;
+  loFiltered: tFiltered;
 begin
-  loFilterFile:= tFilterFile.Create;
-  loFilterFile.FullPathname := Trim(aFullPathname);
-  loFilterFile.IsFolder := false; //TNovusFileUtils.IsValidFolder(loFilterFile.FullPathname);
-  loFilterFile.IsTemplateFile := false;
+  loFiltered:= tFiltered.Create;
+  loFiltered.FullPathname := Trim(aFullPathname);
+  loFiltered.IsFolder := TNovusFileUtils.IsValidFolder(loFiltered.FullPathname);
+  loFiltered.IsTemplateFile := false;
+  loFiltered.Filename := aFilename;
 
-  Add(loFilterFile);
+  Add(loFiltered);
 end;
 
-// Templateiles
-function tTemplates.AddFile(aFullPathname: string; aPostProcessor: String): tTemplateFile;
+// TemplateFile
+function tTemplates.AddFile(aFullPathname: string; aFilename: String; aPostProcessor: String): tTemplateFile;
 var
   loTemplateFile: tTemplateFile;
 begin
@@ -392,6 +455,7 @@ begin
   loTemplateFile.IsFolder := false; //TNovusFileUtils.IsValidFolder(loFilterFile.FullPathname);
   loTemplateFile.IsTemplateFile := true;
   loTemplateFile.postprocessor := aPostProcessor;
+  loTemplateFile.Filename := aFilename;
 
   Add(loTemplateFile);
 

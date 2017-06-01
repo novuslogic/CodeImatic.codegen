@@ -1,4 +1,4 @@
-unit Layout;
+unit Processor;
 
 interface
 
@@ -6,7 +6,7 @@ Uses Output, Project, ProjectItem, classes, variables, NovusTemplate,
      CodeGenerator, CodeGeneratorDetails, Template;
 
 type
-  TLayout = class(tobject)
+  TProcessor = class(tobject)
   protected
     foCodeGenerator: tCodegenerator;
     foOutput: TOutput;
@@ -47,7 +47,7 @@ type
 
 implementation
 
-constructor TLayout.Create;
+constructor TProcessor.Create;
 begin
   inherited Create;
 
@@ -66,7 +66,7 @@ begin
   foCodeGenerator:=  tCodegenerator.Create(FoTemplate, FoOutput, FoProject, foProjectItem);
 end;
 
-destructor TLayout.Destroy;
+destructor TProcessor.Destroy;
 begin
   foCodeGenerator.Free;
 
@@ -78,7 +78,7 @@ end;
 
 
 
-function TLayout.Execute: boolean;
+function TProcessor.Execute: boolean;
 begin
   Try
     result := false;
@@ -96,7 +96,7 @@ begin
 
 end;
 
-function TLayout.InsertTagValue(aTagValue: String; aTagName: String): boolean;
+function TProcessor.InsertTagValue(aTagValue: String; aTagName: String): boolean;
 begin
   Result := foCodeGenerator.InsertTagValue(aTagValue, aTagName);
 end;

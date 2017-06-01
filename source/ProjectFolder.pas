@@ -44,7 +44,14 @@ begin
   try
     if DirectoryExists(foProjectItem.oSourceFiles.Folder) then
     begin
+      foOutput.LogError('Adding Sourcefolder:' +foProjectItem.ItemFolder );
+
       GetAllSubFolders(foProjectItem.oSourceFiles.Folder);
+
+
+
+
+
 
       Result := True;
     end
@@ -65,7 +72,7 @@ procedure tProjectFolder.GetAllSubFolders(aFolder: String);
 var
   Path: String;
   Rec: TSearchRec;
-
+  loSourceFile: tSourceFile;
 begin
   try
     Path := IncludeTrailingBackslash(aFolder);
@@ -74,7 +81,9 @@ begin
         repeat
           if (Rec.Name <> '.') and (Rec.Name <> '..') then
           begin
-            foProjectItem.oSourceFiles.AddFile(Path + Rec.Name);
+            loSourceFile := foProjectItem.oSourceFiles.AddFile(Path + Rec.Name, Rec.Name);
+
+            foOutput.Log(loSourceFile.FullPathname );
 
             GetAllSubFolders(Path + Rec.Name);
           end;

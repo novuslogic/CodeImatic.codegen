@@ -189,6 +189,9 @@ var
   I: Integer;
 begin
   Result := False;
+
+  if not assigned(fPluginsList) then exit;
+
   for I := 0 to fPluginsList.Count -1 do
     begin
       loPlugin := TPlugin(fPluginsList.Items[i]);

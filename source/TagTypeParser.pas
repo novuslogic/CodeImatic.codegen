@@ -68,7 +68,7 @@ begin
         ((aProjectItem as tProjectItem).oProperties.IsPropertyExists(lsToken)) then
       result := ttProperty
     else
-    if (oRuntime.oPlugins.IsTagExists(lsToken, aToken2 (* FTokenProcessor.GetNextToken*)) or
+    if Assigned(oRuntime.oPlugins) and  (oRuntime.oPlugins.IsTagExists(lsToken, aToken2 (* FTokenProcessor.GetNextToken*)) or
         oRuntime.oPlugins.IsPluginNameExists(lsToken)) then
     result := ttplugintag
   else

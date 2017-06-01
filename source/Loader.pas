@@ -38,6 +38,8 @@ type
     function GetNode(aNodeLoader: TNodeLoader; aNodeName: String; aIndexPos: integer = 0): TNodeLoader;
     function GetRootNode: TNodeLoader;
 
+    function GetValue(aValue: String): String; virtual;
+
     property RootNode: TJvSimpleXmlElem read fRootNode write fRootNode;
 
   end;
@@ -53,6 +55,11 @@ function TLoader.GetRootNode: TNodeLoader;
 begin
   Result.Create(0);
   Result.Node := RootNode;
+end;
+
+function TLoader.GetValue(aValue: String): String;
+begin
+  Result := '';
 end;
 
 function TLoader.GetNode(aNodeLoader: TNodeLoader; aNodeName: String; aIndexPos: integer): TNodeLoader;

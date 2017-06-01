@@ -80,7 +80,7 @@ Type
 
 implementation
 
-uses runtime, TokenParser, ProjectItemLoader, ProjectItem, Layout, TagTypeParser;
+uses runtime, TokenParser, ProjectItemLoader, ProjectItem, Processor, TagTypeParser;
 
 constructor TCodeGenerator.Create;
 begin
@@ -679,13 +679,13 @@ begin
         else
         if FCodeGeneratorDetails.tagtype = TTagType.ttlayout then
           begin
-            Flayout:= TLayout.Create(fOutput, fProject,(fProjectItem as TPRojectItem),fVariables);
+            Flayout:= TProcessor.Create(fOutput, fProject,(fProjectItem as TPRojectItem),fVariables);
 
-            (FLayout as tLayout).InputFilename := lsIncludeFilename;
-            (FLayout as tLayout).OutputFilename := '';
-            (FLayout as tLayout).oCodeGenerator.RenderBodyTag := lsRenderBodyTag;
+            (FLayout as tProcessor).InputFilename := lsIncludeFilename;
+            (FLayout as tProcessor).OutputFilename := '';
+            (FLayout as tProcessor).oCodeGenerator.RenderBodyTag := lsRenderBodyTag;
 
-            result := (FLayout as tLayout).Execute;
+            result := (FLayout as tProcessor).Execute;
 
 
           end;
@@ -847,11 +847,11 @@ begin
       Try
         loLayoutTemplate := tTemplate.CreateTemplate(true);
 
-        loLayoutTemplate.TemplateDoc.AddStrings((FLayout as tLayout).oCodeGenerator.oTemplate.OutputDoc);
+        loLayoutTemplate.TemplateDoc.AddStrings((FLayout as tProcessor).oCodeGenerator.oTemplate.OutputDoc);
 
         loLayoutTemplate.ParseTemplate;
 
-        lsRenderBodyTag := Uppercase((FLayout as tLayout).oCodeGenerator.RenderBodyTag);
+        lsRenderBodyTag := Uppercase((FLayout as tProcessor).oCodeGenerator.RenderBodyTag);
 
         LIndex := loLayoutTemplate.FindTagNameIndexOf(lsRenderBodyTag);
         if LIndex <> -1 then
