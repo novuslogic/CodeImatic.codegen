@@ -29,7 +29,7 @@ type
      function IsTagExists(aPluginName: String; aTagName: string): Boolean;
      function GetTag(aPluginName: String;aTagName: string): String;
 
-     function PostProcessor(aProjectItem: tProjectItem; aTemplate: tNovusTemplate; var aOutputFile: string): boolean; overload;
+     function PostProcessor(aProjectItem: tProjectItem; aTemplate: tNovusTemplate; var aOutputFile: string; aPostProcessor: tPostProcessor): boolean; overload;
      function PostProcessor(aFilename: string; var aTemplateDoc: tStringlist): boolean; overload;
 
      function BeforeCodeGen: boolean;
@@ -209,7 +209,7 @@ begin
     end;
 end;
 
-function TPlugins.PostProcessor(aProjectItem: tProjectItem; aTemplate: tNovusTemplate; var aOutputFile: string): boolean;
+function TPlugins.PostProcessor(aProjectItem: tProjectItem; aTemplate: tNovusTemplate; var aOutputFile: string; aPostProcessor: tPostProcessor): boolean;
 var
   loPlugin: TPlugin;
   I: Integer;
@@ -220,6 +220,17 @@ begin
       loPlugin := TPlugin(fPluginsList.Items[i]);
       if loPlugin is TPostProcessorPlugin then
         begin
+          if Assigned(aPostProcessor) then
+            begin
+              if uppercase(TPostProcessorPlugin(loPlugin).PluginName) = Uppercase(aPostProcessor.PluginName) then
+                begin
+                  if TPostProcessorPlugin(loPlugin).PostProcessor(aProjectItem, aTemplate, aOutputFile) = false then
+                    Fooutput.Failed := true;
+
+                  break;
+                end;
+            end
+          else
           if aProjectItem.PostProcessor<> '' then
             begin
               if uppercase(TPostProcessorPlugin(loPlugin).PluginName) = Uppercase(aProjectItem.PostProcessor) then

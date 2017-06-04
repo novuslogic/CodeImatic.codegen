@@ -4,19 +4,33 @@ interface
 
 Uses NovusBO, JvSimpleXml, Project, SysUtils, NovusSimpleXML, ProjectConfigParser,
      DBSchema, Properties, NovusTemplate, CodeGenerator, Output, Template, NovusFileUtils,
-     NovusList, System.RegularExpressions;
+     NovusList, System.RegularExpressions, NovusUtilities;
 
 type
   TProjectItem = class;
 
-  tFileType = class
+  tPostProcessor = class(Tobject)
   private
+  protected
+    fsPluginName: String;
+  public
+    property PluginName: String
+      read fsPluginName
+      write fsPluginName;
+  end;
+
+  tFileType = class(tobject)
+  private
+    foPostProcessor: tPostProcessor;
     fbIsFolder: Boolean;
     fbIsTemplateFile: Boolean;
     fsFullPathname: String;
     fsfilename: String;
   protected
   public
+    constructor Create;
+    destructor Destroy;
+
     property IsFolder: Boolean read fbIsFolder write fbIsFolder;
 
     property IsTemplateFile: Boolean read fbIsTemplateFile
@@ -29,6 +43,10 @@ type
     property FullPathname: String
        read fsFullPathname
        write fsFullPathName;
+
+    property opostprocessor: tPostProcessor
+      read fopostprocessor
+      write fopostprocessor;
   end;
 
   tFiltered = class(tFileType)
@@ -40,11 +58,8 @@ type
   tTemplateFile= class(tFileType)
   private
   protected
-    fspostprocessor: string;
   public
-    property postprocessor: string
-      read fspostprocessor
-      write fspostprocessor;
+
   end;
 
   tSourceFile = class(tFileType)
@@ -79,6 +94,7 @@ type
   tSourceFiles = class(tnovusList)
   private
   protected
+    foProjectItem: tProjectItem;
     foProject: tProject;
     foTemplates: tTemplates;
     foFilters: tFilters;
@@ -88,7 +104,7 @@ type
     destructor Destroy; override;
 
     function AddFile(aFullPathname: string; aFilename: String): tSourceFile;
-    function IsTemplateFile(aFullPathname: string): boolean;
+    function IsTemplateFile(aFullPathname: string): tTemplateFile;
     function IsFiltered(aFullPathname: string): boolean;
     function WildcardToRegex(aPattern: string): String;
 
@@ -190,7 +206,7 @@ type
 
 implementation
 
-Uses Config, ProjectFolder;
+Uses Config, ProjectItemFolder;
 
 
 constructor TProjectItem.Create(aProject: TProject;aOutput: Toutput);
@@ -250,7 +266,7 @@ end;
 
 function TProjectItem.Execute: Boolean;
 Var
-  loProjectFolder: tProjectFolder;
+  loProjectItemFolder: tProjectItemFolder;
 begin
   Try
     result := false;
@@ -277,9 +293,9 @@ begin
         Try
           foOutput.Log('Build started ' + foOutput.FormatedNow);
 
-          loProjectFolder:= tProjectFolder.Create(foOutput, foProject,self);
+          loProjectItemFolder:= tProjectItemFolder.Create(foOutput, foProject,self);
 
-          loProjectFolder.Execute;
+          loProjectItemFolder.Execute;
 
           if Not foOutput.Failed then
             begin
@@ -293,7 +309,7 @@ begin
 
            result := (Not foOutput.Failed);
         Finally
-          loProjectFolder.Free;
+          loProjectItemFolder.Free;
         End;
       end
     else
@@ -310,7 +326,7 @@ begin
       foTemplate.ParseTemplate;
 
       foCodeGenerator := tCodeGenerator.Create(foTemplate, foOutput,
-        foProject, Self);
+        foProject, Self, NIL);
 
       foCodeGenerator.Execute(fsOutputFile);
 
@@ -347,6 +363,7 @@ begin
   Initclass(tSourceFile);
 
   foProject := aProject;
+  foProjectItem := aProjectItem;
 
   foFilters:= tFilters.Create(tFiltered);
 
@@ -365,6 +382,7 @@ function tSourceFiles.AddFile(aFullPathname: string; aFilename: String): tSource
 var
   loSourceFile: tSourceFile;
   fsSourcefullpathname: string;
+  foTemplateFile: tTemplateFile;
 begin
   try
     loSourceFile:= tSourceFile.Create;
@@ -374,9 +392,31 @@ begin
 
     loSourceFile.IsTemplateFile := false;
     if loSourceFile.IsFolder = false then
-      loSourceFile.IsTemplateFile := IsTemplateFile(aFullPathname);
+      begin
+        foTemplateFile := IsTemplateFile(aFullPathname);
+
+        loSourceFile.IsTemplateFile := (foTemplateFile <> NIL);
+
+        if loSourceFile.IsTemplateFile then
+           TNovusUtilities.CopyObject(foTemplateFile.opostprocessor, loSourceFile.opostprocessor);
+      end;
 
     loSourceFile.IsFiltered := IsFiltered(aFullPathname);
+
+    // Local to dev directory only
+    if compareText(aFullPathname, self.Folder ) > 0 then
+      begin
+        loSourceFile.DestFullPathname := StringReplace(aFullPathname, self.Folder ,
+              foProjectItem.OutputFile, [rfReplaceAll, rfIgnoreCase]);
+      end
+    else
+      begin
+//
+
+
+      end;
+
+//    foProjectItem.ItemFolder;
 
     Add(loSourceFile);
   finally
@@ -405,14 +445,14 @@ begin
     end;
 end;
 
-function tSourceFiles.IsTemplateFile(aFullPathname: string): boolean;
+function tSourceFiles.IsTemplateFile(aFullPathname: string): tTemplateFile;
 var
   foTemplateFile: tTemplateFile;
   I: integer;
   fsfullpathname,
   fsWildcard: string;
 begin
-  Result := False;
+  Result := NIL;
 
   for I := 0 to oTemplates.Count - 1 do
     begin
@@ -420,14 +460,29 @@ begin
 
       fsWildcard := WildcardToRegex(foTemplateFile.Filename);
 
-      result := TRegEx.IsMatch(aFullPathname, fsWildcard, [TRegExOption.roIgnoreCase]);
-      if Result then break;
+      if TRegEx.IsMatch(aFullPathname, fsWildcard, [TRegExOption.roIgnoreCase]) then
+        begin
+          Result := foTemplateFile;
+
+          Break;
+        end;
     end;
 end;
 
 function tSourceFiles.WildcardToRegex(aPattern: string): String;
 begin
  result := TRegEx.Escape(aPattern, true);
+end;
+
+// tFileType
+constructor tFileType.Create;
+begin
+  fopostprocessor := tpostprocessor.create
+end;
+
+destructor tFileType.Destroy;
+begin
+  fopostprocessor.Free;
 end;
 
 
@@ -446,15 +501,16 @@ begin
 end;
 
 // TemplateFile
+
 function tTemplates.AddFile(aFullPathname: string; aFilename: String; aPostProcessor: String): tTemplateFile;
 var
   loTemplateFile: tTemplateFile;
 begin
   loTemplateFile:= tTemplateFile.Create;
   loTemplateFile.FullPathname := Trim(aFullPathname);
-  loTemplateFile.IsFolder := false; //TNovusFileUtils.IsValidFolder(loFilterFile.FullPathname);
+  loTemplateFile.IsFolder := false;
   loTemplateFile.IsTemplateFile := true;
-  loTemplateFile.postprocessor := aPostProcessor;
+  loTemplateFile.opostprocessor.PluginName := aPostProcessor;
   loTemplateFile.Filename := aFilename;
 
   Add(loTemplateFile);

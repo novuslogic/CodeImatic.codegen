@@ -61,7 +61,7 @@ contains
   TagTypeParser in 'TagTypeParser.pas',
   Processor in 'Processor.pas',
   Template in 'Template.pas',
-  ProjectFolder in 'ProjectFolder.pas',
+  ProjectItemFolder in 'ProjectItemFolder.pas',
   Loader in 'Loader.pas';
 
 end.

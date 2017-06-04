@@ -3,7 +3,7 @@ unit CodeGenerator;
 interface
 
 Uses Classes, NovusTemplate, NovusList, ExpressionParser, SysUtils,
-  Config, NovusStringUtils, Interpreter, Language, Project, // ProjectItem,
+  Config, NovusStringUtils, Interpreter, Language, Project,
   Output, Variables, NovusUtilities, CodeGeneratorDetails, tagtype,
   NovusBO, NovusFileUtils, Template;
 
@@ -14,6 +14,7 @@ Const
 Type
   TCodeGenerator = class(TObject)
   protected
+    foPostProcessor: TObject;
     fProject: tProject;
     fVariables: tVariables;
     fOutput: tOutput;
@@ -41,14 +42,15 @@ Type
     function DoInternalIncludes(aTagType: TTagType = ttInclude): Boolean;
   public
     constructor Create(ATemplate: TTemplate; AOutput: tOutput;
-      aProject: tProject; aProjectItem: TObject); virtual;
+      aProject: tProject; aProjectItem: TObject;
+      aPostProcessor: TObject); virtual;
     destructor Destroy; override;
 
     function IsNonOutputCommandonly(ASourceLineNo: Integer): Boolean;
 
     procedure RunPropertyVariables(AStartPos, AEndPos: Integer);
 
-    function InsertTagValue(aTagValue: String;aTagName: String): boolean;
+    function InsertTagValue(aTagValue: String; aTagName: String): Boolean;
 
     function AddTag(ATemplateTag: TTemplateTag): TCodeGeneratorDetails;
 
@@ -64,7 +66,7 @@ Type
 
     function IsInterpreter(ATokens: TstringList): Boolean;
 
-    function Execute(aOutputFilename: String): boolean;
+    function Execute(aOutputFilename: String): Boolean;
 
     property CodeGeneratorList: TNovusList read FCodeGeneratorList
       write FCodeGeneratorList;
@@ -73,18 +75,19 @@ Type
 
     property oProject: tProject read fProject write fProject;
 
-    property RenderBodyTag: string
-       read fsRenderBodyTag
-       write fsRenderBodyTag;
+    property RenderBodyTag: string read fsRenderBodyTag write fsRenderBodyTag;
   end;
 
 implementation
 
-uses runtime, TokenParser, ProjectItemLoader, ProjectItem, Processor, TagTypeParser;
+uses runtime, TokenParser, ProjectItemLoader, ProjectItem, Processor,
+  TagTypeParser;
 
 constructor TCodeGenerator.Create;
 begin
   inherited Create;
+
+  foPostProcessor := aPostProcessor;
 
   fProjectItem := aProjectItem;
 
@@ -102,12 +105,13 @@ begin
 
   FLanguage := tLanguage.Create;
 
-  FLayout := NIL;
+  Flayout := NIL;
 end;
 
 destructor TCodeGenerator.Destroy;
 begin
-  if Assigned(FLayout) then  FLayout.Free;
+  if Assigned(Flayout) then
+    Flayout.Free;
 
   fVariables.Free;
 
@@ -120,7 +124,8 @@ begin
   inherited;
 end;
 
-function TCodeGenerator.InsertTagValue(aTagValue: string; aTagName: string): boolean;
+function TCodeGenerator.InsertTagValue(aTagValue: string;
+  aTagName: string): Boolean;
 Var
   I: Integer;
   FoTemplateTag: TTemplateTag;
@@ -135,8 +140,6 @@ begin
     if Uppercase(FoTemplateTag.TagName) = Uppercase(aTagName) then
       FoTemplateTag.TagValue := aTagValue;
   end;
-
-
 
 end;
 
@@ -218,7 +221,7 @@ begin
     if aClearRun then
     begin
       Try
-        FCodeGeneratorList.Clear;  //Clearing need to be backup
+        FCodeGeneratorList.Clear; // Clearing need to be backup
 
         FoTemplate.ParseTemplate;
       Finally
@@ -254,7 +257,7 @@ var
 begin
   Try
     // Pass 1
-    Result := False;
+    Result := false;
 
     If Not PassTemplateTags then
       Exit;
@@ -267,9 +270,11 @@ begin
 
     DoIncludes;
 
+    // PostProcessor ///
+
     // Pass 2
     if DoPreLayout then
-       DoPostLayout;
+      DoPostLayout;
 
     DoLanguage;
 
@@ -289,40 +294,38 @@ begin
 
     DoDeleteLines;
 
-
-
     if Trim(aOutputFilename) <> '' then
       DoPostProcessorPlugins(aOutputFilename);
 
-    Result := True;
+    Result := true;
   Except
     fOutput.Log(TNovusUtilities.GetExceptMess);
 
     fOutput.Failed := true;
 
-    Result := False;
+    Result := false;
 
     Exit;
   End;
 
   if Trim(aOutputFilename) <> '' then
-    begin
-      {$I-}
-        Try
-          if not fOutput.Failed then
-            FoTemplate.OutputDoc.SaveToFile(aOutputFilename, TEncoding.Unicode);
-        Except
-          fOutput.Log('Save Error: ' + aOutputFilename + ' - ' +
-            TNovusUtilities.GetExceptMess);
-        end;
-      {$I+}
+  begin
+{$I-}
+    Try
+      if not fOutput.Failed then
+        FoTemplate.OutputDoc.SaveToFile(aOutputFilename, TEncoding.Unicode);
+    Except
+      fOutput.Log('Save Error: ' + aOutputFilename + ' - ' +
+        TNovusUtilities.GetExceptMess);
     end;
+{$I+}
+  end;
 end;
 
 procedure TCodeGenerator.DoPostProcessorPlugins(var aOutputFile: string);
 begin
   oRuntime.oPlugins.PostProcessor((fProjectItem as TProjectItem), FoTemplate,
-    aOutputFile);
+    aOutputFile, (foPostProcessor as TPostProcessor));
 end;
 
 function TCodeGenerator.IsNonOutputCommandonly(ASourceLineNo: Integer): Boolean;
@@ -407,7 +410,6 @@ begin
   DoInternalDeleteLines(FoTemplate.OutputDoc);
 end;
 
-
 procedure TCodeGenerator.DoInternalDeleteLines(const aStrings: TStrings);
 Var
   I: Integer;
@@ -425,9 +427,6 @@ begin
     Inc(I);
   end;
 end;
-
-
-
 
 procedure TCodeGenerator.RunPropertyVariables;
 Var
@@ -561,8 +560,7 @@ Var
   I, X, LineNo: Integer;
   FCodeGeneratorDetails: TCodeGeneratorDetails;
   FoTemplateTag: TTemplateTag;
-  lsTempIncludeFilename,
-  lsIncludeFilename: String;
+  lsTempIncludeFilename, lsIncludeFilename: String;
   FIncludeTemplate: TstringList;
   FiIndex: Integer;
   FTokenProcessor: tTokenProcessor;
@@ -585,8 +583,7 @@ begin
         FoTemplateTag := FCodeGeneratorDetails.oTemplateTag;
 
         if FoTemplateTag.TagValue = cDeleteLine then
-            Exit;
-
+          Exit;
 
         If (FoTemplateTag.RawTagEx = FoTemplate.OutputDoc.Strings
           [FoTemplateTag.SourceLineNo - 1]) then
@@ -600,95 +597,96 @@ begin
           ttlayout:
             begin;
               if Uppercase(FTokenProcessor.GetNextToken) = 'LAYOUT' then
+              begin
+                if FTokenProcessor.IsNextTokenEquals then
                 begin
-                  if FTokenProcessor.IsNextTokenEquals then
-                    begin
-                      lsTempIncludeFilename := FTokenProcessor.GetNextToken;
-                      if lsTempIncludeFilename = '' then
-                        fOutput.LogError('LAYOUT: Filename not found.');
+                  lsTempIncludeFilename := FTokenProcessor.GetNextToken;
+                  if lsTempIncludeFilename = '' then
+                    fOutput.LogError('LAYOUT: Filename not found.');
 
-                      lsRenderBodyTag := FTokenProcessor.GetNextToken;
-                      if lsRenderBodyTag  = '' then
-                        fOutput.LogError('LAYOUT: RenderBodyTag not found.')
-
-                    end
-                 else
-                   fOutput.LogError('LAYOUT: Equals symbol not found.');
+                  lsRenderBodyTag := FTokenProcessor.GetNextToken;
+                  if lsRenderBodyTag = '' then
+                    fOutput.LogError('LAYOUT: RenderBodyTag not found.')
 
                 end
-              else fOutput.LogError('LAYOUT: Tag not found.');
+                else
+                  fOutput.LogError('LAYOUT: Equals symbol not found.');
+
+              end
+              else
+                fOutput.LogError('LAYOUT: Tag not found.');
             end;
 
           ttInclude:
             begin
               if Uppercase(FTokenProcessor.GetNextToken) = 'INCLUDE' then
+              begin
+                if FTokenProcessor.IsNextTokenEquals then
                 begin
-                  if FTokenProcessor.IsNextTokenEquals then
-                    begin
-                      lsTempIncludeFilename := FTokenProcessor.GetNextToken;
-                      if lsTempIncludeFilename = '' then
-                        fOutput.LogError('INCLUDE: Filename not found.');
+                  lsTempIncludeFilename := FTokenProcessor.GetNextToken;
+                  if lsTempIncludeFilename = '' then
+                    fOutput.LogError('INCLUDE: Filename not found.');
 
-
-                    end
-                 else
-                   fOutput.LogError('INCLUDE: Equals symbol not found.');
-                end;
+                end
+                else
+                  fOutput.LogError('INCLUDE: Equals symbol not found.');
+              end;
             end;
 
         end;
       Finally
         if lsTempIncludeFilename <> '' then
-          lsIncludeFilename := TNovusFileUtils.TrailingBackSlash(fProject.oProjectConfig.TemplatePath) + lsTempIncludeFilename;
+          lsIncludeFilename := TNovusFileUtils.TrailingBackSlash
+            (fProject.oProjectConfig.TemplatePath) + lsTempIncludeFilename;
 
         if Assigned(FTokenProcessor) then
           FTokenProcessor.Free;
       End;
 
-
       if FileExists(lsIncludeFilename) then
       begin
         if FCodeGeneratorDetails.tagtype = TTagType.ttInclude then
-          begin
-            LineNo := FoTemplateTag.SourceLineNo - 1;
+        begin
+          LineNo := FoTemplateTag.SourceLineNo - 1;
 
-            Try
-              FIncludeTemplate := TstringList.Create;
+          Try
+            FIncludeTemplate := TstringList.Create;
 
-              FIncludeTemplate.LoadFromFile(lsIncludeFilename);
+            FIncludeTemplate.LoadFromFile(lsIncludeFilename);
 
-              // Post Processor
-              oRuntime.oPlugins.PostProcessor(lsIncludeFilename,
-                FIncludeTemplate);
+            // Post Processor
+            oRuntime.oPlugins.PostProcessor(lsIncludeFilename,
+              FIncludeTemplate);
 
-              FoTemplate.TemplateDoc.Delete(LineNo);
+            FoTemplate.TemplateDoc.Delete(LineNo);
 
-              for X := 0 to FIncludeTemplate.Count - 1 do
-              begin
-                FoTemplate.TemplateDoc.Insert(LineNo, FIncludeTemplate.Strings[X]);
+            for X := 0 to FIncludeTemplate.Count - 1 do
+            begin
+              FoTemplate.TemplateDoc.Insert(LineNo,
+                FIncludeTemplate.Strings[X]);
 
-                Inc(LineNo);
-              end;
-            Finally
-              FIncludeTemplate.Free;
-            End;
+              Inc(LineNo);
+            end;
+          Finally
+            FIncludeTemplate.Free;
+          End;
 
-            if Not PassTemplateTags(true) then
-              Result := false;
-          end
-        else
-        if FCodeGeneratorDetails.tagtype = TTagType.ttlayout then
-          begin
-            Flayout:= TProcessor.Create(fOutput, fProject,(fProjectItem as TPRojectItem),fVariables);
+          if Not PassTemplateTags(true) then
+            Result := false;
+        end
+        else if FCodeGeneratorDetails.tagtype = TTagType.ttlayout then
+        begin
+          Flayout := TProcessor.Create(fOutput, fProject,
+            (fProjectItem as TProjectItem), NIL);
 
-            (FLayout as tProcessor).InputFilename := lsIncludeFilename;
-            (FLayout as tProcessor).OutputFilename := '';
-            (FLayout as tProcessor).oCodeGenerator.RenderBodyTag := lsRenderBodyTag;
+          (Flayout as TProcessor).InputFilename := lsIncludeFilename;
+          (Flayout as TProcessor).OutputFilename := '';
+          (Flayout as TProcessor).oCodeGenerator.RenderBodyTag :=
+            lsRenderBodyTag;
 
-            result := (FLayout as tProcessor).Execute;
+          Result := (Flayout as TProcessor).Execute;
 
-
-          end;
+        end;
       end
       else
       begin
@@ -831,63 +829,64 @@ begin
   end;
 end;
 
-
-
 function TCodeGenerator.DoPostLayout;
 Var
   loLayoutTemplate: TTemplate;
   LIndex: Integer;
   lsRenderBodyTag: string;
   I: Integer;
-  lCodeGeneratorDetails : TCodeGeneratorDetails;
-  LTemplateTag: tTemplateTag;
+  lCodeGeneratorDetails: TCodeGeneratorDetails;
+  LTemplateTag: TTemplateTag;
 begin
-  If Assigned(fLayout) then
-    begin
-      Try
-        loLayoutTemplate := tTemplate.CreateTemplate(true);
+  If Assigned(Flayout) then
+  begin
+    Try
+      loLayoutTemplate := TTemplate.CreateTemplate(true);
 
-        loLayoutTemplate.TemplateDoc.AddStrings((FLayout as tProcessor).oCodeGenerator.oTemplate.OutputDoc);
+      loLayoutTemplate.TemplateDoc.AddStrings((Flayout as TProcessor)
+        .oCodeGenerator.oTemplate.OutputDoc);
 
-        loLayoutTemplate.ParseTemplate;
+      loLayoutTemplate.ParseTemplate;
 
-        lsRenderBodyTag := Uppercase((FLayout as tProcessor).oCodeGenerator.RenderBodyTag);
+      lsRenderBodyTag := Uppercase((Flayout as TProcessor)
+        .oCodeGenerator.RenderBodyTag);
 
+      LIndex := loLayoutTemplate.FindTagNameIndexOf(lsRenderBodyTag);
+      if LIndex <> -1 then
+      begin
         LIndex := loLayoutTemplate.FindTagNameIndexOf(lsRenderBodyTag);
         if LIndex <> -1 then
+        begin
+          LTemplateTag :=
+            TTemplateTag(loLayoutTemplate.TemplateTags.Items[LIndex]);
+          LTemplateTag.TagValue := FoTemplate.TemplateDoc.Text;
+        end;
+
+        loLayoutTemplate.InsertAllTagValues;
+        FoTemplate.TemplateDoc.Text := loLayoutTemplate.OutputDoc.Text;
+
+        if Not PassTemplateTags(true) then
+          Result := false;
+
+        for I := 0 to FCodeGeneratorList.Count - 1 do
+        begin
+          lCodeGeneratorDetails := TCodeGeneratorDetails
+            (FCodeGeneratorList.Items[I]);
+
+          if lCodeGeneratorDetails.tagtype = ttlayout then
           begin
-            LIndex := loLayoutTemplate.FindTagNameIndexOf(lsRenderBodyTag);
-            if LIndex <> -1 then
-              begin
-                LTemplateTag := tTemplateTag(loLayoutTemplate.TemplateTags.Items[LIndex]);
-                LTemplateTag.TagValue := foTemplate.TemplateDoc.Text;
-              end;
+            LTemplateTag := lCodeGeneratorDetails.oTemplateTag;
 
-            loLayoutTemplate.InsertAllTagValues;
-            foTemplate.TemplateDoc.Text := loLayoutTemplate.OutputDoc.Text;
-
-            if Not PassTemplateTags(true) then
-              Result := false;
-
-
-            for I := 0 to FCodeGeneratorList.Count - 1 do
-              begin
-                lCodeGeneratorDetails := TCodeGeneratorDetails(FCodeGeneratorList.Items[I]);
-
-                if lCodeGeneratorDetails.tagtype = ttLayout then
-                begin
-                  lTemplateTag := lCodeGeneratorDetails.oTemplateTag;
-
-                  lTemplateTag.TagValue := cDeleteLine;
-                end;
-              end;
-
+            LTemplateTag.TagValue := cDeleteLine;
           end;
+        end;
 
-      finally
-         loLayoutTemplate.Free;
       end;
+
+    finally
+      loLayoutTemplate.Free;
     end;
+  end;
 end;
 
 end.

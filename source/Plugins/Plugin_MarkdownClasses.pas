@@ -150,7 +150,6 @@ begin
 
       fsProcessed := fMarkdownprocessor.process(aTemplate.OutputDoc.Text);
 
-
       aTemplate.OutputDoc.Text := fsProcessed;
 
       aOutputFile := ChangeFileExt(aOutputFile, '.' + outputextension);

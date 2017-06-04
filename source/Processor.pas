@@ -8,19 +8,21 @@ Uses Output, Project, ProjectItem, classes, variables, NovusTemplate,
 type
   TProcessor = class(tobject)
   protected
+    foPostProcessor: tPostProcessor;
     foCodeGenerator: tCodegenerator;
     foOutput: TOutput;
     foTemplate: tTemplate;
     foProjectItem: tProjectItem;
     foProject: tProject;
-    foVariables: tVariables;
+   // foVariables: tVariables;
     fsInputFileName: String;
     fsOutputFilename: String;
     fsRenderBodyTag: String;
   private
   public
     constructor Create(AOutput: tOutput;
-      aProject: tProject; aProjectItem: TProjectItem; aVariables: tVariables); virtual;
+      aProject: tProject; aProjectItem: TProjectItem;
+      aPostProcessor: tPostProcessor); virtual;
     destructor Destroy; override;
 
     function Execute: boolean;
@@ -55,7 +57,9 @@ begin
 
   foProject := aProject;
 
-  foVariables := aVariables;
+  //foVariables := aVariables;
+
+  foPostProcessor:= aPostProcessor;
 
   foOutput := AOutput;
 
@@ -63,7 +67,7 @@ begin
 
   fsRenderBodyTag := '';
 
-  foCodeGenerator:=  tCodegenerator.Create(FoTemplate, FoOutput, FoProject, foProjectItem);
+  foCodeGenerator:=  tCodegenerator.Create(FoTemplate, FoOutput, FoProject, foProjectItem, foPostProcessor);
 end;
 
 destructor TProcessor.Destroy;
@@ -74,9 +78,6 @@ begin
 
   inherited;
 end;
-
-
-
 
 function TProcessor.Execute: boolean;
 begin
