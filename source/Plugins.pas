@@ -29,8 +29,8 @@ type
      function IsTagExists(aPluginName: String; aTagName: string): Boolean;
      function GetTag(aPluginName: String;aTagName: string): String;
 
-     function PostProcessor(aProjectItem: tProjectItem; aTemplate: tNovusTemplate; var aOutputFile: string; aPostProcessor: tPostProcessor): boolean; overload;
-     function PostProcessor(aFilename: string; var aTemplateDoc: tStringlist): boolean; overload;
+     function PostProcessor(aProjectItem: tProjectItem; aTemplate: tNovusTemplate; var aOutputFile: string; aPostProcessor: tPostProcessor): boolean;
+     function PreProcessor(aFilename: string; var aTemplateDoc: tStringlist): boolean;
 
      function BeforeCodeGen: boolean;
      function AfterCodeGen: boolean;
@@ -218,13 +218,13 @@ begin
   for I := 0 to fPluginsList.Count -1 do
     begin
       loPlugin := TPlugin(fPluginsList.Items[i]);
-      if loPlugin is TPostProcessorPlugin then
+      if loPlugin is TProcessorPlugin then
         begin
           if Assigned(aPostProcessor) then
             begin
-              if uppercase(TPostProcessorPlugin(loPlugin).PluginName) = Uppercase(aPostProcessor.PluginName) then
+              if uppercase(TProcessorPlugin(loPlugin).PluginName) = Uppercase(aPostProcessor.PluginName) then
                 begin
-                  if TPostProcessorPlugin(loPlugin).PostProcessor(aProjectItem, aTemplate, aOutputFile) = false then
+                  if TProcessorPlugin(loPlugin).PostProcessor(aProjectItem, aTemplate, aOutputFile) = false then
                     Fooutput.Failed := true;
 
                   break;
@@ -233,18 +233,18 @@ begin
           else
           if aProjectItem.PostProcessor<> '' then
             begin
-              if uppercase(TPostProcessorPlugin(loPlugin).PluginName) = Uppercase(aProjectItem.PostProcessor) then
+              if uppercase(TProcessorPlugin(loPlugin).PluginName) = Uppercase(aProjectItem.PostProcessor) then
                 begin
-                  if TPostProcessorPlugin(loPlugin).PostProcessor(aProjectItem, aTemplate, aOutputFile) = false then
+                  if TProcessorPlugin(loPlugin).PostProcessor(aProjectItem, aTemplate, aOutputFile) = false then
                     Fooutput.Failed := true;
 
                   break;
                 end;
             end
           else
-          if (CompareText('.'+TPostProcessorPlugin(loPlugin).sourceextension,  ExtractFileExt(aProjectItem.TemplateFile)) =0) then
+          if (CompareText('.'+TProcessorPlugin(loPlugin).sourceextension,  ExtractFileExt(aProjectItem.TemplateFile)) =0) then
             begin
-              if TPostProcessorPlugin(loPlugin).PostProcessor(aProjectItem, aTemplate, aOutputFile) = false then
+              if TProcessorPlugin(loPlugin).PostProcessor(aProjectItem, aTemplate, aOutputFile) = false then
                 Fooutput.Failed := true;
 
               break;
@@ -253,21 +253,23 @@ begin
     end;
 end;
 
-function TPlugins.PostProcessor(aFilename: string; var aTemplateDoc: tStringlist): boolean;
+function TPlugins.PreProcessor(aFilename: string; var aTemplateDoc: tStringlist): boolean;
 var
   loPlugin: TPlugin;
   I: Integer;
   fssourceextension: string;
 begin
+  Result := False;
+
   for I := 0 to fPluginsList.Count -1 do
     begin
       loPlugin := TPlugin(fPluginsList.Items[i]);
-      if loPlugin is TPostProcessorPlugin then
+      if loPlugin is TProcessorPlugin then
         begin
-          if (CompareText('.'+TPostProcessorPlugin(loPlugin).sourceextension,  ExtractFileExt(aFilename)) =0) then
+          if (CompareText('.'+TProcessorPlugin(loPlugin).sourceextension,  ExtractFileExt(aFilename)) =0) then
             begin
-             if TPostProcessorPlugin(loPlugin).PostProcessor(aFilename, aTemplateDoc) = false then
-               Fooutput.Failed := true;
+              Result := TProcessorPlugin(loPlugin).PreProcessor(aFilename, aTemplateDoc);
+              if result = false then Fooutput.Failed := true;
             end;
         end;
     end;

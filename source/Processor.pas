@@ -14,7 +14,6 @@ type
     foTemplate: tTemplate;
     foProjectItem: tProjectItem;
     foProject: tProject;
-   // foVariables: tVariables;
     fsInputFileName: String;
     fsOutputFilename: String;
     fsRenderBodyTag: String;
@@ -22,7 +21,10 @@ type
   public
     constructor Create(AOutput: tOutput;
       aProject: tProject; aProjectItem: TProjectItem;
-      aPostProcessor: tPostProcessor); virtual;
+      aPostProcessor: tPostProcessor;
+      aInputFileName: String;
+      aOutputFilename: string); virtual;
+
     destructor Destroy; override;
 
     function Execute: boolean;
@@ -53,11 +55,12 @@ constructor TProcessor.Create;
 begin
   inherited Create;
 
+  fsOutputFilename := aOutputFilename;
+  fsInputFilename := aInputFilename;
+
   foProjectItem := aProjectItem;
 
   foProject := aProject;
-
-  //foVariables := aVariables;
 
   foPostProcessor:= aPostProcessor;
 
@@ -67,7 +70,8 @@ begin
 
   fsRenderBodyTag := '';
 
-  foCodeGenerator:=  tCodegenerator.Create(FoTemplate, FoOutput, FoProject, foProjectItem, foPostProcessor);
+  foCodeGenerator := tCodegenerator.Create(foTemplate, foOutput, foProject,
+    foProjectItem, foPostProcessor, fsInputFileName);
 end;
 
 destructor TProcessor.Destroy;

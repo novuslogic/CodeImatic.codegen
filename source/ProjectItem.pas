@@ -326,7 +326,7 @@ begin
       foTemplate.ParseTemplate;
 
       foCodeGenerator := tCodeGenerator.Create(foTemplate, foOutput,
-        foProject, Self, NIL);
+        foProject, Self, NIL, fsTemplateFile);
 
       foCodeGenerator.Execute(fsOutputFile);
 

@@ -86,10 +86,9 @@ begin
         Try
           loPostProcessor := aSourceFile.oPostProcessor;
 
-          loProcessor:= TProcessor.Create(foOutput, foProject, foProjectItem, loPostProcessor );
-
-          loProcessor.InputFilename := aSourceFile.FullPathname;
-          loProcessor.OutputFilename :=  aSourceFile.DestFullPathname;
+          loProcessor:= TProcessor.Create(foOutput, foProject, foProjectItem, loPostProcessor,
+            aSourceFile.FullPathname,
+            aSourceFile.DestFullPathname );
 
           result := loProcessor.Execute;
 

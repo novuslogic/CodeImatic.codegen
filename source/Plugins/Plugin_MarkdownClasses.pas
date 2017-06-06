@@ -8,7 +8,7 @@ uses Classes,Plugin, NovusPlugin, NovusVersionUtils, Project, NovusTemplate,
 
 
 type
-  tPlugin_MarkdownBase = class( TPostProcessorPlugin)
+  tPlugin_MarkdownBase = class( TProcessorPlugin)
   private
   protected
     function Getoutputextension: string; override;
@@ -18,7 +18,7 @@ type
     destructor Destroy; override;
 
     function PostProcessor(aProjectItem: tProjectItem; aTemplate: tNovusTemplate;var aOutputFile: string): boolean; overload; override;
-    function PostProcessor(aFilename: String; var aTemplateDoc: tStringlist): boolean; overload; override;
+    function PreProcessor(aFilename: String; var aTemplateDoc: tStringlist): boolean; override;
 
 
   end;
@@ -101,14 +101,14 @@ begin
     Result := foConfigPlugins.oConfigProperties.GetProperty('sourceextension');
 end;
 
-function  tPlugin_MarkdownBase.PostProcessor(aFilename: string; var aTemplateDoc: tStringlist): boolean;
+function tPlugin_MarkdownBase.PreProcessor(aFilename: string; var aTemplateDoc: tStringlist): boolean;
 Var
   fMarkdownprocessor: TMarkdownDaringFireball;
   fsProcessed: string;
 begin
   Result := False;    result := false;
 
-  foOutput.Log('Postprocessor:' + pluginname);
+  foOutput.Log('Processor:' + pluginname);
 
   Try
     Try
@@ -124,15 +124,9 @@ begin
 
       foOutput.InternalError;
     End;
-
-
-
   Finally
     fMarkdownprocessor.Free;
   End;
-
-
-
 end;
 
 function tPlugin_MarkdownBase.PostProcessor(aProjectItem: tProjectItem; aTemplate: tNovusTemplate; var aOutputFile: string): boolean;
@@ -145,30 +139,15 @@ begin
   foOutput.Log('Postprocessor:' + pluginname);
 
   Try
-    Try
-      fMarkdownprocessor:= TMarkdownDaringFireball.Create;
+    aOutputFile := ChangeFileExt(aOutputFile, '.' + outputextension);
 
-      fsProcessed := fMarkdownprocessor.process(aTemplate.OutputDoc.Text);
+    foOutput.Log('New output:' + aOutputFile);
 
-      aTemplate.OutputDoc.Text := fsProcessed;
-
-      aOutputFile := ChangeFileExt(aOutputFile, '.' + outputextension);
-
-      foOutput.Log('New output:' + aOutputFile);
-
-      result := true;
-    Except
-      result := false;
-
-      foOutput.InternalError;
-    End;
-
-
-
-  Finally
-    fMarkdownprocessor.Free;
+    result := true;
+  Except
+    result := false;
+    foOutput.InternalError;
   End;
-
 end;
 
 

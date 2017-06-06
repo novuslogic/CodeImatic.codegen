@@ -51,14 +51,14 @@ type
    end;
 
 
-   TPostProcessorPlugin = class(TPlugin)
+   TProcessorPlugin = class(TPlugin)
    private
    protected
      function Getsourceextension: string; virtual;
      function Getoutputextension: string; virtual;
    public
-     function PostProcessor(aProjectItem: tProjectItem; aTemplate: tNovusTemplate; var aOutputFile: string): boolean; overload; virtual;
-     function PostProcessor(aFilename: String; var aTemplateDoc: tstringlist): boolean;  overload; virtual;
+     function PostProcessor(aProjectItem: tProjectItem; aTemplate: tNovusTemplate; var aOutputFile: string): boolean; virtual;
+     function PreProcessor(aFilename: String; var aTemplateDoc: tstringlist): boolean; virtual;
 
      property Sourceextension: string
        read Getsourceextension;
@@ -122,22 +122,22 @@ begin
   Result := False;
 end;
 
-function TPostProcessorPlugin.PostProcessor(aProjectItem: tProjectItem; aTemplate: tNovusTemplate; var aOutputFile: string): boolean;
+function TProcessorPlugin.PostProcessor(aProjectItem: tProjectItem; aTemplate: tNovusTemplate; var aOutputFile: string): boolean;
 begin
   Result := false;
 end;
 
-function TPostProcessorPlugin.PostProcessor(aFilename: String; var aTemplateDoc: tstringlist): boolean;
+function TProcessorPlugin.PreProcessor(aFilename: String; var aTemplateDoc: tstringlist): boolean;
 begin
   Result := false;
 end;
 
-function TPostProcessorPlugin.Getsourceextension: string;
+function TProcessorPlugin.Getsourceextension: string;
 begin
   Result := '';
 end;
 
-function TPostProcessorPlugin.Getoutputextension: string;
+function TProcessorPlugin.Getoutputextension: string;
 begin
   Result := '';
 end;
