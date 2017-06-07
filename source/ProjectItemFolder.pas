@@ -23,7 +23,7 @@ type
 
 implementation
 
-uses Processor, System.IOUtils;
+uses Processor, System.IOUtils, Plugin;
 
 constructor tProjectItemFolder.Create(AOutput: TOutput; aProject: TProject;
   aProjectItem: tProjectItem);
@@ -69,7 +69,7 @@ end;
 function tProjectItemFolder.DoProcessor(aSourceFile: tSourceFile) : boolean;
 Var
   loProcessor: TProcessor;
-  loPostProcessor: TPostProcessor;
+  loProcessorplugin: TProcessorPlugin;
 begin
   Try
     result := true;
@@ -84,9 +84,9 @@ begin
     if aSourceFile.IsTemplateFile then
       begin
         Try
-          loPostProcessor := aSourceFile.oPostProcessor;
+          loProcessorPlugin := aSourceFile.oProcessorPlugin;
 
-          loProcessor:= TProcessor.Create(foOutput, foProject, foProjectItem, loPostProcessor,
+          loProcessor:= TProcessor.Create(foOutput, foProject, foProjectItem, loProcessorPlugin,
             aSourceFile.FullPathname,
             aSourceFile.DestFullPathname );
 

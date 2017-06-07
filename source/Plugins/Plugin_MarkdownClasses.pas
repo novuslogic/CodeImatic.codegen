@@ -17,7 +17,7 @@ type
     constructor Create(aOutput: tOutput; aPluginName: String; aProject: TProject; aConfigPlugins: tConfigPlugins); override;
     destructor Destroy; override;
 
-    function PostProcessor(aProjectItem: tProjectItem; aTemplate: tNovusTemplate;var aOutputFile: string): boolean; overload; override;
+    function PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate;var aOutputFile: string): boolean; overload; override;
     function PreProcessor(aFilename: String; var aTemplateDoc: tStringlist): boolean; override;
 
 
@@ -129,10 +129,7 @@ begin
   End;
 end;
 
-function tPlugin_MarkdownBase.PostProcessor(aProjectItem: tProjectItem; aTemplate: tNovusTemplate; var aOutputFile: string): boolean;
-Var
-  fMarkdownprocessor: TMarkdownDaringFireball;
-  fsProcessed: string;
+function tPlugin_MarkdownBase.PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; var aOutputFile: string): boolean;
 begin
   result := false;
 

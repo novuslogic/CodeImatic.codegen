@@ -4,24 +4,14 @@ interface
 
 Uses NovusBO, JvSimpleXml, Project, SysUtils, NovusSimpleXML, ProjectConfigParser,
      DBSchema, Properties, NovusTemplate, CodeGenerator, Output, Template, NovusFileUtils,
-     NovusList, System.RegularExpressions, NovusUtilities;
+     NovusList, System.RegularExpressions, NovusUtilities, plugin;
 
 type
   TProjectItem = class;
 
-  tPostProcessor = class(Tobject)
-  private
-  protected
-    fsPluginName: String;
-  public
-    property PluginName: String
-      read fsPluginName
-      write fsPluginName;
-  end;
-
   tFileType = class(tobject)
   private
-    foPostProcessor: tPostProcessor;
+    foProcessorPlugin: tProcessorPlugin;
     fbIsFolder: Boolean;
     fbIsTemplateFile: Boolean;
     fsFullPathname: String;
@@ -44,9 +34,9 @@ type
        read fsFullPathname
        write fsFullPathName;
 
-    property opostprocessor: tPostProcessor
-      read fopostprocessor
-      write fopostprocessor;
+    property oprocessorPlugin: tProcessorPlugin
+      read foprocessorPlugin
+      write foprocessorPlugin;
   end;
 
   tFiltered = class(tFileType)
@@ -398,7 +388,7 @@ begin
         loSourceFile.IsTemplateFile := (foTemplateFile <> NIL);
 
         if loSourceFile.IsTemplateFile then
-           TNovusUtilities.CopyObject(foTemplateFile.opostprocessor, loSourceFile.opostprocessor);
+           TNovusUtilities.CopyObject(foTemplateFile.oprocessorPlugin, loSourceFile.oprocessorPlugin);
       end;
 
     loSourceFile.IsFiltered := IsFiltered(aFullPathname);
@@ -477,12 +467,12 @@ end;
 // tFileType
 constructor tFileType.Create;
 begin
-  fopostprocessor := tpostprocessor.create
+  foprocessorplugin := tprocessorplugin.create(NIL, '', NIL, NIL);
 end;
 
 destructor tFileType.Destroy;
 begin
-  fopostprocessor.Free;
+  foprocessorplugin.Free;
 end;
 
 
@@ -510,7 +500,7 @@ begin
   loTemplateFile.FullPathname := Trim(aFullPathname);
   loTemplateFile.IsFolder := false;
   loTemplateFile.IsTemplateFile := true;
-  loTemplateFile.opostprocessor.PluginName := aPostProcessor;
+  loTemplateFile.oprocessorplugin.PluginName := aPostProcessor;
   loTemplateFile.Filename := aFilename;
 
   Add(loTemplateFile);

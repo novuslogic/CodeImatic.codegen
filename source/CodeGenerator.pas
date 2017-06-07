@@ -8,13 +8,13 @@ Uses Classes, NovusTemplate, NovusList, ExpressionParser, SysUtils,
   NovusBO, NovusFileUtils, Template;
 
 Const
-  cDeleteLine = '!!DELETELINE!!';
-  cBlankline = '!!BLANKLINE!!';
+  cDeleteLine = '{%DELETELINE%}';
+  cBlankline = '{%BLANKLINE%}';
 
 Type
   TCodeGenerator = class(TObject)
   protected
-    foPostProcessor: TObject;
+    foProcessorPlugin: TObject;
     fProject: tProject;
     fVariables: tVariables;
     fOutput: tOutput;
@@ -38,14 +38,14 @@ Type
     function DoPostLayout: Boolean;
     procedure DoProperties;
     procedure DoTrimLines;
-    procedure DoDeleteLines;
-    procedure DoInternalDeleteLines(const aStrings: TStrings);
+    procedure DoSpecialTags;
+    procedure DoInternalSpecialTags(const aStrings: TStrings);
     function PassTemplateTags(aClearRun: Boolean = false): Boolean;
     function DoInternalIncludes(aTagType: TTagType = ttInclude): Boolean;
   public
     constructor Create(ATemplate: TTemplate; AOutput: tOutput;
       aProject: tProject; aProjectItem: TObject;
-      aPostProcessor: TObject;
+      aProcessorPlugin: TObject;
       aInputFilename: string); virtual;
 
     destructor Destroy; override;
@@ -85,13 +85,13 @@ Type
 implementation
 
 uses runtime, TokenParser, ProjectItemLoader, ProjectItem, Processor,
-  TagTypeParser;
+  TagTypeParser, Plugin;
 
 constructor TCodeGenerator.Create;
 begin
   inherited Create;
 
-  foPostProcessor := aPostProcessor;
+  foProcessorPlugin := aProcessorPlugin;
 
   fsInputFilename := aInputFilename;
 
@@ -298,7 +298,7 @@ begin
 
     FoTemplate.InsertAllTagValues;
 
-    DoDeleteLines;
+    DoSpecialTags;
 
     if Trim(aOutputFilename) <> '' then
       DoPostProcessor(aOutputFilename);
@@ -331,7 +331,7 @@ end;
 procedure TCodeGenerator.DoPostProcessor(var aOutputFile: string);
 begin
   oRuntime.oPlugins.PostProcessor((fProjectItem as TProjectItem), FoTemplate,
-    aOutputFile, (foPostProcessor as TPostProcessor));
+    aOutputFile, (foProcessorPlugin as TProcessorPlugin));
 end;
 
 function TCodeGenerator.IsNonOutputCommandonly(ASourceLineNo: Integer): Boolean;
@@ -411,15 +411,42 @@ begin
   end;
 end;
 
-procedure TCodeGenerator.DoDeleteLines;
+procedure TCodeGenerator.DoSpecialTags;
 begin
-  DoInternalDeleteLines(FoTemplate.OutputDoc);
+  DoInternalSpecialTags(FoTemplate.OutputDoc);
 end;
 
-procedure TCodeGenerator.DoInternalDeleteLines(const aStrings: TStrings);
+procedure TCodeGenerator.DoInternalSpecialTags(const aStrings: TStrings);
 Var
+  loTemplate: TTemplate;
   I: Integer;
+  LTemplateTag: TTemplateTag;
 begin
+  // DELETELINE
+
+  try
+    loTemplate := TTemplate.CreateTemplate;
+    loTemplate.TemplateDoc.Text := aStrings.Text;
+    loTemplate.StartToken := '{';
+    loTemplate.EndToken := '}';
+
+    loTemplate.ParseTemplate;
+
+    While (loTemplate.TemplateTags.Count > 0) do
+    begin
+      LTemplateTag := TTemplateTag(loTemplate.TemplateTags.Items[0]);
+      loTemplate.TemplateDoc.Delete(LTemplateTag.SourceLineNo -1);
+
+      loTemplate.ParseTemplate;
+    end;
+
+    loTemplate.InsertAllTagValues;
+    aStrings.Text := loTemplate.OutputDoc.Text;
+  finally
+    loTemplate.Free;
+  end;
+
+   (*
   I := 0;
   While (aStrings.Count > I) do
   begin
@@ -432,6 +459,7 @@ begin
 
     Inc(I);
   end;
+  *)
 end;
 
 procedure TCodeGenerator.RunPropertyVariables;
@@ -751,45 +779,6 @@ begin
    Finally
      FPreProcessorTemplate.Free;
    End;
-
-//  foTemplate
-
-
-
-
-          (*
-          LineNo := FoTemplateTag.SourceLineNo - 1;
-
-          Try
-            FIncludeTemplate := TstringList.Create;
-
-            FIncludeTemplate.LoadFromFile(lsIncludeFilename);
-
-            // Pre Processor
-            oRuntime.oPlugins.PreProcessor(lsIncludeFilename,
-              FIncludeTemplate);
-
-            FoTemplate.TemplateDoc.Delete(LineNo);
-
-            for X := 0 to FIncludeTemplate.Count - 1 do
-            begin
-              FoTemplate.TemplateDoc.Insert(LineNo,
-                FIncludeTemplate.Strings[X]);
-
-              Inc(LineNo);
-            end;
-          Finally
-            FIncludeTemplate.Free;
-          End;
-
-
-  // Pre Processor
-  oRuntime.oPlugins.PreProcessor(lsIncludeFilename,
-              FIncludeTemplate);
-
-   // oRuntime.oPlugins.PreProcessor((fProjectItem as TProjectItem), FoTemplate,
-   // aOutputFile, (foPostProcessor as TPostProcessor));
-   *)
 end;
 
 function TCodeGenerator.DoPreLayout: Boolean;

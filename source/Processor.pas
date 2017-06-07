@@ -3,12 +3,12 @@ unit Processor;
 interface
 
 Uses Output, Project, ProjectItem, classes, variables, NovusTemplate,
-     CodeGenerator, CodeGeneratorDetails, Template;
+     CodeGenerator, CodeGeneratorDetails, Template, Plugin;
 
 type
   TProcessor = class(tobject)
   protected
-    foPostProcessor: tPostProcessor;
+    foProcessorPlugin: tProcessorPlugin;
     foCodeGenerator: tCodegenerator;
     foOutput: TOutput;
     foTemplate: tTemplate;
@@ -21,7 +21,7 @@ type
   public
     constructor Create(AOutput: tOutput;
       aProject: tProject; aProjectItem: TProjectItem;
-      aPostProcessor: tPostProcessor;
+      aProcessorPlugin: tProcessorPlugin;
       aInputFileName: String;
       aOutputFilename: string); virtual;
 
@@ -62,7 +62,7 @@ begin
 
   foProject := aProject;
 
-  foPostProcessor:= aPostProcessor;
+  foProcessorPlugin := aProcessorPlugin;
 
   foOutput := AOutput;
 
@@ -71,7 +71,7 @@ begin
   fsRenderBodyTag := '';
 
   foCodeGenerator := tCodegenerator.Create(foTemplate, foOutput, foProject,
-    foProjectItem, foPostProcessor, fsInputFileName);
+    foProjectItem, foProcessorPlugin, fsInputFileName);
 end;
 
 destructor TProcessor.Destroy;

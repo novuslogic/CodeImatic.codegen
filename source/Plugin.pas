@@ -2,7 +2,7 @@ unit Plugin;
 
 interface
 
-uses classes, Output, NovusPlugin, Project, ProjectItem, config, NovusTemplate, uPSRuntime, uPSCompiler;
+uses classes, Output, NovusPlugin, Project, (*ProjectItem,*) config, NovusTemplate, uPSRuntime, uPSCompiler;
 
 type
    TPlugin = class(TPersistent)
@@ -57,7 +57,7 @@ type
      function Getsourceextension: string; virtual;
      function Getoutputextension: string; virtual;
    public
-     function PostProcessor(aProjectItem: tProjectItem; aTemplate: tNovusTemplate; var aOutputFile: string): boolean; virtual;
+     function PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; var aOutputFile: string): boolean; virtual;
      function PreProcessor(aFilename: String; var aTemplateDoc: tstringlist): boolean; virtual;
 
      property Sourceextension: string
@@ -122,7 +122,7 @@ begin
   Result := False;
 end;
 
-function TProcessorPlugin.PostProcessor(aProjectItem: tProjectItem; aTemplate: tNovusTemplate; var aOutputFile: string): boolean;
+function TProcessorPlugin.PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; var aOutputFile: string): boolean;
 begin
   Result := false;
 end;
