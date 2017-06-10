@@ -422,8 +422,6 @@ Var
   I: Integer;
   LTemplateTag: TTemplateTag;
 begin
-  // DELETELINE
-
   try
     loTemplate := TTemplate.CreateTemplate;
     loTemplate.TemplateDoc.Text := aStrings.Text;
@@ -432,34 +430,36 @@ begin
 
     loTemplate.ParseTemplate;
 
-    While (loTemplate.TemplateTags.Count > 0) do
+    I := 0;
+    While (loTemplate.TemplateTags.Count > I) do
     begin
-      LTemplateTag := TTemplateTag(loTemplate.TemplateTags.Items[0]);
-      loTemplate.TemplateDoc.Delete(LTemplateTag.SourceLineNo -1);
+      LTemplateTag := TTemplateTag(loTemplate.TemplateTags.Items[I]);
 
-      loTemplate.ParseTemplate;
+      if LTemplateTag.RawTagEx = cBlankLine then
+         begin
+          loTemplate.TemplateDoc.Strings[LTemplateTag.SourceLineNo -1] := '';
+
+          loTemplate.ParseTemplate;
+
+          Dec(i);
+        end
+      else
+      if LTemplateTag.RawTagEx = cDeleteLine then
+        begin
+          loTemplate.TemplateDoc.Delete(LTemplateTag.SourceLineNo -1);
+
+          loTemplate.ParseTemplate;
+
+          Dec(i);
+        end;
+
+      Inc(i);
     end;
-
     loTemplate.InsertAllTagValues;
     aStrings.Text := loTemplate.OutputDoc.Text;
   finally
     loTemplate.Free;
   end;
-
-   (*
-  I := 0;
-  While (aStrings.Count > I) do
-  begin
-    If Trim(aStrings[I]) = cDeleteLine then
-    begin
-      aStrings.Delete(I);
-
-      Dec(I);
-    end;
-
-    Inc(I);
-  end;
-  *)
 end;
 
 procedure TCodeGenerator.RunPropertyVariables;
