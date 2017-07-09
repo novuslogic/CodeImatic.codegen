@@ -1,14 +1,14 @@
-unit Plugin_MarkdownClasses;
+unit Plugin_SassClasses;
 
 interface
 
 uses Classes,Plugin, NovusPlugin, NovusVersionUtils, Project, NovusTemplate,
     Output, SysUtils, System.Generics.Defaults,  runtime, Config,  NovusStringUtils,
-    APIBase, MarkdownDaringFireball, MarkdownProcessor, ProjectItem, TagType ;
+    APIBase, ProjectItem, TagType ;
 
 
 type
-  tPlugin_MarkdownBase = class( TProcessorPlugin)
+  tPlugin_SassBase = class( TProcessorPlugin)
   private
   protected
     function Getoutputextension: string; override;
@@ -23,12 +23,11 @@ type
 
   end;
 
-  TPlugin_Markdown = class( TSingletonImplementation, INovusPlugin, IExternalPlugin)
+  TPlugin_Sass = class( TSingletonImplementation, INovusPlugin, IExternalPlugin)
   private
   protected
     foProject: TProject;
-    FPlugin_Markdown: tPlugin_MarkdownBase;
-
+    FPlugin_Sass: tPlugin_SassBase;
   public
     function GetPluginName: string; safecall;
 
@@ -47,74 +46,75 @@ function GetPluginObject: INovusPlugin; stdcall;
 implementation
 
 var
-  _Plugin_Markdown: TPlugin_Markdown = nil;
+  _Plugin_Sass: TPlugin_Sass = nil;
 
-constructor tPlugin_MarkdownBase.Create(aOutput: tOutput; aPluginName: String; aProject: TProject; aConfigPlugins: tConfigPlugins);
+constructor tPlugin_SassBase.Create(aOutput: tOutput; aPluginName: String; aProject: TProject; aConfigPlugins: tConfigPlugins);
 begin
   Inherited Create(aOutput,aPluginName, aProject, aConfigPlugins);
 end;
 
 
-destructor  tPlugin_MarkdownBase.Destroy;
+destructor  tPlugin_SassBase.Destroy;
 begin
   Inherited;
 end;
 
-// Plugin_Markdown
-function tPlugin_Markdown.GetPluginName: string;
+// Plugin_Sass
+function tPlugin_Sass.GetPluginName: string;
 begin
-  Result := 'Markdown';
+  Result := 'Sass';
 end;
 
-procedure tPlugin_Markdown.Initialize;
+procedure tPlugin_Sass.Initialize;
 begin
 end;
 
-function tPlugin_Markdown.CreatePlugin(aOutput: tOutput; aProject: TProject; aConfigPlugins: TConfigPlugins): TPlugin; safecall;
+function tPlugin_Sass.CreatePlugin(aOutput: tOutput; aProject: TProject; aConfigPlugins: TConfigPlugins): TPlugin; safecall;
 begin
   foProject := aProject;
 
-  FPlugin_Markdown := tPlugin_MarkdownBase.Create(aOutput, GetPluginName, foProject, aConfigPlugins);
+  FPlugin_Sass := tPlugin_SassBase.Create(aOutput, GetPluginName, foProject, aConfigPlugins);
 
-  Result := FPlugin_Markdown;
+  Result := FPlugin_Sass;
 end;
 
 
-procedure tPlugin_Markdown.Finalize;
+procedure tPlugin_Sass.Finalize;
 begin
-  //if Assigned(FPlugin_Markdown) then FPlugin_Markdown.Free;
+  //if Assigned(FPlugin_Sass) then FPlugin_Sass.Free;
 end;
 
-// tPlugin_MarkdownBase
+// tPlugin_SassBase
 
-function tPlugin_MarkdownBase.Getoutputextension: String;
+function tPlugin_SassBase.Getoutputextension: String;
 begin
-  Result := 'html';
+  Result := 'css';
   if foConfigPlugins.oConfigProperties.IsPropertyExists('outputextension') then
     Result := foConfigPlugins.oConfigProperties.GetProperty('outputextension');
 end;
 
-function tPlugin_MarkdownBase.Getsourceextension: String;
+function tPlugin_SassBase.Getsourceextension: String;
 begin
-  Result := 'md';
+  Result := 'scss';
   if foConfigPlugins.oConfigProperties.IsPropertyExists('sourceextension') then
     Result := foConfigPlugins.oConfigProperties.GetProperty('sourceextension');
 end;
 
-function tPlugin_MarkdownBase.PreProcessor(aFilename: string; var aTemplateDoc: tStringlist): boolean;
+function tPlugin_SassBase.PreProcessor(aFilename: string; var aTemplateDoc: tStringlist): boolean;
 Var
-  fMarkdownprocessor: TMarkdownDaringFireball;
+  //fSassprocessor: TSassDaringFireball;
   fsProcessed: string;
 begin
-  Result := False;
+  Result := False;    result := false;
 
   foOutput.Log('Processor:' + pluginname);
 
+  (*
   Try
     Try
-      fMarkdownprocessor:= TMarkdownDaringFireball.Create;
+      fSassprocessor:= TSassDaringFireball.Create;
 
-      fsProcessed := fMarkdownprocessor.process(aTemplateDoc.Text);
+      fsProcessed := fSassprocessor.process(aTemplateDoc.Text);
 
       aTemplateDoc.Text := fsProcessed;
 
@@ -125,11 +125,12 @@ begin
       foOutput.InternalError;
     End;
   Finally
-    fMarkdownprocessor.Free;
+    fSassprocessor.Free;
   End;
+  *)
 end;
 
-function tPlugin_MarkdownBase.PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; var aOutputFile: string): boolean;
+function tPlugin_SassBase.PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; var aOutputFile: string): boolean;
 begin
   result := false;
 
@@ -150,8 +151,8 @@ end;
 
 function GetPluginObject: INovusPlugin;
 begin
-  if (_Plugin_Markdown = nil) then _Plugin_Markdown := TPlugin_Markdown.Create;
-  result := _Plugin_Markdown;
+  if (_Plugin_Sass = nil) then _Plugin_Sass := TPlugin_Sass.Create;
+  result := _Plugin_Sass;
 end;
 
 exports
@@ -159,11 +160,11 @@ exports
 
 initialization
   begin
-    _Plugin_Markdown := nil;
+    _Plugin_Sass := nil;
   end;
 
 finalization
-  FreeAndNIL(_Plugin_Markdown);
+  FreeAndNIL(_Plugin_Sass);
 
 end.
 

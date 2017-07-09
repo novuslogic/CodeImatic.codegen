@@ -514,8 +514,7 @@ begin
       end;
     end;
 
-    for X := 0 to (fProjectItem as TProjectItem)
-      .oProperties.NodeNames.Count - 1 do
+    for X := 0 to (fProjectItem as TProjectItem).oProperties.NodeNames.Count - 1 do
     begin
       lsPropertieVariable := '$$' + Uppercase((fProjectItem as TProjectItem)
         .oProperties.NodeNames.Strings[X]);

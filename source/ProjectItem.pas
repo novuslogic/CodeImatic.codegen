@@ -129,10 +129,10 @@ type
     fsPropertiesFile: String;
     fboverrideoutput: Boolean;
     fsPostprocessor: string;
-    fJvSimpleXmlElem: TJvSimpleXmlElem;
+    fNodeProjectItem: TJvSimpleXmlElem;
     function GetName: String;
   Public
-    constructor Create(aProject: TProject;aOutput: Toutput);
+    constructor Create(aProject: TProject;aOutput: Toutput; aNodeProjectItem: TJvSimpleXmlElem);
     destructor Destroy; override;
 
     function Execute: Boolean;
@@ -199,7 +199,7 @@ implementation
 Uses Config, ProjectItemFolder;
 
 
-constructor TProjectItem.Create(aProject: TProject;aOutput: Toutput);
+constructor TProjectItem.Create(aProject: TProject;aOutput: Toutput; aNodeProjectItem: TJvSimpleXmlElem);
 begin
   foProject := aProject;
 
@@ -210,6 +210,8 @@ begin
   foDBSchema := TDBSchema.Create;
 
   foTemplate := TTemplate.CreateTemplate;
+
+  fNodeProjectItem := aNodeProjectItem;
 
   foSourceFiles:= tSourceFiles.Create(foProject, Self, foOutput);
 end;
@@ -242,12 +244,11 @@ begin
       else
          begin
            Index := 0;
-           if assigned(TNovusSimpleXML.FindNode(fJvSimpleXmlElem, Trim(AToken), Index)) then
+           if assigned(TNovusSimpleXML.FindNode(fNodeProjectItem, Trim(AToken), Index)) then
              begin
                Index := 0;
-               Result := TNovusSimpleXML.FindNode(fJvSimpleXmlElem, Trim(Uppercase(aToken)), Index).Value;
+               Result := TNovusSimpleXML.FindNode(fNodeProjectItem, Trim(Uppercase(aToken)), Index).Value;
              end;
-
          end;
 
       Result := tProjectConfigParser.ParseProjectConfig(Result, aProject);

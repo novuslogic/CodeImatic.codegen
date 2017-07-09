@@ -2,8 +2,8 @@ unit Project;
 
 interface
 
-Uses NovusXMLBO, Classes, SysUtils, NovusStringUtils, NovusBO, NovusList,
-     JvSimpleXml, NovusSimpleXML, XMLlist, ProjectConfig, NovusFileUtils, Output;
+Uses NovusXMLBO, Classes, SysUtils, NovusStringUtils, NovusBO, NovusList,NovusFileUtils,
+     JvSimpleXml, NovusSimpleXML, XMLlist, ProjectConfig, Output;
 
 
 Type
@@ -178,7 +178,7 @@ begin
     lsOutputPath := GetWorkingdirectory;
 
   if lsOutputpath <> '' then
-    Result := TNovusStringUtils.TrailingBackSlash(lsOutputpath);
+    Result := TNovusFileUtils.TrailingBackSlash(lsOutputpath);
 end;
 
 function TProject.GetOutputConsole: Boolean;
@@ -210,7 +210,7 @@ begin
   fNodeProjectItem  := TNovusSimpleXML.FindNode(oXMLDocument.Root, 'projectitem', Index);
   While(fNodeProjectItem <> NIL) do
     begin
-      loProjectItem:= TProjectItem.Create(self, foOutput);
+      loProjectItem:= TProjectItem.Create(self, foOutput, fNodeProjectItem);
 
       (*
       if fJvSimpleXmlElem.Properties.Count > 0 then

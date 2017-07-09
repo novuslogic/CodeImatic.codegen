@@ -1,10 +1,10 @@
-library SystemExt;
+library Sass;
 
 uses
   ShareMem,
   System.SysUtils,
   System.Classes,
-  Plugin_SystemExtClasses in 'Plugin_SystemExtClasses.pas';
+  Plugin_SassClasses in 'Plugin_SassClasses.pas';
 
 {$R *.res}
 
