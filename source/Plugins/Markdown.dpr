@@ -1,7 +1,7 @@
 library Markdown;
 
 uses
-  ShareMem,
+  FastMM4,
   System.SysUtils,
   System.Classes,
   Plugin_MarkdownClasses in 'Plugin_MarkdownClasses.pas',

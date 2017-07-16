@@ -1,7 +1,7 @@
 library SystemExt;
 
 uses
-  ShareMem,
+  FastMM4,
   System.SysUtils,
   System.Classes,
   Plugin_SystemExtClasses in 'Plugin_SystemExtClasses.pas';

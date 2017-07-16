@@ -2,30 +2,34 @@ unit Plugin_SassClasses;
 
 interface
 
-uses Classes,Plugin, NovusPlugin, NovusVersionUtils, Project, NovusTemplate,
-    Output, SysUtils, System.Generics.Defaults,  runtime, Config,  NovusStringUtils,
-    APIBase, ProjectItem, TagType ;
-
+uses Winapi.Windows, System.SysUtils, System.Classes,
+  Plugin, NovusPlugin, NovusVersionUtils, Project, NovusTemplate,
+  Output, System.Generics.Defaults, runtime, Config, NovusStringUtils,
+  APIBase, ProjectItem, TagType, DelphiLibSass;
 
 type
-  tPlugin_SassBase = class( TProcessorPlugin)
+  tPlugin_SassBase = class(TProcessorPlugin)
   private
+     fSassprocessor: TDelphiLibSass;
   protected
     function Getoutputextension: string; override;
     function Getsourceextension: string; override;
   public
-    constructor Create(aOutput: tOutput; aPluginName: String; aProject: TProject; aConfigPlugins: tConfigPlugins); override;
+    constructor Create(aOutput: tOutput; aPluginName: String;
+      aProject: TProject; aConfigPlugins: tConfigPlugins); override;
     destructor Destroy; override;
 
-    function PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate;var aOutputFile: string): boolean; overload; override;
-    function PreProcessor(aFilename: String; var aTemplateDoc: tStringlist): boolean; override;
-
+    function PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate;
+      var aOutputFile: string): boolean; overload; override;
+    function PreProcessor(aFilename: String; var aTemplateDoc: tStringlist)
+      : boolean; override;
 
   end;
 
-  TPlugin_Sass = class( TSingletonImplementation, INovusPlugin, IExternalPlugin)
+  TPlugin_Sass = class(TSingletonImplementation, INovusPlugin, IExternalPlugin)
   private
   protected
+    foOutput: TOutput;
     foProject: TProject;
     FPlugin_Sass: tPlugin_SassBase;
   public
@@ -36,8 +40,8 @@ type
 
     property PluginName: string read GetPluginName;
 
-    function CreatePlugin(aOutput: tOutput; aProject: Tproject; aConfigPlugins: TConfigPlugins): TPlugin; safecall;
-
+    function CreatePlugin(aOutput: tOutput; aProject: TProject;
+      aConfigPlugins: tConfigPlugins): TPlugin; safecall;
 
   end;
 
@@ -48,40 +52,61 @@ implementation
 var
   _Plugin_Sass: TPlugin_Sass = nil;
 
-constructor tPlugin_SassBase.Create(aOutput: tOutput; aPluginName: String; aProject: TProject; aConfigPlugins: tConfigPlugins);
+constructor tPlugin_SassBase.Create(aOutput: tOutput; aPluginName: String;
+  aProject: TProject; aConfigPlugins: tConfigPlugins);
 begin
-  Inherited Create(aOutput,aPluginName, aProject, aConfigPlugins);
+  Inherited Create(aOutput, aPluginName, aProject, aConfigPlugins);
+
+  Try
+    fSassprocessor := TDelphiLibSass.LoadInstance;
+
+    {$IFDEF DEBUG}
+    foOutput.Log('LibSass Version:' + fSassprocessor.libsass_language_version);
+    {$ENDIF}
+
+  Except
+    aOutput.InternalError;
+  End;
+
 end;
 
-
-destructor  tPlugin_SassBase.Destroy;
+destructor tPlugin_SassBase.Destroy;
 begin
   Inherited;
+
+  Try
+    if Assigned(fSassprocessor) then
+      fSassprocessor.Free;
+  Except
+    foOutput.InternalError;
+  End;
 end;
 
 // Plugin_Sass
-function tPlugin_Sass.GetPluginName: string;
+function TPlugin_Sass.GetPluginName: string;
 begin
   Result := 'Sass';
 end;
 
-procedure tPlugin_Sass.Initialize;
+procedure TPlugin_Sass.Initialize;
 begin
 end;
 
-function tPlugin_Sass.CreatePlugin(aOutput: tOutput; aProject: TProject; aConfigPlugins: TConfigPlugins): TPlugin; safecall;
+function TPlugin_Sass.CreatePlugin(aOutput: tOutput; aProject: TProject;
+  aConfigPlugins: tConfigPlugins): TPlugin; safecall;
 begin
   foProject := aProject;
+  foOutput := aOutput;
 
-  FPlugin_Sass := tPlugin_SassBase.Create(aOutput, GetPluginName, foProject, aConfigPlugins);
+  FPlugin_Sass := tPlugin_SassBase.Create(aOutput, GetPluginName, foProject,
+    aConfigPlugins);
 
   Result := FPlugin_Sass;
 end;
 
-
-procedure tPlugin_Sass.Finalize;
+procedure TPlugin_Sass.Finalize;
 begin
-  //if Assigned(FPlugin_Sass) then FPlugin_Sass.Free;
+  // if Assigned(FPlugin_Sass) then FPlugin_Sass.Free;
 end;
 
 // tPlugin_SassBase
@@ -100,72 +125,78 @@ begin
     Result := foConfigPlugins.oConfigProperties.GetProperty('sourceextension');
 end;
 
-function tPlugin_SassBase.PreProcessor(aFilename: string; var aTemplateDoc: tStringlist): boolean;
+function tPlugin_SassBase.PreProcessor(aFilename: string;
+  var aTemplateDoc: tStringlist): boolean;
 Var
-  //fSassprocessor: TSassDaringFireball;
-  fsProcessed: string;
+  fScssResult: TScssResult;
 begin
-  Result := False;    result := false;
+  Result := False;
+  Result := False;
 
-  foOutput.Log('Processor:' + pluginname);
+  foOutput.Log('Processor:' + PluginName);
 
-  (*
   Try
     Try
-      fSassprocessor:= TSassDaringFireball.Create;
+      fScssResult := NIL;
 
-      fsProcessed := fSassprocessor.process(aTemplateDoc.Text);
+      if Assigned(fSassprocessor) then
+      begin
+        fScssResult := fSassprocessor.ConvertToCss(aTemplateDoc.Text);
+        if Assigned(fScssResult) then
+        begin
+          aTemplateDoc.Text := fScssResult.CSS;
+          Result := true;
+        end;
 
-      aTemplateDoc.Text := fsProcessed;
-
-      result := true;
+      end;
     Except
-      result := false;
+      Result := False;
 
       foOutput.InternalError;
     End;
   Finally
-    fSassprocessor.Free;
+    if Assigned(fScssResult) then
+      fScssResult.Free;
   End;
-  *)
+
 end;
 
-function tPlugin_SassBase.PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; var aOutputFile: string): boolean;
+function tPlugin_SassBase.PostProcessor(aProjectItem: tObject;
+  aTemplate: tNovusTemplate; var aOutputFile: string): boolean;
 begin
-  result := false;
+  Result := False;
 
-  foOutput.Log('Postprocessor:' + pluginname);
+  foOutput.Log('Postprocessor:' + PluginName);
 
   Try
     aOutputFile := ChangeFileExt(aOutputFile, '.' + outputextension);
 
     foOutput.Log('New output:' + aOutputFile);
 
-    result := true;
+    Result := true;
   Except
-    result := false;
+    Result := False;
     foOutput.InternalError;
   End;
 end;
 
-
 function GetPluginObject: INovusPlugin;
 begin
-  if (_Plugin_Sass = nil) then _Plugin_Sass := TPlugin_Sass.Create;
-  result := _Plugin_Sass;
+  if (_Plugin_Sass = nil) then
+    _Plugin_Sass := TPlugin_Sass.Create;
+  Result := _Plugin_Sass;
 end;
 
-exports
-  GetPluginObject name func_GetPluginObject;
+exports GetPluginObject name func_GetPluginObject;
 
 initialization
-  begin
-    _Plugin_Sass := nil;
-  end;
+
+begin
+  _Plugin_Sass := nil;
+end;
 
 finalization
-  FreeAndNIL(_Plugin_Sass);
+
+FreeAndNIL(_Plugin_Sass);
 
 end.
-
-

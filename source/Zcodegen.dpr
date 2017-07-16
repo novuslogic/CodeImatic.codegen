@@ -4,7 +4,7 @@ program Zcodegen;
 {$APPTYPE CONSOLE}
 
 uses
-  Sharemem,
+  FastMM4,
   System.SysUtils,
   Config,
   output,

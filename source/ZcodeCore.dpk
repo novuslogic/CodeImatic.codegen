@@ -1,3 +1,4 @@
+{$I Zcodegen.inc}
 package ZcodeCore;
 
 {$R *.res}

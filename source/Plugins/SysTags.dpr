@@ -1,7 +1,7 @@
 library SysTags;
 
 uses
-  ShareMem,
+  FastMM4,
   System.SysUtils,
   System.Classes,
   Plugin_SysTagsClasses in 'Plugin_SysTagsClasses.pas';

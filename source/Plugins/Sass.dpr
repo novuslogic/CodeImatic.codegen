@@ -1,7 +1,7 @@
 library Sass;
 
 uses
-  ShareMem,
+  FastMM4,
   System.SysUtils,
   System.Classes,
   Plugin_SassClasses in 'Plugin_SassClasses.pas';

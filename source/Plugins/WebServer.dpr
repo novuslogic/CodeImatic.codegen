@@ -11,7 +11,7 @@ library WebServer;
   using PChar or ShortString parameters. }
 
 uses
-  ShareMem,
+  FastMM4,
   System.SysUtils,
   System.Classes,
   Plugin_WebServerClasses in 'Plugin_WebServerClasses.pas',
