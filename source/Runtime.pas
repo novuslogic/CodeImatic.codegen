@@ -5,7 +5,7 @@ interface
 
 uses
   SysUtils, Classes, NovusTemplate, Config, DBSchema, NovusFileUtils,
-  Properties, NovusStringUtils, Snippits, Plugins,
+  Properties, NovusStringUtils, Snippits, Plugins, DelphiLibSass,
   CodeGenerator, Output, NovusVersionUtils, Project, ProjectItem,
   ProjectConfig;
 

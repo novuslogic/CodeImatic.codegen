@@ -1,3 +1,6 @@
+{$define ShareMM}
+{$define ShareMMIfLibrary}
+{$define AttemptToUseSharedMM}
 library WebServer;
 
 { Important note about DLL memory management: ShareMem must be the

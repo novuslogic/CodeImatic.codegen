@@ -1,3 +1,6 @@
+{$define ShareMM}
+{$define ShareMMIfLibrary}
+{$define AttemptToUseSharedMM}
 library SystemExt;
 
 uses

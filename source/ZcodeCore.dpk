@@ -63,6 +63,9 @@ contains
   Processor in 'Processor.pas',
   Template in 'Template.pas',
   ProjectItemFolder in 'ProjectItemFolder.pas',
-  Loader in 'Loader.pas';
+  Loader in 'Loader.pas',
+  DelphiLibSass in '..\..\DelphiLibSass\Source\Core\DelphiLibSass.pas',
+  DelphiLibSassLib in '..\..\DelphiLibSass\Source\Core\DelphiLibSassLib.pas',
+  DelphiLibSassCommon in '..\..\DelphiLibSass\Source\Core\DelphiLibSassCommon.pas';
 
 end.

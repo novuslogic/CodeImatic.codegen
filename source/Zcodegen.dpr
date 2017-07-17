@@ -24,6 +24,7 @@ uses
 
 {$R *.res}
 
+
 begin
   oConfig.LoadConfig;
 
@@ -31,7 +32,6 @@ begin
 
   try
    ExitCode := oruntime.RunEnvironment;
-
   except
     on E: Exception do
       Writeln(E.ClassName, ': ', E.Message);

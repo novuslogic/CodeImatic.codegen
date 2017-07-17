@@ -129,8 +129,9 @@ function tPlugin_SassBase.PreProcessor(aFilename: string;
   var aTemplateDoc: tStringlist): boolean;
 Var
   fScssResult: TScssResult;
+  FDelphiLibSass : TDelphiLibSass;
+
 begin
-  Result := False;
   Result := False;
 
   foOutput.Log('Processor:' + PluginName);
