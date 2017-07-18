@@ -132,10 +132,12 @@
         <DCCReference Include="Processor.pas"/>
         <DCCReference Include="Template.pas"/>
         <DCCReference Include="ProjectItemFolder.pas"/>
-        <DCCReference Include="Loader.pas"/>
-        <DCCReference Include="..\..\DelphiLibSass\Source\Core\DelphiLibSass.pas"/>
-        <DCCReference Include="..\..\DelphiLibSass\Source\Core\DelphiLibSassLib.pas"/>
-        <DCCReference Include="..\..\DelphiLibSass\Source\Core\DelphiLibSassCommon.pas"/>
+        <DCCReference Include="Loader.pas">
+            <Form>*,
+  DelphiLibSass in &apos;..\..\DelphiLibSass\Source\Core\DelphiLibSass.pas&apos;,
+  DelphiLibSassLib in &apos;..\..\DelphiLibSass\Source\Core\DelphiLibSassLib.pas&apos;,
+  DelphiLibSassCommon in &apos;..\..\DelphiLibSass\Source\Core\DelphiLibSassCommon.pas&apos;*</Form>
+        </DCCReference>
         <BuildConfiguration Include="Debug">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -512,8 +514,8 @@
                 <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
-                <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME)"/>
             </Deployment>
         </BorlandProject>
         <ProjectFileVersion>12</ProjectFileVersion>

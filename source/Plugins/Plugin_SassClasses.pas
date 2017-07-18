@@ -59,11 +59,6 @@ begin
 
   Try
     fSassprocessor := TDelphiLibSass.LoadInstance;
-
-    {$IFDEF DEBUG}
-    foOutput.Log('LibSass Version:' + fSassprocessor.libsass_language_version);
-    {$ENDIF}
-
   Except
     aOutput.InternalError;
   End;
