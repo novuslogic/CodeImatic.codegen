@@ -88,7 +88,8 @@ begin
 
           loProcessor:= TProcessor.Create(foOutput, foProject, foProjectItem, loProcessorPlugin,
             aSourceFile.FullPathname,
-            aSourceFile.DestFullPathname );
+            aSourceFile.DestFullPathname,
+            aSourceFile.FullPathname );
 
           result := loProcessor.Execute;
 

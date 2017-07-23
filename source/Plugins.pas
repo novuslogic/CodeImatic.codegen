@@ -235,9 +235,9 @@ begin
                 end;
             end
           else
-          if aProjectItem.PostProcessor<> '' then
+          if aProjectItem.Processor<> '' then
             begin
-              if uppercase(TProcessorPlugin(loPlugin).PluginName) = Uppercase(aProjectItem.PostProcessor) then
+              if uppercase(TProcessorPlugin(loPlugin).PluginName) = Uppercase(aProjectItem.Processor) then
                 begin
                   if TProcessorPlugin(loPlugin).PostProcessor(aProjectItem, aTemplate, aOutputFile) = false then
                     Fooutput.Failed := true;
@@ -289,15 +289,21 @@ begin
   for I := 0 to fPluginsList.Count -1 do
     begin
       loPlugin := TPlugin(fPluginsList.Items[i]);
-      if loPlugin is TTagsPlugin then
+      if Uppercase(TTagsPlugin(loPlugin).PluginName) = Uppercase(aPluginName) then
         begin
-          if Uppercase(TTagsPlugin(loPlugin).PluginName) = Uppercase(aPluginName) then
+          if loPlugin is TTagPlugin then
             begin
-              if TTagsPlugin(loPlugin).IsTagExists(aTagName) <> -1 then
+              if Uppercase(ttagplugin(loplugin).TagName) = Uppercase(aTagName) then
+                result := Uppercase(ttagplugin(loplugin).TagName);
+            end
+          else
+          if loPlugin is TTagsPlugin then
+            begin
+              if ttagsplugin(loplugin).istagexists(atagname) <> -1 then
                 begin
-                  Result := TTagsPlugin(loPlugin).GetTag(aTagName);
+                  result := ttagsplugin(loplugin).gettag(atagname);
 
-                  Break;
+                  break;
                 end;
             end;
         end;

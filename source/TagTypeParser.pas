@@ -63,6 +63,9 @@ begin
     if Uppercase(aToken1) = 'VARIABLECMDLINE' then
       result := ttVariableCmdLine
     else
+    if Uppercase(aToken1) = 'CODEBEHINE' then
+      result := ttCodebehine
+    else
     if (Assigned(aProjectItem) and
         Assigned((aProjectItem as tProjectItem).oProperties)) and
         ((aProjectItem as tProjectItem).oProperties.IsPropertyExists(lsToken)) then

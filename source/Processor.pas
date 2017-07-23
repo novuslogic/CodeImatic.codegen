@@ -23,7 +23,8 @@ type
       aProject: tProject; aProjectItem: TProjectItem;
       aProcessorPlugin: tProcessorPlugin;
       aInputFileName: String;
-      aOutputFilename: string); virtual;
+      aOutputFilename: string;
+      aSourceFilename: String); virtual;
 
     destructor Destroy; override;
 
@@ -71,7 +72,7 @@ begin
   fsRenderBodyTag := '';
 
   foCodeGenerator := tCodegenerator.Create(foTemplate, foOutput, foProject,
-    foProjectItem, foProcessorPlugin, fsInputFileName);
+    foProjectItem, foProcessorPlugin, fsInputFileName, aSourceFileName);
 end;
 
 destructor TProcessor.Destroy;

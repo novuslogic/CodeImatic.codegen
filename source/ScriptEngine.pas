@@ -62,12 +62,13 @@ function CustomOnUses(Sender: TPSPascalCompiler; const Name: AnsiString): Boolea
 Var
   lList:  TStringList;
   FTPSCompileTimeClass: TPSCompileTimeClass;
-  fSystemExtPlugin: TPascalScriptPlugin;
+//  fSystemExtPlugin: TPascalScriptPlugin;
 begin
   if Name = 'SYSTEM' then
   begin
+  (*
     Result := False;
-    fSystemExtPlugin := TPascalScriptPlugin(oRuntime.oPlugins.FindPlugin('SYSTEMEXT'));
+    fSystemExtPlugin := TPascalScriptPlugin(oRuntime.oPlugins.FindPlugin('CODEBEHINETAG'));
     if Assigned(fSystemExtPlugin) then
       begin
         Result := fSystemExtPlugin.CustomOnUses(Sender);

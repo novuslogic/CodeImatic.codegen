@@ -18,9 +18,6 @@
         <Projects Include="Plugins\Markdown.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="Plugins\SystemExt.dproj">
-            <Dependencies/>
-        </Projects>
         <Projects Include="Plugins\Sass.dproj">
             <Dependencies/>
         </Projects>
@@ -77,15 +74,6 @@
     <Target Name="Markdown:Make">
         <MSBuild Projects="Plugins\Markdown.dproj" Targets="Make"/>
     </Target>
-    <Target Name="SystemExt">
-        <MSBuild Projects="Plugins\SystemExt.dproj"/>
-    </Target>
-    <Target Name="SystemExt:Clean">
-        <MSBuild Projects="Plugins\SystemExt.dproj" Targets="Clean"/>
-    </Target>
-    <Target Name="SystemExt:Make">
-        <MSBuild Projects="Plugins\SystemExt.dproj" Targets="Make"/>
-    </Target>
     <Target Name="Sass">
         <MSBuild Projects="Plugins\Sass.dproj"/>
     </Target>
@@ -96,13 +84,13 @@
         <MSBuild Projects="Plugins\Sass.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="Zcodegen;ZcodeCore;SysTags;WebServer;Markdown;SystemExt;Sass"/>
+        <CallTarget Targets="Zcodegen;ZcodeCore;SysTags;WebServer;Markdown;Sass"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="Zcodegen:Clean;ZcodeCore:Clean;SysTags:Clean;WebServer:Clean;Markdown:Clean;SystemExt:Clean;Sass:Clean"/>
+        <CallTarget Targets="Zcodegen:Clean;ZcodeCore:Clean;SysTags:Clean;WebServer:Clean;Markdown:Clean;Sass:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="Zcodegen:Make;ZcodeCore:Make;SysTags:Make;WebServer:Make;Markdown:Make;SystemExt:Make;Sass:Make"/>
+        <CallTarget Targets="Zcodegen:Make;ZcodeCore:Make;SysTags:Make;WebServer:Make;Markdown:Make;Sass:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

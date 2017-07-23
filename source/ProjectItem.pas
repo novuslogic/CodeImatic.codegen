@@ -78,7 +78,7 @@ type
   private
   protected
   public
-    function AddFile(aFullPathname: string; aFilename: String; aPostProcessor: String): tTemplateFile;
+    function AddFile(aFullPathname: string; aFilename: String; aProcessor: String): tTemplateFile;
   end;
 
   tSourceFiles = class(tnovusList)
@@ -128,7 +128,7 @@ type
     fsTemplateFile: String;
     fsPropertiesFile: String;
     fboverrideoutput: Boolean;
-    fsPostprocessor: string;
+    fsprocessor: string;
     fNodeProjectItem: TJvSimpleXmlElem;
     function GetName: String;
   Public
@@ -166,9 +166,9 @@ type
       read fsItemFolder
       write fsItemFolder;
 
-    property PostProcessor: String
-      read fsPostProcessor
-      write fsPostProcessor;
+    property Processor: String
+      read fsProcessor
+      write fsProcessor;
 
     property oConnections: tConnections
          read foConnections
@@ -317,7 +317,7 @@ begin
       foTemplate.ParseTemplate;
 
       foCodeGenerator := tCodeGenerator.Create(foTemplate, foOutput,
-        foProject, Self, NIL, fsTemplateFile);
+        foProject, Self, NIL, fsTemplateFile, fsTemplateFile);
 
       foCodeGenerator.Execute(fsOutputFile);
 
@@ -493,7 +493,7 @@ end;
 
 // TemplateFile
 
-function tTemplates.AddFile(aFullPathname: string; aFilename: String; aPostProcessor: String): tTemplateFile;
+function tTemplates.AddFile(aFullPathname: string; aFilename: String; aProcessor: String): tTemplateFile;
 var
   loTemplateFile: tTemplateFile;
 begin
@@ -501,7 +501,7 @@ begin
   loTemplateFile.FullPathname := Trim(aFullPathname);
   loTemplateFile.IsFolder := false;
   loTemplateFile.IsTemplateFile := true;
-  loTemplateFile.oprocessorplugin.PluginName := aPostProcessor;
+  loTemplateFile.oprocessorplugin.PluginName := aProcessor;
   loTemplateFile.Filename := aFilename;
 
   Add(loTemplateFile);

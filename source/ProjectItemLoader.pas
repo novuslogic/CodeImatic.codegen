@@ -77,7 +77,7 @@ Var
   FFltFilesNodeLoader: tNodeLoader;
   lsName: string;
   lsFullPathname,
-  lspostprocessor: string;
+  lsprocessor: string;
 begin
   Result := True;
 
@@ -132,9 +132,9 @@ begin
            Result := False;
          end;
 
-      FNodeLoader := GetNode(FRootNodeLoader, 'postprocessor');
+      FNodeLoader := GetNode(FRootNodeLoader, 'processor');
       if FNodeLoader.IsExists then
-       foProjectItem.postprocessor := GetValue(FNodeLoader.Value);
+         foProjectItem.processor := GetValue(FNodeLoader.Value);
     end;
   if FRootNodeLoader.PropertyName = 'FOLDER' then
     begin
@@ -164,13 +164,13 @@ begin
                          GetValue(FTmpFilesNodeLoader.PropertyValue);
 
                        FNodeLoader := GetNode(FTmpFilesNodeLoader,
-                         'postprocessor');
+                         'processor');
                        if FNodeLoader.IsExists then
-                         lspostprocessor := GetValue(FNodeLoader.Value);
+                         lsprocessor := GetValue(FNodeLoader.Value);
 
                        foProjectItem.oSourceFiles.oTemplates.AddFile
                          (foProjectItem.oSourceFiles.Folder + lsFullPathname,
-                         lsFullPathname, lspostprocessor);
+                         lsFullPathname, lsprocessor);
                      end
                      else
                      begin

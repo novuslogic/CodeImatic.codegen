@@ -40,16 +40,14 @@ type
      function IsTagExists(aTagName: String): Integer; virtual;
    end;
 
-   TPascalScriptPlugin = class(TPlugin)
+   TTagPlugin = class(TPlugin)
    private
    protected
+     function GetTagName: string; virtual;
    public
-     function CustomOnUses(aCompiler: TPSPascalCompiler): Boolean; virtual;
-     procedure RegisterFunctions(aExec: TPSExec); virtual;
-     procedure SetVariantToClasses(aExec: TPSExec); virtual;
-     procedure RegisterImports; virtual;
+     property TagName: String
+       read GetTagName;
    end;
-
 
    TProcessorPlugin = class(TPlugin)
    private
@@ -94,6 +92,11 @@ begin
   foProject := aProject;
   foOutput:= aOutput;
   fsPluginName := aPluginName;
+end;
+
+function TTagPlugin.GetTagName: String;
+begin
+  result := '';
 end;
 
 
@@ -142,25 +145,7 @@ begin
   Result := '';
 end;
 
-function TPascalScriptPlugin.CustomOnUses(aCompiler: TPSPascalCompiler): Boolean;
-begin
-  result := false;
-end;
 
-procedure TPascalScriptPlugin.RegisterFunctions(aExec: TPSExec);
-begin
-  //
-end;
-
-procedure TPascalScriptPlugin.SetVariantToClasses(aExec: TPSExec);
-begin
-  //
-end;
-
-procedure TPascalScriptPlugin.RegisterImports;
-begin
-  //
-end;
 
 
 end.

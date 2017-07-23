@@ -4,7 +4,7 @@ interface
 
 Uses
   Classes, ExpressionParser, SysUtils, DB, NovusStringUtils, Output,
-  NovusList, Variants, Variables, XMLList,  NovusGUIDEx, ScriptEngine;
+  NovusList, Variants, Variables, XMLList,  NovusGUIDEx;
 
 const
   csCommamdSyntax: array[1..24] of String = (
@@ -77,7 +77,6 @@ Type
 
   TInterpreter = Class(Tobject)
   protected
-    foScriptEngine: TScriptEngine;
     fbIsFailedInterpreter: Boolean;
     FoCodeGenerator: tObject;
     fiLoopCounter: Integer;
@@ -164,14 +163,11 @@ begin
   FOutput := AOutput;
 
   fiLoopCounter := 0;
-
-  foScriptEngine:= TScriptEngine.Create(AOutput);
 end;
 
 destructor TInterpreter.Destroy;
 begin
   fLoopList.Free;
-  foScriptEngine.Free;
 
   inherited;
 end;
