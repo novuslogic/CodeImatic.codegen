@@ -32,6 +32,21 @@ type
        write fsPluginName;
    end;
 
+  TScriptEnginePlugin = class(TPlugin)
+  private
+  protected
+    fImp: TPSRuntimeClassImporter;
+  public
+    procedure initialize(var aImp: TPSRuntimeClassImporter); virtual;
+
+    function CustomOnUses(var aCompiler: TPSPascalCompiler): Boolean; virtual;
+    procedure RegisterFunction(var aExec: TPSExec); virtual;
+    procedure SetVariantToClass(var aExec: TPSExec); virtual;
+    procedure RegisterImport; virtual;
+
+    property _Imp: TPSRuntimeClassImporter read fImp write fImp;
+  end;
+
    TTagsPlugin = class(TPlugin)
    private
    protected
@@ -93,6 +108,33 @@ begin
   foOutput:= aOutput;
   fsPluginName := aPluginName;
 end;
+
+function TScriptEnginePlugin.CustomOnUses(var aCompiler: TPSPascalCompiler): Boolean;
+begin
+  Result := False;
+end;
+
+procedure TScriptEnginePlugin.initialize(var aImp: TPSRuntimeClassImporter);
+begin
+  fImp := aImp;
+end;
+
+
+procedure TScriptEnginePlugin.RegisterFunction(var aExec: TPSExec);
+begin
+
+end;
+
+procedure TScriptEnginePlugin.SetVariantToClass(var aExec: TPSExec);
+begin
+
+end;
+
+procedure TScriptEnginePlugin.RegisterImport;
+begin
+
+end;
+
 
 function TTagPlugin.GetTagName: String;
 begin

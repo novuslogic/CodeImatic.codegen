@@ -18,8 +18,11 @@ type
      FCompiler: TPSPascalCompiler;
      FsData: AnsiString;
      FExec: TPSExec;
+     fImp: TPSRuntimeClassImporter;
    protected
+     procedure RegisterFunctions(aExec: TPSExec);
      procedure CompilerOutputMessage;
+     procedure SetVariantToClasses(aExec: TPSExec);
    public
      constructor Create(aOutput: TOutput);
      destructor Destroy;
@@ -34,10 +37,13 @@ uses Runtime, plugin;
 constructor TScriptEngine.create;
 begin
   foOutput:= aOutput;
+
+  fImp := TPSRuntimeClassImporter.Create;
 end;
 
 destructor TScriptEngine.destroy;
 begin
+  fImp.Free;
 end;
 
 procedure OnException(Sender: TPSExec; ExError: TPSError; const ExParam: tbtstring; ExObject: TObject; ProcNo, Position: Cardinal);
@@ -124,20 +130,16 @@ begin
   FCompiler := TPSPascalCompiler.Create; // create an instance of the compiler.
   FCompiler.OnUses :=CustomOnUses; // assign the OnUses event.
 
-  //FCompiler.OnExportCheck := ScriptOnExportCheck; // Assign the onExportCheck event.
-
   FCompiler.AllowNoBegin := True;
   FCompiler.AllowNoEnd := True; // AllowNoBegin and AllowNoEnd allows it that begin and end are not required in a script.
 
-  //foAPI_Output.Log('Compiling ... ');
+  foOutput.Log('Compiling ... ');
 
   if not FCompiler.Compile(aScript) then  // Compile the Pascal script into bytecode.
   begin
     CompilerOutputMessage;
 
     foOutput.Failed := true;
-
-   // foAPI_Output.projecttask.BuildStatus := TBuildStatus.bsFailed;
 
     Exit;
   end;
@@ -147,7 +149,7 @@ begin
   FCompiler.GetOutput(fsData); // Save the output of the compiler in the string Data.
   FCompiler.Free; // After compiling the script, there is no need for the compiler anymore.
 
-//  foAPI_Output.Log('Executing ... ');
+  foOutput.Log('Executing ... ');
 
 
     Try
@@ -155,7 +157,7 @@ begin
 
       FExec.OnException := OnException;
 
-     // foPlugins.RegisterFunctions(FExec);
+      RegisterFunctions(FExec);
 
       if not FExec.LoadData(fsData) then
       begin
@@ -165,7 +167,7 @@ begin
       end
         else
            begin
-            //foPlugins.SetVariantToClasses(FExec);
+            SetVariantToClasses(FExec);
 
             fbOK := FExec.RunScript;
 
@@ -186,6 +188,11 @@ begin
      Result := True;
 end;
 
+procedure TScriptEngine.RegisterFunctions(aExec: TPSExec);
+begin
+  RegisterClassLibraryRuntime(aExec, fImp);
+end;
+
 procedure TScriptEngine.CompilerOutputMessage;
 var
   I: Integer;
@@ -195,6 +202,12 @@ begin
       foOutput.LogError(FCompiler.Msg[i].MessageToString)
     end;
 end;
+
+procedure TScriptEngine.SetVariantToClasses(aExec: TPSExec);
+begin
+//
+end;
+
 
 
 end.

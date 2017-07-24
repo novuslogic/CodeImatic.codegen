@@ -5,7 +5,7 @@ interface
 
 uses
   SysUtils, Classes, NovusTemplate, Config, DBSchema, NovusFileUtils,
-  Properties, NovusStringUtils, Snippits, Plugins,
+  Properties, NovusStringUtils, Snippits, Plugins, ScriptEngine,
   CodeGenerator, Output, NovusVersionUtils, Project, ProjectItem,
   ProjectConfig;
 
@@ -13,9 +13,11 @@ type
   tRuntime = class
   protected
   private
+    foOutput: tOutput;
     fsworkingdirectory: string;
     foPlugins: TPlugins;
     foProject: tProject;
+    foScriptEngine: tScriptEngine;
   public
     function RunEnvironment: Integer;
 
@@ -25,6 +27,12 @@ type
 
     property oPlugins: TPlugins read foPlugins write foPlugins;
 
+    property oScriptEngine: tScriptEngine
+      read foScriptEngine
+      write foScriptEngine;
+
+    property oOutput: tOutput
+      read foOutput;
   end;
 
 Var
@@ -40,7 +48,6 @@ Var
   FTemplateTag: TTemplateTag;
   bOK: Boolean;
   lsPropertieVariable: String;
-  FOutput: TOutput;
   loProjectItem: tProjectItem;
 begin
   Result := -1;
@@ -90,40 +97,40 @@ begin
     Exit;
   end;
 
-  FOutput := TOutput.Create('');
+  FoOutput := TOutput.Create('');
 
   foProject.LoadProjectFile(oConfig.ProjectFileName,
-    oConfig.ProjectConfigFileName, FOutput);
+    oConfig.ProjectConfigFileName, FoOutput);
 
   if foProject.oProjectConfig.IsLoaded then
-    FOutput.InitLog(tProjectconfigParser.ParseProjectconfig(foProject.BasePath,
+    FoOutput.InitLog(tProjectconfigParser.ParseProjectconfig(foProject.BasePath,
       foProject) + oConfig.OutputlogFilename, foProject.OutputConsole,
       oConfig.ConsoleOutputOnly)
   else
-    FOutput.InitLog(foProject.BasePath + oConfig.OutputlogFilename,
+    FoOutput.InitLog(foProject.BasePath + oConfig.OutputlogFilename,
       foProject.OutputConsole, oConfig.ConsoleOutputOnly);
 
   if Not oConfig.ConsoleOutputOnly then
   begin
-    FOutput.OpenLog(true);
+    FoOutput.OpenLog(true);
 
-    if not FOutput.IsFileOpen then
+    if not FoOutput.IsFileOpen then
     begin
       foProject.Free;
 
-      writeln(FOutput.Filename + ' log file cannot be created.');
+      writeln(FoOutput.Filename + ' log file cannot be created.');
 
       Exit;
     end;
   end;
 
-  FOutput.Log
+  FoOutput.Log
     ('Zcodegen - © Copyright Novuslogic Software 2011 - 2017 All Rights Reserved');
-  FOutput.Log('Version: ' + GetVersion(0));
+  FoOutput.Log('Version: ' + GetVersion(0));
 
-  FOutput.Log('Project: ' + foProject.ProjectFileName);
+  FoOutput.Log('Project: ' + foProject.ProjectFileName);
 
-  FOutput.Log('Project Config: ' + foProject.oProjectConfig.
+  FoOutput.Log('Project Config: ' + foProject.oProjectConfig.
     ProjectConfigFileName);
 
   if Trim(foProject.oProjectConfig.DBSchemaPath) <> '' then
@@ -131,7 +138,7 @@ begin
     if Not FileExists(foProject.oProjectConfig.DBSchemaPath + 'DBSchema.xml')
     then
     begin
-      FOutput.Log('DBSchema.xml path missing: ' +
+      FoOutput.Log('DBSchema.xml path missing: ' +
         foProject.oProjectConfig.DBSchemaPath);
 
       Exit;
@@ -140,14 +147,14 @@ begin
     oConfig.dbschemafilename := foProject.oProjectConfig.DBSchemaPath +
       'DBSchema.xml';
 
-    FOutput.Log('DBSchema filename: ' + oConfig.dbschemafilename);
+    FoOutput.Log('DBSchema filename: ' + oConfig.dbschemafilename);
   end;
 
   if Trim(foProject.oProjectConfig.LanguagesPath) <> '' then
   begin
     if Not DirectoryExists(foProject.oProjectConfig.LanguagesPath) then
     begin
-      FOutput.Log('Languages path missing: ' +
+      FoOutput.Log('Languages path missing: ' +
         foProject.oProjectConfig.LanguagesPath);
 
       Exit;
@@ -155,10 +162,12 @@ begin
 
     oConfig.LanguagesPath := foProject.oProjectConfig.LanguagesPath;
 
-    FOutput.Log('Languages path: ' + oConfig.LanguagesPath);
+    FoOutput.Log('Languages path: ' + oConfig.LanguagesPath);
   end;
 
-  foPlugins := TPlugins.Create(FOutput, foProject);
+  foScriptEngine := tScriptEngine.Create(FoOutput);
+
+  foPlugins := TPlugins.Create(FoOutput, foProject);
 
   foPlugins.LoadPlugins;
 
@@ -170,7 +179,7 @@ begin
 
     if loProjectItem.ItemName <> '' then
     begin
-      FOutput.Log('Project Item: ' + loProjectItem.Name);
+      FoOutput.Log('Project Item: ' + loProjectItem.Name);
 
       Try
         if foProject.oProjectConfig.IsLoaded then
@@ -181,17 +190,17 @@ begin
           loProjectItem.templateFile := TNovusFileUtils.TrailingBackSlash
             (loProjectItem.templateFile) + loProjectItem.ItemName;
       Except
-        FOutput.Log('TemplateFile Projectconfig error.');
+        FoOutput.Log('TemplateFile Projectconfig error.');
 
         Break;
       End;
 
       if Not FileExists(loProjectItem.templateFile) then
       begin
-        FOutput.Log('template ' + loProjectItem.templateFile +
+        FoOutput.Log('template ' + loProjectItem.templateFile +
           ' cannot be found.');
 
-        FOutput.Failed := true;
+        FoOutput.Failed := true;
 
         Continue;
       end;
@@ -203,10 +212,10 @@ begin
 
       if not TNovusFileUtils.IsValidFolder(loProjectItem.ItemFolder) then
       begin
-        FOutput.Log('ItemFolder ' + loProjectItem.ItemFolder +
+        FoOutput.Log('ItemFolder ' + loProjectItem.ItemFolder +
           ' cannot be found.');
 
-        FOutput.Failed := true;
+        FoOutput.Failed := true;
 
         Continue;
       end;
@@ -216,10 +225,10 @@ begin
 
       if not TNovusFileUtils.IsValidFolder(loProjectItem.oSourceFiles.Folder) then
       begin
-        FOutput.Log('Sourcefiles.Folder ' + loProjectItem.oSourceFiles.Folder +
+        FoOutput.Log('Sourcefiles.Folder ' + loProjectItem.oSourceFiles.Folder +
           ' cannot be found.');
 
-        FOutput.Failed := true;
+        FoOutput.Failed := true;
 
         Continue;
       end;
@@ -237,7 +246,7 @@ begin
           (loProjectItem.OutputFile) + loProjectItem.ItemName;
       end;
     Except
-      FOutput.Log('Output Projectconfig error.');
+      FoOutput.Log('Output Projectconfig error.');
 
       Break;
     End;
@@ -247,7 +256,7 @@ begin
     begin
       if not foProject.Createoutputdir then
       begin
-        FOutput.Log('output ' + TNovusStringUtils.JustPathname
+        FoOutput.Log('output ' + TNovusStringUtils.JustPathname
           (loProjectItem.OutputFile) + ' directory cannot be found.');
 
         Continue;
@@ -257,7 +266,7 @@ begin
         if Not CreateDir(TNovusStringUtils.JustPathname
           (loProjectItem.OutputFile)) then
         begin
-          FOutput.Log('output ' + TNovusStringUtils.JustPathname
+          FoOutput.Log('output ' + TNovusStringUtils.JustPathname
             (loProjectItem.OutputFile) + ' directory cannot be created.');
 
           Continue;
@@ -269,7 +278,7 @@ begin
     if (not loProjectItem.overrideoutput) and
       FileExists(loProjectItem.OutputFile) then
     begin
-      FOutput.Log('output ' + TNovusStringUtils.JustFilename
+      FoOutput.Log('output ' + TNovusStringUtils.JustFilename
         (loProjectItem.OutputFile) + ' exists - Override Output option off.');
 
       Continue;
@@ -280,7 +289,7 @@ begin
         loProjectItem.propertiesFile := tProjectconfigParser.ParseProjectconfig
           (loProjectItem.propertiesFile, foProject);
     Except
-      FOutput.Log('PropertiesFile Projectconfig error.');
+      FoOutput.Log('PropertiesFile Projectconfig error.');
 
       Break;
     End;
@@ -289,7 +298,7 @@ begin
     begin
       if Not FileExists(loProjectItem.propertiesFile) then
       begin
-        FOutput.Log('properties ' + loProjectItem.propertiesFile +
+        FoOutput.Log('properties ' + loProjectItem.propertiesFile +
           ' cannot be found.');
 
         Continue;
@@ -302,24 +311,26 @@ begin
       loProjectItem.Execute;
     end
     else
-      FOutput.Log('Output: ' + loProjectItem.OutputFile +
+      FoOutput.Log('Output: ' + loProjectItem.OutputFile +
         ' is read only or file in use.');
   end;
 
-  if Not FOutput.Failed then
+  if Not FoOutput.Failed then
     foPlugins.AfterCodeGen;
 
   foPlugins.UnLoadPlugins;
 
   foPlugins.Free;
 
-  if Not FOutput.Failed then
+  foScriptEngine.Free;
+
+  if Not FoOutput.Failed then
     Result := 0;
 
   if Not oConfig.ConsoleOutputOnly then
-    FOutput.CloseLog;
+    FoOutput.CloseLog;
 
-  FOutput.Free;
+  FoOutput.Free;
 
   foProject.Free;
 end;

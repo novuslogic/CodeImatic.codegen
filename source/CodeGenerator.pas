@@ -1022,7 +1022,7 @@ function TCodeGenerator.DoInternalScriptEngine(aFilename: string): boolean;
 var
   loScriptEngine: tScriptEngine;
   lsTempFilename: String;
-  FScriptEngineTemplate: TstringList;
+  FScript: TStringList;
 begin
   Result := False;
 
@@ -1037,18 +1037,15 @@ begin
 
   Try
     Try
-      loScriptEngine := tScriptEngine.Create(fOutput);
+      FScript := TstringList.Create;
 
-      FScriptEngineTemplate := TstringList.Create;
+      FScript.LoadFromFile(lsTempFilename);
 
-      FScriptEngineTemplate.LoadFromFile(lsTempFilename);
-
-      Result := loScriptEngine.ExecuteScript(FScriptEngineTemplate.text)
+      Result := oRuntime.oScriptEngine.ExecuteScript(FScript.text)
 
     Finally
-      if Assigned(FScriptEngineTemplate) then
-        FScriptEngineTemplate.Free;
-      loScriptEngine.Free;
+      if Assigned(FScript) then
+        FScript.Free;
     End;
   Except
     fOutput.InternalError;
