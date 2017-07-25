@@ -2,7 +2,7 @@ unit Plugin;
 
 interface
 
-uses classes, Output, NovusPlugin, Project, (*ProjectItem,*) config, NovusTemplate, uPSRuntime, uPSCompiler;
+uses classes, Output, NovusPlugin, Project,  config, NovusTemplate, uPSRuntime, uPSCompiler;
 
 type
    TPlugin = class(TPersistent)
@@ -37,7 +37,7 @@ type
   protected
     fImp: TPSRuntimeClassImporter;
   public
-    procedure initialize(var aImp: TPSRuntimeClassImporter); virtual;
+    procedure Initialize(var aImp: TPSRuntimeClassImporter); virtual;
 
     function CustomOnUses(var aCompiler: TPSPascalCompiler): Boolean; virtual;
     procedure RegisterFunction(var aExec: TPSExec); virtual;

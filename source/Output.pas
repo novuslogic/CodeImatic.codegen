@@ -2,12 +2,14 @@ unit Output;
 
 interface
 
-Uses NovusLog, SysUtils, NovusUtilities;
+Uses NovusLog, SysUtils, NovusUtilities, uPSRuntime, uPSUtils;
 
 type
   Toutput = class(TNovusLogFile)
   private
   protected
+    fsLastExParam: tbtstring;
+    fLastExError: TPSError;
     fbErrors: Boolean;
     fbFailed: Boolean;
     fbconsoleoutputonly: Boolean;
@@ -27,6 +29,10 @@ type
     property Failed: Boolean
       read fbFailed
       write fbFailed;
+
+    property LastExError: TPSError read fLastExError write fLastExError;
+
+    property LastExParam: tbtstring read fsLastExParam write fsLastExParam;
 
   end;
 

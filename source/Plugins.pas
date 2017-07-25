@@ -3,26 +3,33 @@ unit Plugins;
 interface
 
 uses  NovusPlugin, Config, Output,Classes, SysUtils, PluginsMapFactory, Plugin, Project, ProjectItem,
-      NovusTemplate;
+      NovusTemplate, ScriptEngine, uPSRuntime, uPSCompiler;
 
 type
    TPlugins = class
    private
    protected
+     foScriptEngine: tScriptEngine;
      foProject: tProject;
      foOutput: TOutput;
      FExternalPlugins: TNovusPlugins;
      fPluginsList: TList;
+     fImp: TPSRuntimeClassImporter;
    public
-     constructor Create(aOutput: tOutput; aProject: Tproject);
+     constructor Create(aOutput: tOutput; aProject: Tproject; aScriptEngine: tScriptEngine);
      destructor Destroy; override;
 
      procedure LoadPlugins;
      procedure UnloadPlugins;
 
+     procedure RegisterImports;
+     procedure RegisterFunctions(aExec: TPSExec);
      function FindPlugin(aPluginName: String): TPlugin;
 
      function IsPluginNameExists(aPluginName: string): Boolean;
+     function CustomOnUses(aCompiler: TPSPascalCompiler): Boolean;
+
+     procedure SetVariantToClasses(aExec: TPSExec);
 
      function IsCommandLine(aCommandLinePlugin: TCommandLinePlugin): boolean;
 
@@ -53,6 +60,11 @@ begin
   foOutput:= aOutput;
 
   foProject := aProject;
+
+  foScriptEngine := aScriptEngine;
+
+  fImp := foScriptEngine.oImp;
+
 
   FExternalPlugins := TNovusPlugins.Create;
 
@@ -87,6 +99,79 @@ begin
 
   FExternalPlugins.UnloadAllPlugins;
 end;
+
+
+procedure TPlugins.RegisterImports;
+var
+  loPlugin: tPlugin;
+  I: Integer;
+  FExternalPlugin: IExternalPlugin;
+begin
+  for I := 0 to fPluginsList.Count - 1 do
+  begin
+    loPlugin := tPlugin(fPluginsList.Items[I]);
+
+    loPlugin := TPlugin(fPluginsList.Items[i]);
+    if loPlugin is TScriptEnginePlugin then
+      begin
+        TScriptEnginePlugin(loPlugin).Initialize(fImp);
+        TScriptEnginePlugin(loPlugin).RegisterImport;
+      end;
+  end;
+end;
+
+procedure TPlugins.SetVariantToClasses(aExec: TPSExec);
+var
+  loPlugin: tPlugin;
+  I: Integer;
+  FExternalPlugin: IExternalPlugin;
+begin
+  for I := 0 to fPluginsList.Count - 1 do
+  begin
+    loPlugin := tPlugin(fPluginsList.Items[I]);
+    if loPlugin is TScriptEnginePlugin then
+      TScriptEnginePlugin(loPlugin).SetVariantToClass(aExec);
+  end;
+end;
+
+procedure TPlugins.RegisterFunctions(aExec: TPSExec);
+var
+  I: Integer;
+  loPlugin: tPlugin;
+  FExternalPlugin: IExternalPlugin;
+begin
+  for I := 0 to fPluginsList.Count - 1 do
+  begin
+    loPlugin := tPlugin(fPluginsList.Items[I]);
+    if loPlugin is TScriptEnginePlugin then
+      TScriptEnginePlugin(loPlugin).RegisterFunction(aExec);
+  end;
+
+  RegisterClassLibraryRuntime(aExec, fImp);
+end;
+
+function TPlugins.CustomOnUses(aCompiler: TPSPascalCompiler): Boolean;
+Var
+  I: Integer;
+  loPlugin: tPlugin;
+begin
+  Try
+    for I := 0 to fPluginsList.Count - 1 do
+    begin
+      loPlugin := tPlugin(fPluginsList.Items[I]);
+      if loPlugin is TScriptEnginePlugin then
+        TScriptEnginePlugin(loPlugin).CustomOnUses(aCompiler)
+    end;
+
+    Result := True;
+  Except
+    foOutput.WriteExceptLog;
+
+    Result := False;
+  End;
+
+end;
+
 
 procedure TPlugins.LoadPlugins;
 Var

@@ -56,6 +56,7 @@ type
    tProjectConfig = Class(TXMLList)
    private
    protected
+     fsSearchPath: String;
      fsOutputPath:String;
      fConnectionNameList: tNovuslist;
      fsTemplatepath: String;
@@ -69,7 +70,7 @@ type
      function GetLanguagesPath: String;
      function Getworkingdirectory: string;
      function GetOutputPath: String;
-
+     function GetSearchPath: String;
    public
       constructor Create; override;
       destructor Destroy; override;
@@ -325,6 +326,12 @@ begin
 
   Result := fsOutputPath;
 end;
+
+function tProjectConfig.GetSearchPath: String;
+begin
+  Result := TNovusFileUtils.TrailingBackSlash(Getproperty('searchpath'));
+end;
+
 
 
 end.

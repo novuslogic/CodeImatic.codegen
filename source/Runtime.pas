@@ -167,9 +167,11 @@ begin
 
   foScriptEngine := tScriptEngine.Create(FoOutput);
 
-  foPlugins := TPlugins.Create(FoOutput, foProject);
+  foPlugins := TPlugins.Create(FoOutput, foProject, foScriptEngine);
 
   foPlugins.LoadPlugins;
+
+  foPlugins.RegisterImports;
 
   foPlugins.BeforeCodeGen;
 

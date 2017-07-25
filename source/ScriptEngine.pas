@@ -28,6 +28,10 @@ type
      destructor Destroy;
 
      function ExecuteScript(aScript: String): boolean;
+
+     property oImp: TPSRuntimeClassImporter
+       read fImp
+       write fImp;
    end;
 
 implementation
@@ -50,72 +54,66 @@ procedure OnException(Sender: TPSExec; ExError: TPSError; const ExParam: tbtstri
 var
   lsExParam: String;
 begin
-  (*
-  oruntime.oAPI_Output.LastExError := ExError;
+  oruntime.oOutput.LastExError := ExError;
 
 
   lsExParam := ExParam;
   if ExParam = '' then lsExParam := 'Unknown error.';
 
+  oruntime.oOutput.LastExParam := lsExParam;
+  oruntime.oOutput.Errors := true;
 
-  oruntime.oAPI_Output.LastExParam := lsExParam;
-//  oruntime.oAPI_Output.Errors := True;
-  oruntime.oAPI_Output.projecttask.BuildStatus := TBuildStatus.bsErrors;
-  *)
 end;
 
 function CustomOnUses(Sender: TPSPascalCompiler; const Name: AnsiString): Boolean;
 Var
-  lList:  TStringList;
+  lList: TStringList;
   FTPSCompileTimeClass: TPSCompileTimeClass;
-//  fSystemExtPlugin: TPascalScriptPlugin;
 begin
+
   if Name = 'SYSTEM' then
   begin
-  (*
-    Result := False;
-    fSystemExtPlugin := TPascalScriptPlugin(oRuntime.oPlugins.FindPlugin('CODEBEHINETAG'));
-    if Assigned(fSystemExtPlugin) then
-      begin
-        Result := fSystemExtPlugin.CustomOnUses(Sender);
-      end;
+    Result := oruntime.oPlugins.CustomOnUses(Sender);
   end
   else
   begin
     (*
-    if FileExists(oruntime.oProject.oProjectConfig.SearchPath +name + '.pas') then
-      begin
+    if FileExists(oruntime.oProject.oProjectConfig.SearchPath + name + '.pas')
+    then
+    begin
+      Try
         Try
-          Try
-            oruntime.oAPI_Output.Log('Compiling unit ... ' + name + '.pas' );
+          oruntime.oOutput.Log('Compiling unit ... ' + name + '.pas');
 
-            lList := TStringList.Create;
-            lList.LoadFromFile(oruntime.oProject.oProjectConfig.SearchPath +name + '.zas');
+          lList := TStringList.Create;
+          lList.LoadFromFile(oruntime.oProject.oProjectConfig.SearchPath + name
+            + '.pas');
 
-            if Sender.Compile(lList.Text) then
-              begin
-                Result := true;
-              end
-            else
-              begin
-                Result := False;
-              end;
-          Finally
-            lList.Free;
-          End;
-        Except
-
+          if Sender.Compile(lList.Text) then
+          begin
+            Result := true;
+          end
+          else
+          begin
+            Result := False;
+          end;
+        Finally
+          lList.Free;
         End;
-      end
-     else
-       begin
-         TPSPascalCompiler(Sender).MakeError('', ecUnitNotFoundOrContainsErrors, Name);
+      Except
 
-         Result := False;
-       end;
-       *)
+      End;
+
+    end
+    else
+    begin
+      TPSPascalCompiler(Sender).MakeError('',
+        ecUnitNotFoundOrContainsErrors, Name);
+
+      Result := False;
+    end;
+    *)
   end;
-
 end;
 
 
@@ -157,7 +155,7 @@ begin
 
       FExec.OnException := OnException;
 
-      RegisterFunctions(FExec);
+      oruntime.oPlugins.RegisterFunctions(FExec);
 
       if not FExec.LoadData(fsData) then
       begin
@@ -167,7 +165,7 @@ begin
       end
         else
            begin
-            SetVariantToClasses(FExec);
+            oruntime.oPlugins.SetVariantToClasses(FExec);
 
             fbOK := FExec.RunScript;
 
