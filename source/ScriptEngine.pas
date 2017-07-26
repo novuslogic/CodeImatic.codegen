@@ -70,14 +70,12 @@ Var
   lList: TStringList;
   FTPSCompileTimeClass: TPSCompileTimeClass;
 begin
-
   if Name = 'SYSTEM' then
   begin
     Result := oruntime.oPlugins.CustomOnUses(Sender);
   end
   else
   begin
-    (*
     if FileExists(oruntime.oProject.oProjectConfig.SearchPath + name + '.pas')
     then
     begin
@@ -112,8 +110,7 @@ begin
 
       Result := False;
     end;
-    *)
-  end;
+   end;
 end;
 
 

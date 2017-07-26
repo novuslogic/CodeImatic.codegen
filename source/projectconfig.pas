@@ -3,7 +3,7 @@ unit projectconfig;
 interface
 
 uses XMLList, NovusTemplate, SysUtils, NovusSimpleXML, JvSimpleXml, novuslist,
-     NovusStringUtils, NovusFileUtils;
+     NovusStringUtils, NovusFileUtils, NovusEnvironment;
 
 type
    TConnectionName = class
@@ -79,7 +79,7 @@ type
       function LoadProjectConfigFile(aProjectConfigFilename: String): Boolean;
       procedure LoadConnectionNameList;
       function Parseproperties(aInput: String): String;
-      function GetProperties(aInput: String): String;
+      function GetProperties(aPropertyName: String): String;
 
       function FindConnectionName(AConnectionName: String): TConnectionName;
 
@@ -105,6 +105,9 @@ type
 
       property Outputpath: string
         read GetOutputPath;
+
+      property SearchPath: string
+        read GetSearchPath;
    End;
 
 
@@ -181,18 +184,20 @@ begin
   End;
 end;
 
-function TProjectConfig.Getproperties(aInput: String): String;
+function TProjectConfig.Getproperties(aPropertyName: String): String;
 Var
   loTemplate: tNovusTemplate;
   I: INteger;
   FTemplateTag: TTemplateTag;
 begin
-  result := aInput;
+  result := aPropertyName;
 
-  if aInput = '' then Exit;
+  if aPropertyName = '' then Exit;
 
-  Result := GetFirstNodeName(aInput, 'properties');
-end;
+  Result := GetFirstNodeName(aPropertyName, 'properties');
+
+  Result := tNovusEnvironment.ParseGetEnvironmentVar(Result);
+ end;
 
 
 
@@ -329,7 +334,7 @@ end;
 
 function tProjectConfig.GetSearchPath: String;
 begin
-  Result := TNovusFileUtils.TrailingBackSlash(Getproperty('searchpath'));
+  Result := TNovusFileUtils.TrailingBackSlash(Getproperties('searchpath'));
 end;
 
 
