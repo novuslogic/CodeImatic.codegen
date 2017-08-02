@@ -2,7 +2,7 @@ unit TagTypeParser;
 
 interface
 
-Uses TagType, SysUtils;
+Uses TagType, SysUtils, output;
 
 Type
   TTagTypeParser = class
@@ -10,7 +10,8 @@ Type
   private
   public
     class function ParseTagType(aProjectItem: tObject; aCodeGenerator: tObject;
-      aToken1: string; aToken2: string): TTagType;
+      aToken1: string; aToken2: string;
+      aOutput: toutput): TTagType;
   end;
 
 implementation
@@ -18,10 +19,12 @@ implementation
 Uses Runtime, ProjectItem, CodeGenerator, TokenParser;
 
 class function TTagTypeParser.ParseTagType(aProjectItem: tObject;
-  aCodeGenerator: tObject; aToken1: string; aToken2: string): TTagType;
+  aCodeGenerator: tObject; aToken1: string; aToken2: string;
+  aOutput: toutput): TTagType;
 var
   FTokenProcessor : tTokenProcessor;
   lsToken: string;
+  foOutput: TOutput;
 begin
   if aToken1 = '' then
   begin
@@ -31,8 +34,9 @@ begin
   end;
 
 
+
   Try
-    FTokenProcessor := tTokenParser.ParseExpressionToken(aToken1);
+    FTokenProcessor := tTokenParser.ParseExpressionToken(aToken1, aOutput);
 
     lsToken := FTokenProcessor.GetNextToken;
 
@@ -65,6 +69,9 @@ begin
     else
     if Uppercase(aToken1) = 'CODEBEHINE' then
       result := ttCodebehine
+    else
+     if Uppercase(aToken1) = 'CODE' then
+      result := ttCode
     else
     if (Assigned(aProjectItem) and
         Assigned((aProjectItem as tProjectItem).oProperties)) and

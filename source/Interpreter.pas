@@ -44,7 +44,7 @@ Type
     FLoopType: tLoopType;
     FLoopPos: TLoopPos;
     fiID: Integer;
-    FoCodeGeneratorDetails : TObject;
+    FoCodeGeneratorItem : TObject;
     FiValue: Integer;
     FbNegitiveFlag: Boolean;
   private
@@ -61,9 +61,9 @@ Type
       read fiID
       write fiID;
 
-    property CodeGeneratorDetails : TObject
-      read FoCodeGeneratorDetails
-      write FoCodeGeneratorDetails;
+    property CodeGeneratorItem : TObject
+      read FoCodeGeneratorItem
+      write FoCodeGeneratorItem;
 
     property Value: Integer
        read fiValue
@@ -77,20 +77,18 @@ Type
 
   TInterpreter = Class(Tobject)
   protected
-    fbIsFailedInterpreter: Boolean;
     FoCodeGenerator: tObject;
     fiLoopCounter: Integer;
     fLoopList: tNovusList;
     FTokens: tStringList;
     FOutput: TOutput;
-    FoCodeGeneratorDetails : TObject;
+    FoCodeGeneratorItem : TObject;
     foProjectItem: tObject;
   private
-    procedure FailedInterpreter;
     function ParseCommand(aCommand: string): string;
 
-    function IsRepeat(ACodeGeneratorDetails: TObject): Boolean;
-    function IsEndRepeat(ACodeGeneratorDetails: TObject): Boolean;
+    function IsRepeat(ACodeGeneratorItem: TObject): Boolean;
+    function IsEndRepeat(ACodeGeneratorItem: TObject): Boolean;
     function FindEndRepeatIndexPos(AIndex: INteger): INteger;
     function FindLoop(ALoopType:TLoopType; ALoopID: Integer): TLoop;
 
@@ -130,12 +128,8 @@ Type
     function CommandSyntaxIndexByTokens(ATokens: TStringList): Integer;
     function CommandSyntaxIndex(ACommand: String): integer;
 
-    function Execute(ACodeGeneratorDetails: tObject; Var ASkipPos: Integer) : String;
+    function Execute(ACodeGeneratorItem: tObject; Var ASkipPos: Integer) : String;
     function LanguageFunctions(AFunction: string; ADataType: String): String;
-
-    property IsFailedInterpreter: Boolean
-      read fbIsFailedInterpreter
-      write fbIsFailedInterpreter;
   End;
 
 implementation
@@ -149,7 +143,7 @@ Uses
   ProjectItem,
   TokenParser,
   TagType,
-  CodeGeneratorDetails;
+  CodeGeneratorItem;
 
 
 constructor TInterpreter.Create;
@@ -230,8 +224,7 @@ begin
                           end
                         else
                           begin
-                            FOutput.Log('Error: Field cannot be found.');
-                            FailedInterpreter;
+                            FOutput.LogError('Error: Field cannot be found.');
                           end;
                      end
                    else
@@ -261,8 +254,8 @@ begin
                             end
                           else
                              begin
-                               FOutput.Log('Error: Field cannot be found.');
-                               FailedInterpreter;
+                               FOutput.LogError('Error: Field cannot be found.');
+
                              end;
                         end;
                   end;
@@ -270,16 +263,13 @@ begin
             end
           else
             begin
-              FOutput.Log('Error: Table cannot be found "'+ FTableName+ '"');
-              FailedInterpreter;
+              FOutput.LogError('Error: Table cannot be found "'+ FTableName+ '"');
             end;
 
           end
         else
           begin
-            FOutput.Log('Error: Connectioname cannot be found "'+ FConnectionName + '"');
-
-            FailedInterpreter;
+            FOutput.LogError('Error: Connectioname cannot be found "'+ FConnectionName + '"');
           end;
         end
      else
@@ -438,8 +428,8 @@ begin
             end
           else
             begin
-              FOutput.Log('Error: List filname cannot be found.');
-              FailedInterpreter;
+              FOutput.LogError('Error: List filname cannot be found.');
+
             end;
 
         end
@@ -502,8 +492,8 @@ begin
             end
           else
             begin
-              FOutput.Log('Error: List filname cannot be found.');
-              FailedInterpreter;
+              FOutput.LogError('Error: List filname cannot be found.');
+
             end;
 
         end
@@ -554,8 +544,8 @@ begin
             end
           else
             begin
-              FOutput.Log('Error: List filname cannot be found.');
-              FailedInterpreter;
+              FOutput.LogError('Error: List filname cannot be found.');
+
             end;
 
         end
@@ -607,8 +597,7 @@ begin
                          end
                        else
                          begin
-                           FOutput.Log('Error: Tablename cannot be found.');
-                           FailedInterpreter;
+                           FOutput.LogError('Error: Tablename cannot be found.');
                          end;
                       end
                    else
@@ -621,8 +610,7 @@ begin
         end
       else
          begin
-            FOutput.Log('Error: Connectioname cannot be found "'+ FConnectionName + '"');
-            FailedInterpreter;
+            FOutput.LogError('Error: Connectioname cannot be found "'+ FConnectionName + '"');
           end;
        end
      else
@@ -685,8 +673,6 @@ begin
       end;
   Except
     FOutput.InternalError;
-
-    FailedInterpreter;
   end;
 end;
 
@@ -700,9 +686,9 @@ Var
   LStartLoop,
   FLoop: tLoop;
   liLastSourceNo, I, X, Y, Z, A: Integer;
-  LCodeGeneratorDetails3,
-  LCodeGeneratorDetails2,
-  LCodeGeneratorDetails1: tCodeGeneratorDetails;
+  LCodeGeneratorItem3,
+  LCodeGeneratorItem2,
+  LCodeGeneratorItem1: tCodeGeneratorItem;
   LTemplateTag1, LTemplateTag2: TTemplateTag;
   LTemplate: TNovusTemplate;
   liSkipPos,
@@ -723,20 +709,20 @@ Var
   liSourceLineCount,
   liEndSourceLineNo: Integer;
 
-  function GetCodeGeneratorDetailsBySourceLineNo(ASourceLineNo: Integer; Var APos: Integer): tCodeGeneratorDetails;
+  function GetCodeGeneratorItemBySourceLineNo(ASourceLineNo: Integer; Var APos: Integer): tCodeGeneratorItem;
   Var
     z: integer;
-    LCodeGeneratorDetails: tCodeGeneratorDetails;
+    LCodeGeneratorItem: tCodeGeneratorItem;
   begin
     Result := NIL;
 
     for z := APos to tCodeGenerator(FoCodeGenerator).CodeGeneratorList.Count - 1 do
       begin
-        LCodeGeneratorDetails := tCodeGeneratorDetails(tCodeGenerator(FoCodeGenerator).CodeGeneratorList.Items[z]);
+        LCodeGeneratorItem := tCodeGeneratorItem(tCodeGenerator(FoCodeGenerator).CodeGeneratorList.Items[z]);
 
-        if LCodeGeneratorDetails.oTemplateTag.SourceLineNo = ASourceLineNo then
+        if LCodeGeneratorItem.oTemplateTag.SourceLineNo = ASourceLineNo then
           begin
-            Result := LCodeGeneratorDetails;
+            Result := LCodeGeneratorItem;
 
             APos := z + 1;
 
@@ -768,7 +754,7 @@ begin
                     FLoop.LoopType := ltrepeat;
                     FLoop.LoopPos := lpStart;
                     FLoop.ID := fiLoopCounter;
-                    FLoop.CodeGeneratorDetails := FoCodeGeneratorDetails;
+                    FLoop.CodeGeneratorItem := FoCodeGeneratorItem;
 
                     FLoop.NegitiveFlag := (StrToInt(LsValue) < 0);
 
@@ -778,7 +764,7 @@ begin
 
                     fLoopList.Add(FLoop);
 
-                    liStartPos1 := (FoCodeGeneratorDetails As tCodeGeneratorDetails).oTemplateTag.TagIndex;
+                    liStartPos1 := (FoCodeGeneratorItem As tCodeGeneratorItem).oTemplateTag.TagIndex;
 
                     Inc(liStartPos1, 1);
 
@@ -805,21 +791,21 @@ begin
         LiValue := LStartLoop.Value;
         lbNegitiveFlag := LStartLoop.NegitiveFlag;
 
-        liStartPos1 := (LStartLoop.CodeGeneratorDetails As tCodeGeneratorDetails).oTemplateTag.TagIndex;
+        liStartPos1 := (LStartLoop.CodeGeneratorItem As tCodeGeneratorItem).oTemplateTag.TagIndex;
         Inc(liStartPos1, 1);
 
-        liStartSourceLineNo := (LStartLoop.CodeGeneratorDetails As tCodeGeneratorDetails).oTemplateTag.SourceLineNo;
+        liStartSourceLineNo := (LStartLoop.CodeGeneratorItem As tCodeGeneratorItem).oTemplateTag.SourceLineNo;
 
-        liEndPos1 := (FoCodeGeneratorDetails As tCodeGeneratorDetails).oTemplateTag.TagIndex;
+        liEndPos1 := (FoCodeGeneratorItem As tCodeGeneratorItem).oTemplateTag.TagIndex;
         Dec(liEndPos1, 1);
 
-        liEndSourceLineNo := (FoCodeGeneratorDetails As tCodeGeneratorDetails).oTemplateTag.SourceLineNo;
+        liEndSourceLineNo := (FoCodeGeneratorItem As tCodeGeneratorItem).oTemplateTag.SourceLineNo;
         Dec(liEndSourceLineNo, 1);
 
         for I := liStartPos1 to liEndPos1 do
           begin
-            LCodeGeneratorDetails1 := tCodeGeneratorDetails(tCodeGenerator(FoCodeGenerator).CodeGeneratorList.Items[i]);
-            LCodeGeneratorDetails1.LoopId := fiLoopCounter;
+            LCodeGeneratorItem1 := tCodeGeneratorItem(tCodeGenerator(FoCodeGenerator).CodeGeneratorList.Items[i]);
+            LCodeGeneratorItem1.LoopId := fiLoopCounter;
           end;
 
         LCodeGenerator := (FoCodeGenerator As TCodeGenerator);
@@ -839,11 +825,11 @@ begin
 
           While(liPos < tCodeGenerator(FoCodeGenerator).CodeGeneratorList.Count) do
             begin
-              LCodeGeneratorDetails1 := GetCodeGeneratorDetailsBySourceLineNo((liLastNextSourceLineNo + i) + 1, liPos);
+              LCodeGeneratorItem1 := GetCodeGeneratorItemBySourceLineNo((liLastNextSourceLineNo + i) + 1, liPos);
 
-              if Assigned(LCodeGeneratorDetails1) then
+              if Assigned(LCodeGeneratorItem1) then
                 begin
-                  LTemplateTag1 := LCodeGeneratorDetails1.oTemplateTag;
+                  LTemplateTag1 := LCodeGeneratorItem1.oTemplateTag;
 
                   liTagIndex := LTemplateTag1.TagIndex;
 
@@ -851,9 +837,9 @@ begin
 
                   LCodeGenerator.RunInterpreter(liTagIndex ,liTagIndex );
 
-                  If LCodeGeneratorDetails1.TagType = ttInterpreter then ;
+                  If LCodeGeneratorItem1.TagType = ttInterpreter then ;
                     begin
-                      If IsEndRepeat(LCodeGeneratorDetails1) then
+                      If IsEndRepeat(LCodeGeneratorItem1) then
                         begin
                           FLoop := FindLoop(ltrepeat, fiLoopCounter);
 
@@ -908,10 +894,10 @@ begin
 
               While(liPos < tCodeGenerator(FoCodeGenerator).CodeGeneratorList.Count) do
                 begin
-                  LCodeGeneratorDetails1 := GetCodeGeneratorDetailsBySourceLineNo((liStartSourceLineNo + i) + 1, liPos);
-                  if Assigned(LCodeGeneratorDetails1) then
+                  LCodeGeneratorItem1 := GetCodeGeneratorItemBySourceLineNo((liStartSourceLineNo + i) + 1, liPos);
+                  if Assigned(LCodeGeneratorItem1) then
                     begin
-                      LTemplateTag1 := LCodeGeneratorDetails1.oTemplateTag;
+                      LTemplateTag1 := LCodeGeneratorItem1.oTemplateTag;
 
                       LTemplateTag2 := tTemplatetag.Create(NIL);
 
@@ -928,13 +914,13 @@ begin
 
                       liTagIndex := LTemplate.AddTemplateTag(LTemplateTag2);
 
-                      LCodeGeneratorDetails2 := LCodeGenerator.AddTag(LTemplateTag2);
+                      LCodeGeneratorItem2 := LCodeGenerator.AddTag(LTemplateTag2);
 
                       if liStartTagIndex = 0 then
                         liStartTagIndex := liTagIndex;
                       LiEndTagIndex := liTagIndex;
 
-                      If ((IsEndRepeat(LCodeGeneratorDetails2)= False) and (IsRepeat(LCodeGeneratorDetails2)= False)) then
+                      If ((IsEndRepeat(LCodeGeneratorItem2)= False) and (IsRepeat(LCodeGeneratorItem2)= False)) then
                         begin
                           LCodeGenerator.RunPropertyVariables(liTagIndex ,liTagIndex );
                           LCodeGenerator.RunInterpreter(liTagIndex ,liTagIndex );
@@ -1128,21 +1114,20 @@ begin
   (FoCodeGenerator As TCodeGenerator).oVariables.AddVariable(AVariableName,AValue);
 end;
 
-function TInterpreter.Execute(ACodeGeneratorDetails: tObject; Var ASkipPos: Integer) : String;
+function TInterpreter.Execute(ACodeGeneratorItem: tObject; Var ASkipPos: Integer) : String;
 Var
   FIndex: Integer;
   Fout: Boolean;
   fsScript: string;
+  lbIsFailedCompiled: boolean;
 begin
   Result := '';
 
-  fbIsFailedInterpreter := False;
-
   Fout := False;
 
-  FTokens := tCodeGeneratorDetails(ACodeGeneratorDetails).Tokens;
+  FTokens := tCodeGeneratorItem(ACodeGeneratorItem).Tokens;
 
-  FoCodeGeneratorDetails := ACodeGeneratorDetails;
+  FoCodeGeneratorItem := ACodeGeneratorItem;
 
   FIndex := 0;
   if FTokens.Strings[0] = '=' then
@@ -1150,12 +1135,6 @@ begin
       Fout := True;
       FIndex := 1;
     end;
-
-
-  //fsScript := tCodeGeneratorDetails(ACodeGeneratorDetails).oTemplateTag.TagName;
-
-  //fbIsFailedInterpreter := (not foScriptEngine.ExecuteScript(fsScript));
-  //if fbIsFailedInterpreter = true then Exit;
 
   if Fout = True then
     begin
@@ -1330,7 +1309,7 @@ end;
 function TInterpreter.FindEndRepeatIndexPos(AIndex: INteger): INteger;
 Var
   I: Integer;
-  LCodeGeneratorDetails: TCodeGeneratorDetails;
+  LCodeGeneratorItem: TCodeGeneratorItem;
   LCodeGeneratorList: tNovusList;
   LTemplateTag: TTemplateTag;
   iCount: Integer;
@@ -1342,11 +1321,11 @@ begin
   iCount := 0;
   for I := AIndex to LCodeGeneratorList.Count -1 do
     begin
-      LCodeGeneratorDetails := TCodeGeneratorDetails(LCodeGeneratorList.Items[i]);
+      LCodeGeneratorItem := TCodeGeneratorItem(LCodeGeneratorList.Items[i]);
 
-      if LCodeGeneratorDetails.tagType = ttInterpreter then
+      if LCodeGeneratorItem.tagType = ttInterpreter then
          begin
-           LTemplateTag := LCodeGeneratorDetails.oTemplateTag;
+           LTemplateTag := LCodeGeneratorItem.oTemplateTag;
 
            if Pos(csCommamdSyntax[8], LTemplateTag.TagName) = 1  then
              begin
@@ -1369,14 +1348,14 @@ begin
 end;
 
 
-function TInterpreter.IsEndRepeat(ACodeGeneratorDetails: TObject): Boolean;
+function TInterpreter.IsEndRepeat(ACodeGeneratorItem: TObject): Boolean;
 begin
-  Result := (CommandSyntaxIndex(tCodeGeneratorDetails(ACodeGeneratorDetails).Tokens[0]) = 9);
+  Result := (CommandSyntaxIndex(tCodeGeneratorItem(ACodeGeneratorItem).Tokens[0]) = 9);
 end;
 
-function TInterpreter.IsRepeat(ACodeGeneratorDetails: TObject): Boolean;
+function TInterpreter.IsRepeat(ACodeGeneratorItem: TObject): Boolean;
 begin
-  Result := (CommandSyntaxIndex(tCodeGeneratorDetails(ACodeGeneratorDetails).Tokens[0]) = 8);
+  Result := (CommandSyntaxIndex(tCodeGeneratorItem(ACodeGeneratorItem).Tokens[0]) = 8);
 end;
 
 function TInterpreter.FieldAsSQL(ATokens: tStringList; Var AIndex: Integer): string;
@@ -1426,19 +1405,18 @@ begin
                   else
                     begin
                       FOutput.LogError('Incorrect syntax: lack ")"');
-                      FailedInterpreter;
+
                     end;
                 end
                   else
                     begin
-                      FOutput.Log('Error: Field cannot be found.');
-                      FailedInterpreter;
+                      FOutput.LogError('Error: Field cannot be found.');
                     end;
             end
           else
             begin
               FOutput.LogError('Error: Table cannot be found "'+ FTableName+ '"');
-              FailedInterpreter;
+
             end;
 
           end
@@ -1446,7 +1424,6 @@ begin
           begin
             FOutput.LogError('Error: Connectioname cannot be found "'+ FConnectionName + '"');
 
-            FailedInterpreter;
           end;
         end
      else
@@ -1454,14 +1431,6 @@ begin
          FOutput.LogError('Incorrect syntax: lack "("');
 
        end;
-end;
-
-procedure TInterpreter.FailedInterpreter;
-begin
-  FOutput.LogError('Failed Interpreter.');
-
-  fbIsFailedInterpreter := True;
-
 end;
 
 function TInterpreter.ParseCommand(aCommand: string): String;

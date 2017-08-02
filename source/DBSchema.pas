@@ -4,7 +4,7 @@ interface
 
 Uses Classes, NovusList, NovusTemplate, NovusStringParser, SysUtils,
      NovusStringUtils, SDEngine, NovusSQLDirUtils, NovusUtilities,
-     DB, SDCommon, Output, NovusXMLBO, CodeGeneratorDetails,
+     DB, SDCommon, Output, NovusXMLBO, CodeGeneratorItem,
      JvSimpleXml, ProjectConfig;
 
 Type
@@ -149,7 +149,7 @@ Type
 
      function FindConnectionName(AConnectionName: String): TConnectionDetails;
 
-     function AddConnection(ACodeGeneratorDetails: tCodeGeneratorDetails): Boolean;
+     function AddConnection(ACodeGeneratorItem: tCodeGeneratorItem): Boolean;
    end;
 
 
@@ -197,7 +197,7 @@ begin
    end;
 end;
 
-function tConnections.AddConnection(ACodeGeneratorDetails: tCodeGeneratorDetails): Boolean;
+function tConnections.AddConnection(ACodeGeneratorItem: tCodeGeneratorItem): Boolean;
 Var
   lsToken: String;
   FStrParer: tStringlist;
@@ -211,9 +211,9 @@ begin
   FConnectionDetails := tConnectionDetails.Create(fOutput, foProjectItem);
   FiTokenIndex := 0;
 
-  while (FiTokenIndex < ACodeGeneratorDetails.Tokens.Count - 1) do
+  while (FiTokenIndex < ACodeGeneratorItem.Tokens.Count - 1) do
     begin
-      With ACodeGeneratorDetails do
+      With ACodeGeneratorItem do
         begin
           lsToken := Trim(Uppercase(Tokens[FiTokenIndex]));
 

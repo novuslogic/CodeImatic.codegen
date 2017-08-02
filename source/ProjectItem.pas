@@ -251,7 +251,7 @@ begin
              end;
          end;
 
-      Result := tProjectConfigParser.ParseProjectConfig(Result, aProject);
+      Result := tProjectConfigParser.ParseProjectConfig(Result, aProject, foOutput);
     end;
 end;
 

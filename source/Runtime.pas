@@ -104,7 +104,7 @@ begin
 
   if foProject.oProjectConfig.IsLoaded then
     FoOutput.InitLog(tProjectconfigParser.ParseProjectconfig(foProject.BasePath,
-      foProject) + oConfig.OutputlogFilename, foProject.OutputConsole,
+      foProject, FoOutput) + oConfig.OutputlogFilename, foProject.OutputConsole,
       oConfig.ConsoleOutputOnly)
   else
     FoOutput.InitLog(foProject.BasePath + oConfig.OutputlogFilename,
@@ -186,7 +186,7 @@ begin
       Try
         if foProject.oProjectConfig.IsLoaded then
           loProjectItem.templateFile := tProjectconfigParser.ParseProjectconfig
-            (loProjectItem.templateFile, foProject);
+            (loProjectItem.templateFile, foProject, FoOutput);
 
         if TNovusFileUtils.IsValidFolder(loProjectItem.templateFile) then
           loProjectItem.templateFile := TNovusFileUtils.TrailingBackSlash
@@ -210,7 +210,7 @@ begin
     else
     begin
       loProjectItem.ItemFolder := tProjectconfigParser.ParseProjectconfig
-            (loProjectItem.ItemFolder, foProject);
+            (loProjectItem.ItemFolder, foProject, foOutput);
 
       if not TNovusFileUtils.IsValidFolder(loProjectItem.ItemFolder) then
       begin
@@ -223,7 +223,7 @@ begin
       end;
 
       loProjectItem.oSourceFiles.Folder := tProjectconfigParser.ParseProjectconfig
-            (loProjectItem.oSourceFiles.Folder, foProject);
+            (loProjectItem.oSourceFiles.Folder, foProject, foOutput);
 
       if not TNovusFileUtils.IsValidFolder(loProjectItem.oSourceFiles.Folder) then
       begin
@@ -239,7 +239,7 @@ begin
     Try
       if foProject.oProjectConfig.IsLoaded then
         loProjectItem.OutputFile := tProjectconfigParser.ParseProjectconfig
-          (loProjectItem.OutputFile, foProject);
+          (loProjectItem.OutputFile, foProject, foOutput);
 
       if TNovusFileUtils.IsValidFolder(loProjectItem.OutputFile) then
       begin
@@ -289,7 +289,7 @@ begin
     Try
       if foProject.oProjectConfig.IsLoaded then
         loProjectItem.propertiesFile := tProjectconfigParser.ParseProjectconfig
-          (loProjectItem.propertiesFile, foProject);
+          (loProjectItem.propertiesFile, foProject, foOutput);
     Except
       FoOutput.Log('PropertiesFile Projectconfig error.');
 

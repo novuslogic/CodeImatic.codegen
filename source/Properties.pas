@@ -37,7 +37,7 @@ begin
   Try
     if Assigned(foProject) then
       if foProject.oProjectConfig.IsLoaded then
-         lsGetProperty := tProjectconfigParser.ParseProjectconfig(lsGetProperty,foProject);
+         lsGetProperty := tProjectconfigParser.ParseProjectconfig(lsGetProperty,foProject, foOutput);
   Except
     FoOutput.log(APropertyName + ' Projectconfig error.');
 

@@ -5,7 +5,7 @@ interface
 Type
   TTagType = (ttProperty, ttConnection, ttInterpreter, ttLanguage, ttInclude,
     ttUnknown, ttplugintag, ttprojectitem, ttPropertyEx, ttConfigProperties,
-    ttVariableCmdLine, ttlayout, ttRenderBodyTag,ttCodebehine);
+    ttVariableCmdLine, ttlayout, ttRenderBodyTag,ttCodebehine, ttCode);
 
 
 

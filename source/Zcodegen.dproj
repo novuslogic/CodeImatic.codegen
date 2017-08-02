@@ -100,20 +100,16 @@
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
         <Debugger_DebugSourcePath>D:\Projects\DelphiLibSass\Source\Core\;D:\Projects\NovuscodeLibrary\Source\Core\Plugin\;$(Debugger_DebugSourcePath)</Debugger_DebugSourcePath>
         <DCC_DcpOutput>..\build\</DCC_DcpOutput>
-        <VerInfo_Build>408</VerInfo_Build>
+        <VerInfo_Build>413</VerInfo_Build>
         <Debugger_CWD>D:\Projects\ZautomaticPro\zautomatic.com</Debugger_CWD>
         <Debugger_RunParams>-project zautomatic.zcproject -projectconfig zautomatic.zcconfig -webserver</Debugger_RunParams>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=0.5.0.408;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=Zcodegen;ProductVersion=0.5.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=0.5.0.413;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=Zcodegen;ProductVersion=0.5.0.0;Comments=</VerInfo_Keys>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="DBSchema.pas"/>
-        <DCCReference Include="Properties.pas"/>
-        <DCCReference Include="CodeGenerator.pas"/>
-        <DCCReference Include="Interpreter.pas"/>
         <DCCReference Include="Language.pas"/>
         <DCCReference Include="Variables.pas"/>
         <DCCReference Include="Reservelist.pas"/>
@@ -490,13 +486,13 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Android" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
-                <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME)"/>
+                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
             </Deployment>
         </BorlandProject>
         <ProjectFileVersion>12</ProjectFileVersion>

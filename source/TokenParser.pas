@@ -20,9 +20,9 @@ type
    private
    public
      class function ParseToken(aObject: TObject; aToken: String;aProjectItem: tProjectItem; aVariables: TVariables; aOutput: Toutput; ATokens: tStringList; Var aIndex: Integer; aProject: TProject): String;
-
+     class function ParseSimpleToken(aToken: string; aOutput: tOutput): tTokenProcessor;
      class function ParseExpressionToken(aObject: TObject;aToken: String; aProjectItem: tProjectItem; aProject: TProject; aVariables: TVariables;aOutput: Toutput): tTokenProcessor; overload;
-     class function ParseExpressionToken(aToken: string): tTokenProcessor; overload;
+     class function ParseExpressionToken(aToken: string; aOutput: tOutput): tTokenProcessor; overload;
    end;
 
 implementation
@@ -54,6 +54,86 @@ begin
 end;
 
 // TokenParser
+class function tTokenParser.ParseSimpleToken(aToken: string; aOutput: tOutput): tTokenProcessor;
+
+function GetStrToken(const s: string; sTokens: array of string;
+  var iPos: Integer; var sLastToken: String): string;
+var
+  sTemp: string;
+  iEndPos: Integer;
+
+  function FindEndPos: Integer;
+  var
+    liEndPos: Integer;
+    I: integer;
+  begin
+     liEndPos := 0;
+     i := 0;
+     while( liEndPos = 0) do
+       begin
+         sLastToken := sTokens[i];
+         liEndPos := Pos(sLastToken, sTemp);
+
+         Inc(i);
+         if I > Length(sTokens) then break
+       end;
+
+    Result := liEndPos;
+  end;
+
+begin
+  result := '';
+  if (iPos <= 0) or (iPos > Length(s)) then
+    Exit;
+
+  sTemp := Copy(s, iPos, Length(s) + 1 - iPos);
+
+  iEndPos := FindEndPos;
+  if iEndPos <= 0 then
+  begin
+    result := sTemp;
+    iPos := -1;
+  end
+  else
+  begin
+    result := Copy(sTemp, 1, iEndPos - 1);
+
+    iPos := iPos + iEndPos + Length(sLastToken) - 1;
+  end
+end;
+
+var
+  liPos: Integer;
+  lsToken: string;
+  lsLastToken: String;
+Const
+  OpEqual = '=';
+  OpQuote = '"';
+
+begin
+  Try
+    Result := tTokenProcessor.Create;
+
+    liPos := 1;
+
+    While(liPos < Length(aToken)) Do
+      begin
+        lsToken :=  GetStrToken(aToken, [OpEqual, OpQuote], liPos, lsLastToken);
+        Inc(liPos);
+
+
+        Result.Add(lsToken);
+
+      end;
+   Except
+     aOutput.InternalError;
+   End;
+
+
+
+end;
+
+
 
 class function tTokenParser.ParseExpressionToken(aObject: TObject;aToken: String; aProjectItem: tProjectItem; aProject: TProject; aVariables: TVariables;aOutput: Toutput): tTokenProcessor;
 Var
@@ -85,7 +165,7 @@ begin
   End;
 end;
 
-class function tTokenParser.ParseExpressionToken(aToken: string): tTokenProcessor;
+class function tTokenParser.ParseExpressionToken(aToken: string; aOutput: tOutput): tTokenProcessor;
 Var
   lEParser: tExpressionParser;
   I: Integer;
@@ -107,10 +187,9 @@ begin
     lEParser.ListTokens(Result);
 
   Except
-    //aOutput.InternalError;
+    aOutput.InternalError;
   End;
 end;
-
 
 class function tTokenParser.ParseToken;
 var
@@ -133,7 +212,7 @@ begin
         begin
           lsToken1 := fsToken;
 
-          lTagType := TTagTypeParser.ParseTagType(aProjectItem, NIL, lsToken1,'' );
+          lTagType := TTagTypeParser.ParseTagType(aProjectItem, NIL, lsToken1,'', aOutput );
         end
       else
       if aObject is TCodeGenerator then
@@ -158,10 +237,10 @@ begin
             lTokens.Free;
           End;
 
-          lTagType := TTagTypeParser.ParseTagType(aProjectItem, (aObject as TCodeGenerator), lsToken1,lsToken2 );
+          lTagType := TTagTypeParser.ParseTagType(aProjectItem, (aObject as TCodeGenerator), lsToken1,lsToken2, aOutput );
         end
         else
-          lTagType := TTagTypeParser.ParseTagType(aProjectItem, NIL, lsToken1,lsToken2 );
+          lTagType := TTagTypeParser.ParseTagType(aProjectItem, NIL, lsToken1,lsToken2, aOutput );
 
         case lTagType of
           ttProperty: Result := aProjectItem.oProperties.GetProperty(fsToken);

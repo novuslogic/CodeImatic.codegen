@@ -1,14 +1,13 @@
-unit CodeGeneratorDetails;
+unit CodeGeneratorItem;
 
 interface
 
 uses Project, ExpressionParser, NovusTemplate, Classes, SysUtils, tagType;
 
 type
-
-
-  TCodeGeneratorDetails = class(TObject)
+  TCodeGeneratorItem = class(TObject)
   protected
+    foOutput:
     foCodeGenerator: TObject;
     foProject: tProject;
     fsDefaultTagName: String;
@@ -62,36 +61,46 @@ implementation
 
 Uses TagTypeParser;
 
-procedure TCodeGeneratorDetails.Execute;
+procedure TCodeGeneratorItem.Execute;
 var
   lsToken1, lsToken2: string;
 begin
   fsDefaultTagName := oTemplateTag.TagName;
+  if (Pos('CODE=', uppercase(fsDefaultTagName)) > 0) then
+    begin
+      FTagType := ttcode;
 
-  ExpressionParser.Expr := oTemplateTag.TagName;
 
-  ExpressionParser.ListTokens(FTokens);
+    end
+  else
+    begin
+      ExpressionParser.Expr := fsDefaultTagName;
 
-  lsToken1 := Uppercase(FTokens.Strings[0]);
-  if fTokens.Count > 1 then
-    lsToken2 := Uppercase(FTokens.Strings[1]);
+      ExpressionParser.ListTokens(FTokens);
 
-  FTagType := TTagTypeParser.ParseTagType(foProjectItem, foCodeGenerator, lsToken1,lsToken2   );
+      lsToken1 := Uppercase(FTokens.Strings[0]);
+      if fTokens.Count > 1 then
+        lsToken2 := Uppercase(FTokens.Strings[1]);
+
+      FTagType := TTagTypeParser.ParseTagType(foProjectItem, foCodeGenerator, lsToken1,lsToken2 , foOutput  );
+
+
+    end;
 end;
 
-function TCodeGeneratorDetails.GetToken1: string;
+function TCodeGeneratorItem.GetToken1: string;
 begin
   Result := Tokens[0];
 end;
 
-function TCodeGeneratorDetails.GetToken2: string;
+function TCodeGeneratorItem.GetToken2: string;
 begin
   Result := '';
   if Tokens.Count > 1 then
     Result := Tokens[1];
 end;
 
-constructor TCodeGeneratorDetails.Create;
+constructor TCodeGeneratorItem.Create;
 begin
   inherited Create;
 
@@ -104,7 +113,7 @@ begin
   FTokens := tStringlist.Create;
 end;
 
-destructor TCodeGeneratorDetails.Destroy;
+destructor TCodeGeneratorItem.Destroy;
 begin
   ExpressionParser.Free;
 

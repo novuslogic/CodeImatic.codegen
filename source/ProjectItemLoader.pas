@@ -218,7 +218,7 @@ end;
 function TProjectItemLoader.GetValue(aValue: String): String;
 begin
   Result := tProjectconfigParser.ParseProjectconfig
-          (aValue, foProject);
+          (aValue, foProject, foOutput);
 end;
 
 end.

@@ -3,7 +3,7 @@ unit Processor;
 interface
 
 Uses Output, Project, ProjectItem, classes, variables, NovusTemplate,
-     CodeGenerator, CodeGeneratorDetails, Template, Plugin;
+     CodeGenerator, CodeGeneratorItem, Template, Plugin;
 
 type
   TProcessor = class(tobject)

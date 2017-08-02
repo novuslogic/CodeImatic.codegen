@@ -27,7 +27,7 @@ type
      constructor Create(aOutput: TOutput);
      destructor Destroy;
 
-     function ExecuteScript(aScript: String): boolean;
+     function ExecuteScript(aScript: String; aCompileOnly: boolean = false): boolean;
 
      property oImp: TPSRuntimeClassImporter
        read fImp
@@ -114,7 +114,7 @@ begin
 end;
 
 
-function TScriptEngine.ExecuteScript(aScript: String): boolean;
+function TScriptEngine.ExecuteScript(aScript: String; aCompileOnly: boolean = false): boolean;
 var
   liRetry, I: Integer;
   fbOK: Boolean;
@@ -140,6 +140,13 @@ begin
   end;
 
   CompilerOutputMessage;
+
+  if aCompileOnly then
+    begin
+      Result := (not foOutput.Failed = true);
+
+      Exit;
+    end;
 
   FCompiler.GetOutput(fsData); // Save the output of the compiler in the string Data.
   FCompiler.Free; // After compiling the script, there is no need for the compiler anymore.
@@ -180,7 +187,9 @@ begin
 
 
   if foOutput.Failed = true then
-     Result := True;
+   fbOK := False;
+
+  Result := fbOK;
 end;
 
 procedure TScriptEngine.RegisterFunctions(aExec: TPSExec);

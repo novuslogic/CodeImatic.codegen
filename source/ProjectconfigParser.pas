@@ -2,7 +2,8 @@ unit ProjectconfigParser;
 
 interface
 
-uses ExpressionParser, system.Classes,  Variables, output, SysUtils, Project, TagType, tagTypeParser;
+uses ExpressionParser, system.Classes,  Variables, output, SysUtils, Project,
+     TagType, tagTypeParser;
 
 
 type
@@ -10,7 +11,7 @@ type
    protected
    private
    public
-     class function ParseProjectConfig(aItemName: String; aProject: tProject): String;
+     class function ParseProjectConfig(aItemName: String; aProject: tProject; aOutput: tOutput): String;
    end;
 
 
@@ -18,7 +19,7 @@ implementation
 
 uses VariablesCmdLine, NovusTemplate, Config, CodeGenerator;
 
-class function tProjectconfigParser.ParseProjectConfig(aItemName: String; aProject: tProject): String;
+class function tProjectconfigParser.ParseProjectConfig(aItemName: String; aProject: tProject; aOutput: tOutput): String;
 var
   lEParser: tExpressionParser;
   lTokens: tStringList;
@@ -63,7 +64,7 @@ begin
                lsToken2 := lTokens.Strings[1];
            end;
 
-         FTagType := TTagTypeParser.ParseTagType(NIL, NIL,lsToken1,lsToken2);
+         FTagType := TTagTypeParser.ParseTagType(NIL, NIL,lsToken1,lsToken2, aOutput);
 
          case FtagType of
            ttVariableCmdLine:
