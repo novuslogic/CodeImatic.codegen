@@ -31,6 +31,7 @@ Type
     fsSourceFilename: String;
   private
     function DoInternalCodeBehine(aFilename: string): boolean;
+    procedure DoInternalCode(aScript: String);
     procedure DoPluginTags;
     procedure DoLanguage;
     procedure DoConnections;
@@ -855,7 +856,7 @@ begin
               fOutput.LogError('CODE: Empty script.')
             else
               begin
-                //DoInternalCodeBehine(lsfilename);
+                DoInternalCode(lsScript);
 
               end;
           end
@@ -1099,6 +1100,11 @@ begin
   Except
     fOutput.InternalError;
   End;
+end;
+
+procedure TCodeGenerator.DoInternalCode(aScript: String);
+begin
+  //
 end;
 
 end.
