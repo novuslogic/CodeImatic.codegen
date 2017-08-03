@@ -1094,7 +1094,7 @@ begin
 
   Try
     Try
-     FScript.LoadFromFile(lsTempFilename);
+      FScript.LoadFromFile(lsTempFilename);
     Finally
     End;
   Except
@@ -1104,7 +1104,7 @@ end;
 
 procedure TCodeGenerator.DoInternalCode(aScript: String);
 begin
-  //
+  fScript.Add(aScript);
 end;
 
 end.
