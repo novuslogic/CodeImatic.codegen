@@ -84,6 +84,8 @@ begin
     if aSourceFile.IsTemplateFile then
       begin
         Try
+
+
           loProcessorPlugin := aSourceFile.oProcessorPlugin;
 
           loProcessor:= TProcessor.Create(foOutput, foProject, foProjectItem, loProcessorPlugin,

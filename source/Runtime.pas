@@ -214,7 +214,7 @@ begin
 
       if not TNovusFileUtils.IsValidFolder(loProjectItem.ItemFolder) then
       begin
-        FoOutput.Log('ItemFolder ' + loProjectItem.ItemFolder +
+        FoOutput.Log('Folder ' + loProjectItem.ItemFolder +
           ' cannot be found.');
 
         FoOutput.Failed := true;

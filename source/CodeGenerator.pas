@@ -5,7 +5,7 @@ interface
 Uses Classes, NovusTemplate, NovusList, ExpressionParser, SysUtils,
   Config, NovusStringUtils, Interpreter, Language, Project,
   Output, Variables, NovusUtilities, CodeGeneratorItem, tagtype,
-  NovusBO, NovusFileUtils, Template, ScriptEngine;
+  NovusBO, NovusFileUtils, Template, ScriptEngine, System.IOUtils;
 
 Const
   cDeleteLine = '{%DELETELINE%}';
@@ -18,7 +18,7 @@ Type
     foProcessorPlugin: TObject;
     fProject: tProject;
     fVariables: tVariables;
-    fOutput: tOutput;
+    foOutput: tOutput;
     FLanguage: tLanguage;
     fsLanguage: String;
     FInterpreter: tInterpreter;
@@ -30,15 +30,16 @@ Type
     fsInputFilename: string;
     fsSourceFilename: String;
   private
+    function GetScriptFilename: string;
     function DoInternalCodeBehine(aFilename: string): boolean;
-    procedure DoInternalCode(aScript: String);
+    procedure DoInternalCode(aScript: String; aCodeGeneratorItem : TCodeGeneratorItem);
     procedure DoPluginTags;
     procedure DoLanguage;
     procedure DoConnections;
     function DoPreProcessor: boolean;
     procedure DoCodeBehine;
     procedure DoCodeTags;
-    procedure DoScriptEngine;
+    function DoScriptEngine: boolean;
     procedure DoPostProcessor(var aOutputFile: string);
     function DoIncludes: boolean;
     function DoPreLayout: boolean;
@@ -74,7 +75,7 @@ Type
 
     property oVariables: tVariables read fVariables write fVariables;
 
-    property oOutput: tOutput read fOutput write fOutput;
+    property oOutput: tOutput read foOutput write foOutput;
 
     function IsInterpreter(ATokens: TstringList): boolean;
 
@@ -111,13 +112,13 @@ begin
 
   fVariables := tVariables.Create;
 
-  fOutput := AOutput;
+  foOutput := AOutput;
 
   FoTemplate := ATemplate;
 
   FCodeGeneratorList := TNovusList.Create(TCodeGeneratorItem);
 
-  FInterpreter := tInterpreter.Create(Self, fOutput, fProjectItem);
+  FInterpreter := tInterpreter.Create(Self, foOutput, fProjectItem);
 
   FLanguage := tLanguage.Create;
 
@@ -227,20 +228,45 @@ end;
 
 function TCodeGenerator.PassTemplateTags(aClearRun: boolean = false): boolean;
 Var
-  I: Integer;
+  I, fiIndex: Integer;
   FoTemplateTag: TTemplateTag;
+  FSourceTemplateTags: TTemplateTags;
 begin
   Try
     if aClearRun then
     begin
       Try
+         (*
+        FSourceTemplateTags:= TTemplateTags.Create(TTemplateTag);
+
+        for I := 0 to FoTemplate.TemplateTags.Count - 1 do
+          begin
+            FoTemplateTag := TTemplateTag.Create(NIL);
+            FoTemplateTag.Assign(TTemplateTag(FoTemplate.TemplateTags.Items[I]));
+
+
+            FSourceTemplateTags.Add(FoTemplateTag);
+          end;
+        *)
+
         FCodeGeneratorList.Clear; // Clearing need to be backup
 
         FoTemplate.ParseTemplate;
       Finally
-      End;
+        (*
+        for I := 0 to FoTemplate.TemplateTags.Count - 1 do
+          begin
+            FoTemplateTag := TTemplateTag(FoTemplate.TemplateTags.Items[I]);
 
-    end;
+            fiIndex := FSourceTemplateTags.FindTagNameIndexOf(FoTemplateTag.TagName, 0);
+            if fiIndex <> -1 then
+              FoTemplateTag.TagValue := TTemplateTag(FSourceTemplateTags.Items[fiIndex]).TagValue;
+          end;
+
+        FSourceTemplateTags.Free;
+        *)
+      End;
+     end;
 
     Result := true;
 
@@ -251,10 +277,10 @@ begin
       AddTag(FoTemplateTag);
     end;
   Except
-    fOutput.Errors := true;
-    fOutput.Failed := true;
+    foOutput.Errors := true;
+    foOutput.Failed := true;
 
-    fOutput.Log('Error Line No:' + IntToStr(FoTemplateTag.SourceLineNo) +
+    foOutput.Log('Error Line No:' + IntToStr(FoTemplateTag.SourceLineNo) +
       ' Position: ' + IntToStr(FoTemplateTag.SourcePos));
 
     Result := false;
@@ -287,7 +313,8 @@ begin
 
     DoCodeTags;
 
-    DoScriptEngine;
+    if Trim(FScript.text) <> '' then
+      if not DoScriptEngine then Exit;
 
     DoPreProcessor;
 
@@ -318,9 +345,9 @@ begin
 
     Result := true;
   Except
-    fOutput.Log(TNovusUtilities.GetExceptMess);
+    foOutput.Log(TNovusUtilities.GetExceptMess);
 
-    fOutput.Failed := true;
+    foOutput.Failed := true;
 
     Result := false;
 
@@ -331,10 +358,10 @@ begin
   begin
 {$I-}
     Try
-      if not fOutput.Failed then
+      if not foOutput.Failed then
         FoTemplate.OutputDoc.SaveToFile(aOutputFilename, TEncoding.Unicode);
     Except
-      fOutput.Log('Save Error: ' + aOutputFilename + ' - ' +
+      foOutput.Log('Save Error: ' + aOutputFilename + ' - ' +
         TNovusUtilities.GetExceptMess);
     end;
 {$I+}
@@ -448,7 +475,7 @@ begin
     begin
       LTemplateTag := TTemplateTag(loTemplate.TemplateTags.Items[I]);
 
-      if LTemplateTag.RawTagEx = cBlankline then
+      if ((LTemplateTag.RawTagEx = cBlankline) or (LTemplateTag.TagValue = cBlankline)) then
       begin
         loTemplate.TemplateDoc.Strings[LTemplateTag.SourceLineNo - 1] := '';
 
@@ -456,7 +483,8 @@ begin
 
         Dec(I);
       end
-      else if LTemplateTag.RawTagEx = cDeleteLine then
+      else
+      if ((LTemplateTag.RawTagEx = cDeleteLine) or (LTemplateTag.TagValue = cDeleteLine)) then
       begin
         loTemplate.TemplateDoc.Delete(LTemplateTag.SourceLineNo - 1);
 
@@ -586,7 +614,7 @@ begin
       FiIndex := 0;
       fsLanguage := tTokenParser.ParseToken(Self,
         FCodeGeneratorItem.Tokens[2], (fProjectItem as TProjectItem),
-        fVariables, fOutput, NIL, FiIndex, fProject);
+        fVariables, foOutput, NIL, FiIndex, fProject);
 
       if FileExists(oConfig.Languagespath + fsLanguage + '.xml') then
       begin
@@ -637,7 +665,7 @@ begin
 
         FTokenProcessor := tTokenParser.ParseExpressionToken(Self,
           FoTemplateTag.RawTag, (fProjectItem as TProjectItem), fProject,
-          fVariables, fOutput);
+          fVariables, foOutput);
 
         case FCodeGeneratorItem.tagtype of
           ttlayout:
@@ -648,19 +676,19 @@ begin
                 begin
                   lsTempIncludeFilename := FTokenProcessor.GetNextToken;
                   if lsTempIncludeFilename = '' then
-                    fOutput.LogError('LAYOUT: Filename not found.');
+                    foOutput.LogError('LAYOUT: Filename not found.');
 
                   lsRenderBodyTag := FTokenProcessor.GetNextToken;
                   if lsRenderBodyTag = '' then
-                    fOutput.LogError('LAYOUT: RenderBodyTag not found.')
+                    foOutput.LogError('LAYOUT: RenderBodyTag not found.')
 
                 end
                 else
-                  fOutput.LogError('LAYOUT: Equals symbol not found.');
+                  foOutput.LogError('LAYOUT: Equals symbol not found.');
 
               end
               else
-                fOutput.LogError('LAYOUT: Tag not found.');
+                foOutput.LogError('LAYOUT: Tag not found.');
             end;
 
           ttInclude:
@@ -671,11 +699,11 @@ begin
                 begin
                   lsTempIncludeFilename := FTokenProcessor.GetNextToken;
                   if lsTempIncludeFilename = '' then
-                    fOutput.LogError('INCLUDE: Filename not found.');
+                    foOutput.LogError('INCLUDE: Filename not found.');
 
                 end
                 else
-                  fOutput.LogError('INCLUDE: Equals symbol not found.');
+                  foOutput.LogError('INCLUDE: Equals symbol not found.');
               end;
             end;
 
@@ -721,7 +749,7 @@ begin
         end
         else if FCodeGeneratorItem.tagtype = TTagType.ttlayout then
         begin
-          Flayout := TProcessor.Create(fOutput, fProject,
+          Flayout := TProcessor.Create(foOutput, fProject,
             (fProjectItem as TProjectItem), NIL, '', '', lsIncludeFilename);
 
           (Flayout as TProcessor).InputFilename := lsIncludeFilename;
@@ -738,14 +766,14 @@ begin
         Result := false;
 
         if FCodeGeneratorItem.tagtype = TTagType.ttInclude then
-          fOutput.Log('Cannot find include file=' + lsIncludeFilename)
+          foOutput.Log('Cannot find include file=' + lsIncludeFilename)
         else if FCodeGeneratorItem.tagtype = TTagType.ttlayout then
-          fOutput.Log('Cannot find layout file=' + lsIncludeFilename);
+          foOutput.Log('Cannot find layout file=' + lsIncludeFilename);
 
-        fOutput.Errors := true;
-        fOutput.Failed := true;
+        foOutput.Errors := true;
+        foOutput.Failed := true;
 
-        fOutput.Log('Error Line No:' + IntToStr(FoTemplateTag.SourceLineNo) +
+        foOutput.Log('Error Line No:' + IntToStr(FoTemplateTag.SourceLineNo) +
           ' Position: ' + IntToStr(FoTemplateTag.SourcePos));
       end;
 
@@ -845,7 +873,7 @@ begin
       FoTemplateTag.TagValue := cDeleteLine;
 
       Try
-        FTokenProcessor := tTokenParser.ParseSimpleToken(FoTemplateTag.RawTag, fOutput);
+        FTokenProcessor := tTokenParser.ParseSimpleToken(FoTemplateTag.RawTag, foOutput);
 
         if Uppercase(FTokenProcessor.GetNextToken) = 'CODE' then
         begin
@@ -853,33 +881,46 @@ begin
           begin
             lsScript := FTokenProcessor.GetNextToken;
             if Trim(lsScript) = '' then
-              fOutput.LogError('CODE: Empty script.')
+              foOutput.LogError('CODE: Empty script.')
             else
               begin
-                DoInternalCode(lsScript);
+                DoInternalCode(lsScript, FCodeGeneratorItem);
 
               end;
           end
           else
-            fOutput.LogError('CODE: Equals symbol not found.');
+            foOutput.LogError('CODE: Equals symbol not found.');
         end;
 
       Finally
         FTokenProcessor.Free;
       End;
+
     end;
   end;
 end;
 
-procedure TCodeGenerator.DoScriptEngine;
+function TCodeGenerator.DoScriptEngine: boolean;
 begin
-  if Trim(FScript.text) = '' then Exit;
 
+  if (Pos('UNIT', Uppercase(FScript.Strings[0])) = 0) and
+     (Pos('BEGIN', Uppercase(FScript.Strings[0])) = 0) then
+    FScript.Insert(0, 'begin');
 
+  if Pos('END.', Uppercase(FScript.text)) = 0 then
+     FScript.Add('end.');
 
-  oRuntime.oScriptEngine.ExecuteScript(FScript.text)
+//  foOutput.Log('Script Filename: ' + GetScriptFilename);
+//  FScript.SaveToFile(GetScriptFilename);
+
+  Result := oRuntime.oScriptEngine.ExecuteScript(FScript.text);
+
 end;
 
+function TCodeGenerator.GetScriptFilename: string;
+begin
+  Result := TNovusStringUtils.JustPathname(fsSourceFilename) + '_' + TPath.GetFileNameWithoutExtension(fsSourceFilename)+ '.pas';
+end;
 
 procedure TCodeGenerator.DoCodeBehine;
 var
@@ -905,7 +946,7 @@ begin
       Try
         FTokenProcessor := tTokenParser.ParseExpressionToken(Self,
           FoTemplateTag.RawTag, (fProjectItem as TProjectItem), fProject,
-          fVariables, fOutput);
+          fVariables, foOutput);
 
         if Uppercase(FTokenProcessor.GetNextToken) = 'CODEBEHINE' then
         begin
@@ -913,7 +954,7 @@ begin
           begin
             lsFilename := FTokenProcessor.GetNextToken;
             if lsFilename = '' then
-              fOutput.LogError('CODEBEHINE: Filename not found.')
+              foOutput.LogError('CODEBEHINE: Filename not found.')
             else
               begin
                 DoInternalCodeBehine(lsfilename);
@@ -921,7 +962,7 @@ begin
               end;
           end
           else
-            fOutput.LogError('CODEBEHINE: Equals symbol not found.');
+            foOutput.LogError('CODEBEHINE: Equals symbol not found.');
         end;
 
       Finally
@@ -1087,7 +1128,7 @@ begin
 
   if Not FileExists(lsTempFilename) then
     begin
-      fOutput.LogError('CODEBEHINE: Filename not found [' +lsTempFilename + ']');
+      foOutput.LogError('CODEBEHINE: Filename not found [' +lsTempFilename + ']');
 
       Exit;
     end;
@@ -1098,13 +1139,17 @@ begin
     Finally
     End;
   Except
-    fOutput.InternalError;
+    foOutput.InternalError;
   End;
 end;
 
-procedure TCodeGenerator.DoInternalCode(aScript: String);
+procedure TCodeGenerator.DoInternalCode(aScript: String; aCodeGeneratorItem : TCodeGeneratorItem);
+Var
+  lsScript: String;
 begin
-  fScript.Add(aScript);
+  lsScript := aScript;
+
+  fScript.Add(lsScript);
 end;
 
 end.
