@@ -300,7 +300,7 @@ begin
     begin
       if Not FileExists(loProjectItem.propertiesFile) then
       begin
-        FoOutput.Log('properties ' + loProjectItem.propertiesFile +
+        FoOutput.LogError('properties ' + loProjectItem.propertiesFile +
           ' cannot be found.');
 
         Continue;

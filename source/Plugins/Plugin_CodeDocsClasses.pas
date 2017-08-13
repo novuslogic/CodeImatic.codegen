@@ -106,6 +106,11 @@ function tPlugin_CodeDocsBase.PreProcessor(aFilename: string;
   var aTemplateDoc: tStringlist): boolean;
 begin
   Result := False;
+
+  foOutput.Log('Processor:' + PluginName);
+
+
+
   (*
   foOutput.Log('Processor:' + PluginName);
 

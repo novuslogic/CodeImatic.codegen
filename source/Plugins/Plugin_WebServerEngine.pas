@@ -5,7 +5,7 @@ interface
 Uses Output, APIBase, IdBaseComponent, IdComponent, IdTCPServer, IdHTTPServer, StdCtrls,
     ExtCtrls, HTTPApp, Windows, NovusConsoleUtils, SysUtils, IdCustomHTTPServer, IdContext,
     Classes, NovusFileUtils, IdServerIOHandler, IdSSL, IdSSLOpenSSL, NovusStringUtils,
-    NovusIndyUtils, Config, Project;
+    NovusIndyUtils, Config, Project, NovusWebUtils, IdGlobalProtocols;
 
 Type
   TPlugin_WebServerEngine = class(Tobject)
@@ -17,9 +17,16 @@ Type
     foProject: tProject;
     foConfigPlugins : TConfigPlugins;
 
+
+    FUseAuthenticaiton : Boolean;
+    FManageSessions : Boolean;
+    function GetMIMEType(aFile: String): String;
+
+
     procedure ServerIOHandlerSSLOpenSSLGetPassword(var Password: string);
-    procedure HTTPServerCommandGet(AContext: TIdContext;
-      ARequestInfo: TIdHTTPRequestInfo; AResponseInfo: TIdHTTPResponseInfo);
+
+    procedure HTTPServerCommandGet(AContext: TIdContext; ARequestInfo: TIdHTTPRequestInfo; AResponseInfo: TIdHTTPResponseInfo);
+
     function GetOutputPath: String;
     function GetDefaultDocument: string;
     function GetUseSSL: boolean;
@@ -161,6 +168,9 @@ begin
 
         foOutput.Log('WebServer running ... press ctrl-c to stop.');
 
+
+        TNovusWebUtils.OpenDefaultWebBrowser(address);
+
         stdin := TNovusConsoleUtils.GetStdInputHandle;
 
         SetConsoleCtrlHandler(@ConProc, True);
@@ -195,75 +205,46 @@ end;
 procedure tPlugin_WebServerEngine.HTTPServerCommandGet(AContext: TIdContext;
   ARequestInfo: TIdHTTPRequestInfo; AResponseInfo: TIdHTTPResponseInfo);
 var
-  I: Integer;
-  RequestedDocument, FileName, CheckFileName: string;
+  localurl: string;
+  ResultFile: TFileStream;
 begin
+  localurl := ExpandFilename(OutputPath + aRequestInfo.Document);
 
-  RequestedDocument := aRequestInfo.Document;
+  if ((localurl[Length(localurl)] = '\') and DirectoryExists(localurl)) then
+    localurl := ExpandFileName(localurl + DefaultDocument);
 
-  if Copy(RequestedDocument, 1, 1) <> '/' then
-    raise Exception.Create('invalid request: ' + RequestedDocument);
-
-  if RequestedDocument = '/' then
-    RequestedDocument := RequestedDocument + DefaultDocument;
-
-
-  FileName := RequestedDocument;
-  I := Pos('/', FileName);
-  while I > 0 do
-  begin
-    FileName[I] := '\';
-    I := Pos('/', FileName);
-  end;
-
-  try
-    if AnsiLastChar(FileName)^ = '\' then
-      CheckFileName := OutputPath + FileName
-    else
-    if (Filename[1] = '\') and (AnsiLastChar(FileName)^ <> '\') then
-      CheckFileName := OutputPath + Copy(Filename, 2,Length(Filename))
-    else
-      CheckFileName := OutputPath + FileName;
-
-    if FileExists(CheckFileName) then
+  if FileExists(localurl) then
     begin
-      aResponseInfo.ContentStream :=
-          TFileStream.Create(CheckFileName, fmOpenRead or fmShareCompat);
-    end;
-  finally
-    if Assigned(aResponseInfo.ContentStream) then
-    begin
-      aResponseInfo.ContentLength := aResponseInfo.ContentStream.Size;
-
-      aResponseInfo.WriteHeader;
-
-      aResponseInfo.WriteContent;
-
-      aResponseInfo.ContentStream.Free;
-      aResponseInfo.ContentStream := nil;
-    end
-    else if aResponseInfo.ContentText <> '' then
-    begin
-      aResponseInfo.ContentLength := Length(aResponseInfo.ContentText);
-
-      aResponseInfo.WriteHeader;
-
-    end
-    else
-    begin
-      if not aResponseInfo.HeaderHasBeenWritten then
+      if AnsiSameText(Copy(localurl, 1, Length(OutputPath)), ExtractFilePath(OutputPath)) then // File down in dir structure
       begin
-        aResponseInfo.ResponseNo := 404;
-        aResponseInfo.ResponseText := 'Document not found.';
+        if AnsiSameText(aRequestInfo.Command, 'HEAD') then
+        begin
 
-        aResponseInfo.WriteHeader;
+          ResultFile := TFileStream.create(localurl, fmOpenRead	or fmShareDenyWrite);
+          try
+            aResponseInfo.ResponseNo := 200;
+            aResponseInfo.ContentType := GetMIMEType(localurl);
+            aResponseInfo.ContentLength := ResultFile.Size;
+          finally
+            ResultFile.Free;
+          end;
+        end
+        else
+        begin
+          aResponseInfo.ResponseNo := 200;
+          aResponseInfo.ContentType := GetMIMEType(localurl);
+          aResponseInfo.ContentStream   := TFileStream.create(localurl, fmOpenRead	or fmShareDenyWrite);
+        end;
       end;
-
-      aResponseInfo.ContentText := 'The document requested is not availabe.';
-      aResponseInfo.WriteContent;
+    end
+    else
+    begin
+      aResponseInfo.ResponseNo := 404; // Not found
+      aResponseInfo.ContentText := '<html><head><title>Error</title></head><body><h1>' + aResponseInfo.ResponseText + '</h1></body></html>';
     end;
-  end;
 end;
+
+
 
 procedure tPlugin_WebServerEngine.ServerIOHandlerSSLOpenSSLGetPassword(var Password: string);
 begin
@@ -332,6 +313,18 @@ begin
   result := '';
   if foConfigPlugins.oConfigProperties.IsPropertyExists('SSLRootCertFile') then
     Result := foConfigPlugins.oConfigProperties.GetProperty('SSLRootCertFile');
+end;
+
+
+function tPlugin_WebServerEngine.GetMIMEType(aFile: string): string;
+var fMIMEMap: TIdMIMETable;
+begin
+  try
+    fMIMEMap:= TIdMIMETable.Create(true);
+    result:= fMIMEMap.GetFileMIMEType(aFile);
+  finally
+    fMIMEMap.Free;
+  end;
 end;
 
 end.
