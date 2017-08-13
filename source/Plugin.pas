@@ -15,6 +15,10 @@ type
    public
      constructor Create(aOutput: tOutput; aPluginName: String; aProject: tProject; aConfigPlugins: TConfigPlugins); virtual;
 
+     function BeforeCodeGen: boolean; virtual;
+     function AfterCodeGen: boolean; virtual;
+     function IsCommandLine: boolean; virtual;
+
      property oProject: Tproject
        read foProject
        write foProject;
@@ -80,16 +84,6 @@ type
        read Getoutputextension;
    end;
 
-   TCommandLinePlugin = class(TPlugin)
-   private
-   protected
-   public
-     function BeforeCodeGen: boolean; virtual;
-     function AfterCodeGen: boolean; virtual;
-     function IsCommandLine(aCommandLine: String): boolean; virtual;
-   end;
-
-
    IExternalPlugin = interface(INovusPlugin)
      ['{155A396A-9457-4C48-A787-0C9582361B45}']
 
@@ -107,6 +101,21 @@ begin
   foProject := aProject;
   foOutput:= aOutput;
   fsPluginName := aPluginName;
+end;
+
+function TPlugin.BeforeCodeGen: boolean;
+begin
+  Result := True;
+end;
+
+function TPlugin.AfterCodeGen: boolean;
+begin
+  Result := True;
+end;
+
+function TPlugin.IsCommandLine: boolean;
+begin
+  Result := True;
 end;
 
 function TScriptEnginePlugin.CustomOnUses(var aCompiler: TPSPascalCompiler): Boolean;
@@ -152,20 +161,8 @@ begin
   Result := -1;
 end;
 
-function TCommandLinePlugin.BeforeCodeGen: boolean;
-begin
-  Result := False;
-end;
 
-function TCommandLinePlugin.AfterCodeGen: boolean;
-begin
-  Result := False;
-end;
 
-function TCommandLinePlugin.IsCommandLine(aCommandLine: String): boolean;
-begin
-  Result := False;
-end;
 
 function TProcessorPlugin.PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; var aOutputFile: string): boolean;
 begin

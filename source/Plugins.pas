@@ -31,7 +31,7 @@ type
 
      procedure SetVariantToClasses(aExec: TPSExec);
 
-     function IsCommandLine(aCommandLinePlugin: TCommandLinePlugin): boolean;
+     //function IsCommandLine(aCommandLinePlugin: TCommandLinePlugin): boolean;
 
      function IsTagExists(aPluginName: String; aTagName: string): Boolean;
      function GetTag(aPluginName: String;aTagName: string): String;
@@ -42,6 +42,8 @@ type
 
      function PreProcessor(aFilename: string;
        var aTemplateDoc: tStringlist): Boolean;
+
+     function IsCommandLine: boolean;
 
      function BeforeCodeGen: boolean;
      function AfterCodeGen: boolean;
@@ -205,22 +207,20 @@ begin
     end;
 end;
 
-function TPlugins.IsCommandLine(aCommandLinePlugin: TCommandLinePlugin): boolean;
+function TPlugins.IsCommandLine: boolean;
 var
-  I: integer;
+  loPlugin: TPlugin;
+  I: Integer;
 begin
-  Result := false;
+  Result := True;
 
-  for I := 0 to ParamCount do
+  for I := 0 to fPluginsList.Count -1 do
     begin
-      if aCommandLinePlugin.IsCommandLine(ParamStr(i)) then
-        begin
-          Result := true;
-          Break;
-        end;
+      loPlugin := TPlugin(fPluginsList.Items[i]);
+
+      Result :=  loPlugin.IsCommandLine;
+      if Not Result then break;
     end;
-
-
 end;
 
 
@@ -234,13 +234,9 @@ begin
   for I := 0 to fPluginsList.Count -1 do
     begin
       loPlugin := TPlugin(fPluginsList.Items[i]);
-      if loPlugin is TCommandLinePlugin then
-        begin
-          if IsCommandLine(TCommandLinePlugin(loPlugin)) then
-            Result :=  TCommandLinePlugin(loPlugin).BeforeCodeGen;
 
-          if NOt Result then break;
-      end;
+      Result :=  loPlugin.BeforeCodeGen;
+      if Not Result then break;
     end;
 end;
 
@@ -254,13 +250,10 @@ begin
   for I := 0 to fPluginsList.Count -1 do
     begin
       loPlugin := TPlugin(fPluginsList.Items[i]);
-      if loPlugin is TCommandLinePlugin then
-        begin
-          if IsCommandLine(TCommandLinePlugin(loPlugin)) then
-            Result :=  TCommandLinePlugin(loPlugin).AfterCodeGen;
 
-          if NOt Result then break;
-        end;
+      Result := loPlugin.AfterCodeGen;
+
+      if NOt Result then break;
     end;
 end;
 

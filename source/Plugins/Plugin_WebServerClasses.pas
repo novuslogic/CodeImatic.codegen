@@ -9,16 +9,21 @@ uses Classes,Plugin, NovusPlugin, NovusVersionUtils,Project,
 
 
 type
-  tPlugin_WebServerBase = class(TCommandLinePlugin)
+  tPlugin_WebServerBase = class(TPlugin)
   private
   protected
+    fbIsWebServer: Boolean;
   public
     constructor Create(aOutput: tOutput; aPluginName: String; aProject: TProject; aConfigPlugins: TConfigPlugins); override;
     destructor Destroy; override;
 
-    function IsCommandLine(aCommandLine: String): boolean; override;
+    function IsCommandLine: boolean; override;
     function BeforeCodeGen: boolean; override;
     function AfterCodeGen: boolean; override;
+
+    property IsWebServer: boolean
+      read fbIsWebServer
+      write fbIsWebServer;
   end;
 
   TPlugin_WebServer = class( TSingletonImplementation, INovusPlugin, IExternalPlugin)
@@ -47,6 +52,8 @@ var
 constructor tPlugin_WebServerBase.Create(aOutput: tOutput; aPluginName: String; aProject: TProject; aConfigPlugins: TConfigPlugins);
 begin
   Inherited Create(aOutput,aPluginName, aProject, aConfigPlugins);
+
+  fbIsWebServer := false;
 end;
 
 
@@ -82,34 +89,45 @@ end;
 function tPlugin_WebServerBase.BeforeCodeGen: boolean;
 begin
   Result := true;
-
 end;
 
 function tPlugin_WebServerBase.AfterCodeGen: boolean;
 var
   loPlugin_WebServerEngine: TPlugin_WebServerEngine;
 begin
-  Result := false;
+  Result := True;
 
-  if oProject.OutputConsole = false then
-    oOutput.Log('Cannot run WebServer with Project option of OutputConsole = false')
-  else
+  if IsWebServer then
     begin
-      Result := true;
+      if oProject.OutputConsole = false then
+        begin
+          oOutput.Log('Cannot run WebServer with Project option of OutputConsole = false');
 
-      Try
-        loPlugin_WebServerEngine:= TPlugin_WebServerEngine.Create(oOutput, oProject, oConfigPlugins);
+          result := False;
+        end
+      else
+        begin
 
-        loPlugin_WebServerEngine.Execute;
-      Finally
-        loPlugin_WebServerEngine.Free;
-      End;
+          Try
+            loPlugin_WebServerEngine:= TPlugin_WebServerEngine.Create(oOutput, oProject, oConfigPlugins);
+
+            loPlugin_WebServerEngine.Execute;
+          Finally
+            loPlugin_WebServerEngine.Free;
+          End;
+        end;
     end;
 end;
 
-function tPlugin_WebServerBase.IsCommandLine(aCommandLine: string): boolean;
+function tPlugin_WebServerBase.IsCommandLine: boolean;
 begin
-  Result := Uppercase(aCommandLine) = '-WEBSERVER';
+  Result := true;
+
+  if FindCmdLineSwitch('webserver', true) then
+     IsWebServer := true;
+
+
+
 end;
 
 

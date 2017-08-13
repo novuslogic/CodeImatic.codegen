@@ -173,7 +173,9 @@ begin
 
   foPlugins.RegisterImports;
 
-  foPlugins.BeforeCodeGen;
+  if not foPlugins.IsCommandLine then Exit;
+
+  if not foPlugins.BeforeCodeGen then Exit;
 
   for i := 0 to foProject.oProjectItemList.Count - 1 do
   begin

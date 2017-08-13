@@ -239,7 +239,7 @@ begin
     end
     else
     begin
-      aResponseInfo.ResponseNo := 404; // Not found
+      aResponseInfo.ResponseNo := 404;
       aResponseInfo.ContentText := '<html><head><title>Error</title></head><body><h1>' + aResponseInfo.ResponseText + '</h1></body></html>';
     end;
 end;
