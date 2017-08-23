@@ -12,6 +12,7 @@ type
   tPlugin_WebServerBase = class(TPlugin)
   private
   protected
+    fbIsOpenBrowser: boolean;
     fbIsWebServer: Boolean;
   public
     constructor Create(aOutput: tOutput; aPluginName: String; aProject: TProject; aConfigPlugins: TConfigPlugins); override;
@@ -24,6 +25,10 @@ type
     property IsWebServer: boolean
       read fbIsWebServer
       write fbIsWebServer;
+
+    property IsOpenBrowser: boolean
+       read fbIsOpenBrowser
+       write fbIsOpenBrowser;
   end;
 
   TPlugin_WebServer = class( TSingletonImplementation, INovusPlugin, IExternalPlugin)
@@ -54,6 +59,7 @@ begin
   Inherited Create(aOutput,aPluginName, aProject, aConfigPlugins);
 
   fbIsWebServer := false;
+  fbIsOpenBrowser := false;
 end;
 
 
@@ -101,7 +107,7 @@ begin
     begin
       if oProject.OutputConsole = false then
         begin
-          oOutput.Log('Cannot run WebServer with Project option of OutputConsole = false');
+          oOutput.Log('Cannot run -WebServer with Project option of OutputConsole = false');
 
           result := False;
         end
@@ -109,7 +115,7 @@ begin
         begin
 
           Try
-            loPlugin_WebServerEngine:= TPlugin_WebServerEngine.Create(oOutput, oProject, oConfigPlugins);
+            loPlugin_WebServerEngine:= TPlugin_WebServerEngine.Create(oOutput, oProject, oConfigPlugins, fbIsOpenBrowser);
 
             loPlugin_WebServerEngine.Execute;
           Finally
@@ -125,6 +131,15 @@ begin
 
   if FindCmdLineSwitch('webserver', true) then
      IsWebServer := true;
+
+  if FindCmdLineSwitch('openbrowser', true) then
+     if (IsWebServer = true) then IsOpenBrowser := true
+        else
+          begin
+            oOutput.Log('Cannot run -OpenBrowser without -WebServer option.');
+
+            result := False;
+          end;
 
 
 

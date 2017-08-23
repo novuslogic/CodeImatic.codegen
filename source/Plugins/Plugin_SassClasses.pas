@@ -172,6 +172,7 @@ begin
     Result := true;
   Except
     Result := False;
+
     foOutput.InternalError;
   End;
 end;

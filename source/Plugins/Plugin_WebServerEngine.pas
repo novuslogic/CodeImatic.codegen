@@ -5,26 +5,21 @@ interface
 Uses Output, APIBase, IdBaseComponent, IdComponent, IdTCPServer, IdHTTPServer, StdCtrls,
     ExtCtrls, HTTPApp, Windows, NovusConsoleUtils, SysUtils, IdCustomHTTPServer, IdContext,
     Classes, NovusFileUtils, IdServerIOHandler, IdSSL, IdSSLOpenSSL, NovusStringUtils,
-    NovusIndyUtils, Config, Project, NovusWebUtils, IdGlobalProtocols;
+    NovusIndyUtils, Config, Project, NovusWebUtils, IdGlobalProtocols, IdGlobal;
 
 Type
   TPlugin_WebServerEngine = class(Tobject)
   protected
   private
+    fbIsOpenBrowser: Boolean;
     fServerIOHandlerSSLOpenSSL: TIdServerIOHandlerSSLOpenSSL;
     fHTTPServer: TIdHTTPServer;
     foOutput: TOutput;
     foProject: tProject;
     foConfigPlugins : TConfigPlugins;
 
-
-    FUseAuthenticaiton : Boolean;
-    FManageSessions : Boolean;
-    function GetMIMEType(aFile: String): String;
-
-
+    function GetMIMEType(aURL: String): String;
     procedure ServerIOHandlerSSLOpenSSLGetPassword(var Password: string);
-
     procedure HTTPServerCommandGet(AContext: TIdContext; ARequestInfo: TIdHTTPRequestInfo; AResponseInfo: TIdHTTPResponseInfo);
 
     function GetOutputPath: String;
@@ -39,7 +34,7 @@ Type
     function GetSSLCertFile: String;
     function GetSSLRootCertFile: String;
   public
-    constructor Create(aOutput: tOutput; aProject: tProject; aConfigPlugins: tConfigPlugins);
+    constructor Create(aOutput: tOutput; aProject: tProject; aConfigPlugins: tConfigPlugins; aIsOpenBrowser: Boolean);
     destructor Destroy; override;
 
     function Execute: Boolean;
@@ -83,11 +78,13 @@ implementation
 var
   FCtrlflag: integer;
 
-constructor tPlugin_WebServerEngine.Create(aOutput: tOutput; aProject: tProject; aConfigPlugins: tConfigPlugins);
+constructor tPlugin_WebServerEngine.Create(aOutput: tOutput; aProject: tProject; aConfigPlugins: tConfigPlugins; aIsOpenBrowser: Boolean);
 begin
   foOutput := aOutput;
   foConfigPlugins := aConfigPlugins;
   foProject := aProject;
+
+  fbIsOpenBrowser := aIsOpenBrowser;
 
   FHTTPServer := TIdHTTPServer.Create(nil);
 
@@ -169,7 +166,8 @@ begin
         foOutput.Log('WebServer running ... press ctrl-c to stop.');
 
 
-        TNovusWebUtils.OpenDefaultWebBrowser(address);
+        if fbIsOpenBrowser then
+          TNovusWebUtils.OpenDefaultWebBrowser(address);
 
         stdin := TNovusConsoleUtils.GetStdInputHandle;
 
@@ -206,9 +204,10 @@ procedure tPlugin_WebServerEngine.HTTPServerCommandGet(AContext: TIdContext;
   ARequestInfo: TIdHTTPRequestInfo; AResponseInfo: TIdHTTPResponseInfo);
 var
   localurl: string;
-  ResultFile: TFileStream;
+  fContent:TStream;
 begin
-  localurl := ExpandFilename(OutputPath + aRequestInfo.Document);
+  localurl := TNovusStringUtils.ReplaceChar(ExpandFilename(OutputPath + aRequestInfo.Document),
+       '/', '\');
 
   if ((localurl[Length(localurl)] = '\') and DirectoryExists(localurl)) then
     localurl := ExpandFileName(localurl + DefaultDocument);
@@ -217,6 +216,28 @@ begin
     begin
       if AnsiSameText(Copy(localurl, 1, Length(OutputPath)), ExtractFilePath(OutputPath)) then // File down in dir structure
       begin
+         try
+          aResponseInfo.ResponseNo := 200;
+          aResponseInfo.ContentType := GetMIMEType(localurl);
+          aResponseInfo.CharSet := 'UTF-8';
+
+          if TNovusFileUtils.IsFileInUse(localurl) then foOutput.Log(localurl + ' ... locked or in use.')
+          else
+            begin
+              fContent := TIdReadFileExclusiveStream.Create(localurl);
+
+              aResponseInfo.ContentStream := fContent;
+              aResponseInfo.ContentLength := fContent.Size;
+            end;
+
+
+
+        Except
+          foOutput.InternalError;
+        end;
+
+
+        (*
         if AnsiSameText(aRequestInfo.Command, 'HEAD') then
         begin
 
@@ -234,7 +255,30 @@ begin
           aResponseInfo.ResponseNo := 200;
           aResponseInfo.ContentType := GetMIMEType(localurl);
           aResponseInfo.ContentStream   := TFileStream.create(localurl, fmOpenRead	or fmShareDenyWrite);
+
+
+          (*
+          aResponseInfo.CharSet := 'utf-8';
+
+          aResponseInfo.ContentStream := TMemoryStream.Create;
+          try
+            FFileContents.LoadFromFile(localurl, TEncoding.ASCII);
+
+            AResponseInfo.ContentStream.Write(Pointer(strJSON)^, Length(strJSON));
+            AResponseInfo.ContentStream.Position := 0;
+            AResponseInfo.WriteContent;
+          finally
+            AResponseInfo.ContentStream := nil;
+          end;
+
+
+          //aResponseInfo.ContentStream   := TFileStream.create(localurl, fmOpenRead	or fmShareDenyWrite);
+          //if aResponseInfo.ContentStream = NIL then ;
+          // AResponseInfo.ContentText := strJSON;
+           //AResponseInfo.ContentLength := IndyTextEncoding_UTF8.GetByteCount(strJSON);
+
         end;
+        *)
       end;
     end
     else
@@ -316,15 +360,9 @@ begin
 end;
 
 
-function tPlugin_WebServerEngine.GetMIMEType(aFile: string): string;
-var fMIMEMap: TIdMIMETable;
+function tPlugin_WebServerEngine.GetMIMEType(aURL: string): string;
 begin
-  try
-    fMIMEMap:= TIdMIMETable.Create(true);
-    result:= fMIMEMap.GetFileMIMEType(aFile);
-  finally
-    fMIMEMap.Free;
-  end;
+  Result := TNovusWebUtils.GetMIMEType(aURL);
 end;
 
 end.
