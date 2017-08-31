@@ -21,6 +21,7 @@ type
     procedure LogError(const aMsg: String);
 
     procedure InternalError;
+    procedure LogException(AException: Exception);
 
     property Errors: Boolean
       read fbErrors
@@ -77,6 +78,19 @@ begin
     WriteLn(TNovusUtilities.GetExceptMess)
   else
     WriteExceptLog;
+
+  Failed := true;
+end;
+
+procedure TOutput.LogException(AException: Exception);
+var
+  lsMessage: String;
+begin
+  if Not Assigned(AException) then Exit;
+
+  lsMessage := 'Error:' + AException.Message;
+
+  Log(lsMessage);
 
   Failed := true;
 end;

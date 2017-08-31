@@ -2,10 +2,13 @@ unit Plugin_WebServerEngine;
 
 interface
 
-Uses Output, APIBase, IdBaseComponent, IdComponent, IdTCPServer, IdHTTPServer, StdCtrls,
-    ExtCtrls, HTTPApp, Windows, NovusConsoleUtils, SysUtils, IdCustomHTTPServer, IdContext,
-    Classes, NovusFileUtils, IdServerIOHandler, IdSSL, IdSSLOpenSSL, NovusStringUtils,
-    NovusIndyUtils, Config, Project, NovusWebUtils, IdGlobalProtocols, IdGlobal;
+Uses Output, APIBase, IdBaseComponent, IdComponent, IdTCPServer, IdHTTPServer,
+  StdCtrls,
+  ExtCtrls, HTTPApp, Windows, NovusConsoleUtils, SysUtils, IdCustomHTTPServer,
+  IdContext,
+  Classes, NovusFileUtils, IdServerIOHandler, IdSSL, IdSSLOpenSSL,
+  NovusStringUtils,
+  NovusIndyUtils, Config, Project, NovusWebUtils, IdGlobalProtocols, IdGlobal;
 
 Type
   TPlugin_WebServerEngine = class(Tobject)
@@ -16,15 +19,20 @@ Type
     fHTTPServer: TIdHTTPServer;
     foOutput: TOutput;
     foProject: tProject;
-    foConfigPlugins : TConfigPlugins;
+    foConfigPlugins: TConfigPlugins;
 
     function GetMIMEType(aURL: String): String;
     procedure ServerIOHandlerSSLOpenSSLGetPassword(var Password: string);
-    procedure HTTPServerCommandGet(AContext: TIdContext; ARequestInfo: TIdHTTPRequestInfo; AResponseInfo: TIdHTTPResponseInfo);
+    procedure HTTPServerCommandGet(AContext: TIdContext;  ARequestInfo: TIdHTTPRequestInfo; AResponseInfo: TIdHTTPResponseInfo);
+    procedure HTTPServerCommandError(AContext: TIdContext;
+  ARequestInfo: TIdHTTPRequestInfo; AResponseInfo: TIdHTTPResponseInfo;
+  AException: Exception);
+    procedure HTTPServerException(AContext: TIdContext;
+      AException: Exception);
 
     function GetOutputPath: String;
     function GetDefaultDocument: string;
-    function GetUseSSL: boolean;
+    function GetUseSSL: Boolean;
     function GetSSLPassword: string;
     function GetPort: integer;
     function GetSSLPath: String;
@@ -34,51 +42,42 @@ Type
     function GetSSLCertFile: String;
     function GetSSLRootCertFile: String;
   public
-    constructor Create(aOutput: tOutput; aProject: tProject; aConfigPlugins: tConfigPlugins; aIsOpenBrowser: Boolean);
+    constructor Create(aOutput: TOutput; aProject: tProject;
+      aConfigPlugins: TConfigPlugins; aIsOpenBrowser: Boolean);
     destructor Destroy; override;
 
     function Execute: Boolean;
 
-    property DefaultDocument: String
-      read GetDefaultDocument;
+    property DefaultDocument: String read GetDefaultDocument;
 
-    property OutputPath: String
-      read GetOutputPath;
+    property OutputPath: String read GetOutputPath;
 
-    property UseSSL: boolean
-       read GetUseSSL;
+    property UseSSL: Boolean read GetUseSSL;
 
-    property SSLPassword: string
-      read GetSSLPassword;
+    property SSLPassword: string read GetSSLPassword;
 
-    property Port: Integer
-      read GetPort;
+    property Port: integer read GetPort;
 
-    property SSLPath: string
-      read GetSSLPath;
+    property SSLPath: string read GetSSLPath;
 
-    property Address: String
-      read GetAddress;
+    property Address: String read GetAddress;
 
-    property Server: String
-      read GetServer;
+    property Server: String read GetServer;
 
-    property SSLKeyFile: String
-       read GetSSLKeyFile;
+    property SSLKeyFile: String read GetSSLKeyFile;
 
-    property SSLCertFile: string
-       read GetSSLCertFile;
+    property SSLCertFile: string read GetSSLCertFile;
 
-    property SSLRootCertFile: string
-       read GetSSLRootCertFile;
- end;
+    property SSLRootCertFile: string read GetSSLRootCertFile;
+  end;
 
 implementation
 
 var
   FCtrlflag: integer;
 
-constructor tPlugin_WebServerEngine.Create(aOutput: tOutput; aProject: tProject; aConfigPlugins: tConfigPlugins; aIsOpenBrowser: Boolean);
+constructor TPlugin_WebServerEngine.Create(aOutput: TOutput; aProject: tProject;
+  aConfigPlugins: TConfigPlugins; aIsOpenBrowser: Boolean);
 begin
   foOutput := aOutput;
   foConfigPlugins := aConfigPlugins;
@@ -93,42 +92,48 @@ begin
   fServerIOHandlerSSLOpenSSL:= TIdServerIOHandlerSSLOpenSSL.Create(nil);
 
   fServerIOHandlerSSLOpenSSL.OnGetPassword := ServerIOHandlerSSLOpenSSLGetPassword;
+  FHTTPServer.OnException := HTTPServerException;
+  FHTTPServer.OnCommandError := HTTPServerCommandError;
+
+
+//
 end;
 
-destructor  tPlugin_WebServerEngine.Destroy;
+destructor TPlugin_WebServerEngine.Destroy;
 begin
   fServerIOHandlerSSLOpenSSL.Free;
   FHTTPServer.Free;
 end;
 
-function ConProc(CtrlType : DWord) : Bool; stdcall; far;
+function ConProc(CtrlType: DWord): Bool; stdcall; far;
 var
-S : String;
+  S: String;
 begin
   FCtrlflag := CtrlType;
 
   (*
-  case CtrlType of
+    case CtrlType of
     CTRL_C_EVENT : S :;
     CTRL_BREAK_EVENT : ;
     CTRL_CLOSE_EVENT : ;
     CTRL_LOGOFF_EVENT : ;
     CTRL_SHUTDOWN_EVENT : ;
 
-  end;
+    end;
   *)
+
 
   Result := True;
 end;
 
-function tPlugin_WebServerEngine.GetOutputPath: string;
+function TPlugin_WebServerEngine.GetOutputPath: string;
 begin
-  Result :=foProject.oProjectConfig.Outputpath;
+  Result := foProject.oProjectConfig.OutputPath;
   if Result = '' then
     Result := foProject.BasePath;
 end;
 
-function tPlugin_WebServerEngine.GetDefaultDocument: string;
+function TPlugin_WebServerEngine.GetDefaultDocument: string;
 begin
   Result := 'index.html';
   if foConfigPlugins.oConfigProperties.IsPropertyExists('DefaultDocument') then
@@ -136,38 +141,47 @@ begin
 
 end;
 
-
-function tPlugin_WebServerEngine.Execute: Boolean;
+function TPlugin_WebServerEngine.Execute: Boolean;
 var
   stdin: THandle;
   start: Cardinal;
   ch: char;
+  loKeyEvent: TKeyEvent;
 begin
   Try
     foOutput.Log('Starting WebServer ...');
 
-    if not TNovusIndyUtils.IsTCPPortUsed(Port, Server) then
-      begin
+    if Port = 0 then
+    begin
+      foOutput.Log('Cannot start WebServer with port:0');
+
+      Exit;
+    end;
+
+  if not TNovusIndyUtils.IsTCPPortUsed(Port, Server) then
+    begin
+      try
         FHTTPServer.DefaultPort := Port;
 
         if UseSSL then
-          begin
-            FHTTPServer.IOHandler := fServerIOHandlerSSLOpenSSL;
+        begin
+          FHTTPServer.IOHandler := fServerIOHandlerSSLOpenSSL;
 
-            fServerIOHandlerSSLOpenSSL.SSLOptions.KeyFile:= SSLPath +  SSLKeyFile;
-            fServerIOHandlerSSLOpenSSL.SSLOptions.CertFile:= SSLPath + SSLCertFile;
-            fServerIOHandlerSSLOpenSSL.SSLOptions.RootCertFile:= SSLPath  + SSLRootCertFile;
-          end;
+          fServerIOHandlerSSLOpenSSL.SSLOptions.KeyFile:= SSLPath +  SSLKeyFile;
+          fServerIOHandlerSSLOpenSSL.SSLOptions.CertFile:= SSLPath + SSLCertFile;
+          fServerIOHandlerSSLOpenSSL.SSLOptions.RootCertFile:= SSLPath  + SSLRootCertFile;
+        end;
 
-        foOutput.Log('WebServer address: ' + address);
+        foOutput.Log('WebServer address: ' + Address);
 
         FHTTPServer.Active := true;
 
-        foOutput.Log('WebServer running ... press ctrl-c to stop.');
+        foOutput.Log('WebServer running ... press ctrl-c to stop | ctrl-r to refresh codegen.');
 
+        Sleep(2000);
 
         if fbIsOpenBrowser then
-          TNovusWebUtils.OpenDefaultWebBrowser(address);
+          TNovusWebUtils.OpenDefaultWebBrowser(Address);
 
         stdin := TNovusConsoleUtils.GetStdInputHandle;
 
@@ -176,193 +190,189 @@ begin
         FCtrlflag := -1;
         start := GetTickCount;
         Repeat
-          If TNovusConsoleUtils.IsAvailableKey( stdin ) Then
-            begin
-              if FCtrlflag = CTRL_C_EVENT then break;
+          loKeyEvent := TNovusConsoleUtils.IsAvailableKeyEx(stdin);
 
-            end
+          if (loKeyEvent.KeyCode <> 0) or (loKeyEvent.ScanCode <> 0) then
+          begin
+            if FCtrlflag = CTRL_C_EVENT then
+              begin
+                break;
+              end
+            else
+              begin
+                ch := TNovusConsoleUtils.GetAvailableChar(stdin);
+
+                if ch = #18 then
+                  begin
+
+
+                  end;
+
+
+                 // foOutput.Log('Keycode=' + IntToStr(loKeyEvent.KeyCode) + ' ' + IntToStr(loKeyEvent.ScanCode) + ' ' + IntToStr(FCtrlflag )+ ' ' + IntToStr(Ord(ch)) );
+              end;
+          end
           Else
-            Sleep( 20 );
+            Sleep(20);
         Until false;
 
         FHTTPServer.Active := false;
 
         foOutput.Log('Stopping WebServer.');
-      end
+      finally
+ 
+      end;
+    end
     else
-      foOutput.Log('tcp port not open ... '+ Server + ':' + IntToStr(Port) + ' cannot start WebServer.');
+      foOutput.Log('port not open ... ' + Server + ':' + IntToStr(Port) +
+        ' cannot start WebServer.');
   Except
     foOutput.InternalError;
 
     foOutput.Log('Cannot start WebServer.');
-
-    FHTTPServer.Active := false;
   End;
+
 end;
 
-procedure tPlugin_WebServerEngine.HTTPServerCommandGet(AContext: TIdContext;
+procedure TPlugin_WebServerEngine.HTTPServerCommandGet(AContext: TIdContext;
   ARequestInfo: TIdHTTPRequestInfo; AResponseInfo: TIdHTTPResponseInfo);
 var
   localurl: string;
-  fContent:TStream;
+  fContent: TStream;
 begin
-  localurl := TNovusStringUtils.ReplaceChar(ExpandFilename(OutputPath + aRequestInfo.Document),
-       '/', '\');
+  localurl := TNovusStringUtils.ReplaceChar
+    (ExpandFilename(OutputPath + ARequestInfo.Document), '/', '\');
 
   if ((localurl[Length(localurl)] = '\') and DirectoryExists(localurl)) then
-    localurl := ExpandFileName(localurl + DefaultDocument);
+    localurl := ExpandFilename(localurl + DefaultDocument);
 
   if FileExists(localurl) then
+  begin
+    if AnsiSameText(Copy(localurl, 1, Length(OutputPath)),
+      ExtractFilePath(OutputPath)) then // File down in dir structure
     begin
-      if AnsiSameText(Copy(localurl, 1, Length(OutputPath)), ExtractFilePath(OutputPath)) then // File down in dir structure
-      begin
-         try
-          aResponseInfo.ResponseNo := 200;
-          aResponseInfo.ContentType := GetMIMEType(localurl);
-          aResponseInfo.CharSet := 'UTF-8';
+      try
+        AResponseInfo.ResponseNo := 200;
+        AResponseInfo.ContentType := GetMIMEType(localurl);
+        AResponseInfo.CharSet := 'UTF-8';
 
-          if TNovusFileUtils.IsFileInUse(localurl) then foOutput.Log(localurl + ' ... locked or in use.')
-          else
-            begin
-              fContent := TIdReadFileExclusiveStream.Create(localurl);
-
-              aResponseInfo.ContentStream := fContent;
-              aResponseInfo.ContentLength := fContent.Size;
-            end;
-
-
-
-        Except
-          foOutput.InternalError;
-        end;
-
-
-        (*
-        if AnsiSameText(aRequestInfo.Command, 'HEAD') then
-        begin
-
-          ResultFile := TFileStream.create(localurl, fmOpenRead	or fmShareDenyWrite);
-          try
-            aResponseInfo.ResponseNo := 200;
-            aResponseInfo.ContentType := GetMIMEType(localurl);
-            aResponseInfo.ContentLength := ResultFile.Size;
-          finally
-            ResultFile.Free;
-          end;
-        end
+        if TNovusFileUtils.IsFileInUse(localurl) then
+          foOutput.Log(localurl + ' ... locked or in use.')
         else
         begin
-          aResponseInfo.ResponseNo := 200;
-          aResponseInfo.ContentType := GetMIMEType(localurl);
-          aResponseInfo.ContentStream   := TFileStream.create(localurl, fmOpenRead	or fmShareDenyWrite);
+          fContent := TIdReadFileExclusiveStream.Create(localurl);
 
-
-          (*
-          aResponseInfo.CharSet := 'utf-8';
-
-          aResponseInfo.ContentStream := TMemoryStream.Create;
-          try
-            FFileContents.LoadFromFile(localurl, TEncoding.ASCII);
-
-            AResponseInfo.ContentStream.Write(Pointer(strJSON)^, Length(strJSON));
-            AResponseInfo.ContentStream.Position := 0;
-            AResponseInfo.WriteContent;
-          finally
-            AResponseInfo.ContentStream := nil;
-          end;
-
-
-          //aResponseInfo.ContentStream   := TFileStream.create(localurl, fmOpenRead	or fmShareDenyWrite);
-          //if aResponseInfo.ContentStream = NIL then ;
-          // AResponseInfo.ContentText := strJSON;
-           //AResponseInfo.ContentLength := IndyTextEncoding_UTF8.GetByteCount(strJSON);
-
+          AResponseInfo.ContentStream := fContent;
+          AResponseInfo.ContentLength := fContent.Size;
         end;
-        *)
+
+      Except
+        foOutput.InternalError;
       end;
-    end
-    else
-    begin
-      aResponseInfo.ResponseNo := 404;
-      aResponseInfo.ContentText := '<html><head><title>Error</title></head><body><h1>' + aResponseInfo.ResponseText + '</h1></body></html>';
+
     end;
+  end
+  else
+  begin
+    AResponseInfo.ResponseNo := 404;
+    AResponseInfo.ContentText :=
+      '<html><head><title>Error 404</title></head><body><h1>' +
+      AResponseInfo.ResponseText + '</h1></body></html>';
+  end;
 end;
 
-
-
-procedure tPlugin_WebServerEngine.ServerIOHandlerSSLOpenSSLGetPassword(var Password: string);
+procedure TPlugin_WebServerEngine.ServerIOHandlerSSLOpenSSLGetPassword
+  (var Password: string);
 begin
-  password:=SSLPassword;
+  Password := SSLPassword;
 end;
 
-
-function tPlugin_WebServerEngine.GetUseSSL: boolean;
+function TPlugin_WebServerEngine.GetUseSSL: Boolean;
 begin
   Result := false;
   if foConfigPlugins.oConfigProperties.IsPropertyExists('UseSSL') then
-    Result := TNovusStringUtils.StrToBoolean(foConfigPlugins.oConfigProperties.GetProperty('UseSSL'));
+    Result := TNovusStringUtils.StrToBoolean
+      (foConfigPlugins.oConfigProperties.GetProperty('UseSSL'));
 end;
 
-function tPlugin_WebServerEngine.GetSSLPassword: String;
+function TPlugin_WebServerEngine.GetSSLPassword: String;
 begin
-  result := '';
+  Result := '';
   if foConfigPlugins.oConfigProperties.IsPropertyExists('SSLPassword') then
     Result := foConfigPlugins.oConfigProperties.GetProperty('SSLPassword');
 end;
 
-function tPlugin_WebServerEngine.GetPort: integer;
+function TPlugin_WebServerEngine.GetPort: integer;
 begin
-  result := 8080;
+  Result := 8080;
   if foConfigPlugins.oConfigProperties.IsPropertyExists('Port') then
-    Result := TNovusStringUtils.Str2Int(foConfigPlugins.oConfigProperties.GetProperty('Port'));
+    Result := TNovusStringUtils.Str2Int
+      (foConfigPlugins.oConfigProperties.GetProperty('Port'));
 end;
 
-function tPlugin_WebServerEngine.GetSSLPath: String;
+function TPlugin_WebServerEngine.GetSSLPath: String;
 begin
-  result := TNovusFileUtils.TrailingBackSlash(TNovusStringUtils.RootDirectory) + 'SSL\'
+  Result := TNovusFileUtils.TrailingBackSlash
+    (TNovusStringUtils.RootDirectory) + 'SSL\'
 end;
 
-function tPlugin_WebServerEngine.GetAddress: String;
+function TPlugin_WebServerEngine.GetAddress: String;
 begin
-  if UseSSL then result := 'https://'
+  if UseSSL then
+    Result := 'https://'
   else
-    result := 'http://';
+    Result := 'http://';
 
-  result := result + Server + ':' +  IntToStr(Port);
+  Result := Result + Server + ':' + IntToStr(Port);
 end;
 
-function tPlugin_WebServerEngine.GetServer: string;
+function TPlugin_WebServerEngine.GetServer: string;
 begin
   Result := '';
   if foConfigPlugins.oConfigProperties.IsPropertyExists('Server') then
     Result := foConfigPlugins.oConfigProperties.GetProperty('Server');
 end;
 
-function tPlugin_WebServerEngine.GetSSLKeyFile: string;
+function TPlugin_WebServerEngine.GetSSLKeyFile: string;
 begin
   Result := '';
   if foConfigPlugins.oConfigProperties.IsPropertyExists('SSLKeyFile') then
     Result := foConfigPlugins.oConfigProperties.GetProperty('SSLKeyFile');
 end;
 
-function tPlugin_WebServerEngine.GetSSLCertFile: String;
+function TPlugin_WebServerEngine.GetSSLCertFile: String;
 begin
-  result := '';
+  Result := '';
   if foConfigPlugins.oConfigProperties.IsPropertyExists('SSLCertFile') then
     Result := foConfigPlugins.oConfigProperties.GetProperty('SSLCertFile');
 end;
 
-function tPlugin_WebServerEngine.GetSSLRootCertFile: String;
+function TPlugin_WebServerEngine.GetSSLRootCertFile: String;
 begin
-  result := '';
+  Result := '';
   if foConfigPlugins.oConfigProperties.IsPropertyExists('SSLRootCertFile') then
     Result := foConfigPlugins.oConfigProperties.GetProperty('SSLRootCertFile');
 end;
 
-
-function tPlugin_WebServerEngine.GetMIMEType(aURL: string): string;
+function TPlugin_WebServerEngine.GetMIMEType(aURL: string): string;
 begin
   Result := TNovusWebUtils.GetMIMEType(aURL);
+end;
+
+
+procedure TPlugin_WebServerEngine.HTTPServerCommandError(AContext: TIdContext;
+  ARequestInfo: TIdHTTPRequestInfo; AResponseInfo: TIdHTTPResponseInfo;
+  AException: Exception);
+begin
+  foOutput.LogException(AException);
+end;
+
+procedure TPlugin_WebServerEngine.HTTPServerException(AContext: TIdContext;
+  AException: Exception);
+begin
+  if AException.Message = 'Connection Closed Gracefully.' then Exit;
+
+  foOutput.LogException(AException);
 end;
 
 end.
