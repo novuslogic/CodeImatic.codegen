@@ -2,7 +2,8 @@ unit ProjectItemFolder;
 
 interface
 
-uses Output, ProjectItem, Project, Classes, Sysutils, NovusFileUtils, NovusStringUtils;
+uses Output, ProjectItem, Project, Classes, Sysutils, NovusFileUtils, NovusStringUtils,
+     System.IOUtils;
 
 type
   tProjectItemFolder = class(tObject)
@@ -23,7 +24,7 @@ type
 
 implementation
 
-uses Processor, System.IOUtils, Plugin;
+uses Processor, Plugin;
 
 constructor tProjectItemFolder.Create(AOutput: TOutput; aProject: TProject;
   aProjectItem: tProjectItem);
@@ -45,6 +46,24 @@ begin
   Result := true;
 
   try
+    if foProjectItem.deleteoutput then
+     begin
+       if DirectoryExists(foProjectItem.OutputFile) then
+         begin
+           FoOutput.Log('output folder ' + foProjectItem.OutputFile + ' Deleted.');
+           Try
+             TDirectory.Delete(foProjectItem.OutputFile, true);
+           Except
+             fooutput.LogError('Failed remove output folder' + foProjectItem.OutputFile);
+
+             result := false;
+
+             Exit;
+           end;
+
+         end;
+     end;
+
     if DirectoryExists(foProjectItem.oSourceFiles.Folder) then
     begin
       foOutput.Log('Adding Sourcefolder:' +foProjectItem.ItemFolder );
@@ -84,8 +103,6 @@ begin
     if aSourceFile.IsTemplateFile then
       begin
         Try
-
-
           loProcessorPlugin := aSourceFile.oProcessorPlugin;
 
           loProcessor:= TProcessor.Create(foOutput, foProject, foProjectItem, loProcessorPlugin,
@@ -111,6 +128,8 @@ begin
 
                 Exit;
               end;
+
+         
             foOutput.Log('output copy file: ' + aSourceFile.DestFullPathname );
 
             TFile.Copy(aSourceFile.FullPathname, aSourceFile.DestFullPathname, foProjectItem.overrideoutput);
@@ -121,7 +140,15 @@ begin
              begin
                foOutput.Log('output create folder: ' + aSourceFile.DestFullPathname);
 
-               CreateDir(aSourceFile.DestFullPathname );
+               Try
+                 TDirectory.CreateDirectory(aSourceFile.DestFullPathname );
+               Except
+                  foOutput.LogError('failed creating folder: ' + aSourceFile.DestFullPathname);
+
+                  Result := False;
+
+                  Exit;
+                end;
              end;
 
          end;

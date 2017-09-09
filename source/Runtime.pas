@@ -23,7 +23,7 @@ type
 
     function GetVersion(aIndex: Integer): string;
 
-    procedure RunProjectItems;
+    function RunProjectItems: boolean;
 
     property oProject: tProject read foProject write foProject;
 
@@ -42,154 +42,20 @@ Var
 
 implementation
 
-uses ProjectconfigParser;
+uses ProjectconfigParser, RuntimeProjectItems;
 
-procedure tRuntime.RunProjectItems;
+function tRuntime.RunProjectItems: boolean;
 Var
-  loProjectItem: tProjectItem;
+  loRuntimeProjectItems: tRuntimeProjectItems;
   I: Integer;
 begin
-  for i := 0 to foProject.oProjectItemList.Count - 1 do
-  begin
-    loProjectItem := tProjectItem(foProject.oProjectItemList.items[i]);
+  Try
+    loRuntimeProjectItems:= tRuntimeProjectItems.Create(foOutput, foProject);
 
-    if loProjectItem.ItemName <> '' then
-    begin
-      FoOutput.Log('Project Item: ' + loProjectItem.Name);
-
-      Try
-        if foProject.oProjectConfig.IsLoaded then
-          loProjectItem.templateFile := tProjectconfigParser.ParseProjectconfig
-            (loProjectItem.templateFile, foProject, FoOutput);
-
-        if TNovusFileUtils.IsValidFolder(loProjectItem.templateFile) then
-          loProjectItem.templateFile := TNovusFileUtils.TrailingBackSlash
-            (loProjectItem.templateFile) + loProjectItem.ItemName;
-      Except
-        FoOutput.Log('TemplateFile Projectconfig error.');
-
-        Break;
-      End;
-
-      if Not FileExists(loProjectItem.templateFile) then
-      begin
-        FoOutput.Log('template ' + loProjectItem.templateFile +
-          ' cannot be found.');
-
-        FoOutput.Failed := true;
-
-        Continue;
-      end;
-    end
-    else
-    begin
-      loProjectItem.ItemFolder := tProjectconfigParser.ParseProjectconfig
-            (loProjectItem.ItemFolder, foProject, foOutput);
-
-      if not TNovusFileUtils.IsValidFolder(loProjectItem.ItemFolder) then
-      begin
-        FoOutput.Log('Folder ' + loProjectItem.ItemFolder +
-          ' cannot be found.');
-
-        FoOutput.Failed := true;
-
-        Continue;
-      end;
-
-      loProjectItem.oSourceFiles.Folder := tProjectconfigParser.ParseProjectconfig
-            (loProjectItem.oSourceFiles.Folder, foProject, foOutput);
-
-      if not TNovusFileUtils.IsValidFolder(loProjectItem.oSourceFiles.Folder) then
-      begin
-        FoOutput.Log('Sourcefiles.Folder ' + loProjectItem.oSourceFiles.Folder +
-          ' cannot be found.');
-
-        FoOutput.Failed := true;
-
-        Continue;
-      end;
-    end;
-
-    Try
-      if foProject.oProjectConfig.IsLoaded then
-        loProjectItem.OutputFile := tProjectconfigParser.ParseProjectconfig
-          (loProjectItem.OutputFile, foProject, foOutput);
-
-      if TNovusFileUtils.IsValidFolder(loProjectItem.OutputFile) then
-      begin
-        // if ExtractFilename(loProjectItem.OutputFile) = '' then
-        loProjectItem.OutputFile := TNovusFileUtils.TrailingBackSlash
-          (loProjectItem.OutputFile) + loProjectItem.ItemName;
-      end;
-    Except
-      FoOutput.Log('Output Projectconfig error.');
-
-      Break;
-    End;
-
-    if Not DirectoryExists(TNovusStringUtils.JustPathname
-      (loProjectItem.OutputFile)) then
-    begin
-      if not foProject.Createoutputdir then
-      begin
-        FoOutput.Log('output ' + TNovusStringUtils.JustPathname
-          (loProjectItem.OutputFile) + ' directory cannot be found.');
-
-        Continue;
-      end
-      else
-      begin
-        if Not CreateDir(TNovusStringUtils.JustPathname
-          (loProjectItem.OutputFile)) then
-        begin
-          FoOutput.Log('output ' + TNovusStringUtils.JustPathname
-            (loProjectItem.OutputFile) + ' directory cannot be created.');
-
-          Continue;
-        end;
-
-      end;
-    end;
-
-    if (not loProjectItem.overrideoutput) and
-      FileExists(loProjectItem.OutputFile) then
-    begin
-      FoOutput.Log('output ' + TNovusStringUtils.JustFilename
-        (loProjectItem.OutputFile) + ' exists - Override Output option off.');
-
-      Continue;
-    end;
-
-    Try
-      if foProject.oProjectConfig.IsLoaded then
-        loProjectItem.propertiesFile := tProjectconfigParser.ParseProjectconfig
-          (loProjectItem.propertiesFile, foProject, foOutput);
-    Except
-      FoOutput.Log('PropertiesFile Projectconfig error.');
-
-      Break;
-    End;
-
-    if loProjectItem.propertiesFile <> '' then
-    begin
-      if Not FileExists(loProjectItem.propertiesFile) then
-      begin
-        FoOutput.LogError('properties ' + loProjectItem.propertiesFile +
-          ' cannot be found.');
-
-        Continue;
-      end;
-    end;
-
-    If (TNovusFileUtils.IsFileInUse(loProjectItem.OutputFile) = false) or
-      (TNovusFileUtils.IsFileReadonly(loProjectItem.OutputFile) = false) then
-    begin
-      loProjectItem.Execute;
-    end
-    else
-      FoOutput.Log('Output: ' + loProjectItem.OutputFile +
-        ' is read only or file in use.');
-  end;
+    Result := loRuntimeProjectItems.RunProjectItems
+  Finally
+    loRuntimeProjectItems.Free;
+  End;
 end;
 
 function tRuntime.RunEnvironment: Integer;

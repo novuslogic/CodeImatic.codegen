@@ -8,7 +8,8 @@ Uses Output, APIBase, IdBaseComponent, IdComponent, IdTCPServer, IdHTTPServer,
   IdContext,
   Classes, NovusFileUtils, IdServerIOHandler, IdSSL, IdSSLOpenSSL,
   NovusStringUtils,
-  NovusIndyUtils, Config, Project, NovusWebUtils, IdGlobalProtocols, IdGlobal;
+  NovusIndyUtils, Config, Project, NovusWebUtils, IdGlobalProtocols, IdGlobal,
+  RuntimeProjectItems;
 
 Type
   TPlugin_WebServerEngine = class(Tobject)
@@ -41,6 +42,7 @@ Type
     function GetSSLKeyFile: string;
     function GetSSLCertFile: String;
     function GetSSLRootCertFile: String;
+    function RunProjectItems: boolean;
   public
     constructor Create(aOutput: TOutput; aProject: tProject;
       aConfigPlugins: TConfigPlugins; aIsOpenBrowser: Boolean);
@@ -176,7 +178,7 @@ begin
 
         FHTTPServer.Active := true;
 
-        foOutput.Log('WebServer running ... press ctrl-c to stop | ctrl-r to refresh codegen.');
+        foOutput.Log('WebServer running ... press ctrl-c to stop | ctrl-r to refresh project.');
 
         Sleep(2000);
 
@@ -204,12 +206,10 @@ begin
 
                 if ch = #18 then
                   begin
+                    RunProjectItems;
 
-
+                    foOutput.Log('Press ctrl-c to stop | ctrl-r to refresh project.');
                   end;
-
-
-                 // foOutput.Log('Keycode=' + IntToStr(loKeyEvent.KeyCode) + ' ' + IntToStr(loKeyEvent.ScanCode) + ' ' + IntToStr(FCtrlflag )+ ' ' + IntToStr(Ord(ch)) );
               end;
           end
           Else
@@ -373,6 +373,20 @@ begin
   if AException.Message = 'Connection Closed Gracefully.' then Exit;
 
   foOutput.LogException(AException);
+end;
+
+function TPlugin_WebServerEngine.RunProjectItems: boolean;
+Var
+  loRuntimeProjectItems: tRuntimeProjectItems;
+  I: Integer;
+begin
+  Try
+    loRuntimeProjectItems:= tRuntimeProjectItems.Create(foOutput, foProject);
+
+    Result := loRuntimeProjectItems.RunProjectItems
+  Finally
+    loRuntimeProjectItems.Free;
+  End;
 end;
 
 end.

@@ -67,6 +67,7 @@ contains
   Properties in 'Properties.pas',
   CodeGenerator in 'CodeGenerator.pas',
   Interpreter in 'Interpreter.pas',
-  ScriptEngine in 'ScriptEngine.pas';
+  ScriptEngine in 'ScriptEngine.pas',
+  RuntimeProjectItems in 'RuntimeProjectItems.pas';
 
 end.

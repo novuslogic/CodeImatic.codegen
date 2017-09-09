@@ -108,6 +108,11 @@ begin
   if FNodeLoader.IsExists then
     foProjectItem.overrideoutput := TNovusStringUtils.IsBoolean(GetValue(FNodeLoader.Value));
 
+  foProjectItem.deleteoutput := false;
+  FNodeLoader := GetNode(FRootNodeLoader, 'deleteoutput');
+  if FNodeLoader.IsExists then
+    foProjectItem.deleteoutput := TNovusStringUtils.IsBoolean(GetValue(FNodeLoader.Value));
+
   FNodeLoader := GetNode(FRootNodeLoader, 'output');
   if FNodeLoader.IsExists then
     foProjectItem.OutputFile := GetValue(FNodeLoader.Value)

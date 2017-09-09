@@ -128,6 +128,7 @@ type
     fsTemplateFile: String;
     fsPropertiesFile: String;
     fboverrideoutput: Boolean;
+    fbdeleteoutput: boolean;
     fsprocessor: string;
     fNodeProjectItem: TJvSimpleXmlElem;
     function GetName: String;
@@ -157,6 +158,10 @@ type
     property overrideoutput: Boolean
       read fboverrideoutput
       write fboverrideoutput;
+
+    property deleteoutput: boolean
+      read fbdeleteoutput
+      write fbdeleteoutput;
 
     property ItemName: String
       read fsItemName

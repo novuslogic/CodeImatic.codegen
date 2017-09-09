@@ -122,13 +122,14 @@ end;
 
 function tPlugin_SassBase.PreProcessor(aFilename: string;
   var aTemplateDoc: tStringlist): boolean;
+  (*
 Var
   fScssResult: TScssResult;
   FDelphiLibSass : TDelphiLibSass;
-
+  *)
 begin
-  Result := False;
-
+  Result := True;
+  (*
   foOutput.Log('Processor:' + PluginName);
 
   Try
@@ -154,22 +155,51 @@ begin
     if Assigned(fScssResult) then
       fScssResult.Free;
   End;
-
+  *)
 end;
 
 function tPlugin_SassBase.PostProcessor(aProjectItem: tObject;
   aTemplate: tNovusTemplate; var aOutputFile: string): boolean;
+Var
+  fScssResult: TScssResult;
+  FDelphiLibSass : TDelphiLibSass;
 begin
   Result := False;
 
   foOutput.Log('Postprocessor:' + PluginName);
 
-  Try
-    aOutputFile := ChangeFileExt(aOutputFile, '.' + outputextension);
+   Try
+      Try
+      Try
+        fScssResult := NIL;
 
-    foOutput.Log('New output:' + aOutputFile);
+        if Assigned(fSassprocessor) then
+        begin
+          fScssResult := fSassprocessor.ConvertToCss(aTemplate.OutputDoc.text);
+          if Assigned(fScssResult) then
+          begin
+            aTemplate.OutputDoc.text := fScssResult.CSS;
+            Result := true;
+          end;
 
-    Result := true;
+        end;
+      Except
+        Result := False;
+
+        foOutput.InternalError;
+      End;
+    Finally
+      if Assigned(fScssResult) then
+        fScssResult.Free;
+    End;
+
+    if Result then
+      begin
+        aOutputFile := ChangeFileExt(aOutputFile, '.' + outputextension);
+
+        foOutput.Log('New output:' + aOutputFile);
+      end;
+
   Except
     Result := False;
 
