@@ -7,53 +7,79 @@ uses JvSimpleXml, NovusSimpleXML, SysUtils;
 type
   TConfigProperties = class(Tobject)
   private
-     foProperties: TJvSimpleXmlElem;
+     foRootProperties: TJvSimpleXmlElem;
   protected
   public
-     function IsPropertyExists(APropertyName: String): Boolean;
-     function GetProperty(APropertyName: String): String;
+     constructor Create(aRootProperties: TJvSimpleXmlElem);
 
-     property oProperties: TJvSimpleXmlElem
-        read  foProperties
-        write foProperties;
+     function IsPropertyExistsEx(APropertyName: String; aProperties: TJvSimpleXmlElem = NIL): TJvSimpleXmlElem;
+     function IsPropertyExists(APropertyName: String; aProperties: TJvSimpleXmlElem = NIL): Boolean;
+     function GetProperty(APropertyName: String; aProperties: TJvSimpleXmlElem = NIL): String;
+
+     property oRootProperties: TJvSimpleXmlElem
+        read  foRootProperties;
   end;
 
 implementation
 
-function TConfigProperties.IsPropertyExists(APropertyName: String): Boolean;
+constructor TConfigProperties.Create(aRootProperties: TJvSimpleXmlElem);
+begin
+  foRootProperties := aRootProperties;
+end;
+
+
+function TConfigProperties.IsPropertyExistsEx(APropertyName: String; aProperties: TJvSimpleXmlElem): TJvSimpleXmlElem;
 Var
   I: integer;
-  foProperty: TJvSimpleXmlElem;
+  loProperty,
+  loProperties: TJvSimpleXmlElem;
 begin
-  Result := False;
+  Result := NIL;
 
-  for i := 0 to foProperties.Items.Count - 1 do
+  if Not Assigned(aProperties) then
+    loProperties := foRootProperties
+  else
+    loProperties := aProperties;
+
+  for i := 0 to loProperties.Items.Count - 1 do
     begin
-      foProperty := foProperties.Items[i];
+      loProperty := loProperties.Items[i];
 
-      If Uppercase(foProperty.Name) = Uppercase(APropertyName) then
+      If Uppercase(loProperty.Name) = Uppercase(APropertyName) then
         begin
-          Result := True;
+          Result := loProperty;
 
           Exit;
         end;
     end;
 end;
 
-function TConfigProperties.GetProperty(APropertyName: String): String;
+
+function TConfigProperties.IsPropertyExists(APropertyName: String; aProperties: TJvSimpleXmlElem): Boolean;
+begin
+  Result := (IsPropertyExistsEx(APropertyName, aProperties) <> NIL);
+end;
+
+function TConfigProperties.GetProperty(APropertyName: String; aProperties: TJvSimpleXmlElem): String;
 Var
   I: integer;
-  foProperty: TJvSimpleXmlElem;
+  loProperty,
+  loProperties: TJvSimpleXmlElem;
 begin
   Result := '';
 
-  for i := 0 to foProperties.Items.Count - 1 do
-    begin
-      foProperty := foProperties.Items[i];
+  if Not Assigned(aProperties) then
+    loProperties := foRootProperties
+  else
+    loProperties := aProperties;
 
-      If Uppercase(foProperty.Name) = Uppercase(APropertyName) then
+  for i := 0 to loProperties.Items.Count - 1 do
+    begin
+      loProperty := loProperties.Items[i];
+
+      If Uppercase(loProperty.Name) = Uppercase(APropertyName) then
         begin
-          Result := foProperty.Value;
+          Result := loProperty.Value;
 
           Exit;
         end;

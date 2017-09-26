@@ -3,7 +3,7 @@ unit Plugins;
 interface
 
 uses  NovusPlugin, Config, Output,Classes, SysUtils, PluginsMapFactory, Plugin, Project, ProjectItem,
-      NovusTemplate, ScriptEngine, uPSRuntime, uPSCompiler;
+      NovusTemplate, ScriptEngine, uPSRuntime, uPSCompiler, NovusFileUtils;
 
 type
    TPlugins = class
@@ -36,12 +36,13 @@ type
      function IsTagExists(aPluginName: String; aTagName: string): Boolean;
      function GetTag(aPluginName: String;aTagName: string): String;
 
-     function PostProcessor(aProjectItem: tProjectItem;
+     function PostProcessor(aProcessorItem: tProcessorItem;
+       aProjectItem: tProjectItem;
        aTemplate: tNovusTemplate; var aOutputFile: string;
-       aProcessorPlugin: tProcessorPlugin): Boolean;
+       aProcessorPlugin: tProcessorPlugin): TPluginReturn;
 
      function PreProcessor(aFilename: string;
-       var aTemplateDoc: tStringlist): Boolean;
+       aTemplate: tNovusTemplate):tProcessorItem;
 
      function IsCommandLine: boolean;
 
@@ -180,28 +181,28 @@ Var
   I: Integer;
   FPlugin: tPlugin;
   FExternalPlugin: IExternalPlugin;
-  loConfigPlugins: TConfigPlugins;
+  loConfigPlugin: TConfigPlugin;
 begin
   //External Plugin
   foOutput.Log('Loading plugins');
 
-  if oConfig.oConfigPluginsList.Count > 0 then
+  if oConfig.oConfigPluginList.Count > 0 then
     begin
-      for I := 0 to oConfig.oConfigPluginsList.Count - 1do
+      for I := 0 to oConfig.oConfigPluginList.Count - 1do
         begin
-          loConfigPlugins := tConfigPlugins(oConfig.oConfigPluginsList.Items[i]);
+          loConfigPlugin := tConfigPlugin(oConfig.oConfigPluginList.Items[i]);
 
-          if FileExists(loConfigPlugins.PluginFilenamePathname) then
+          if FileExists(loConfigPlugin.PluginFilenamePathname) then
             begin
-              if FExternalPlugins.LoadPlugin(loConfigPlugins.PluginFilenamePathname) then
+              if FExternalPlugins.LoadPlugin(loConfigPlugin.PluginFilenamePathname) then
                 begin
                   FExternalPlugin := IExternalPlugin(FExternalPlugins.Plugins[FExternalPlugins.PluginCount-1]);
 
-                  fPluginsList.Add(FExternalPlugin.CreatePlugin(foOutput, foProject, loConfigPlugins));
+                  fPluginsList.Add(FExternalPlugin.CreatePlugin(foOutput, foProject, loConfigPlugin));
                   foOutput.Log('Loaded: ' + FExternalPlugin.PluginName);
                 end;
             end
-          else foOutput.Log('Missing: ' + loConfigPlugins.PluginFilenamePathname);
+          else foOutput.Log('Missing: ' + loConfigPlugin.PluginFilenamePathname);
         end;
 
     end;
@@ -291,12 +292,24 @@ begin
     end;
 end;
 
-function TPlugins.PostProcessor(aProjectItem: tProjectItem; aTemplate: tNovusTemplate; var aOutputFile: string; aProcessorPlugin: tProcessorPlugin): boolean;
-var
-  loPlugin: TPlugin;
-  I: Integer;
-  fssourceextension: string;
+function TPlugins.PostProcessor(aProcessorItem: tProcessorItem;
+                                aProjectItem: tProjectItem;
+                                aTemplate: tNovusTemplate;
+                                var aOutputFile: string;
+                                aProcessorPlugin: tProcessorPlugin): TPluginReturn;
+//var
+  //loPlugin: TPlugin;
+  //I: Integer;
+  //fssourceextension: string;
 begin
+  Result := PRIgnore ;
+
+  if Not Assigned(aProcessorItem) then Exit;
+
+  Result := aProcessorItem.PostProcessor(aProjectItem, aTemplate, aOutputFile);
+  if Result = PRFailed then Fooutput.Failed := true;
+
+  (*
   for I := 0 to fPluginsList.Count -1 do
     begin
       loPlugin := TPlugin(fPluginsList.Items[i]);
@@ -306,7 +319,7 @@ begin
             begin
               if uppercase(TProcessorPlugin(loPlugin).PluginName) = Uppercase(aProcessorPlugin.PluginName) then
                 begin
-                  if TProcessorPlugin(loPlugin).PostProcessor(aProjectItem, aTemplate, aOutputFile) = false then
+                  if TProcessorPlugin(loPlugin).PostProcessor(aProjectItem, aTemplate, aOutputFile) = PRFailed then
                     Fooutput.Failed := true;
 
                   break;
@@ -317,13 +330,15 @@ begin
             begin
               if uppercase(TProcessorPlugin(loPlugin).PluginName) = Uppercase(aProjectItem.Processor) then
                 begin
-                  if TProcessorPlugin(loPlugin).PostProcessor(aProjectItem, aTemplate, aOutputFile) = false then
+                  if TProcessorPlugin(loPlugin).PostProcessor(aProjectItem, aTemplate, aOutputFile) = PRFailed then
                     Fooutput.Failed := true;
 
                   break;
                 end;
             end
-          else
+          else ;
+
+
           if (CompareText('.'+TProcessorPlugin(loPlugin).sourceextension,  ExtractFileExt(aProjectItem.TemplateFile)) =0) then
             begin
               if TProcessorPlugin(loPlugin).PostProcessor(aProjectItem, aTemplate, aOutputFile) = false then
@@ -331,28 +346,36 @@ begin
 
               break;
             end;
+
         end;
     end;
+    *)
 end;
 
-function TPlugins.PreProcessor(aFilename: string; var aTemplateDoc: tStringlist): boolean;
+function TPlugins.PreProcessor(aFilename: string; aTemplate: tNovusTemplate): tProcessorItem;
 var
   loPlugin: TPlugin;
   I: Integer;
-  fssourceextension: string;
+  lProcessorItem: tProcessorItem;
+  lPluginReturn: TPluginReturn;
 begin
-  Result := False;
+  Result := NIL;
 
   for I := 0 to fPluginsList.Count -1 do
     begin
       loPlugin := TPlugin(fPluginsList.Items[i]);
       if loPlugin is TProcessorPlugin then
         begin
-          if (CompareText('.'+TProcessorPlugin(loPlugin).sourceextension,  ExtractFileExt(aFilename)) =0) then
-            begin
-              Result := TProcessorPlugin(loPlugin).PreProcessor(aFilename, aTemplateDoc);
-              if result = false then Fooutput.Failed := true;
-            end;
+           lProcessorItem := TProcessorPlugin(loPlugin).GetProcesorItem(TNovusFileUtils.ExtractFileExtA(aFilename));
+           if Assigned(lProcessorItem) then
+             begin
+               Result := lProcessorItem;
+
+               lPluginReturn := lProcessorItem.PreProcessor(aFilename, aTemplate);
+               if lPluginReturn = PRFailed then Fooutput.Failed := true;
+
+               Exit;
+             end;
         end;
     end;
 end;

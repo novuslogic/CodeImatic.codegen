@@ -2,39 +2,36 @@ unit Plugin;
 
 interface
 
-uses classes, Output, NovusPlugin, Project,  config, NovusTemplate, uPSRuntime, uPSCompiler;
+uses classes, Output, NovusPlugin, Project, config, NovusTemplate, uPSRuntime,
+  uPSCompiler, NovusList, SysUtils, JvSimpleXml;
 
 type
-   TPlugin = class(TPersistent)
-   private
-   protected
-     foConfigPlugins: TConfigPlugins;
-     foProject: tProject;
-     foOutput: tOutput;
-     fsPluginName: String;
-   public
-     constructor Create(aOutput: tOutput; aPluginName: String; aProject: tProject; aConfigPlugins: TConfigPlugins); virtual;
+  TPluginReturn = (PRFailed, PRPassed, PRIgnore);
 
-     function BeforeCodeGen: boolean; virtual;
-     function AfterCodeGen: boolean; virtual;
-     function IsCommandLine: boolean; virtual;
+  TPlugin = class(TPersistent)
+  private
+  protected
+    foConfigPlugin: TConfigPlugin;
+    foProject: tProject;
+    foOutput: tOutput;
+    fsPluginName: String;
+  public
+    constructor Create(aOutput: tOutput; aPluginName: String;
+      aProject: tProject; aConfigPlugin: TConfigPlugin); virtual;
 
-     property oProject: Tproject
-       read foProject
-       write foProject;
+    function BeforeCodeGen: boolean; virtual;
+    function AfterCodeGen: boolean; virtual;
+    function IsCommandLine: boolean; virtual;
 
-     property oOutput: tOutput
-       read foOutput
-       write foOutput;
+    property oProject: tProject read foProject write foProject;
 
-     property oConfigPlugins: TConfigPlugins
-       read foConfigPlugins
-       write foConfigPlugins;
+    property oOutput: tOutput read foOutput write foOutput;
 
-     property PluginName: String
-       read fsPluginName
-       write fsPluginName;
-   end;
+    property oConfigPlugin: TConfigPlugin read foConfigPlugin
+      write foConfigPlugin;
+
+    property PluginName: String read fsPluginName write fsPluginName;
+  end;
 
   TScriptEnginePlugin = class(TPlugin)
   private
@@ -43,7 +40,7 @@ type
   public
     procedure Initialize(var aImp: TPSRuntimeClassImporter); virtual;
 
-    function CustomOnUses(var aCompiler: TPSPascalCompiler): Boolean; virtual;
+    function CustomOnUses(var aCompiler: TPSPascalCompiler): boolean; virtual;
     procedure RegisterFunction(var aExec: TPSExec); virtual;
     procedure SetVariantToClass(var aExec: TPSExec); virtual;
     procedure RegisterImport; virtual;
@@ -51,55 +48,79 @@ type
     property _Imp: TPSRuntimeClassImporter read fImp write fImp;
   end;
 
-   TTagsPlugin = class(TPlugin)
-   private
-   protected
-   public
-     function GetTag(aTagName: String): String; virtual;
-     function IsTagExists(aTagName: String): Integer; virtual;
-   end;
+  TTagsPlugin = class(TPlugin)
+  private
+  protected
+  public
+    function GetTag(aTagName: String): String; virtual;
+    function IsTagExists(aTagName: String): Integer; virtual;
+  end;
 
-   TTagPlugin = class(TPlugin)
-   private
-   protected
-     function GetTagName: string; virtual;
-   public
-     property TagName: String
-       read GetTagName;
-   end;
+  TTagPlugin = class(TPlugin)
+  private
+  protected
+    function GetTagName: string; virtual;
+  public
+    property TagName: String read GetTagName;
+  end;
 
-   TProcessorPlugin = class(TPlugin)
-   private
-   protected
-     function Getsourceextension: string; virtual;
-     function Getoutputextension: string; virtual;
-   public
-     function PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; var aOutputFile: string): boolean; virtual;
-     function PreProcessor(aFilename: String; var aTemplateDoc: tstringlist): boolean; virtual;
-
-     property Sourceextension: string
-       read Getsourceextension;
-
-      property outputextension: string
-       read Getoutputextension;
-   end;
-
-   IExternalPlugin = interface(INovusPlugin)
-     ['{155A396A-9457-4C48-A787-0C9582361B45}']
-
-     function  CreatePlugin(aOutput: tOutput; aProject: tProject; aConfigPlugins: TConfigPlugins):TPlugin safecall;
-   end;
+  TProcessorItem = class
+  private
+    foConfigPlugin: tConfigPlugin;
+    foOutput: TOutput;
+  protected
 
 
-   TPluginClass = class of TPlugin;
+    function GetProcessorName: String; virtual;
+    function Getsourceextension: string;
+    function Getoutputextension: string;
+  public
+    constructor Create(aConfigPlugin: tConfigPlugin; aOutput: TOutput);
+
+    function PreProcessor(aFilename: String; aTemplate: tNovusTemplate)
+      : TPluginReturn; virtual;
+    function PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; var aOutputFile: string): TPluginReturn; virtual;
+    function Convert(aFilename: string; var aOutputFile: string): TPluginReturn; virtual;
+
+    property oConfigPlugin: tConfigPlugin
+      read foConfigPlugin;
+    property ProcessorName: String read GetProcessorName;
+    property Sourceextension: string read Getsourceextension;
+    property outputextension: string read Getoutputextension;
+
+    property oOutput: TOutput
+      read foOutput;
+  end;
+
+  TProcessorPlugin = class(TPlugin)
+  private
+  protected
+    fProcessorItems: tNovusList;
+    procedure AddProcessorItem(aProcessorItem: TProcessorItem);
+  public
+    constructor Create(aOutput: tOutput; aPluginName: String;
+      aProject: tProject; aConfigPlugin: TConfigPlugin); override;
+    destructor Destroy;
+
+    function GetProcesorItem(aFileExt: string): TProcessorItem;
+  end;
+
+  IExternalPlugin = interface(INovusPlugin)
+    ['{155A396A-9457-4C48-A787-0C9582361B45}']
+
+    function CreatePlugin(aOutput: tOutput; aProject: tProject;
+      aConfigPlugin: TConfigPlugin): TPlugin safecall;
+  end;
+
+  TPluginClass = class of TPlugin;
 
 implementation
 
-constructor TPlugin.create;
+constructor TPlugin.Create;
 begin
-  foConfigPlugins:= aConfigPlugins;
+  foConfigPlugin := aConfigPlugin;
   foProject := aProject;
-  foOutput:= aOutput;
+  foOutput := aOutput;
   fsPluginName := aPluginName;
 end;
 
@@ -118,16 +139,16 @@ begin
   Result := True;
 end;
 
-function TScriptEnginePlugin.CustomOnUses(var aCompiler: TPSPascalCompiler): Boolean;
+function TScriptEnginePlugin.CustomOnUses(var aCompiler
+  : TPSPascalCompiler): boolean;
 begin
   Result := False;
 end;
 
-procedure TScriptEnginePlugin.initialize(var aImp: TPSRuntimeClassImporter);
+procedure TScriptEnginePlugin.Initialize(var aImp: TPSRuntimeClassImporter);
 begin
   fImp := aImp;
 end;
-
 
 procedure TScriptEnginePlugin.RegisterFunction(var aExec: TPSExec);
 begin
@@ -144,12 +165,10 @@ begin
 
 end;
 
-
 function TTagPlugin.GetTagName: String;
 begin
-  result := '';
+  Result := '';
 end;
-
 
 function TTagsPlugin.GetTag(aTagName: String): String;
 begin
@@ -161,30 +180,97 @@ begin
   Result := -1;
 end;
 
-
-
-
-function TProcessorPlugin.PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; var aOutputFile: string): boolean;
+constructor TProcessorPlugin.Create(aOutput: tOutput; aPluginName: String;
+  aProject: tProject; aConfigPlugin: TConfigPlugin);
 begin
-  Result := false;
+  inherited Create(aOutput, aPluginName, aProject, aConfigPlugin);
+
+  fProcessorItems := tNovusList.Create(TProcessorItem);
 end;
 
-function TProcessorPlugin.PreProcessor(aFilename: String; var aTemplateDoc: tstringlist): boolean;
+destructor TProcessorPlugin.Destroy;
 begin
-  Result := false;
+  fProcessorItems.Free;
 end;
 
-function TProcessorPlugin.Getsourceextension: string;
+
+function TProcessorPlugin.GetProcesorItem(aFileExt: string): TProcessorItem;
+Var
+  I: Integer;
+  loProcessorItem: TProcessorItem;
+begin
+  Result := NIL;
+
+  for I  := 0 to fProcessorItems.Count - 1  do
+    begin
+      loProcessorItem:= TProcessorItem(fProcessorItems.Items[i]);
+
+      if ((uppercase(loProcessorItem.Sourceextension) = Uppercase(aFileExt))) then
+        begin
+          Result := loProcessorItem;
+          Break;
+        end;
+    end;
+end;
+
+procedure TProcessorPlugin.AddProcessorItem(aProcessorItem: TProcessorItem);
+begin
+  fProcessorItems.Add(aProcessorItem)
+end;
+
+constructor TProcessorItem.Create(aConfigPlugin: tConfigPlugin; aOutput: TOutput);
+begin
+  foConfigPlugin := aConfigPlugin;
+  foOutput := aOutput;
+end;
+
+function TProcessorItem.Getsourceextension: string;
+var
+  loProperties: TJvSimpleXmlElem;
+begin
+  Result := '';
+
+  loProperties := oConfigPlugin.oConfigProperties.IsPropertyExistsEx(GetProcessorName);
+  if Assigned(loProperties) then
+    begin
+      if oConfigPlugin.oConfigProperties.IsPropertyExists('sourceextension', loProperties) then
+        Result := oConfigPlugin.oConfigProperties.GetProperty('sourceextension', loProperties);
+    end;
+end;
+
+
+function TProcessorItem.Getoutputextension: string;
+var
+  loProperties: TJvSimpleXmlElem;
+begin
+  Result := '';
+
+  loProperties := oConfigPlugin.oConfigProperties.IsPropertyExistsEx(GetProcessorName);
+  if Assigned(loProperties) then
+    begin
+      if oConfigPlugin.oConfigProperties.IsPropertyExists('outputextension', loProperties) then
+        Result := oConfigPlugin.oConfigProperties.GetProperty('outputextension', loProperties);
+    end;
+end;
+
+function TProcessorItem.GetProcessorName: string;
 begin
   Result := '';
 end;
 
-function TProcessorPlugin.Getoutputextension: string;
+function TProcessorItem.PreProcessor(aFilename: String; aTemplate: tNovusTemplate): TPluginReturn;
 begin
-  Result := '';
+  Result := PRIgnore;
 end;
 
+function TProcessorItem.PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; var aOutputFile: string): TPluginReturn;
+begin
+  Result := PRIgnore;
+end;
 
-
+function TProcessorItem.Convert(aFilename: string; var aOutputFile: string): TPluginReturn;
+begin
+  Result := PRIgnore;
+end;
 
 end.

@@ -130,7 +130,7 @@ begin
               end;
 
          
-            foOutput.Log('output copy file: ' + aSourceFile.DestFullPathname );
+            foOutput.Log('copy file: ' + aSourceFile.DestFullPathname );
 
             TFile.Copy(aSourceFile.FullPathname, aSourceFile.DestFullPathname, foProjectItem.overrideoutput);
           end
@@ -138,7 +138,7 @@ begin
          begin
            if not DirectoryExists(aSourceFile.DestFullPathname) then
              begin
-               foOutput.Log('output create folder: ' + aSourceFile.DestFullPathname);
+               foOutput.Log('create folder: ' + aSourceFile.DestFullPathname);
 
                Try
                  TDirectory.CreateDirectory(aSourceFile.DestFullPathname );

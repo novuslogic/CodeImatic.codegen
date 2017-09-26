@@ -12,7 +12,7 @@ Const
   csConfigfile = 'zcodegen.config';
 
 Type
-   TConfigPlugins = class(Tobject)
+   TConfigPlugin = class(Tobject)
    private
      fsPluginName: String;
      fsPluginFilename: string;
@@ -20,7 +20,7 @@ Type
      foConfigProperties: tConfigProperties;
    protected
    public
-     constructor Create;
+     constructor Create(aRootProperties: TJvSimpleXmlElem);
      destructor Destroy; override;
 
      property PluginName: String
@@ -47,7 +47,7 @@ Type
       fsOutputlogFilename: string;
       fsVarCmdLine: String;
       fVariablesCmdLine: tVariablesCmdLine;
-      fConfigPluginsList: tNovusList;
+      fConfigPluginList: tNovusList;
       fsDBSchemaFileName: String;
       fsProjectConfigFileName: String;
       fsProjectFileName: String;
@@ -88,9 +88,9 @@ Type
        read fsLanguagesPath
        write fsLanguagesPath;
 
-     property oConfigPluginsList: tNovusList
-       read fConfigPluginsList
-       write fConfigPluginsList;
+     property oConfigPluginList: tNovusList
+       read fConfigPluginList
+       write fConfigPluginList;
 
      property oVariablesCmdLine: tvariablesCmdLine
        read fVariablesCmdLine
@@ -120,12 +120,12 @@ begin
 
   fVariablesCmdLine:= tVariablesCmdLine.Create;
 
-  fConfigPluginsList := tNovusList.Create(TConfigPlugins);
+  fConfigPluginList := tNovusList.Create(TConfigPlugin);
 end;
 
 destructor TConfig.Destroy;
 begin
-  fConfigPluginsList.Free;
+  fConfigPluginList.Free;
 
   fVariablesCmdLine.Free;
 
@@ -221,7 +221,7 @@ Var
   i, Index: Integer;
   fsPluginName,
   fsPluginFilename: String;
-  loConfigPlugins: TConfigPlugins;
+  loConfigPlugin: TConfigPlugin;
 begin
   if fsRootPath = '' then
     fsRootPath := TNovusFileUtils.TrailingBackSlash(TNovusStringUtils.RootDirectory);
@@ -239,8 +239,6 @@ begin
          begin
            For I := 0 to fPluginsElem.Items.count -1 do
              begin
-               loConfigPlugins := TConfigPlugins.Create;
-
                fsPluginName := fPluginsElem.Items[i].Name;
 
                Index := 0;
@@ -251,27 +249,26 @@ begin
 
                Index := 0;
                fPluginProperties := TNovusSimpleXML.FindNode(fPluginsElem.Items[i], 'properties', Index);
-               if Assigned(fPluginProperties) then
-                 loConfigPlugins.oConfigProperties.oProperties := fPluginProperties;
+               loConfigPlugin := TConfigPlugin.Create(fPluginProperties);
 
-               loConfigPlugins.PluginName := fsPluginName;
-               loConfigPlugins.Pluginfilename := fsPluginfilename;
-               loConfigPlugins.PluginFilenamePathname := rootpath + 'plugins\'+ fsPluginfilename;
+               loConfigPlugin.PluginName := fsPluginName;
+               loConfigPlugin.Pluginfilename := fsPluginfilename;
+               loConfigPlugin.PluginFilenamePathname := rootpath + 'plugins\'+ fsPluginfilename;
 
 
-               fConfigPluginsList.Add(loConfigPlugins);
+               fConfigPluginList.Add(loConfigPlugin);
              end;
          end;
     end;
 end;
 
 
-constructor TConfigPlugins.Create;
+constructor TConfigPlugin.Create;
 begin
-  foConfigProperties:= tConfigProperties.Create;
+  foConfigProperties:= tConfigProperties.Create(aRootProperties);
 end;
 
-destructor TConfigPlugins.Destroy;
+destructor TConfigPlugin.Destroy;
 begin
   foConfigProperties.Free;
 end;

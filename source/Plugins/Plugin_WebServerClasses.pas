@@ -15,7 +15,7 @@ type
     fbIsOpenBrowser: boolean;
     fbIsWebServer: Boolean;
   public
-    constructor Create(aOutput: tOutput; aPluginName: String; aProject: TProject; aConfigPlugins: TConfigPlugins); override;
+    constructor Create(aOutput: tOutput; aPluginName: String; aProject: TProject; aConfigPlugin: TConfigPlugin); override;
     destructor Destroy; override;
 
     function IsCommandLine: boolean; override;
@@ -43,7 +43,7 @@ type
 
     property PluginName: string read GetPluginName;
 
-    function CreatePlugin(aOutput: tOutput; aProject: TProject; aConfigPlugins: TConfigPlugins): TPlugin; safecall;
+    function CreatePlugin(aOutput: tOutput; aProject: TProject; aConfigPlugin: TConfigPlugin): TPlugin; safecall;
 
   end;
 
@@ -54,9 +54,9 @@ implementation
 var
   _Plugin_WebServer: TPlugin_WebServer = nil;
 
-constructor tPlugin_WebServerBase.Create(aOutput: tOutput; aPluginName: String; aProject: TProject; aConfigPlugins: TConfigPlugins);
+constructor tPlugin_WebServerBase.Create(aOutput: tOutput; aPluginName: String; aProject: TProject; aConfigPlugin: TConfigPlugin);
 begin
-  Inherited Create(aOutput,aPluginName, aProject, aConfigPlugins);
+  Inherited Create(aOutput,aPluginName, aProject, aConfigPlugin);
 
   fbIsWebServer := false;
   fbIsOpenBrowser := false;
@@ -78,9 +78,9 @@ procedure tPlugin_WebServer.Initialize;
 begin
 end;
 
-function tPlugin_WebServer.CreatePlugin(aOutput: tOutput; aProject: TProject; aConfigPlugins: TConfigPlugins): TPlugin;
+function tPlugin_WebServer.CreatePlugin(aOutput: tOutput; aProject: TProject; aConfigPlugin: TConfigPlugin): TPlugin;
 begin
-  FPlugin_WebServer := tPlugin_WebServerBase.Create(aOutput, GetPluginName, aProject, aConfigPlugins);
+  FPlugin_WebServer := tPlugin_WebServerBase.Create(aOutput, GetPluginName, aProject, aConfigPlugin);
 
   Result := FPlugin_WebServer;
 end;
@@ -115,7 +115,7 @@ begin
         begin
 
           Try
-            loPlugin_WebServerEngine:= TPlugin_WebServerEngine.Create(oOutput, oProject, oConfigPlugins, fbIsOpenBrowser);
+            loPlugin_WebServerEngine:= TPlugin_WebServerEngine.Create(oOutput, oProject, oConfigPlugin, fbIsOpenBrowser);
 
             loPlugin_WebServerEngine.Execute;
           Finally

@@ -15,7 +15,7 @@ type
   protected
   public
     constructor Create(aOutput: tOutput; aPluginName: String;
-      aProject: TProject; aConfigPlugins: tConfigPlugins); override;
+      aProject: TProject; aConfigPlugin: tConfigPlugin); override;
     destructor Destroy; override;
 
     function CustomOnUses(var aCompiler: TPSPascalCompiler): Boolean; override;
@@ -40,7 +40,7 @@ type
     property PluginName: string read GetPluginName;
 
     function CreatePlugin(aOutput: tOutput; aProject: TProject;
-      aConfigPlugins: tConfigPlugins): TPlugin; safecall;
+      aConfigPlugin: tConfigPlugin): TPlugin; safecall;
 
   end;
 
@@ -69,9 +69,9 @@ var
   _Plugin_SystemExt: TPlugin_SystemExt = nil;
 
 constructor tPlugin_SystemExtBase.Create(aOutput: tOutput; aPluginName: String;
-  aProject: TProject; aConfigPlugins: tConfigPlugins);
+  aProject: TProject; aConfigPlugin: tConfigPlugin);
 begin
-  Inherited Create(aOutput, aPluginName, aProject, aConfigPlugins);
+  Inherited Create(aOutput, aPluginName, aProject, aConfigPlugin);
 end;
 
 destructor tPlugin_SystemExtBase.Destroy;
@@ -90,12 +90,12 @@ begin
 end;
 
 function TPlugin_SystemExt.CreatePlugin(aOutput: tOutput; aProject: TProject;
-  aConfigPlugins: tConfigPlugins): TPlugin; safecall;
+  aConfigPlugin: tConfigPlugin): TPlugin; safecall;
 begin
   foProject := aProject;
 
   FPlugin_SystemExt := tPlugin_SystemExtBase.Create(aOutput, GetPluginName,
-    foProject, aConfigPlugins);
+    foProject, aConfigPlugin);
 
   Result := FPlugin_SystemExt;
 end;

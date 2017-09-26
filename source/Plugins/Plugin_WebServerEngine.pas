@@ -20,7 +20,7 @@ Type
     fHTTPServer: TIdHTTPServer;
     foOutput: TOutput;
     foProject: tProject;
-    foConfigPlugins: TConfigPlugins;
+    foConfigPlugin: TConfigPlugin;
 
     function GetMIMEType(aURL: String): String;
     procedure ServerIOHandlerSSLOpenSSLGetPassword(var Password: string);
@@ -45,7 +45,7 @@ Type
     function RunProjectItems: boolean;
   public
     constructor Create(aOutput: TOutput; aProject: tProject;
-      aConfigPlugins: TConfigPlugins; aIsOpenBrowser: Boolean);
+      aConfigPlugin: TConfigPlugin; aIsOpenBrowser: Boolean);
     destructor Destroy; override;
 
     function Execute: Boolean;
@@ -79,10 +79,10 @@ var
   FCtrlflag: integer;
 
 constructor TPlugin_WebServerEngine.Create(aOutput: TOutput; aProject: tProject;
-  aConfigPlugins: TConfigPlugins; aIsOpenBrowser: Boolean);
+  aConfigPlugin: TConfigPlugin; aIsOpenBrowser: Boolean);
 begin
   foOutput := aOutput;
-  foConfigPlugins := aConfigPlugins;
+  foConfigPlugin := aConfigPlugin;
   foProject := aProject;
 
   fbIsOpenBrowser := aIsOpenBrowser;
@@ -138,8 +138,8 @@ end;
 function TPlugin_WebServerEngine.GetDefaultDocument: string;
 begin
   Result := 'index.html';
-  if foConfigPlugins.oConfigProperties.IsPropertyExists('DefaultDocument') then
-    Result := foConfigPlugins.oConfigProperties.GetProperty('DefaultDocument');
+  if foConfigPlugin.oConfigProperties.IsPropertyExists('DefaultDocument') then
+    Result := foConfigPlugin.oConfigProperties.GetProperty('DefaultDocument');
 
 end;
 
@@ -290,24 +290,24 @@ end;
 function TPlugin_WebServerEngine.GetUseSSL: Boolean;
 begin
   Result := false;
-  if foConfigPlugins.oConfigProperties.IsPropertyExists('UseSSL') then
+  if foConfigPlugin.oConfigProperties.IsPropertyExists('UseSSL') then
     Result := TNovusStringUtils.StrToBoolean
-      (foConfigPlugins.oConfigProperties.GetProperty('UseSSL'));
+      (foConfigPlugin.oConfigProperties.GetProperty('UseSSL'));
 end;
 
 function TPlugin_WebServerEngine.GetSSLPassword: String;
 begin
   Result := '';
-  if foConfigPlugins.oConfigProperties.IsPropertyExists('SSLPassword') then
-    Result := foConfigPlugins.oConfigProperties.GetProperty('SSLPassword');
+  if foConfigPlugin.oConfigProperties.IsPropertyExists('SSLPassword') then
+    Result := foConfigPlugin.oConfigProperties.GetProperty('SSLPassword');
 end;
 
 function TPlugin_WebServerEngine.GetPort: integer;
 begin
   Result := 8080;
-  if foConfigPlugins.oConfigProperties.IsPropertyExists('Port') then
+  if foConfigPlugin.oConfigProperties.IsPropertyExists('Port') then
     Result := TNovusStringUtils.Str2Int
-      (foConfigPlugins.oConfigProperties.GetProperty('Port'));
+      (foConfigPlugin.oConfigProperties.GetProperty('Port'));
 end;
 
 function TPlugin_WebServerEngine.GetSSLPath: String;
@@ -329,29 +329,29 @@ end;
 function TPlugin_WebServerEngine.GetServer: string;
 begin
   Result := '';
-  if foConfigPlugins.oConfigProperties.IsPropertyExists('Server') then
-    Result := foConfigPlugins.oConfigProperties.GetProperty('Server');
+  if foConfigPlugin.oConfigProperties.IsPropertyExists('Server') then
+    Result := foConfigPlugin.oConfigProperties.GetProperty('Server');
 end;
 
 function TPlugin_WebServerEngine.GetSSLKeyFile: string;
 begin
   Result := '';
-  if foConfigPlugins.oConfigProperties.IsPropertyExists('SSLKeyFile') then
-    Result := foConfigPlugins.oConfigProperties.GetProperty('SSLKeyFile');
+  if foConfigPlugin.oConfigProperties.IsPropertyExists('SSLKeyFile') then
+    Result := foConfigPlugin.oConfigProperties.GetProperty('SSLKeyFile');
 end;
 
 function TPlugin_WebServerEngine.GetSSLCertFile: String;
 begin
   Result := '';
-  if foConfigPlugins.oConfigProperties.IsPropertyExists('SSLCertFile') then
-    Result := foConfigPlugins.oConfigProperties.GetProperty('SSLCertFile');
+  if foConfigPlugin.oConfigProperties.IsPropertyExists('SSLCertFile') then
+    Result := foConfigPlugin.oConfigProperties.GetProperty('SSLCertFile');
 end;
 
 function TPlugin_WebServerEngine.GetSSLRootCertFile: String;
 begin
   Result := '';
-  if foConfigPlugins.oConfigProperties.IsPropertyExists('SSLRootCertFile') then
-    Result := foConfigPlugins.oConfigProperties.GetProperty('SSLRootCertFile');
+  if foConfigPlugin.oConfigProperties.IsPropertyExists('SSLRootCertFile') then
+    Result := foConfigPlugin.oConfigProperties.GetProperty('SSLRootCertFile');
 end;
 
 function TPlugin_WebServerEngine.GetMIMEType(aURL: string): string;

@@ -13,14 +13,15 @@ type
   protected
   public
     constructor Create(aOutput: tOutput; aPluginName: String;
-      aProject: TProject; aConfigPlugins: tConfigPlugins); override;
-    destructor Destroy; override;
+      aProject: TProject; aConfigPlugin: tConfigPlugin); override;
+//    destructor Destroy; override;
 
+(*
     function PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate;
-      var aOutputFile: string): boolean; overload; override;
-    function PreProcessor(aFilename: String; var aTemplateDoc: tStringlist)
-      : boolean; override;
-
+      var aOutputFile: string): TPluginReturn; overload; override;
+    function PreProcessor(aFilename: String; aTemplate: tNovusTemplate)
+      : TPluginReturn; override;
+*)
   end;
 
   TPlugin_CodeDocs = class(TSingletonImplementation, INovusPlugin, IExternalPlugin)
@@ -38,7 +39,7 @@ type
     property PluginName: string read GetPluginName;
 
     function CreatePlugin(aOutput: tOutput; aProject: TProject;
-      aConfigPlugins: tConfigPlugins): TPlugin; safecall;
+      aConfigPlugin: tConfigPlugin): TPlugin; safecall;
 
   end;
 
@@ -50,9 +51,9 @@ var
   _Plugin_CodeDocs: TPlugin_CodeDocs = nil;
 
 constructor tPlugin_CodeDocsBase.Create(aOutput: tOutput; aPluginName: String;
-  aProject: TProject; aConfigPlugins: tConfigPlugins);
+  aProject: TProject; aConfigPlugin: tConfigPlugin);
 begin
-  Inherited Create(aOutput, aPluginName, aProject, aConfigPlugins);
+  Inherited Create(aOutput, aPluginName, aProject, aConfigPlugin);
 
   Try
    // fCodeDocsprocessor := TDelphiLibCodeDocs.LoadInstance;
@@ -62,6 +63,7 @@ begin
 
 end;
 
+(*
 destructor tPlugin_CodeDocsBase.Destroy;
 begin
   Inherited;
@@ -73,6 +75,7 @@ begin
     foOutput.InternalError;
   End;
 end;
+*)
 
 // Plugin_CodeDocs
 function TPlugin_CodeDocs.GetPluginName: string;
@@ -85,13 +88,13 @@ begin
 end;
 
 function TPlugin_CodeDocs.CreatePlugin(aOutput: tOutput; aProject: TProject;
-  aConfigPlugins: tConfigPlugins): TPlugin; safecall;
+  aConfigPlugin: tConfigPlugin): TPlugin; safecall;
 begin
   foProject := aProject;
   foOutput := aOutput;
 
   FPlugin_CodeDocs := tPlugin_CodeDocsBase.Create(aOutput, GetPluginName, foProject,
-    aConfigPlugins);
+    aConfigPlugin);
 
   Result := FPlugin_CodeDocs;
 end;
@@ -102,12 +105,13 @@ begin
 end;
 
 // tPlugin_CodeDocsBase
+{
 function tPlugin_CodeDocsBase.PreProcessor(aFilename: string;
-  var aTemplateDoc: tStringlist): boolean;
+  aTemplate: tNovusTemplate): TPluginReturn;
 begin
-  Result := False;
+  Result := PRIgnore;
 
-  foOutput.Log('Processor:' + PluginName);
+  //foOutput.Log('Processor:' + PluginName);
 
 
 
@@ -141,23 +145,24 @@ begin
 end;
 
 function tPlugin_CodeDocsBase.PostProcessor(aProjectItem: tObject;
-  aTemplate: tNovusTemplate; var aOutputFile: string): boolean;
+  aTemplate: tNovusTemplate; var aOutputFile: string): TPluginReturn;
 begin
-  Result := False;
+  Result := PRIgnore;
 
-  foOutput.Log('Postprocessor:' + PluginName);
+  //foOutput.Log('Postprocessor:' + PluginName);
 
   Try
     //aOutputFile := ChangeFileExt(aOutputFile, '.' + outputextension);
 
     //foOutput.Log('New output:' + aOutputFile);
 
-    Result := true;
+
   Except
-    Result := False;
+    Result := PRFailed;
     foOutput.InternalError;
   End;
 end;
+}
 
 function GetPluginObject: INovusPlugin;
 begin
