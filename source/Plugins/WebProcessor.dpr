@@ -14,7 +14,8 @@ uses
   MarkdownDaringFireball in 'MarkdownDaringFireball.pas',
   MarkdownProcessor in 'MarkdownProcessor.pas',
   SassProcessorItem in 'SassProcessorItem.pas',
-  MarkdownProcessorItem in 'MarkdownProcessorItem.pas';
+  MarkdownProcessorItem in 'MarkdownProcessorItem.pas',
+  LessCssProcessorItem in 'LessCssProcessorItem.pas';
 
 {$R *.res}
 

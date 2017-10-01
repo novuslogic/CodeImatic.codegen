@@ -2,10 +2,9 @@ unit MarkdownProcessorItem;
 
 interface
 
-uses Classes,Plugin, NovusPlugin, NovusVersionUtils, Project, NovusTemplate,
-    Output, SysUtils, System.Generics.Defaults,  runtime, Config,  NovusStringUtils,
-    APIBase, MarkdownDaringFireball, MarkdownProcessor, ProjectItem, TagType;
-
+uses Classes, Plugin, NovusPlugin, NovusVersionUtils, Project, NovusTemplate,
+  Output, SysUtils, System.Generics.Defaults, runtime, Config, NovusStringUtils,
+  APIBase, MarkdownDaringFireball, MarkdownProcessor, ProjectItem, TagType;
 
 type
   tMarkdownProcessorItem = class(TProcessorItem)
@@ -15,12 +14,12 @@ type
   public
     function PreProcessor(aFilename: String; aTemplate: tNovusTemplate)
       : TPluginReturn; override;
-    function PostProcessor(aProjectItem: tObject;
-        aTemplate: tNovusTemplate; var aOutputFile: string): TPluginReturn; override;
+    function PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate;
+      aTemplateFile: string; var aOutputFile: string): TPluginReturn; override;
 
-    function Convert(aFilename: string; var aOutputFile: string):TPluginReturn; override;
+    function Convert(aFilename: string; var aOutputFile: string)
+      : TPluginReturn; override;
   end;
-
 
 implementation
 
@@ -29,19 +28,21 @@ begin
   Result := 'Markdown';
 end;
 
-function tMarkdownProcessorItem.PreProcessor(aFilename: String; aTemplate: tNovusTemplate): TPluginReturn;
+function tMarkdownProcessorItem.PreProcessor(aFilename: String;
+  aTemplate: tNovusTemplate): TPluginReturn;
 Var
   fMarkdownprocessor: TMarkdownDaringFireball;
 begin
-   Try
+  Try
     Try
-      fMarkdownprocessor:= TMarkdownDaringFireball.Create;
+      fMarkdownprocessor := TMarkdownDaringFireball.Create;
 
-      aTemplate.TemplateDoc.Text := fMarkdownprocessor.process(aTemplate.TemplateDoc.Text);
+      aTemplate.TemplateDoc.Text := fMarkdownprocessor.process
+        (aTemplate.TemplateDoc.Text);
 
-      result := TPluginReturn.PRPassed;
+      Result := TPluginReturn.PRPassed;
     Except
-      result := TPluginReturn.PRFailed;
+      Result := TPluginReturn.PRFailed;
 
       oOutput.InternalError;
     End;
@@ -50,7 +51,9 @@ begin
   End;
 end;
 
-function tMarkdownProcessorItem.PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; var aOutputFile: string): TPluginReturn;
+function tMarkdownProcessorItem.PostProcessor(aProjectItem: tObject;
+  aTemplate: tNovusTemplate; aTemplateFile: string; var aOutputFile: string)
+  : TPluginReturn;
 begin
   aOutputFile := ChangeFileExt(aOutputFile, '.' + outputextension);
 
@@ -59,62 +62,58 @@ begin
   Result := TPluginReturn.PRPassed;
 end;
 
-function tMarkdownProcessorItem.Convert(aFilename: string; var aOutputFile: string): TPluginReturn;
+function tMarkdownProcessorItem.Convert(aFilename: string;
+  var aOutputFile: string): TPluginReturn;
 begin
   Result := PRIgnore;
 end;
 
-
-
 (*
-function tPlugin_MarkdownBase.PreProcessor(aFilename: string; var aTemplateDoc: tStringlist): boolean;
-Var
+  function tPlugin_MarkdownBase.PreProcessor(aFilename: string; var aTemplateDoc: tStringlist): boolean;
+  Var
   fMarkdownprocessor: TMarkdownDaringFireball;
   fsProcessed: string;
-begin
+  begin
   Result := False;
 
   foOutput.Log('Processor:' + pluginname);
 
   Try
-    Try
-      fMarkdownprocessor:= TMarkdownDaringFireball.Create;
+  Try
+  fMarkdownprocessor:= TMarkdownDaringFireball.Create;
 
-      fsProcessed := fMarkdownprocessor.process(aTemplateDoc.Text);
+  fsProcessed := fMarkdownprocessor.process(aTemplateDoc.Text);
 
-      aTemplateDoc.Text := fsProcessed;
+  aTemplateDoc.Text := fsProcessed;
 
-      result := true;
-    Except
-      result := false;
+  result := true;
+  Except
+  result := false;
 
-      foOutput.InternalError;
-    End;
-  Finally
-    fMarkdownprocessor.Free;
+  foOutput.InternalError;
   End;
-end;
+  Finally
+  fMarkdownprocessor.Free;
+  End;
+  end;
 
-function tPlugin_MarkdownBase.PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; var aOutputFile: string): boolean;
-begin
+  function tPlugin_MarkdownBase.PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; var aOutputFile: string): boolean;
+  begin
   result := false;
 
   foOutput.Log('Postprocessor:' + pluginname);
 
   Try
-   // aOutputFile := ChangeFileExt(aOutputFile, '.' + outputextension);
+  // aOutputFile := ChangeFileExt(aOutputFile, '.' + outputextension);
 
-    foOutput.Log('New output:' + aOutputFile);
+  foOutput.Log('New output:' + aOutputFile);
 
-    result := true;
+  result := true;
   Except
-    result := false;
-    foOutput.InternalError;
+  result := false;
+  foOutput.InternalError;
   End;
-end;
+  end;
 *)
 
-
 end.
-
-

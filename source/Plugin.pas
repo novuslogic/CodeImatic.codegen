@@ -79,7 +79,7 @@ type
 
     function PreProcessor(aFilename: String; aTemplate: tNovusTemplate)
       : TPluginReturn; virtual;
-    function PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; var aOutputFile: string): TPluginReturn; virtual;
+    function PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; aTemplateFile: String; var aOutputFile: string): TPluginReturn; virtual;
     function Convert(aFilename: string; var aOutputFile: string): TPluginReturn; virtual;
 
     property oConfigPlugin: tConfigPlugin
@@ -263,7 +263,7 @@ begin
   Result := PRIgnore;
 end;
 
-function TProcessorItem.PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; var aOutputFile: string): TPluginReturn;
+function TProcessorItem.PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; aTemplateFile: String; var aOutputFile: string): TPluginReturn;
 begin
   Result := PRIgnore;
 end;

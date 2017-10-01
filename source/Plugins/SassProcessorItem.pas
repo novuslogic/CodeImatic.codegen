@@ -17,7 +17,7 @@ type
     function PreProcessor(aFilename: String; aTemplate: tNovusTemplate)
       : TPluginReturn; override;
     function PostProcessor(aProjectItem: tObject;
-        aTemplate: tNovusTemplate; var aOutputFile: string): TPluginReturn; override;
+        aTemplate: tNovusTemplate; aTemplateFile: string;var aOutputFile: string): TPluginReturn; override;
 
     function Convert(aFilename: string; var aOutputFile: string):TPluginReturn; override;
   end;
@@ -34,7 +34,8 @@ begin
   Result := PRIgnore;
 end;
 
-function tSassProcessorItem.PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; var aOutputFile: string): TPluginReturn;
+function tSassProcessorItem.PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate;
+     aTemplateFile: string;var aOutputFile: string): TPluginReturn;
 Var
   fScssResult: TScssResult;
   FDelphiLibSass : TDelphiLibSass;

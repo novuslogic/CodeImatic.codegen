@@ -311,7 +311,7 @@ begin
     else
     if ItemName <> '' then
     begin
-      foOutput.Log('Template/Source : ' + fsTemplateFile);
+      foOutput.Log('Source : ' + fsTemplateFile);
 
       foOutput.Log('Output: ' + fsOutputFile);
 

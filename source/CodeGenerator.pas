@@ -40,7 +40,7 @@ Type
     procedure DoCodeBehine;
     procedure DoCodeTags;
     function DoScriptEngine: boolean;
-    procedure DoPostProcessor(aProcessorItem: tProcessorItem;var aOutputFile: string);
+    procedure DoPostProcessor(aProcessorItem: tProcessorItem;aTemplateFile: String;var aOutputFile: string);
     function DoIncludes: boolean;
     function DoPreLayout: boolean;
     function DoPostLayout: boolean;
@@ -58,6 +58,8 @@ Type
       aSourceFilename: String); virtual;
 
     destructor Destroy; override;
+
+    function DoOutputFilename(aTemplateFile: string;aOutputFilename: string;aProcesorItem: TProcessorItem): boolean;
 
     function IsNonOutputCommandonly(ASourceLineNo: Integer): boolean;
 
@@ -291,13 +293,13 @@ end;
 
 function TCodeGenerator.Execute;
 var
-  //I: Integer;
   FoProcesorItem: TProcessorItem;
-  //FoTemplateTag: TTemplateTag;
 begin
   Try
     // Pass 1
     Result := false;
+
+    FoProcesorItem := NIL;
 
     If Not PassTemplateTags then
       Exit;
@@ -342,7 +344,7 @@ begin
     DoSpecialTags;
 
     if Trim(aOutputFilename) <> '' then
-      DoPostProcessor(FoProcesorItem, aOutputFilename);
+      DoPostProcessor(FoProcesorItem, fsSourceFilename, aOutputFilename);
 
     Result := true;
   Except
@@ -355,24 +357,54 @@ begin
     Exit;
   End;
 
+  Result := DoOutputFilename(fsSourceFilename,aOutputFilename,FoProcesorItem);
+end;
+
+function TCodeGenerator.DoOutputFilename(aTemplateFile: String;aOutputFilename: string;aProcesorItem: TProcessorItem): boolean;
+var
+  fEncoding: TEncoding;
+begin
+  Result := true;
+
   if Trim(aOutputFilename) <> '' then
   begin
 {$I-}
     Try
+      fEncoding := NIL;
+
+      if TNovusFileUtils.IsTextFile(aTemplateFile, fEncoding) = -1 then
+        begin
+          Result := false;
+
+          foOutput.LogError('Save Error: ' + aOutputFilename + ' - IsTextFile Fail');
+
+          Exit;
+        end;
+
       if not foOutput.Failed then
-        FoTemplate.OutputDoc.SaveToFile(aOutputFilename, TEncoding.Unicode);
+        if fEncoding = NIL then
+          FoTemplate.OutputDoc.SaveToFile(aOutputFilename, TEncoding.Unicode)
+        else
+          FoTemplate.OutputDoc.SaveToFile(aOutputFilename, fEncoding);
+
+
     Except
-      foOutput.Log('Save Error: ' + aOutputFilename + ' - ' +
+      Result := false;
+
+      foOutput.LogError('Save Error: ' + aOutputFilename + ' - ' +
         TNovusUtilities.GetExceptMess);
     end;
 {$I+}
+
+
+
   end;
 end;
 
-procedure TCodeGenerator.DoPostProcessor(aProcessorItem: tProcessorItem;var aOutputFile: string);
+procedure TCodeGenerator.DoPostProcessor(aProcessorItem: tProcessorItem;aTemplateFile: String;var aOutputFile: string);
 begin
   oRuntime.oPlugins.PostProcessor(aProcessorItem, (fProjectItem as TProjectItem), FoTemplate,
-    aOutputFile, (foProcessorPlugin as TProcessorPlugin));
+    aTemplateFile, aOutputFile, (foProcessorPlugin as TProcessorPlugin));
 end;
 
 function TCodeGenerator.IsNonOutputCommandonly(ASourceLineNo: Integer): boolean;

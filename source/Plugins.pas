@@ -38,7 +38,9 @@ type
 
      function PostProcessor(aProcessorItem: tProcessorItem;
        aProjectItem: tProjectItem;
-       aTemplate: tNovusTemplate; var aOutputFile: string;
+       aTemplate: tNovusTemplate;
+       aTemplateFile: String;
+       var aOutputFile: string;
        aProcessorPlugin: tProcessorPlugin): TPluginReturn;
 
      function PreProcessor(aFilename: string;
@@ -295,6 +297,7 @@ end;
 function TPlugins.PostProcessor(aProcessorItem: tProcessorItem;
                                 aProjectItem: tProjectItem;
                                 aTemplate: tNovusTemplate;
+                                aTemplateFile: String;
                                 var aOutputFile: string;
                                 aProcessorPlugin: tProcessorPlugin): TPluginReturn;
 //var
@@ -306,50 +309,10 @@ begin
 
   if Not Assigned(aProcessorItem) then Exit;
 
-  Result := aProcessorItem.PostProcessor(aProjectItem, aTemplate, aOutputFile);
+  Result := aProcessorItem.PostProcessor(aProjectItem, aTemplate, aTemplateFile, aOutputFile);
   if Result = PRFailed then Fooutput.Failed := true;
 
-  (*
-  for I := 0 to fPluginsList.Count -1 do
-    begin
-      loPlugin := TPlugin(fPluginsList.Items[i]);
-      if loPlugin is TProcessorPlugin then
-        begin
-          if Assigned(aProcessorPlugin) then
-            begin
-              if uppercase(TProcessorPlugin(loPlugin).PluginName) = Uppercase(aProcessorPlugin.PluginName) then
-                begin
-                  if TProcessorPlugin(loPlugin).PostProcessor(aProjectItem, aTemplate, aOutputFile) = PRFailed then
-                    Fooutput.Failed := true;
 
-                  break;
-                end;
-            end
-          else
-          if aProjectItem.Processor<> '' then
-            begin
-              if uppercase(TProcessorPlugin(loPlugin).PluginName) = Uppercase(aProjectItem.Processor) then
-                begin
-                  if TProcessorPlugin(loPlugin).PostProcessor(aProjectItem, aTemplate, aOutputFile) = PRFailed then
-                    Fooutput.Failed := true;
-
-                  break;
-                end;
-            end
-          else ;
-
-
-          if (CompareText('.'+TProcessorPlugin(loPlugin).sourceextension,  ExtractFileExt(aProjectItem.TemplateFile)) =0) then
-            begin
-              if TProcessorPlugin(loPlugin).PostProcessor(aProjectItem, aTemplate, aOutputFile) = false then
-                Fooutput.Failed := true;
-
-              break;
-            end;
-
-        end;
-    end;
-    *)
 end;
 
 function TPlugins.PreProcessor(aFilename: string; aTemplate: tNovusTemplate): tProcessorItem;
