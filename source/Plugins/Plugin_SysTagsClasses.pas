@@ -8,9 +8,47 @@ uses Classes,Plugin, NovusPlugin, NovusVersionUtils, Project,
 
 
 type
+  TSysTag = class
+  private
+  protected
+     function GetTagName: String; virtual;
+  public
+     function Execute: String; virtual;
+  
+     property TagName: String
+       read GetTagName;
+  end;
+
+  TSysTag_Version = class(TSysTag)
+  private
+  protected
+    function GetTagName: String; override;
+  public 
+    function Execute: String; override;
+  end;
+
+  TSysTag_newguid = class(TSysTag)
+  private
+  protected
+    function GetTagName: String; override;
+  public 
+    function Execute: String; override;
+  end;
+
+  TSysTag_NewguidNoBrackets = class(TSysTag)
+  private
+  protected
+    function GetTagName: String; override;
+  public 
+    function Execute: String; override;
+  end;
+
+  tSysTags = array of TSysTag;
+
   tPlugin_SysTagsBase = class(TTagsPlugin)
   private
   protected
+    FSysTags: tSysTags;
   public
     constructor Create(aOutput: tOutput; aPluginName: String; aProject: TProject; aConfigPlugin: tConfigPlugin); override;
     destructor Destroy; override;
@@ -47,11 +85,22 @@ var
 constructor tPlugin_SysTagsBase.Create(aOutput: tOutput; aPluginName: String; aProject: TProject; aConfigPlugin: tConfigPlugin);
 begin
   Inherited Create(aOutput,aPluginName, aProject, aConfigPlugin);
+
+  FSysTags:= tSysTags.Create(TSysTag_Version.Create, TSysTag_newguid.Create, TSysTag_NewguidNoBrackets.Create) ;
 end;
 
 
 destructor  tPlugin_SysTagsBase.Destroy;
+Var
+  I: Integer;
 begin
+  for I := 0 to Length(FSysTags) -1 do
+   begin
+     FSysTags[i].Free;
+     FSysTags[i] := NIL;
+   end;
+
+  FSysTags := NIL;
   Inherited;
 end;
 
@@ -91,15 +140,19 @@ begin
 end;
 
 function tPlugin_SysTagsBase.IsTagExists(aTagName: String): Integer;
+Var
+  I: Integer;
 begin
   Result := -1;
-  if uppercase(atagName) = 'VERSION' then
-    Result := 0
-  else
-  if uppercase(aTagName) = 'NEWGUID' then
-    result := 1;
-  if uppercase(aTagName) = 'NEWGUIDNOBRACKETS' then
-    result := 2;
+  for I := 0 to Length(FSysTags) -1 do
+   begin
+     if Uppercase(Trim(aTagName)) = Uppercase(Trim(FSysTags[i].TagName)) then
+       begin
+         Result := i;
+
+         Break;
+       end;
+   end;
 end;
 
 
@@ -108,6 +161,48 @@ begin
   if (_Plugin_SysTags = nil) then _Plugin_SysTags := TPlugin_SysTags.Create;
   result := _Plugin_SysTags;
 end;
+
+
+function TSysTag.GetTagName: String;
+begin
+  Result := '';
+end;
+
+function TSysTag.Execute: String; 
+begin
+  Result := '';
+end;
+
+function TSysTag_Version.GetTagName: String;
+begin
+  Result := 'VERSION';
+end;
+
+function TSysTag_Version.Execute: String; 
+begin
+  result := oRuntime.GetVersion(1);
+end;
+
+function TSysTag_Newguid.GetTagName: String;
+begin
+  Result := 'NEWGUID';
+end;
+
+function TSysTag_Newguid.Execute: String; 
+begin
+  Result := TGuidExUtils.NewGuidString;
+end;
+
+function TSysTag_NewguidNoBrackets.GetTagName: String;
+begin
+  Result := 'NEWGUIDNOBRACKETS';
+end;
+
+function TSysTag_NewguidNoBrackets.Execute: String; 
+begin
+  Result := TGuidExUtils.NewGuidNoBracketsString;;
+end;
+
 
 exports
   GetPluginObject name func_GetPluginObject;

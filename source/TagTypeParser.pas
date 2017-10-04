@@ -34,7 +34,6 @@ begin
   end;
 
 
-
   Try
     FTokenProcessor := tTokenParser.ParseExpressionToken(aToken1, aOutput);
 
