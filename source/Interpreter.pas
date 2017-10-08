@@ -623,20 +623,20 @@ end;
 
 function TInterpreter.GetNextCommand(ATokens: tStringList; Var AIndex: Integer;Var ASkipPos: INteger;ASubCommand: Boolean = False;ASubVariable:Boolean = False): String;
 Var
-  lsNextCommand: string;
+  lsNextToken: string;
 begin
   Result := '';
   if ASubCommand then
      Result := ATokens[AIndex];
   try
-    lsNextCommand := ATokens[AIndex];
+    lsNextToken := ATokens[AIndex];
 
-    Result := ParseCommand(lsNextCommand);
+    Result := ParseCommand(lsNextToken);
 
     // classic functions
     if Result = '' then
       begin
-        case CommandSyntaxIndex(lsNextCommand ) of
+        case CommandSyntaxIndex(lsNextToken ) of
           1: Result := FieldFunctions(ATokens,AIndex, 0);
           2: Result := FieldFunctions(ATokens,AIndex, 1);
           3: Result := Functions(ATokens,AIndex, 0);

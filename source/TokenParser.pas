@@ -164,7 +164,7 @@ begin
         begin
           lsToken1 := fsToken;
 
-          lTagType := TTagTypeParser.ParseTagType(aProjectItem, NIL, lsToken1,'', aOutput );
+          lTagType := TTagTypeParser.ParseTagType(aProjectItem, NIL, lsToken1, aOutput );
         end
       else
       if aObject is TCodeGenerator then
@@ -189,10 +189,10 @@ begin
             lTokens.Free;
           End;
 
-          lTagType := TTagTypeParser.ParseTagType(aProjectItem, (aObject as TCodeGenerator), lsToken1,lsToken2, aOutput );
+          lTagType := TTagTypeParser.ParseTagType(aProjectItem, (aObject as TCodeGenerator), lTokens (*lsToken1,lsToken*), aOutput );
         end
         else
-          lTagType := TTagTypeParser.ParseTagType(aProjectItem, NIL, lsToken1,lsToken2, aOutput );
+          lTagType := TTagTypeParser.ParseTagType(aProjectItem, NIL, lTokens (*lsToken1,lsToken2*), aOutput );
 
         case lTagType of
           ttProperty: Result := aProjectItem.oProperties.GetProperty(fsToken);

@@ -2,135 +2,123 @@ unit TagTypeParser;
 
 interface
 
-Uses TagType, SysUtils, output;
+Uses TagType, SysUtils, output, Classes;
 
 Type
   TTagTypeParser = class
   protected
   private
+    class function InternalParseTagType(aProjectItem: tObject;
+      aCodeGenerator: tObject; aToken: string; aTokens: tStringlist;
+      aOutput: toutput): TTagType;
   public
     class function ParseTagType(aProjectItem: tObject; aCodeGenerator: tObject;
-      aToken1: string; aToken2: string;
-      aOutput: toutput): TTagType;
+      aToken: String; aOutput: toutput): TTagType; overload;
+
+    class function ParseTagType(aProjectItem: tObject; aCodeGenerator: tObject;
+      aTokens: tStringlist; aOutput: toutput): TTagType; overload;
+
   end;
 
 implementation
 
 Uses Runtime, ProjectItem, CodeGenerator, TokenParser;
 
-class function TTagTypeParser.ParseTagType(aProjectItem: tObject;
-  aCodeGenerator: tObject; aToken1: string; aToken2: string;
+class function TTagTypeParser.ParseTagType(aProjectItem: tObject; aCodeGenerator: tObject;
+      aToken: String; aOutput: toutput): TTagType;
+begin
+   Result := TTagTypeParser.InternalParseTagType(aProjectItem,
+       aCodeGenerator,aToken, NIL, aOutput);
+end;
+
+class function TTagTypeParser.ParseTagType(aProjectItem: tObject; aCodeGenerator: tObject;
+      aTokens: tStringlist; aOutput: toutput): TTagType;
+begin
+  Result := TTagTypeParser.InternalParseTagType(aProjectItem,
+       aCodeGenerator,'',aTokens, aOutput);
+end;
+
+
+class function TTagTypeParser.InternalParseTagType(aProjectItem: tObject;
+  aCodeGenerator: tObject; aToken: string; aTokens: tStringlist;
   aOutput: toutput): TTagType;
 var
-  FTokenProcessor : tTokenProcessor;
-  lsToken: string;
-  foOutput: TOutput;
+  FTokenProcessor: tTokenProcessor;
+  lsToken, lsToken1, lsToken2: string;
+  foOutput: toutput;
 begin
-  if aToken1 = '' then
-  begin
-    result := ttunknown;
+  if Assigned(aTokens) then
+    begin
+      if aTokens.Count = 0 then
+      begin
+        result := ttunknown;
 
-    exit;
-  end;
+        exit;
+      end;
+
+      lsToken1 := Uppercase(aTokens.Strings[0]);
+      if aTokens.Count > 1 then
+        lsToken2 := Uppercase(aTokens.Strings[1]);
+    end
+  else
+    begin
+      if aToken = '' then
+      begin
+        result := ttunknown;
+
+        exit;
+      end;
+
+      lsToken1 := Uppercase(aToken);
+    end;
 
 
   Try
-    FTokenProcessor := tTokenParser.ParseExpressionToken(aToken1, aOutput);
+    FTokenProcessor := tTokenParser.ParseExpressionToken(lsToken1, aOutput);
 
     lsToken := FTokenProcessor.GetNextToken;
 
     if lsToken = '' then
       result := ttunknown
-    else
-    if lsToken = 'LANGUAGE' then
+    else if lsToken = 'LANGUAGE' then
       result := ttlanguage
-    else
-    if  lsToken = 'CONNECTION' then
+    else if lsToken = 'CONNECTION' then
       result := ttConnection
-    else
-    if lsToken = 'LAYOUT' then
+    else if lsToken = 'LAYOUT' then
       result := ttLayout
-    else
-    if Uppercase(lsToken) = 'INCLUDE' then
-       result := ttInclude
-    else
-    if Uppercase(lsToken) = 'PROJECTITEM' then
-       result := ttprojectitem
-    else
-    if Uppercase(lsToken) = 'PROPERTIES' then
+    else if Uppercase(lsToken) = 'INCLUDE' then
+      result := ttInclude
+    else if Uppercase(lsToken) = 'PROJECTITEM' then
+      result := ttprojectitem
+    else if Uppercase(lsToken) = 'PROPERTIES' then
       result := ttPropertyEx
-    else
-    if Uppercase(lsToken) = 'CONFIGPROPERTIES' then
-     result := ttConfigProperties
-    else
-    if Uppercase(aToken1) = 'VARIABLECMDLINE' then
+    else if Uppercase(lsToken) = 'CONFIGPROPERTIES' then
+      result := ttConfigProperties
+    else if Uppercase(lsToken1) = 'VARIABLECMDLINE' then
       result := ttVariableCmdLine
-    else
-    if Uppercase(aToken1) = 'CODEBEHINE' then
+    else if Uppercase(lsToken1) = 'CODEBEHINE' then
       result := ttCodebehine
-    else
-     if Uppercase(aToken1) = 'CODE' then
+    else if Uppercase(lsToken1) = 'CODE' then
       result := ttCode
-    else
-    if (Assigned(aProjectItem) and
-        Assigned((aProjectItem as tProjectItem).oProperties)) and
-        ((aProjectItem as tProjectItem).oProperties.IsPropertyExists(lsToken)) then
+    else if (Assigned(aProjectItem) and Assigned((aProjectItem as tProjectItem)
+      .oProperties)) and ((aProjectItem as tProjectItem)
+      .oProperties.IsPropertyExists(lsToken)) then
       result := ttProperty
+    else if Assigned(oRuntime.oPlugins) and
+      (oRuntime.oPlugins.IsTagExists(lsToken,
+      lsToken2 (* FTokenProcessor.GetNextToken *) ) or
+      oRuntime.oPlugins.IsPluginNameExists(lsToken)) then
+      result := ttplugintag
+    else if Assigned(aCodeGenerator) and
+      (Uppercase(TCodeGenerator(aCodeGenerator).renderbodytag)
+      = Uppercase(lsToken)) then
+      result := ttRenderBodyTag
     else
-    if Assigned(oRuntime.oPlugins) and  (oRuntime.oPlugins.IsTagExists(lsToken, aToken2 (* FTokenProcessor.GetNextToken*)) or
-        oRuntime.oPlugins.IsPluginNameExists(lsToken)) then
-    result := ttplugintag
-  else
-  if Assigned(aCodeGenerator) and
-    (Uppercase(TCodeGenerator(aCodeGenerator).renderbodytag) = Uppercase(lsToken)) then
-    result := ttRenderBodyTag
-  else
-    result := ttInterpreter;
+      result := ttInterpreter;
 
   Finally
     FTokenProcessor.Free;
   End;
-
-
-  (*
-  if aToken1 = '' then
-    result := ttunknown
-  else if aToken1 = 'LANGUAGE' then
-    result := ttlanguage
-  else if aToken1 = 'CONNECTION' then
-    result := ttConnection
-  else if aToken1 = 'LAYOUT' then
-    result := ttLayout
-  else if Uppercase(aToken1) = 'INCLUDE' then
-    result := ttInclude
-  else if Uppercase(aToken1) = 'PROJECTITEM' then
-    result := ttprojectitem
-  else if Uppercase(aToken1) = 'PROPERTIES' then
-  begin
-    result := ttPropertyEx;
-  end
-  else if Uppercase(aToken1) = 'CONFIGPROPERTIES' then
-  begin
-    result := ttConfigProperties;
-  end
-  else if Uppercase(aToken1) = 'VARIABLECMDLINE' then
-  begin
-    result := ttVariableCmdLine;
-  end
-  else if (Assigned(aProjectItem) and Assigned((aProjectItem as tProjectItem)
-    .oProperties)) and ((aProjectItem as tProjectItem)
-    .oProperties.IsPropertyExists(aToken1)) then
-    result := ttProperty
-  else if (oRuntime.oPlugins.IsTagExists(aToken1, aToken2) or
-    oRuntime.oPlugins.IsPluginNameExists(aToken1)) then
-    result := ttplugintag
-  else if Assigned(aCodeGenerator) and
-    (Uppercase(TCodeGenerator(aCodeGenerator).renderbodytag)
-    = Uppercase(aToken1)) then
-    result := ttRenderBodyTag
-  else
-    result := ttInterpreter;
-    *)
 end;
 
 end.

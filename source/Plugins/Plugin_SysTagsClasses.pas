@@ -27,6 +27,14 @@ type
     function Execute: String; override;
   end;
 
+  TSysTag_FilePathToURL = class(TSysTag)
+  private
+  protected
+    function GetTagName: String; override;
+  public 
+    function Execute: String; override;
+  end;
+
   TSysTag_newguid = class(TSysTag)
   private
   protected
@@ -131,12 +139,19 @@ end;
 
 // tPlugin_SysTagsBase
 function tPlugin_SysTagsBase.GetTag(aTagName: String): String;
+Var
+  liIndex: Integer;
 begin
-   case IsTagExists(aTagName) of
-   0: result := oRuntime.GetVersion(1);
-   1: result := TGuidExUtils.NewGuidString;
-   2: result := TGuidExUtils.NewGuidNoBracketsString;
+  Result := '';
+  liIndex := IsTagExists(aTagName);
+  if liIndex = -1 then
+   begin
+     oOutput.LogError('Cannot find sys.' + aTagname);
+
+     Exit;
    end;
+  
+  Result := FSysTags[liIndex].Execute;
 end;
 
 function tPlugin_SysTagsBase.IsTagExists(aTagName: String): Integer;
@@ -144,6 +159,8 @@ Var
   I: Integer;
 begin
   Result := -1;
+  if aTagName = '' then Exit;
+   
   for I := 0 to Length(FSysTags) -1 do
    begin
      if Uppercase(Trim(aTagName)) = Uppercase(Trim(FSysTags[i].TagName)) then
@@ -182,6 +199,17 @@ function TSysTag_Version.Execute: String;
 begin
   result := oRuntime.GetVersion(1);
 end;
+
+function TSysTag_FilePathToURL.GetTagName: String;
+begin
+  Result := 'FILEPATHTOURL';
+end;
+
+function TSysTag_FilePathToURL.Execute: String; 
+begin
+  result := 'HHH';
+end;
+
 
 function TSysTag_Newguid.GetTagName: String;
 begin

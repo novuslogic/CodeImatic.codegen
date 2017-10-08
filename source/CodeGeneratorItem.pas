@@ -2,7 +2,8 @@ unit CodeGeneratorItem;
 
 interface
 
-uses Project, ExpressionParser, NovusTemplate, Classes, SysUtils, tagType, output;
+uses Project, ExpressionParser, NovusTemplate, Classes, SysUtils, tagType, output,
+     NovusList;
 
 type
   TCodeGeneratorItem = class(TObject)
@@ -17,8 +18,8 @@ type
     FTokens: tStringlist;
     LiLoopID: Integer;
     foProjectItem: TObject;
-    function GetToken1: string;
-    function GetToken2: string;
+//    function GetToken1: string;
+//    function GetToken2: string;
   private
   public
     constructor Create(aProjectItem: TObject; aCodeGenerator: Tobject); virtual;
@@ -50,11 +51,12 @@ type
       read liLoopId
       write liLoopId;
 
-    property Token2: string
-      read GetToken2;
 
-    property Token1: string
-      read GetToken1;
+   // property Token2: string
+   //   read GetToken2;
+
+   // property Token1: string
+    //  read GetToken1;
   end;
 
 implementation
@@ -78,16 +80,11 @@ begin
 
       ExpressionParser.ListTokens(FTokens);
 
-      lsToken1 := Uppercase(FTokens.Strings[0]);
-      if fTokens.Count > 1 then
-        lsToken2 := Uppercase(FTokens.Strings[1]);
-
-      FTagType := TTagTypeParser.ParseTagType(foProjectItem, foCodeGenerator, lsToken1,lsToken2 , foOutput  );
-
-
+      FTagType := TTagTypeParser.ParseTagType(foProjectItem, foCodeGenerator, FTokens , foOutput  );
     end;
 end;
 
+(*
 function TCodeGeneratorItem.GetToken1: string;
 begin
   Result := Tokens[0];
@@ -99,6 +96,7 @@ begin
   if Tokens.Count > 1 then
     Result := Tokens[1];
 end;
+*)
 
 constructor TCodeGeneratorItem.Create;
 begin

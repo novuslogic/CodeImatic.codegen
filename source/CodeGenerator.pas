@@ -16,16 +16,16 @@ Type
   protected
     FScript: TStringList;
     foProcessorPlugin: TObject;
-    fProject: tProject;
-    fVariables: tVariables;
+    foProject: tProject;
+    foVariables: tVariables;
     foOutput: tOutput;
     FLanguage: tLanguage;
     fsLanguage: String;
-    FInterpreter: tInterpreter;
-    fProjectItem: TObject;
+    FoInterpreter: tInterpreter;
+    foProjectItem: TObject;
     FoTemplate: TTemplate;
     FCodeGeneratorList: TNovusList;
-    Flayout: TObject;
+    Folayout: TObject;
     fsRenderBodyTag: string;
     fsInputFilename: string;
     fsSourceFilename: String;
@@ -75,7 +75,7 @@ Type
 
     property oLanguage: tLanguage read FLanguage write FLanguage;
 
-    property oVariables: tVariables read fVariables write fVariables;
+    property oVariables: tVariables read foVariables write foVariables;
 
     property oOutput: tOutput read foOutput write foOutput;
 
@@ -88,7 +88,7 @@ Type
 
     property oTemplate: TTemplate read FoTemplate write FoTemplate;
 
-    property oProject: tProject read fProject write fProject;
+    property oProject: tProject read foProject write foProject;
 
     property RenderBodyTag: string read fsRenderBodyTag write fsRenderBodyTag;
   end;
@@ -106,13 +106,13 @@ begin
 
   fsInputFilename := aInputFilename;
 
-  fProjectItem := aProjectItem;
+  foProjectItem := aProjectItem;
 
-  fProject := aProject;
+  foProject := aProject;
 
   fsSourceFilename:= aSourceFileName;
 
-  fVariables := tVariables.Create;
+  foVariables := tVariables.Create;
 
   foOutput := AOutput;
 
@@ -120,25 +120,25 @@ begin
 
   FCodeGeneratorList := TNovusList.Create(TCodeGeneratorItem);
 
-  FInterpreter := tInterpreter.Create(Self, foOutput, fProjectItem);
+  FoInterpreter := tInterpreter.Create(Self, foOutput, foProjectItem);
 
   FLanguage := tLanguage.Create;
 
   FScript := TstringList.Create;
 
-  Flayout := NIL;
+  Folayout := NIL;
 end;
 
 destructor TCodeGenerator.Destroy;
 begin
-  if Assigned(Flayout) then
-    Flayout.Free;
+  if Assigned(Folayout) then
+    Folayout.Free;
 
-  fVariables.Free;
+  foVariables.Free;
 
   FLanguage.Free;
 
-  FInterpreter.Free;
+  FoInterpreter.Free;
 
   FCodeGeneratorList.Free;
 
@@ -173,7 +173,7 @@ Var
 begin
   Result := NIL;
 
-  lCodeGeneratorItem := TCodeGeneratorItem.Create(fProjectItem, Self);
+  lCodeGeneratorItem := TCodeGeneratorItem.Create(foProjectItem, Self);
 
   lCodeGeneratorItem.oTemplateTag := ATemplateTag;
 
@@ -192,7 +192,7 @@ end;
 
 function TCodeGenerator.IsInterpreter(ATokens: TstringList): boolean;
 begin
-  Result := (FInterpreter.CommandSyntaxIndexByTokens(ATokens) <> -1);
+  Result := (FoInterpreter.CommandSyntaxIndexByTokens(ATokens) <> -1);
 end;
 
 procedure TCodeGenerator.RunInterpreter;
@@ -219,7 +219,7 @@ begin
 
     if LCodeGeneratorItem1.tagtype = ttInterpreter then
     begin
-      lsTagValue := FInterpreter.Execute(LCodeGeneratorItem1, LiSkipPos1);
+      lsTagValue := FoInterpreter.Execute(LCodeGeneratorItem1, LiSkipPos1);
 
       LTemplateTag1 := LCodeGeneratorItem1.oTemplateTag;
 
@@ -403,7 +403,7 @@ end;
 
 procedure TCodeGenerator.DoPostProcessor(aProcessorItem: tProcessorItem;aTemplateFile: String;var aOutputFile: string);
 begin
-  oRuntime.oPlugins.PostProcessor(aProcessorItem, (fProjectItem as TProjectItem), FoTemplate,
+  oRuntime.oPlugins.PostProcessor(aProcessorItem, (foProjectItem as TProjectItem), FoTemplate,
     aTemplateFile, aOutputFile, (foProcessorPlugin as TProcessorPlugin));
 end;
 
@@ -564,39 +564,39 @@ begin
     else if FCodeGeneratorItem.tagtype = ttConfigProperties then
     begin
       if FCodeGeneratorItem.Tokens.Count > 1 then
-        FoTemplateTag.TagValue := fProject.oProjectConfig.Getproperties
+        FoTemplateTag.TagValue := foProject.oProjectConfig.Getproperties
           (FCodeGeneratorItem.Tokens[1]);
     end
     else if FCodeGeneratorItem.tagtype = ttprojectitem then
     begin
       if FCodeGeneratorItem.Tokens.Count > 1 then
-        FoTemplateTag.TagValue := (fProjectItem as TProjectItem)
-          .GetProperty(FCodeGeneratorItem.Tokens[1], fProject);
+        FoTemplateTag.TagValue := (foProjectItem as TProjectItem)
+          .GetProperty(FCodeGeneratorItem.Tokens[1], foProject);
     end
     else if (FCodeGeneratorItem.tagtype = ttProperty) or
       (FCodeGeneratorItem.tagtype = ttPropertyEx) then
     begin
       if (FCodeGeneratorItem.tagtype = ttProperty) then
-        FoTemplateTag.TagValue := (fProjectItem as TProjectItem)
+        FoTemplateTag.TagValue := (foProjectItem as TProjectItem)
           .oProperties.GetProperty(FoTemplateTag.TagName)
       else if (FCodeGeneratorItem.tagtype = ttPropertyEx) then
       begin
-        FoTemplateTag.TagValue := (fProjectItem as TProjectItem)
-          .oProperties.GetProperty(FCodeGeneratorItem.Token2)
-
+        if FCodeGeneratorItem.Tokens.Count > 1 then
+          FoTemplateTag.TagValue := (foProjectItem as TProjectItem)
+              .oProperties.GetProperty(FCodeGeneratorItem.Tokens[1])
       end;
     end;
 
-    for X := 0 to (fProjectItem as TProjectItem)
+    for X := 0 to (foProjectItem as TProjectItem)
       .oProperties.NodeNames.Count - 1 do
     begin
-      lsPropertieVariable := '$$' + Uppercase((fProjectItem as TProjectItem)
+      lsPropertieVariable := '$$' + Uppercase((foProjectItem as TProjectItem)
         .oProperties.NodeNames.Strings[X]);
 
       If Pos(lsPropertieVariable, Uppercase(FoTemplateTag.TagName)) > 0 then
       begin
-        lsVariableResult := (fProjectItem as TProjectItem)
-          .oProperties.GetProperty((fProjectItem as TProjectItem)
+        lsVariableResult := (foProjectItem as TProjectItem)
+          .oProperties.GetProperty((foProjectItem as TProjectItem)
           .oProperties.NodeNames.Strings[X]);
 
         if FCodeGeneratorItem.tagtype = ttConnection then
@@ -646,8 +646,8 @@ begin
 
       FiIndex := 0;
       fsLanguage := tTokenParser.ParseToken(Self,
-        FCodeGeneratorItem.Tokens[2], (fProjectItem as TProjectItem),
-        fVariables, foOutput, NIL, FiIndex, fProject);
+        FCodeGeneratorItem.Tokens[2], (foProjectItem as TProjectItem),
+        foVariables, foOutput, NIL, FiIndex, foProject);
 
       if FileExists(oConfig.Languagespath + fsLanguage + '.xml') then
       begin
@@ -697,8 +697,8 @@ begin
           FoTemplateTag.TagValue := cDeleteLine;
 
         FTokenProcessor := tTokenParser.ParseExpressionToken(Self,
-          FoTemplateTag.RawTag, (fProjectItem as TProjectItem), fProject,
-          fVariables, foOutput);
+          FoTemplateTag.RawTag, (foProjectItem as TProjectItem), foProject,
+          foVariables, foOutput);
 
         case FCodeGeneratorItem.tagtype of
           ttlayout:
@@ -744,7 +744,7 @@ begin
       Finally
         if lsTempIncludeFilename <> '' then
           lsIncludeFilename := TNovusFileUtils.TrailingBackSlash
-            (fProject.oProjectConfig.TemplatePath) + lsTempIncludeFilename;
+            (foProject.oProjectConfig.TemplatePath) + lsTempIncludeFilename;
 
         if Assigned(FTokenProcessor) then
           FTokenProcessor.Free;
@@ -782,15 +782,15 @@ begin
         end
         else if FCodeGeneratorItem.tagtype = TTagType.ttlayout then
         begin
-          Flayout := TProcessor.Create(foOutput, fProject,
-            (fProjectItem as TProjectItem), NIL, '', '', lsIncludeFilename);
+          Folayout := TProcessor.Create(foOutput, foProject,
+            (foProjectItem as TProjectItem), NIL, '', '', lsIncludeFilename);
 
-          (Flayout as TProcessor).InputFilename := lsIncludeFilename;
-          (Flayout as TProcessor).OutputFilename := '';
-          (Flayout as TProcessor).oCodeGenerator.RenderBodyTag :=
+          (Folayout as TProcessor).InputFilename := lsIncludeFilename;
+          (Folayout as TProcessor).OutputFilename := '';
+          (Folayout as TProcessor).oCodeGenerator.RenderBodyTag :=
             lsRenderBodyTag;
 
-          Result := (Flayout as TProcessor).Execute;
+          Result := (Folayout as TProcessor).Execute;
 
         end;
       end
@@ -959,8 +959,8 @@ begin
 
       Try
         FTokenProcessor := tTokenParser.ParseExpressionToken(Self,
-          FoTemplateTag.RawTag, (fProjectItem as TProjectItem), fProject,
-          fVariables, foOutput);
+          FoTemplateTag.RawTag, (foProjectItem as TProjectItem), foProject,
+          foVariables, foOutput);
 
         if Uppercase(FTokenProcessor.GetNextToken) = 'CODEBEHINE' then
         begin
@@ -1000,24 +1000,26 @@ begin
     begin
       FoTemplateTag := FCodeGeneratorItem.oTemplateTag;
 
-      FoTemplateTag.TagValue := (fProjectItem as TProjectItem)
+      FoTemplateTag.TagValue := (foProjectItem as TProjectItem)
         .oProperties.GetProperty(FoTemplateTag.TagName);
     end
     else if FCodeGeneratorItem.tagtype = ttPropertyEx then
     begin
       FoTemplateTag := FCodeGeneratorItem.oTemplateTag;
 
-      FoTemplateTag.TagValue := (fProjectItem as TProjectItem)
-        .oProperties.GetProperty(FCodeGeneratorItem.Token2);
+      if FCodeGeneratorItem.Tokens.Count > 1 then
+        FoTemplateTag.TagValue := (foProjectItem as TProjectItem)
+          .oProperties.GetProperty(FCodeGeneratorItem.Tokens[1]);
     end;
   end;
 end;
 
 procedure TCodeGenerator.DoPluginTags;
 Var
-  I: Integer;
+  liIndex, I: Integer;
   FoTemplateTag: TTemplateTag;
   FCodeGeneratorItem: TCodeGeneratorItem;
+  lsTagValue, lsToken: String;
 begin
   for I := 0 to FCodeGeneratorList.Count - 1 do
   begin
@@ -1026,6 +1028,22 @@ begin
     if (FCodeGeneratorItem.tagtype = ttPluginTag) then
     begin
       FoTemplateTag := FCodeGeneratorItem.oTemplateTag;
+
+
+      for liIndex := 0 to FCodeGeneratorItem.Tokens.Count -1 do
+        begin
+          lsToken := FCodeGeneratorItem.Tokens[liIndex];
+
+          lsTagValue := tTokenParser.ParseToken(Self, lsToken,
+            (foProjectItem as TProjectItem), foVariables, foOutput, FCodeGeneratorItem.Tokens,
+            liIndex, (foProject as TProject))
+
+        end;
+
+
+     //
+      (***)
+
 
       if FCodeGeneratorItem.Tokens.Count > 1 then
       begin
@@ -1060,7 +1078,7 @@ begin
         [FoTemplateTag.SourceLineNo - 1]) then
         FoTemplateTag.TagValue := cDeleteLine;
 
-      (fProjectItem as TProjectItem).oConnections.AddConnection
+      (foProjectItem as TProjectItem).oConnections.AddConnection
         (FCodeGeneratorItem);
     end;
   end;
@@ -1075,17 +1093,17 @@ Var
   lCodeGeneratorItem: TCodeGeneratorItem;
   LTemplateTag: TTemplateTag;
 begin
-  If Assigned(Flayout) then
+  If Assigned(Folayout) then
   begin
     Try
       loLayoutTemplate := TTemplate.CreateTemplate(true);
 
-      loLayoutTemplate.TemplateDoc.AddStrings((Flayout as TProcessor)
+      loLayoutTemplate.TemplateDoc.AddStrings((Folayout as TProcessor)
         .oCodeGenerator.oTemplate.OutputDoc);
 
       loLayoutTemplate.ParseTemplate;
 
-      lsRenderBodyTag := Uppercase((Flayout as TProcessor)
+      lsRenderBodyTag := Uppercase((Folayout as TProcessor)
         .oCodeGenerator.RenderBodyTag);
 
       LIndex := loLayoutTemplate.FindTagNameIndexOf(lsRenderBodyTag);
