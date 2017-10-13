@@ -8,6 +8,7 @@ uses Project, ExpressionParser, NovusTemplate, Classes, SysUtils, tagType, outpu
 type
   TCodeGeneratorItem = class(TObject)
   protected
+    fiTokenIndex: Integer;
     foOutput: tOutput;
     foCodeGenerator: TObject;
     foProject: tProject;
@@ -18,12 +19,12 @@ type
     FTokens: tStringlist;
     LiLoopID: Integer;
     foProjectItem: TObject;
-//    function GetToken1: string;
-//    function GetToken2: string;
   private
   public
     constructor Create(aProjectItem: TObject; aCodeGenerator: Tobject); virtual;
     destructor Destroy; override;
+
+    function GetNextToken: String;
 
     procedure Execute;
 
@@ -51,13 +52,10 @@ type
       read liLoopId
       write liLoopId;
 
-
-   // property Token2: string
-   //   read GetToken2;
-
-   // property Token1: string
-    //  read GetToken1;
-  end;
+    property TokenIndex: Integer
+      read fiTokenIndex
+      write fiTokenIndex;
+   end;
 
 implementation
 
@@ -67,6 +65,8 @@ procedure TCodeGeneratorItem.Execute;
 var
   lsToken1, lsToken2: string;
 begin
+  fiTokenIndex := 0;
+
   fsDefaultTagName := oTemplateTag.TagName;
   if (Pos('CODE=', uppercase(fsDefaultTagName)) > 0) then
     begin
@@ -119,6 +119,17 @@ begin
 
   inherited;
 end;
+
+
+function TCodeGeneratorItem.GetNextToken: String;
+begin
+  Result := Tokens[fiTokenIndex];
+
+  Inc(fiTokenIndex);
+  if fiTokenIndex > Tokens.Count - 1 then fiTokenIndex := Tokens.Count - 1;
+end;
+
+
 
 
 end.

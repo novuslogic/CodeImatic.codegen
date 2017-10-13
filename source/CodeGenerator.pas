@@ -1020,6 +1020,7 @@ Var
   FoTemplateTag: TTemplateTag;
   FCodeGeneratorItem: TCodeGeneratorItem;
   lsTagValue, lsToken: String;
+  lsToken1, lsToken2: String;
 begin
   for I := 0 to FCodeGeneratorList.Count - 1 do
   begin
@@ -1029,29 +1030,18 @@ begin
     begin
       FoTemplateTag := FCodeGeneratorItem.oTemplateTag;
 
-
-      for liIndex := 0 to FCodeGeneratorItem.Tokens.Count -1 do
-        begin
-          lsToken := FCodeGeneratorItem.Tokens[liIndex];
-
-          lsTagValue := tTokenParser.ParseToken(Self, lsToken,
-            (foProjectItem as TProjectItem), foVariables, foOutput, FCodeGeneratorItem.Tokens,
-            liIndex, (foProject as TProject))
-
-        end;
-
-
-     //
-      (***)
-
-
       if FCodeGeneratorItem.Tokens.Count > 1 then
       begin
-        if oRuntime.oPlugins.IsTagExists(FCodeGeneratorItem.Tokens[0],
-          FCodeGeneratorItem.Tokens[1]) then
+        FCodeGeneratorItem.TokenIndex :=0;
+
+        lsToken1 := FCodeGeneratorItem.GetNextToken;
+        lsToken2 := FCodeGeneratorItem.GetNextToken;
+
+        if oRuntime.oPlugins.IsTagExists(lsToken1,
+          lsToken2) then
         begin
-          FoTemplateTag.TagValue := oRuntime.oPlugins.GetTag
-            (FCodeGeneratorItem.Tokens[0], FCodeGeneratorItem.Tokens[1]);
+          FoTemplateTag.TagValue := oRuntime.oPlugins.GetTag(lsToken1,
+          lsToken2, FCodeGeneratorItem);
         end;
       end
       else

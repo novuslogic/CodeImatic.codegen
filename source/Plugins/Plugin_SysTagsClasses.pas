@@ -4,7 +4,7 @@ interface
 
 uses Classes,Plugin, NovusPlugin, NovusVersionUtils, Project,
     Output, SysUtils, System.Generics.Defaults,  runtime, Config,
-    APIBase, NovusGUIDEx;
+    APIBase, NovusGUIDEx, CodeGeneratorItem;
 
 
 type
@@ -13,7 +13,7 @@ type
   protected
      function GetTagName: String; virtual;
   public
-     function Execute: String; virtual;
+     function Execute(aCodeGeneratorItem: TCodeGeneratorItem): String; virtual;
   
      property TagName: String
        read GetTagName;
@@ -24,7 +24,7 @@ type
   protected
     function GetTagName: String; override;
   public 
-    function Execute: String; override;
+    function Execute(aCodeGeneratorItem: TCodeGeneratorItem): String; override;
   end;
 
   TSysTag_FilePathToURL = class(TSysTag)
@@ -32,15 +32,15 @@ type
   protected
     function GetTagName: String; override;
   public 
-    function Execute: String; override;
+    function Execute(aCodeGeneratorItem: TCodeGeneratorItem): String; override;
   end;
 
   TSysTag_newguid = class(TSysTag)
   private
   protected
     function GetTagName: String; override;
-  public 
-    function Execute: String; override;
+  public
+    function Execute(aCodeGeneratorItem: TCodeGeneratorItem): String; override;
   end;
 
   TSysTag_NewguidNoBrackets = class(TSysTag)
@@ -48,7 +48,7 @@ type
   protected
     function GetTagName: String; override;
   public 
-    function Execute: String; override;
+    function Execute(aCodeGeneratorItem: TCodeGeneratorItem): String; override;
   end;
 
   tSysTags = array of TSysTag;
@@ -61,7 +61,7 @@ type
     constructor Create(aOutput: tOutput; aPluginName: String; aProject: TProject; aConfigPlugin: tConfigPlugin); override;
     destructor Destroy; override;
 
-    function GetTag(aTagName: String): String; override;
+    function GetTag(aTagName: String; aCodeGeneratorItem: TCodeGeneratorItem): String; override;
     function IsTagExists(aTagName: String): Integer; override;
 
   end;
@@ -94,7 +94,10 @@ constructor tPlugin_SysTagsBase.Create(aOutput: tOutput; aPluginName: String; aP
 begin
   Inherited Create(aOutput,aPluginName, aProject, aConfigPlugin);
 
-  FSysTags:= tSysTags.Create(TSysTag_Version.Create, TSysTag_newguid.Create, TSysTag_NewguidNoBrackets.Create) ;
+  FSysTags:= tSysTags.Create(TSysTag_Version.Create,
+                             TSysTag_newguid.Create,
+                             TSysTag_NewguidNoBrackets.Create,
+                             TSysTag_FilePathToURL.Create) ;
 end;
 
 
@@ -138,7 +141,7 @@ begin
 end;
 
 // tPlugin_SysTagsBase
-function tPlugin_SysTagsBase.GetTag(aTagName: String): String;
+function tPlugin_SysTagsBase.GetTag(aTagName: String; aCodeGeneratorItem: TCodeGeneratorItem): String;
 Var
   liIndex: Integer;
 begin
@@ -151,7 +154,7 @@ begin
      Exit;
    end;
   
-  Result := FSysTags[liIndex].Execute;
+  Result := FSysTags[liIndex].Execute(aCodeGeneratorItem);
 end;
 
 function tPlugin_SysTagsBase.IsTagExists(aTagName: String): Integer;
@@ -185,7 +188,7 @@ begin
   Result := '';
 end;
 
-function TSysTag.Execute: String; 
+function TSysTag.Execute(aCodeGeneratorItem: TCodeGeneratorItem): String;
 begin
   Result := '';
 end;
@@ -195,7 +198,7 @@ begin
   Result := 'VERSION';
 end;
 
-function TSysTag_Version.Execute: String; 
+function TSysTag_Version.Execute(aCodeGeneratorItem: TCodeGeneratorItem): String;
 begin
   result := oRuntime.GetVersion(1);
 end;
@@ -205,7 +208,7 @@ begin
   Result := 'FILEPATHTOURL';
 end;
 
-function TSysTag_FilePathToURL.Execute: String; 
+function TSysTag_FilePathToURL.Execute(aCodeGeneratorItem: TCodeGeneratorItem): String;
 begin
   result := 'HHH';
 end;
@@ -216,7 +219,7 @@ begin
   Result := 'NEWGUID';
 end;
 
-function TSysTag_Newguid.Execute: String; 
+function TSysTag_Newguid.Execute(aCodeGeneratorItem: TCodeGeneratorItem): String;
 begin
   Result := TGuidExUtils.NewGuidString;
 end;
@@ -226,7 +229,7 @@ begin
   Result := 'NEWGUIDNOBRACKETS';
 end;
 
-function TSysTag_NewguidNoBrackets.Execute: String; 
+function TSysTag_NewguidNoBrackets.Execute(aCodeGeneratorItem: TCodeGeneratorItem): String;
 begin
   Result := TGuidExUtils.NewGuidNoBracketsString;;
 end;

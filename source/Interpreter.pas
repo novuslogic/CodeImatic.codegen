@@ -130,6 +130,10 @@ Type
 
     function Execute(ACodeGeneratorItem: tObject; Var ASkipPos: Integer) : String;
     function LanguageFunctions(AFunction: string; ADataType: String): String;
+
+    property oCodeGeneratorItem : TObject
+      read FoCodeGeneratorItem
+      write FoCodeGeneratorItem;
   End;
 
 implementation

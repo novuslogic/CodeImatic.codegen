@@ -3,7 +3,7 @@ unit Plugins;
 interface
 
 uses  NovusPlugin, Config, Output,Classes, SysUtils, PluginsMapFactory, Plugin, Project, ProjectItem,
-      NovusTemplate, ScriptEngine, uPSRuntime, uPSCompiler, NovusFileUtils;
+      NovusTemplate, ScriptEngine, uPSRuntime, uPSCompiler, NovusFileUtils, CodeGeneratorItem;
 
 type
    TPlugins = class
@@ -31,10 +31,8 @@ type
 
      procedure SetVariantToClasses(aExec: TPSExec);
 
-     //function IsCommandLine(aCommandLinePlugin: TCommandLinePlugin): boolean;
-
      function IsTagExists(aPluginName: String; aTagName: string): Boolean;
-     function GetTag(aPluginName: String;aTagName: string): String;
+     function GetTag(aPluginName: String;aTagName: string; aCodeGeneratorItem: TCodeGeneratorItem): String;
 
      function PostProcessor(aProcessorItem: tProcessorItem;
        aProjectItem: tProjectItem;
@@ -344,7 +342,7 @@ begin
 end;
 
 
-function TPlugins.GetTag(aPluginName: String;aTagName: string): String;
+function TPlugins.GetTag(aPluginName: String;aTagName: string; aCodeGeneratorItem: TCodeGeneratorItem): String;
 var
   loPlugin: TPlugin;
   I: Integer;
@@ -365,7 +363,7 @@ begin
             begin
               if ttagsplugin(loplugin).istagexists(atagname) <> -1 then
                 begin
-                  result := ttagsplugin(loplugin).gettag(atagname);
+                  result := ttagsplugin(loplugin).gettag(atagname, aCodeGeneratorItem);
 
                   break;
                 end;

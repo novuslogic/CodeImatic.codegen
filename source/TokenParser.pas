@@ -17,8 +17,11 @@ type
 
    tTokenParser = class(Tobject)
    protected
+     foTokenProcessor: tTokenProcessor;
    private
    public
+     constructor Create(aTokenProcessor: tTokenProcessor); overload;
+
      class function ParseToken(aObject: TObject; aToken: String;aProjectItem: tProjectItem; aVariables: TVariables; aOutput: Toutput; ATokens: tStringList; Var aIndex: Integer; aProject: TProject): String;
      class function ParseSimpleToken(aToken: string; aOutput: tOutput): tTokenProcessor;
      class function ParseExpressionToken(aObject: TObject;aToken: String; aProjectItem: tProjectItem; aProject: TProject; aVariables: TVariables;aOutput: Toutput): tTokenProcessor; overload;
@@ -27,7 +30,7 @@ type
 
 implementation
 
-uses CodeGenerator, Runtime, Interpreter, Config, ExpressionParser, TagTypeParser;
+uses CodeGenerator, Runtime, Interpreter, Config, ExpressionParser, TagTypeParser, CodeGeneratorItem;
 
 
 // Token Processor
@@ -143,6 +146,13 @@ begin
   End;
 end;
 
+
+constructor tTokenParser.Create(aTokenProcessor: tTokenProcessor);
+begin
+  foTokenProcessor := aTokenProcessor;
+end;
+
+
 class function tTokenParser.ParseToken;
 var
   fsToken: String;
@@ -153,8 +163,11 @@ var
   loVarable: tVariable;
   lsToken1, lsToken2: string;
   lVariable: TVariable;
+  loCodeGeneratorItem: tCodeGeneratorItem;
 begin
   Result := aToken;
+
+  loCodeGeneratorItem := NIL;
 
   If Copy(aToken, 1, 2) = '$$' then
     begin
@@ -216,13 +229,13 @@ begin
               if aObject is tInterpreter then
                begin
                  lsToken2 :=  tInterpreter(aObject).GetNextToken(AIndex, ATokens);
-
+                 if Assigned(tInterpreter(aObject).oCodeGeneratorItem) then 
+                    loCodeGeneratorItem := tCodeGeneratorItem(tInterpreter(aObject).oCodeGeneratorItem) ;
                end;
-
 
               if oRuntime.oPlugins.IsTagExists(lsToken1, lsToken2) then
                 begin
-                  Result := oRuntime.oPlugins.GetTag(lsToken1, lsToken2);
+                  Result := oRuntime.oPlugins.GetTag(lsToken1, lsToken2, loCodeGeneratorItem);
                 end;
           end;
           ttVariableCmdLine: begin

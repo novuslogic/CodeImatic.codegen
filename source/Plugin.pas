@@ -3,7 +3,7 @@ unit Plugin;
 interface
 
 uses classes, Output, NovusPlugin, Project, config, NovusTemplate, uPSRuntime,
-  uPSCompiler, NovusList, SysUtils, JvSimpleXml;
+  uPSCompiler, NovusList, SysUtils, JvSimpleXml, CodeGeneratorItem;
 
 type
   TPluginReturn = (PRFailed, PRPassed, PRIgnore);
@@ -52,7 +52,7 @@ type
   private
   protected
   public
-    function GetTag(aTagName: String): String; virtual;
+    function GetTag(aTagName: String; aCodeGeneratorItem: tCodeGeneratorItem): String; virtual;
     function IsTagExists(aTagName: String): Integer; virtual;
   end;
 
@@ -170,7 +170,7 @@ begin
   Result := '';
 end;
 
-function TTagsPlugin.GetTag(aTagName: String): String;
+function TTagsPlugin.GetTag(aTagName: String; aCodeGeneratorItem: TCodeGeneratorItem): String;
 begin
   Result := '';
 end;

@@ -68,6 +68,7 @@ contains
   CodeGenerator in 'CodeGenerator.pas',
   Interpreter in 'Interpreter.pas',
   ScriptEngine in 'ScriptEngine.pas',
-  RuntimeProjectItems in 'RuntimeProjectItems.pas';
+  RuntimeProjectItems in 'RuntimeProjectItems.pas',
+  FunctionParser in 'FunctionParser.pas';
 
 end.
