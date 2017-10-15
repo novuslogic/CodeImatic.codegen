@@ -4,7 +4,7 @@ interface
 
 Uses
   Classes, ExpressionParser, SysUtils, DB, NovusStringUtils, Output,
-  NovusList, Variants, Variables, XMLList,  NovusGUIDEx;
+  NovusList, Variants, Variables, XMLList,  NovusGUIDEx, TokenProcessor;
 
 const
   csCommamdSyntax: array[1..24] of String = (
@@ -80,7 +80,7 @@ Type
     FoCodeGenerator: tObject;
     fiLoopCounter: Integer;
     fLoopList: tNovusList;
-    FTokens: tStringList;
+    FTokens: tTokenProcessor;
     FOutput: TOutput;
     FoCodeGeneratorItem : TObject;
     foProjectItem: tObject;
@@ -92,25 +92,25 @@ Type
     function FindEndRepeatIndexPos(AIndex: INteger): INteger;
     function FindLoop(ALoopType:TLoopType; ALoopID: Integer): TLoop;
 
-    function GetNextCommand(ATokens: tStringList; Var AIndex: Integer; Var ASkipPOs: Integer;ASubCommand: Boolean = False;ASubVariable:Boolean = False ): String;
+    function GetNextCommand(ATokens: tTokenProcessor; Var AIndex: Integer; Var ASkipPOs: Integer;ASubCommand: Boolean = False;ASubVariable:Boolean = False ): String;
     procedure AddVariable(AVariableName: String;AValue: Variant);
 
-    function FieldFunctions(ATokens: tStringList; Var AIndex: Integer; ACommandIndex: Integer): string;
-    function FieldAsSQL(ATokens: tStringList; Var AIndex: Integer): string;
-    function Delimiter(ATokens: tStringList; Var AIndex: Integer): string;
-    function Reservelist(ATokens: tStringList; Var AIndex: Integer; ACommandIndex: Integer): string;
-    function XMLlistIndex(ATokens: tStringList; Var AIndex: Integer): string;
-    function XMLListName(ATokens: tStringList; Var AIndex: Integer): string;
-    function XMLlistCount(ATokens: tStringList; Var AIndex: Integer): string;
+    function FieldFunctions(ATokens: tTokenProcessor; Var AIndex: Integer; ACommandIndex: Integer): string;
+    function FieldAsSQL(ATokens: tTokenProcessor; Var AIndex: Integer): string;
+    function Delimiter(ATokens: tTokenProcessor; Var AIndex: Integer): string;
+    function Reservelist(ATokens: tTokenProcessor; Var AIndex: Integer; ACommandIndex: Integer): string;
+    function XMLlistIndex(ATokens: tTokenProcessor; Var AIndex: Integer): string;
+    function XMLListName(ATokens: tTokenProcessor; Var AIndex: Integer): string;
+    function XMLlistCount(ATokens: tTokenProcessor; Var AIndex: Integer): string;
 
-    function TableFunctions(ATokens: tStringList; Var AIndex: Integer; ACommandIndex: Integer): string;
+    function TableFunctions(ATokens: tTokenProcessor; Var AIndex: Integer; ACommandIndex: Integer): string;
 
-    function ParseVariable(ATokens: tStringList; Var AIndex: Integer;ASubCommand: Boolean = False): String;
+    function ParseVariable(ATokens: tTokenProcessor; Var AIndex: Integer;ASubCommand: Boolean = False): String;
 
 
 
-    function Functions(ATokens: tStringList; Var AIndex: Integer; ACommandIndex: Integer): String;
-    function Procedures(ATokens: tStringList; Var AIndex: Integer; ACommandIndex: Integer): String;
+    function Functions(ATokens: tTokenProcessor; Var AIndex: Integer; ACommandIndex: Integer): String;
+    function Procedures(ATokens: tTokenProcessor; Var AIndex: Integer; ACommandIndex: Integer): String;
 
     function FieldTypeToDataType(AFieldType: String): String;
     function ClearDataType(ADataType: String): String;
@@ -118,14 +118,14 @@ Type
     function VariableExistsIndex(AVariableName: String): Integer;
     function GetVariableByIndex(AIndex: Integer): TVariable;
 
-    function LoopFunctions(ATokens: tStringList; Var AIndex: Integer; ACommandIndex: Integer; Var ASkipPos: Integer): string;
+    function LoopFunctions(ATokens: tTokenProcessor; Var AIndex: Integer; ACommandIndex: Integer; Var ASkipPos: Integer): string;
   public
     constructor Create(ACodeGenerator: TObject; AOutput: TOutput; aProjectItem: tObject); virtual;
     destructor Destroy; override;
 
-    function GetNextToken(Var AIndex: Integer; ATokens: tStringlist): String;
+    function GetNextToken(Var AIndex: Integer; ATokens: tTokenProcessor): String;
 
-    function CommandSyntaxIndexByTokens(ATokens: TStringList): Integer;
+    function CommandSyntaxIndexByTokens(ATokens: tTokenProcessor): Integer;
     function CommandSyntaxIndex(ACommand: String): integer;
 
     function Execute(ACodeGeneratorItem: tObject; Var ASkipPos: Integer) : String;
@@ -170,7 +170,7 @@ begin
   inherited;
 end;
 
-function TInterpreter.FieldFunctions(ATokens: tStringList; Var AIndex: Integer; ACommandIndex: Integer): string;
+function TInterpreter.FieldFunctions(ATokens: tTokenProcessor; Var AIndex: Integer; ACommandIndex: Integer): string;
 Var
   lConnectionDetails: tConnectionDetails;
   FFieldDesc: tFieldDesc;
@@ -283,7 +283,7 @@ begin
        end;
 end;
 
-function TInterpreter.Delimiter(ATokens: tStringList; Var AIndex: Integer): string;
+function TInterpreter.Delimiter(ATokens: tTokenProcessor; Var AIndex: Integer): string;
 Var
   lConnectionDetails: tConnectionDetails;
   lsStr,
@@ -338,7 +338,7 @@ begin
        end;
 end;
 
-function TInterpreter.reservelist(ATokens: tStringList; Var AIndex: Integer; ACommandIndex: Integer): string;
+function TInterpreter.reservelist(ATokens: tTokenProcessor; Var AIndex: Integer; ACommandIndex: Integer): string;
 Var
   lConnectionDetails: tConnectionDetails;
   lsFilename: String;
@@ -387,7 +387,7 @@ begin
        end;
 end;
 
-function TInterpreter.XMLListIndex(ATokens: tStringList; Var AIndex: Integer): string;
+function TInterpreter.XMLListIndex(ATokens: tTokenProcessor; Var AIndex: Integer): string;
 Var
   lConnectionDetails: tConnectionDetails;
   lsStr: String;
@@ -451,7 +451,7 @@ begin
      FOutput.Log('Incorrect syntax: lack ")"');
 end;
 
-function TInterpreter.XMLListName(ATokens: tStringList; Var AIndex: Integer): string;
+function TInterpreter.XMLListName(ATokens: tTokenProcessor; Var AIndex: Integer): string;
 Var
   lConnectionDetails: tConnectionDetails;
   lsStr: String;
@@ -515,7 +515,7 @@ begin
      FOutput.Log('Incorrect syntax: lack ")"');
 end;
 
-function TInterpreter.XMLListCount(ATokens: tStringList; Var AIndex: Integer): string;
+function TInterpreter.XMLListCount(ATokens: tTokenProcessor; Var AIndex: Integer): string;
 Var
   lConnectionDetails: tConnectionDetails;
   lsStr: String;
@@ -567,7 +567,7 @@ end;
 
 
 
-function TInterpreter.TableFunctions(ATokens: tStringList; Var AIndex: Integer; ACommandIndex: Integer): string;
+function TInterpreter.TableFunctions(ATokens: tTokenProcessor; Var AIndex: Integer; ACommandIndex: Integer): string;
 Var
   lConnectionDetails: tConnectionDetails;
   FFieldDesc: tFieldDesc;
@@ -625,7 +625,7 @@ begin
 end;
 
 
-function TInterpreter.GetNextCommand(ATokens: tStringList; Var AIndex: Integer;Var ASkipPos: INteger;ASubCommand: Boolean = False;ASubVariable:Boolean = False): String;
+function TInterpreter.GetNextCommand(ATokens: tTokenProcessor; Var AIndex: Integer;Var ASkipPos: INteger;ASubCommand: Boolean = False;ASubVariable:Boolean = False): String;
 Var
   lsNextToken: string;
 begin
@@ -680,7 +680,7 @@ begin
   end;
 end;
 
-function TInterpreter.LoopFunctions(ATokens: tStringList; Var AIndex: Integer; ACommandIndex: Integer; Var ASkipPos: Integer): string;
+function TInterpreter.LoopFunctions(ATokens: tTokenProcessor; Var AIndex: Integer; ACommandIndex: Integer; Var ASkipPos: Integer): string;
 Var
   lbNegitiveFlag: Boolean;
   liPos,
@@ -982,7 +982,7 @@ begin
     end;
 end;
 
-function TInterpreter.ParseVariable(ATokens: tStringList; Var AIndex: Integer;ASubCommand: Boolean = False): String;
+function TInterpreter.ParseVariable(ATokens: tTokenProcessor; Var AIndex: Integer;ASubCommand: Boolean = False): String;
 Var
   FVariable1,
   FVariable2: tVariable;
@@ -1129,7 +1129,7 @@ begin
 
   Fout := False;
 
-  FTokens := tCodeGeneratorItem(ACodeGeneratorItem).Tokens;
+  FTokens := tCodeGeneratorItem(ACodeGeneratorItem).oTokens;
 
   FoCodeGeneratorItem := ACodeGeneratorItem;
 
@@ -1180,7 +1180,7 @@ end;
 
 
 
-function TInterpreter.CommandSyntaxIndexByTokens(ATokens: TStringList): Integer;
+function TInterpreter.CommandSyntaxIndexByTokens(ATokens: tTokenProcessor): Integer;
 Var
   I,X: Integer;
   lEParser: TExpressionParser;
@@ -1217,7 +1217,7 @@ begin
     end;
 end;
 
-function TInterpreter.Functions(ATokens: tStringList; Var AIndex: Integer; ACommandIndex: Integer): String;
+function TInterpreter.Functions(ATokens: tTokenProcessor; Var AIndex: Integer; ACommandIndex: Integer): String;
 Var
   LStr: String;
 begin
@@ -1249,7 +1249,7 @@ begin
     end;
 end;
 
-function TInterpreter.Procedures(ATokens: tStringList; Var AIndex: Integer; ACommandIndex: Integer): String;
+function TInterpreter.Procedures(ATokens: tTokenProcessor; Var AIndex: Integer; ACommandIndex: Integer): String;
 Var
   LStr: String;
 begin
@@ -1271,7 +1271,7 @@ begin
   Result := (foProjectItem as tProjectItem).oCodeGenerator.oLanguage.ReadXML('ClearDataType', ADataType);
 end;
 
-function TInterpreter.GetNextToken(Var AIndex: Integer; ATokens: tSTringlist): String;
+function TInterpreter.GetNextToken(Var AIndex: Integer; ATokens: tTokenProcessor): String;
 Var
   I: Integer;
   LVariable: tVariable;
@@ -1354,15 +1354,15 @@ end;
 
 function TInterpreter.IsEndRepeat(ACodeGeneratorItem: TObject): Boolean;
 begin
-  Result := (CommandSyntaxIndex(tCodeGeneratorItem(ACodeGeneratorItem).Tokens[0]) = 9);
+  Result := (CommandSyntaxIndex(tCodeGeneratorItem(ACodeGeneratorItem).oTokens[0]) = 9);
 end;
 
 function TInterpreter.IsRepeat(ACodeGeneratorItem: TObject): Boolean;
 begin
-  Result := (CommandSyntaxIndex(tCodeGeneratorItem(ACodeGeneratorItem).Tokens[0]) = 8);
+  Result := (CommandSyntaxIndex(tCodeGeneratorItem(ACodeGeneratorItem).oTokens[0]) = 8);
 end;
 
-function TInterpreter.FieldAsSQL(ATokens: tStringList; Var AIndex: Integer): string;
+function TInterpreter.FieldAsSQL(ATokens: tTokenProcessor; Var AIndex: Integer): string;
 Var
   lConnectionDetails: tConnectionDetails;
   FFieldDesc: tFieldDesc;

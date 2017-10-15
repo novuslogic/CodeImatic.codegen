@@ -2,7 +2,7 @@ unit TagTypeParser;
 
 interface
 
-Uses TagType, SysUtils, output, Classes;
+Uses TagType, SysUtils, output, Classes, TokenProcessor;
 
 Type
   TTagTypeParser = class
@@ -10,19 +10,19 @@ Type
   private
     class function InternalParseTagType(aProjectItem: tObject;
       aCodeGenerator: tObject; aToken: string; aTokens: tStringlist;
-      aOutput: toutput): TTagType;
+      aOutput: toutput; aTokenIndex: Integer = 0): TTagType;
   public
     class function ParseTagType(aProjectItem: tObject; aCodeGenerator: tObject;
       aToken: String; aOutput: toutput): TTagType; overload;
 
     class function ParseTagType(aProjectItem: tObject; aCodeGenerator: tObject;
-      aTokens: tStringlist; aOutput: toutput): TTagType; overload;
+      aTokens: tStringlist; aOutput: toutput; aTokenIndex: Integer): TTagType; overload;
 
   end;
 
 implementation
 
-Uses Runtime, ProjectItem, CodeGenerator, TokenParser;
+Uses Runtime, ProjectItem, CodeGenerator, TokenParser, Variables;
 
 class function TTagTypeParser.ParseTagType(aProjectItem: tObject; aCodeGenerator: tObject;
       aToken: String; aOutput: toutput): TTagType;
@@ -32,16 +32,16 @@ begin
 end;
 
 class function TTagTypeParser.ParseTagType(aProjectItem: tObject; aCodeGenerator: tObject;
-      aTokens: tStringlist; aOutput: toutput): TTagType;
+      aTokens: tStringlist; aOutput: toutput; aTokenIndex: Integer): TTagType;
 begin
   Result := TTagTypeParser.InternalParseTagType(aProjectItem,
-       aCodeGenerator,'',aTokens, aOutput);
+       aCodeGenerator,'',aTokens, aOutput, aTokenIndex);
 end;
 
 
 class function TTagTypeParser.InternalParseTagType(aProjectItem: tObject;
   aCodeGenerator: tObject; aToken: string; aTokens: tStringlist;
-  aOutput: toutput): TTagType;
+  aOutput: toutput; aTokenIndex: Integer): TTagType;
 var
   FTokenProcessor: tTokenProcessor;
   lsToken, lsToken1, lsToken2: string;
@@ -56,9 +56,10 @@ begin
         exit;
       end;
 
-      lsToken1 := Uppercase(aTokens.Strings[0]);
-      if aTokens.Count > 1 then
-        lsToken2 := Uppercase(aTokens.Strings[1]);
+      lsToken1 := TVariables.CleanVariableName(Uppercase(aTokens.Strings[aTokenIndex]));
+
+      if (aTokens.Count > 1) and (aTokenIndex <= aTokens.Count -1) then
+        lsToken2 := TVariables.CleanVariableName(Uppercase(aTokens.Strings[aTokenIndex + 1]));
     end
   else
     begin

@@ -5,7 +5,8 @@ interface
 Uses Classes, NovusTemplate, NovusList, ExpressionParser, SysUtils,
   Config, NovusStringUtils, Interpreter, Language, Project,
   Output, Variables, NovusUtilities, CodeGeneratorItem, tagtype,
-  NovusBO, NovusFileUtils, Template, ScriptEngine, System.IOUtils, Plugin;
+  NovusBO, NovusFileUtils, Template, ScriptEngine, System.IOUtils, Plugin,
+  TokenProcessor;
 
 Const
   cDeleteLine = '{%DELETELINE%}';
@@ -79,7 +80,7 @@ Type
 
     property oOutput: tOutput read foOutput write foOutput;
 
-    function IsInterpreter(ATokens: TstringList): boolean;
+    function IsInterpreter(ATokens: tTokenProcessor): boolean;
 
     function Execute(aOutputFilename: String): boolean;
 
@@ -173,7 +174,7 @@ Var
 begin
   Result := NIL;
 
-  lCodeGeneratorItem := TCodeGeneratorItem.Create(foProjectItem, Self);
+  lCodeGeneratorItem := TCodeGeneratorItem.Create(foProjectItem, Self, foVariables);
 
   lCodeGeneratorItem.oTemplateTag := ATemplateTag;
 
@@ -190,7 +191,7 @@ begin
 
 end;
 
-function TCodeGenerator.IsInterpreter(ATokens: TstringList): boolean;
+function TCodeGenerator.IsInterpreter(ATokens: tTokenProcessor): boolean;
 begin
   Result := (FoInterpreter.CommandSyntaxIndexByTokens(ATokens) <> -1);
 end;
@@ -553,25 +554,25 @@ begin
     // Default Property value
     if FCodeGeneratorItem.tagtype = ttVariableCmdLine then
     begin
-      if FCodeGeneratorItem.Tokens.Count > 1 then
+      if FCodeGeneratorItem.oTokens.Count > 1 then
       begin
         FVariable := oConfig.oVariablesCmdLine.GetVariableByName
-          (FCodeGeneratorItem.Tokens[1]);
+          (FCodeGeneratorItem.oTokens[1]);
         if Assigned(FVariable) then
           FoTemplateTag.TagValue := FVariable.Value;
       end;
     end
     else if FCodeGeneratorItem.tagtype = ttConfigProperties then
     begin
-      if FCodeGeneratorItem.Tokens.Count > 1 then
+      if FCodeGeneratorItem.oTokens.Count > 1 then
         FoTemplateTag.TagValue := foProject.oProjectConfig.Getproperties
-          (FCodeGeneratorItem.Tokens[1]);
+          (FCodeGeneratorItem.oTokens[1]);
     end
     else if FCodeGeneratorItem.tagtype = ttprojectitem then
     begin
-      if FCodeGeneratorItem.Tokens.Count > 1 then
+      if FCodeGeneratorItem.oTokens.Count > 1 then
         FoTemplateTag.TagValue := (foProjectItem as TProjectItem)
-          .GetProperty(FCodeGeneratorItem.Tokens[1], foProject);
+          .GetProperty(FCodeGeneratorItem.oTokens[1], foProject);
     end
     else if (FCodeGeneratorItem.tagtype = ttProperty) or
       (FCodeGeneratorItem.tagtype = ttPropertyEx) then
@@ -581,9 +582,9 @@ begin
           .oProperties.GetProperty(FoTemplateTag.TagName)
       else if (FCodeGeneratorItem.tagtype = ttPropertyEx) then
       begin
-        if FCodeGeneratorItem.Tokens.Count > 1 then
+        if FCodeGeneratorItem.oTokens.Count > 1 then
           FoTemplateTag.TagValue := (foProjectItem as TProjectItem)
-              .oProperties.GetProperty(FCodeGeneratorItem.Tokens[1])
+              .oProperties.GetProperty(FCodeGeneratorItem.oTokens[1])
       end;
     end;
 
@@ -601,21 +602,21 @@ begin
 
         if FCodeGeneratorItem.tagtype = ttConnection then
         begin
-          for Y := 0 to FCodeGeneratorItem.Tokens.Count - 1 do
+          for Y := 0 to FCodeGeneratorItem.oTokens.Count - 1 do
             If Pos(lsPropertieVariable,
-              Uppercase(FCodeGeneratorItem.Tokens[Y])) > 0 then
-              FCodeGeneratorItem.Tokens[Y] := TNovusStringUtils.ReplaceStr
-                (FCodeGeneratorItem.Tokens[Y], lsPropertieVariable,
+              Uppercase(FCodeGeneratorItem.oTokens[Y])) > 0 then
+              FCodeGeneratorItem.oTokens[Y] := TNovusStringUtils.ReplaceStr
+                (FCodeGeneratorItem.oTokens[Y], lsPropertieVariable,
                 lsVariableResult, true);
 
         end
         else if FCodeGeneratorItem.tagtype = ttInterpreter then
         begin
-          for Y := 0 to FCodeGeneratorItem.Tokens.Count - 1 do
+          for Y := 0 to FCodeGeneratorItem.oTokens.Count - 1 do
             If Pos(lsPropertieVariable,
-              Uppercase(FCodeGeneratorItem.Tokens[Y])) > 0 then
-              FCodeGeneratorItem.Tokens[Y] := TNovusStringUtils.ReplaceStr
-                (FCodeGeneratorItem.Tokens[Y], lsPropertieVariable,
+              Uppercase(FCodeGeneratorItem.oTokens[Y])) > 0 then
+              FCodeGeneratorItem.oTokens[Y] := TNovusStringUtils.ReplaceStr
+                (FCodeGeneratorItem.oTokens[Y], lsPropertieVariable,
                 '' + lsVariableResult + '', true);
 
         end;
@@ -646,7 +647,7 @@ begin
 
       FiIndex := 0;
       fsLanguage := tTokenParser.ParseToken(Self,
-        FCodeGeneratorItem.Tokens[2], (foProjectItem as TProjectItem),
+        FCodeGeneratorItem.oTokens[2], (foProjectItem as TProjectItem),
         foVariables, foOutput, NIL, FiIndex, foProject);
 
       if FileExists(oConfig.Languagespath + fsLanguage + '.xml') then
@@ -1007,9 +1008,9 @@ begin
     begin
       FoTemplateTag := FCodeGeneratorItem.oTemplateTag;
 
-      if FCodeGeneratorItem.Tokens.Count > 1 then
+      if FCodeGeneratorItem.oTokens.Count > 1 then
         FoTemplateTag.TagValue := (foProjectItem as TProjectItem)
-          .oProperties.GetProperty(FCodeGeneratorItem.Tokens[1]);
+          .oProperties.GetProperty(FCodeGeneratorItem.oTokens[1]);
     end;
   end;
 end;
@@ -1030,7 +1031,7 @@ begin
     begin
       FoTemplateTag := FCodeGeneratorItem.oTemplateTag;
 
-      if FCodeGeneratorItem.Tokens.Count > 1 then
+      if FCodeGeneratorItem.oTokens.Count > 1 then
       begin
         FCodeGeneratorItem.TokenIndex :=0;
 

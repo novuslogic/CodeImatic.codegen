@@ -3,9 +3,8 @@ unit DBSchema;
 interface
 
 Uses Classes, NovusList, NovusTemplate, NovusStringParser, SysUtils,
-     NovusStringUtils, SDEngine, NovusSQLDirUtils, NovusUtilities,
-     DB, SDCommon, Output, NovusXMLBO, CodeGeneratorItem,
-     JvSimpleXml, ProjectConfig;
+     NovusStringUtils, SDEngine, NovusSQLDirUtils, NovusUtilities,CodeGeneratorItem,
+     DB, SDCommon, Output, NovusXMLBO, ProjectConfig, JvSimpleXml;
 
 Type
    TFieldType = class(Tobject)
@@ -211,20 +210,20 @@ begin
   FConnectionDetails := tConnectionDetails.Create(fOutput, foProjectItem);
   FiTokenIndex := 0;
 
-  while (FiTokenIndex < ACodeGeneratorItem.Tokens.Count - 1) do
+  while (FiTokenIndex < ACodeGeneratorItem.oTokens.Count - 1) do
     begin
       With ACodeGeneratorItem do
         begin
-          lsToken := Trim(Uppercase(Tokens[FiTokenIndex]));
+          lsToken := Trim(Uppercase(oTokens[FiTokenIndex]));
 
           if lsToken = 'CONNECTIONNAME' then
             begin
               Inc(FiTokenIndex);
-              if Tokens[FiTokenIndex] = '=' then
+              if oTokens[FiTokenIndex] = '=' then
                 begin
                   Inc(FiTokenIndex);
 
-                  FConnectionDetails.ConnectionName := Tokens[FiTokenIndex];
+                  FConnectionDetails.ConnectionName := oTokens[FiTokenIndex];
 
                   FConnectionName := fProjectConfig.FindConnectionName(FConnectionDetails.ConnectionName);
 

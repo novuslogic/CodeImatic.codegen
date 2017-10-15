@@ -3,12 +3,11 @@ unit CodeGeneratorItem;
 interface
 
 uses Project, ExpressionParser, NovusTemplate, Classes, SysUtils, tagType, output,
-     NovusList;
+     NovusList, TokenProcessor;
 
 type
   TCodeGeneratorItem = class(TObject)
   protected
-    fiTokenIndex: Integer;
     foOutput: tOutput;
     foCodeGenerator: TObject;
     foProject: tProject;
@@ -16,15 +15,18 @@ type
     FTagType: tTagType;
     ExpressionParser: tExpressionParser;
     FTemplateTag: TTemplateTag;
-    FTokens: tStringlist;
+    FoTokens: tTokenProcessor;
     LiLoopID: Integer;
     foProjectItem: TObject;
+    foVariables: Tobject;
   private
+    function GetTokenIndex: Integer;
+    procedure SetTokenIndex(Value: Integer);
   public
-    constructor Create(aProjectItem: TObject; aCodeGenerator: Tobject); virtual;
+    constructor Create(aProjectItem: TObject; aCodeGenerator: Tobject; aVariables: tObject); virtual;
     destructor Destroy; override;
 
-    function GetNextToken: String;
+    function GetNextToken(aIgnoreNextToken: Boolean = false): String;
 
     procedure Execute;
 
@@ -36,9 +38,9 @@ type
       read FTemplateTag
       write FTemplateTag;
 
-    property Tokens: tStringlist
-      read FTokens
-      write FTokens;
+    property oTokens: tTokenProcessor
+      read FoTokens
+      write FoTokens;
 
     property TagType: tTagType
        read FTagType
@@ -53,9 +55,15 @@ type
       write liLoopId;
 
     property TokenIndex: Integer
-      read fiTokenIndex
-      write fiTokenIndex;
-   end;
+      read GetTokenIndex
+      write SetTokenIndex;
+
+    property oProjectItem: TObject
+      read foProjectItem;
+
+    property oVariables: Tobject
+      read foVariables;
+  end;
 
 implementation
 
@@ -65,7 +73,7 @@ procedure TCodeGeneratorItem.Execute;
 var
   lsToken1, lsToken2: string;
 begin
-  fiTokenIndex := 0;
+  TokenIndex := 0;
 
   fsDefaultTagName := oTemplateTag.TagName;
   if (Pos('CODE=', uppercase(fsDefaultTagName)) > 0) then
@@ -78,25 +86,12 @@ begin
     begin
       ExpressionParser.Expr := fsDefaultTagName;
 
-      ExpressionParser.ListTokens(FTokens);
+      ExpressionParser.ListTokens(foTokens);
 
-      FTagType := TTagTypeParser.ParseTagType(foProjectItem, foCodeGenerator, FTokens , foOutput  );
+      FTagType := TTagTypeParser.ParseTagType(foProjectItem, foCodeGenerator, foTokens , foOutput, 0  );
     end;
 end;
 
-(*
-function TCodeGeneratorItem.GetToken1: string;
-begin
-  Result := Tokens[0];
-end;
-
-function TCodeGeneratorItem.GetToken2: string;
-begin
-  Result := '';
-  if Tokens.Count > 1 then
-    Result := Tokens[1];
-end;
-*)
 
 constructor TCodeGeneratorItem.Create;
 begin
@@ -106,29 +101,37 @@ begin
 
   foProjectItem := aProjectItem;
 
+  foVariables := aVariables;
+
+
   ExpressionParser := TExpressionParser.Create;
 
-  FTokens := tStringlist.Create;
+  FoTokens := tTokenProcessor.Create;
 end;
 
 destructor TCodeGeneratorItem.Destroy;
 begin
   ExpressionParser.Free;
 
-  FTokens.Free;
+  FoTokens.Free;
 
   inherited;
 end;
 
-
-function TCodeGeneratorItem.GetNextToken: String;
+function TCodeGeneratorItem.GetNextToken(aIgnoreNextToken: Boolean): String;
 begin
-  Result := Tokens[fiTokenIndex];
-
-  Inc(fiTokenIndex);
-  if fiTokenIndex > Tokens.Count - 1 then fiTokenIndex := Tokens.Count - 1;
+  Result := foTokens.GetNextToken(aIgnoreNextToken);
 end;
 
+function TCodeGeneratorItem.GetTokenIndex: Integer;
+begin
+  Result := foTokens.TokenIndex;
+end;
+
+procedure TCodeGeneratorItem.SetTokenIndex(Value: Integer);
+begin
+  foTokens.TokenIndex := Value;
+end;
 
 
 

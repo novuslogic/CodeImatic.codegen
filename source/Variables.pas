@@ -5,9 +5,6 @@ interface
 Uses Variants, NovusList, SysUtils, Output;
 
 Type
-
-
-
   TVariable = class(TObject)
   protected
        fsVariableName: String;
@@ -117,7 +114,13 @@ end;
 
 class function TVariables.CleanVariableName(AVariableName: String): String;
 begin
-  Result := Copy(AVariableName, 2, Length(AVariableName));
+  If Copy(AVariableName, 1, 2) = '$$' then
+    result := Copy(AVariableName, 3, Length(AVariableName))
+  else
+  If Copy(AVariableName, 1, 1) = '$' then
+    Result := Copy(AVariableName, 2, Length(AVariableName))
+  else
+    Result := Trim(AVariableName);
 end;
 
 

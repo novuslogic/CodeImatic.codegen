@@ -69,8 +69,6 @@ type
     foConfigPlugin: tConfigPlugin;
     foOutput: TOutput;
   protected
-
-
     function GetProcessorName: String; virtual;
     function Getsourceextension: string;
     function Getoutputextension: string;

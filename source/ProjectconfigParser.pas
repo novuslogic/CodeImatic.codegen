@@ -56,15 +56,8 @@ begin
 
          lEParser.Expr := FTemplateTag.TagName;
          lEParser.ListTokens(lTokens);
-         (*
-         if lTokens.Count > 0 then
-           begin
-             lsToken1 := lTokens.Strings[0];
-             if lTokens.Count > 1 then
-               lsToken2 := lTokens.Strings[1];
-           end;
-         *)
-         FTagType := TTagTypeParser.ParseTagType(NIL, NIL,lTokens, aOutput);
+
+         FTagType := TTagTypeParser.ParseTagType(NIL, NIL,lTokens, aOutput, 0);
 
          case FtagType of
            ttVariableCmdLine:

@@ -4,19 +4,28 @@ interface
 
 uses Classes,Plugin, NovusPlugin, NovusVersionUtils, Project,
     Output, SysUtils, System.Generics.Defaults,  runtime, Config,
-    APIBase, NovusGUIDEx, CodeGeneratorItem;
+    APIBase, NovusGUIDEx, CodeGeneratorItem, FunctionsParser, ProjectItem,
+    Variables;
 
 
 type
   TSysTag = class
   private
+     foOutput: tOutput;
+     foProjectItem: tProjectItem;
+     foVariables: TVariables;
   protected
      function GetTagName: String; virtual;
   public
+     constructor Create(aOutput: tOutput);
+
      function Execute(aCodeGeneratorItem: TCodeGeneratorItem): String; virtual;
   
      property TagName: String
        read GetTagName;
+
+     property oOutput: tOutput
+       read foOutput;
   end;
 
   TSysTag_Version = class(TSysTag)
@@ -94,10 +103,10 @@ constructor tPlugin_SysTagsBase.Create(aOutput: tOutput; aPluginName: String; aP
 begin
   Inherited Create(aOutput,aPluginName, aProject, aConfigPlugin);
 
-  FSysTags:= tSysTags.Create(TSysTag_Version.Create,
-                             TSysTag_newguid.Create,
-                             TSysTag_NewguidNoBrackets.Create,
-                             TSysTag_FilePathToURL.Create) ;
+  FSysTags:= tSysTags.Create(TSysTag_Version.Create(aOutput),
+                             TSysTag_newguid.Create(aOutput),
+                             TSysTag_NewguidNoBrackets.Create(aOutput),
+                             TSysTag_FilePathToURL.Create(aOutput)) ;
 end;
 
 
@@ -183,6 +192,11 @@ begin
 end;
 
 
+constructor TSysTag.Create(aOutput: tOutput);
+begin
+  foOutput:= aOutput;
+end;
+
 function TSysTag.GetTagName: String;
 begin
   Result := '';
@@ -209,8 +223,22 @@ begin
 end;
 
 function TSysTag_FilePathToURL.Execute(aCodeGeneratorItem: TCodeGeneratorItem): String;
+var
+  LFunctionsParser: tFunctionsParser;
 begin
-  result := 'HHH';
+  Try
+    Try
+      LFunctionsParser:= tFunctionsParser.Create(aCodeGeneratorItem, foOutput);
+
+      LFunctionsParser.TokenIndex := 2; // Adjust for tag
+
+      Result := LFunctionsParser.Execute;
+    Finally
+      LFunctionsParser.Free;
+    End;
+  Except
+    oOutput.InternalError;
+  End;
 end;
 
 
