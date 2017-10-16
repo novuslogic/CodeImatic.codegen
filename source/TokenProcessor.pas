@@ -11,7 +11,8 @@ type
    protected
    public
      constructor Create; overload;
-     function GetNextToken(aIgnoreNextToken: Boolean = false): string;
+     function GetNextToken(aIgnoreNextToken: Boolean = false): string; overload;
+     function GetNextToken(aTokenIndex: Integer): string; overload;
      function IsNextTokenEquals: boolean;
 
      property TokenIndex: Integer
@@ -40,9 +41,20 @@ begin
     begin
       Inc(fiTokenIndex);
     end;
-
-
 end;
+
+function tTokenProcessor.GetNextToken(aTokenIndex: Integer): string;
+begin
+  Result := '';
+
+  fiTokenINdex := aTokenIndex;
+
+  if aTokenIndex > Count then  Exit;
+
+  if Count > 0 then
+    Result := Trim(Strings[aTokenIndex]);
+end;
+
 
 function tTokenProcessor.IsNextTokenEquals: boolean;
 begin

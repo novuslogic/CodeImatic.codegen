@@ -80,8 +80,6 @@ Type
 
     property oOutput: tOutput read foOutput write foOutput;
 
-    function IsInterpreter(ATokens: tTokenProcessor): boolean;
-
     function Execute(aOutputFilename: String): boolean;
 
     property CodeGeneratorList: TNovusList read FCodeGeneratorList
@@ -174,7 +172,7 @@ Var
 begin
   Result := NIL;
 
-  lCodeGeneratorItem := TCodeGeneratorItem.Create(foProjectItem, Self, foVariables);
+  lCodeGeneratorItem := TCodeGeneratorItem.Create(foProjectItem, Self, foVariables, foProject);
 
   lCodeGeneratorItem.oTemplateTag := ATemplateTag;
 
@@ -189,11 +187,6 @@ begin
   else
     lCodeGeneratorItem.Free;
 
-end;
-
-function TCodeGenerator.IsInterpreter(ATokens: tTokenProcessor): boolean;
-begin
-  Result := (FoInterpreter.CommandSyntaxIndexByTokens(ATokens) <> -1);
 end;
 
 procedure TCodeGenerator.RunInterpreter;

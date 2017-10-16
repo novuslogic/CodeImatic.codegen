@@ -23,7 +23,7 @@ type
     function GetTokenIndex: Integer;
     procedure SetTokenIndex(Value: Integer);
   public
-    constructor Create(aProjectItem: TObject; aCodeGenerator: Tobject; aVariables: tObject); virtual;
+    constructor Create(aProjectItem: TObject; aCodeGenerator: Tobject; aVariables: tObject; aProject: Tobject); virtual;
     destructor Destroy; override;
 
     function GetNextToken(aIgnoreNextToken: Boolean = false): String;
@@ -103,6 +103,7 @@ begin
 
   foVariables := aVariables;
 
+  foProject := TProject(aProject);
 
   ExpressionParser := TExpressionParser.Create;
 
