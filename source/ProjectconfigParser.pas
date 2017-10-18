@@ -3,7 +3,7 @@ unit ProjectconfigParser;
 interface
 
 uses ExpressionParser, system.Classes,  Variables, output, SysUtils, Project,
-     TagType, tagTypeParser;
+     TagType, tagTypeParser, TokenProcessor;
 
 
 type
@@ -22,7 +22,7 @@ uses VariablesCmdLine, NovusTemplate, Config, CodeGenerator;
 class function tProjectconfigParser.ParseProjectConfig(aItemName: String; aProject: tProject; aOutput: tOutput): String;
 var
   lEParser: tExpressionParser;
-  lTokens: tStringList;
+  lTokens: tTokenProcessor;
   loTemplate: tNovusTemplate;
   I: Integer;
   FTemplateTag: TTemplateTag;
@@ -37,7 +37,7 @@ begin
 
   Try
     lEParser:= tExpressionParser.Create;
-    lTokens:= tStringList.Create;
+    lTokens:= tTokenProcessor.Create;
     loTemplate := tNovusTemplate.Create;
 
     loTemplate.StartToken := '[';

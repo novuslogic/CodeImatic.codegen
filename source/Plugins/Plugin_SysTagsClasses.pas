@@ -5,7 +5,7 @@ interface
 uses Classes,Plugin, NovusPlugin, NovusVersionUtils, Project,
     Output, SysUtils, System.Generics.Defaults,  runtime, Config,
     APIBase, NovusGUIDEx, CodeGeneratorItem, FunctionsParser, ProjectItem,
-    Variables;
+    Variables, NovusFileUtils;
 
 
 type
@@ -19,7 +19,7 @@ type
   public
      constructor Create(aOutput: tOutput);
 
-     function Execute(aCodeGeneratorItem: TCodeGeneratorItem): String; virtual;
+     function Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String; virtual;
   
      property TagName: String
        read GetTagName;
@@ -33,15 +33,16 @@ type
   protected
     function GetTagName: String; override;
   public 
-    function Execute(aCodeGeneratorItem: TCodeGeneratorItem): String; override;
+    function Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String; override;
   end;
 
   TSysTag_FilePathToURL = class(TSysTag)
   private
   protected
     function GetTagName: String; override;
-  public 
-    function Execute(aCodeGeneratorItem: TCodeGeneratorItem): String; override;
+    procedure OnExecute(var aToken: String);
+  public
+    function Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String; override;
   end;
 
   TSysTag_newguid = class(TSysTag)
@@ -49,7 +50,7 @@ type
   protected
     function GetTagName: String; override;
   public
-    function Execute(aCodeGeneratorItem: TCodeGeneratorItem): String; override;
+    function Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String; override;
   end;
 
   TSysTag_NewguidNoBrackets = class(TSysTag)
@@ -57,7 +58,7 @@ type
   protected
     function GetTagName: String; override;
   public 
-    function Execute(aCodeGeneratorItem: TCodeGeneratorItem): String; override;
+    function Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String; override;
   end;
 
   tSysTags = array of TSysTag;
@@ -70,7 +71,7 @@ type
     constructor Create(aOutput: tOutput; aPluginName: String; aProject: TProject; aConfigPlugin: tConfigPlugin); override;
     destructor Destroy; override;
 
-    function GetTag(aTagName: String; aCodeGeneratorItem: TCodeGeneratorItem): String; override;
+    function GetTag(aTagName: String; aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String; override;
     function IsTagExists(aTagName: String): Integer; override;
 
   end;
@@ -150,7 +151,7 @@ begin
 end;
 
 // tPlugin_SysTagsBase
-function tPlugin_SysTagsBase.GetTag(aTagName: String; aCodeGeneratorItem: TCodeGeneratorItem): String;
+function tPlugin_SysTagsBase.GetTag(aTagName: String; aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
 Var
   liIndex: Integer;
 begin
@@ -163,7 +164,7 @@ begin
      Exit;
    end;
   
-  Result := FSysTags[liIndex].Execute(aCodeGeneratorItem);
+  Result := FSysTags[liIndex].Execute(aCodeGeneratorItem, aTokenIndex);
 end;
 
 function tPlugin_SysTagsBase.IsTagExists(aTagName: String): Integer;
@@ -202,7 +203,7 @@ begin
   Result := '';
 end;
 
-function TSysTag.Execute(aCodeGeneratorItem: TCodeGeneratorItem): String;
+function TSysTag.Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
 begin
   Result := '';
 end;
@@ -212,7 +213,7 @@ begin
   Result := 'VERSION';
 end;
 
-function TSysTag_Version.Execute(aCodeGeneratorItem: TCodeGeneratorItem): String;
+function TSysTag_Version.Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
 begin
   result := oRuntime.GetVersion(1);
 end;
@@ -222,7 +223,7 @@ begin
   Result := 'FILEPATHTOURL';
 end;
 
-function TSysTag_FilePathToURL.Execute(aCodeGeneratorItem: TCodeGeneratorItem): String;
+function TSysTag_FilePathToURL.Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
 var
   LFunctionsParser: tFunctionsParser;
 begin
@@ -230,7 +231,9 @@ begin
     Try
       LFunctionsParser:= tFunctionsParser.Create(aCodeGeneratorItem, foOutput);
 
-      LFunctionsParser.TokenIndex := 2; // Adjust for tag
+      LFunctionsParser.TokenIndex := (2 + aTokenIndex -1); // Adjust for tag
+
+      LFunctionsParser.OnExecuteFunction := OnExecute;
 
       Result := LFunctionsParser.Execute;
     Finally
@@ -241,13 +244,18 @@ begin
   End;
 end;
 
+procedure TSysTag_FilePathToURL.OnExecute(var aToken: String);
+begin
+  aToken := TNovusFileUtils.FilePathToURL(aToken);
+end;
+
 
 function TSysTag_Newguid.GetTagName: String;
 begin
   Result := 'NEWGUID';
 end;
 
-function TSysTag_Newguid.Execute(aCodeGeneratorItem: TCodeGeneratorItem): String;
+function TSysTag_Newguid.Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
 begin
   Result := TGuidExUtils.NewGuidString;
 end;
@@ -257,7 +265,7 @@ begin
   Result := 'NEWGUIDNOBRACKETS';
 end;
 
-function TSysTag_NewguidNoBrackets.Execute(aCodeGeneratorItem: TCodeGeneratorItem): String;
+function TSysTag_NewguidNoBrackets.Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
 begin
   Result := TGuidExUtils.NewGuidNoBracketsString;;
 end;

@@ -52,7 +52,7 @@ type
   private
   protected
   public
-    function GetTag(aTagName: String; aCodeGeneratorItem: tCodeGeneratorItem): String; virtual;
+    function GetTag(aTagName: String; aCodeGeneratorItem: tCodeGeneratorItem; aTokenIndex: Integer): String; virtual;
     function IsTagExists(aTagName: String): Integer; virtual;
   end;
 
@@ -168,7 +168,7 @@ begin
   Result := '';
 end;
 
-function TTagsPlugin.GetTag(aTagName: String; aCodeGeneratorItem: TCodeGeneratorItem): String;
+function TTagsPlugin.GetTag(aTagName: String; aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
 begin
   Result := '';
 end;

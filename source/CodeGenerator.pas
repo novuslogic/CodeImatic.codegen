@@ -1035,7 +1035,7 @@ begin
           lsToken2) then
         begin
           FoTemplateTag.TagValue := oRuntime.oPlugins.GetTag(lsToken1,
-          lsToken2, FCodeGeneratorItem);
+          lsToken2, FCodeGeneratorItem, 0);
         end;
       end
       else

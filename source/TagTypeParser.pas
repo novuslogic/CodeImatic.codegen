@@ -9,14 +9,14 @@ Type
   protected
   private
     class function InternalParseTagType(aProjectItem: tObject;
-      aCodeGenerator: tObject; aToken: string; aTokens: tStringlist;
+      aCodeGenerator: tObject; aToken: string; aTokens: tTokenProcessor;
       aOutput: toutput; aTokenIndex: Integer = 0): TTagType;
   public
     class function ParseTagType(aProjectItem: tObject; aCodeGenerator: tObject;
       aToken: String; aOutput: toutput): TTagType; overload;
 
     class function ParseTagType(aProjectItem: tObject; aCodeGenerator: tObject;
-      aTokens: tStringlist; aOutput: toutput; aTokenIndex: Integer): TTagType; overload;
+      aTokens: tTokenProcessor; aOutput: toutput; aTokenIndex: Integer): TTagType; overload;
 
   end;
 
@@ -32,7 +32,7 @@ begin
 end;
 
 class function TTagTypeParser.ParseTagType(aProjectItem: tObject; aCodeGenerator: tObject;
-      aTokens: tStringlist; aOutput: toutput; aTokenIndex: Integer): TTagType;
+      aTokens: tTokenProcessor; aOutput: toutput; aTokenIndex: Integer): TTagType;
 begin
   Result := TTagTypeParser.InternalParseTagType(aProjectItem,
        aCodeGenerator,'',aTokens, aOutput, aTokenIndex);
@@ -40,7 +40,7 @@ end;
 
 
 class function TTagTypeParser.InternalParseTagType(aProjectItem: tObject;
-  aCodeGenerator: tObject; aToken: string; aTokens: tStringlist;
+  aCodeGenerator: tObject; aToken: string; aTokens: tTokenProcessor;
   aOutput: toutput; aTokenIndex: Integer): TTagType;
 var
   FTokenProcessor: tTokenProcessor;

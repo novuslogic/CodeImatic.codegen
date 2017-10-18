@@ -32,7 +32,7 @@ type
      procedure SetVariantToClasses(aExec: TPSExec);
 
      function IsTagExists(aPluginName: String; aTagName: string): Boolean;
-     function GetTag(aPluginName: String;aTagName: string; aCodeGeneratorItem: TCodeGeneratorItem): String;
+     function GetTag(aPluginName: String;aTagName: string; aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
 
      function PostProcessor(aProcessorItem: tProcessorItem;
        aProjectItem: tProjectItem;
@@ -342,7 +342,7 @@ begin
 end;
 
 
-function TPlugins.GetTag(aPluginName: String;aTagName: string; aCodeGeneratorItem: TCodeGeneratorItem): String;
+function TPlugins.GetTag(aPluginName: String;aTagName: string; aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
 var
   loPlugin: TPlugin;
   I: Integer;
@@ -363,7 +363,7 @@ begin
             begin
               if ttagsplugin(loplugin).istagexists(atagname) <> -1 then
                 begin
-                  result := ttagsplugin(loplugin).gettag(atagname, aCodeGeneratorItem);
+                  result := ttagsplugin(loplugin).gettag(atagname, aCodeGeneratorItem, aTokenIndex);
 
                   break;
                 end;

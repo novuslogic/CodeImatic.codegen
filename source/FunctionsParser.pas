@@ -5,10 +5,13 @@ interface
 Uses TokenParser;
 
 Type
+   TOnExecuteFunction = procedure(var aToken:string) of object;
+
    TFunctionsParser = class(tTokenParser)
    private
    protected
    public
+     OnExecuteFunction: TOnExecuteFunction;
      function Execute: String;
    end;
 
@@ -27,7 +30,10 @@ begin
 
       if GetNextToken = ')' then
         begin
-      
+          if Assigned(OnExecuteFunction) then
+            OnExecuteFunction(LsToken);
+
+          Result := LsToken;
         end
       else
         begin

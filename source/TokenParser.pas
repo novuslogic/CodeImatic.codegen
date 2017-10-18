@@ -197,13 +197,15 @@ begin
           if lTokens.Count > 1 then
             lsToken2 := Uppercase(lTokens.Strings[1]);
         end;
+
+      lTagType := TTagTypeParser.ParseTagType(aProjectItem,
+        (aObject as TCodeGenerator), lTokens, aOutput, 0);
       Finally
         lEParser.Free;
         lTokens.Free;
       End;
 
-      lTagType := TTagTypeParser.ParseTagType(aProjectItem,
-        (aObject as TCodeGenerator), lTokens, aOutput, 0);
+
     end
     else
       lTagType := TTagTypeParser.ParseTagType(aProjectItem, NIL, ATokens,
@@ -245,7 +247,7 @@ begin
           if oRuntime.oPlugins.IsTagExists(lsToken1, lsToken2) then
           begin
             Result := oRuntime.oPlugins.GetTag(lsToken1, lsToken2,
-              loCodeGeneratorItem);
+              loCodeGeneratorItem, aTokenIndex);
           end;
         end;
       ttVariableCmdLine:
