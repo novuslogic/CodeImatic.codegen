@@ -231,7 +231,7 @@ begin
     Try
       LFunctionsParser:= tFunctionsParser.Create(aCodeGeneratorItem, foOutput);
 
-      LFunctionsParser.TokenIndex := (2 + aTokenIndex -1); // Adjust for tag
+      LFunctionsParser.TokenIndex := aTokenIndex + 1;
 
       LFunctionsParser.OnExecuteFunction := OnExecute;
 
