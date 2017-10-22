@@ -66,6 +66,7 @@ type
 
   TProcessorItem = class
   private
+    fsDefaultOutputFilename: String;
     foConfigPlugin: tConfigPlugin;
     foOutput: TOutput;
   protected
@@ -77,8 +78,8 @@ type
 
     function PreProcessor(aFilename: String; aTemplate: tNovusTemplate)
       : TPluginReturn; virtual;
-    function PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; aTemplateFile: String; var aOutputFile: string): TPluginReturn; virtual;
-    function Convert(aFilename: string; var aOutputFile: string): TPluginReturn; virtual;
+    function PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; aTemplateFile: String; var aOutputFilename: string): TPluginReturn; virtual;
+    function Convert(aProjectItem: tObject;aInputFilename: string; var aOutputFilename: string): TPluginReturn; virtual;
 
     property oConfigPlugin: tConfigPlugin
       read foConfigPlugin;
@@ -88,6 +89,10 @@ type
 
     property oOutput: TOutput
       read foOutput;
+
+    property DefaultOutputFilename: String
+      read fsDefaultOutputFilename
+      write fsDefaultOutputFilename;
   end;
 
   TProcessorPlugin = class(TPlugin)
@@ -261,12 +266,12 @@ begin
   Result := PRIgnore;
 end;
 
-function TProcessorItem.PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; aTemplateFile: String; var aOutputFile: string): TPluginReturn;
+function TProcessorItem.PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; aTemplateFile: String; var aOutputFilename: string): TPluginReturn;
 begin
   Result := PRIgnore;
 end;
 
-function TProcessorItem.Convert(aFilename: string; var aOutputFile: string): TPluginReturn;
+function TProcessorItem.Convert(aProjectItem: tObject;aInputFilename: string; var aOutputFilename: string): TPluginReturn;
 begin
   Result := PRIgnore;
 end;

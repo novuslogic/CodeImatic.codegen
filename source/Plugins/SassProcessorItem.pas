@@ -16,10 +16,9 @@ type
   public
     function PreProcessor(aFilename: String; aTemplate: tNovusTemplate)
       : TPluginReturn; override;
-    function PostProcessor(aProjectItem: tObject;
-        aTemplate: tNovusTemplate; aTemplateFile: string;var aOutputFile: string): TPluginReturn; override;
+    function PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; aTemplateFile: String; var aOutputFilename: string): TPluginReturn; override;
 
-    function Convert(aFilename: string; var aOutputFile: string):TPluginReturn; override;
+    function Convert(aProjectItem: tObject;aInputFilename: string; var aOutputFilename: string):TPluginReturn; override;
   end;
 
 implementation
@@ -34,8 +33,7 @@ begin
   Result := PRIgnore;
 end;
 
-function tSassProcessorItem.PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate;
-     aTemplateFile: string;var aOutputFile: string): TPluginReturn;
+function tSassProcessorItem.PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; aTemplateFile: String; var aOutputFilename: string): TPluginReturn;
 Var
   fScssResult: TScssResult;
   FDelphiLibSass : TDelphiLibSass;
@@ -71,9 +69,9 @@ begin
 
     if Result = TPluginReturn.PRPassed then
       begin
-        aOutputFile := ChangeFileExt(aOutputFile, '.' + outputextension);
+        aOutputFilename := ChangeFileExt(aOutputFilename, '.' + outputextension);
 
-        oOutput.Log('New output:' + aOutputFile);
+        oOutput.Log('New output:' + aOutputFilename);
       end;
 
   Except
@@ -83,7 +81,7 @@ begin
   End;
 end;
 
-function tSassProcessorItem.Convert(aFilename: string; var aOutputFile: string): TPluginReturn;
+function tSassProcessorItem.Convert(aProjectItem: tObject;aInputFilename: string; var aOutputFilename: string): TPluginReturn;
 begin
   Result := PRIgnore;
 end;

@@ -30,6 +30,7 @@ Type
     fsRenderBodyTag: string;
     fsInputFilename: string;
     fsSourceFilename: String;
+    fsDefaultOutputFilename: String;
   private
     function GetScriptFilename: string;
     function DoInternalCodeBehine(aFilename: string): boolean;
@@ -41,7 +42,9 @@ Type
     procedure DoCodeBehine;
     procedure DoCodeTags;
     function DoScriptEngine: boolean;
-    procedure DoPostProcessor(aProcessorItem: tProcessorItem;aTemplateFile: String;var aOutputFile: string);
+    procedure DoPostProcessor(aProcessorItem: tProcessorItem;aTemplateFile: String;var aOutputFilename: string);
+    procedure DoConvert(aProcessorItem: tProcessorItem;aTemplateFile: String;var aOutputFilename: string);
+
     function DoIncludes: boolean;
     function DoPreLayout: boolean;
     function DoPostLayout: boolean;
@@ -90,6 +93,11 @@ Type
     property oProject: tProject read foProject write foProject;
 
     property RenderBodyTag: string read fsRenderBodyTag write fsRenderBodyTag;
+
+    property DefaultOutputFilename: String
+      read fsDefaultOutputFilename
+      write fsDefaultOutputFilename;
+
   end;
 
 implementation
@@ -100,6 +108,8 @@ uses runtime, TokenParser, ProjectItemLoader, ProjectItem, Processor,
 constructor TCodeGenerator.Create;
 begin
   inherited Create;
+
+  fsDefaultOutputFilename := '';
 
   foProcessorPlugin := aProcessorPlugin;
 
@@ -290,6 +300,8 @@ var
   FoProcesorItem: TProcessorItem;
 begin
   Try
+    DefaultOutputFilename :=  aOutputFilename;
+
     // Pass 1
     Result := false;
 
@@ -314,6 +326,9 @@ begin
       if not DoScriptEngine then Exit;
 
     FoProcesorItem := DoPreProcessor;
+    if Assigned(foProcesorItem) then
+       FoProcesorItem.DefaultOutputFilename := DefaultOutputFilename;
+
 
     // Pass 2
     if DoPreLayout then
@@ -338,7 +353,10 @@ begin
     DoSpecialTags;
 
     if Trim(aOutputFilename) <> '' then
-      DoPostProcessor(FoProcesorItem, fsSourceFilename, aOutputFilename);
+      begin
+        DoPostProcessor(FoProcesorItem, fsSourceFilename, aOutputFilename);
+        DoConvert(FoProcesorItem, aOutputFilename, aOutputFilename);
+      end;
 
     Result := true;
   Except
@@ -389,16 +407,19 @@ begin
         TNovusUtilities.GetExceptMess);
     end;
 {$I+}
-
-
-
   end;
 end;
 
-procedure TCodeGenerator.DoPostProcessor(aProcessorItem: tProcessorItem;aTemplateFile: String;var aOutputFile: string);
+procedure TCodeGenerator.DoPostProcessor(aProcessorItem: tProcessorItem;aTemplateFile: String;var aOutputFilename: string);
 begin
   oRuntime.oPlugins.PostProcessor(aProcessorItem, (foProjectItem as TProjectItem), FoTemplate,
-    aTemplateFile, aOutputFile, (foProcessorPlugin as TProcessorPlugin));
+    aTemplateFile, aOutputFilename, (foProcessorPlugin as TProcessorPlugin));
+end;
+
+procedure TCodeGenerator.DoConvert(aProcessorItem: tProcessorItem;aTemplateFile: String;var aOutputFilename: string);
+begin
+  oRuntime.oPlugins.Convert(aProcessorItem, (foProjectItem as TProjectItem), FoTemplate,
+    aTemplateFile, aOutputFilename, (foProcessorPlugin as TProcessorPlugin));
 end;
 
 function TCodeGenerator.IsNonOutputCommandonly(ASourceLineNo: Integer): boolean;

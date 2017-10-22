@@ -16,10 +16,9 @@ type
   public
     function PreProcessor(aFilename: String; aTemplate: tNovusTemplate)
       : TPluginReturn; override;
-    function PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate;
-      aTemplateFile: string; var aOutputFile: string): TPluginReturn; override;
+    function PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; aTemplateFile: String; var aOutputFilename: string): TPluginReturn; override;
 
-    function Convert(aFilename: string; var aOutputFile: string)
+    function Convert(aProjectItem: tObject;aInputFilename: string; var aOutputFilename: string)
       : TPluginReturn; override;
   end;
 
@@ -36,18 +35,20 @@ begin
   Result := PRIgnore;
 end;
 
-function tLessCssProcessorItem.PostProcessor(aProjectItem: tObject;
-  aTemplate: tNovusTemplate; aTemplateFile: string; var aOutputFile: string)
+function tLessCssProcessorItem.PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; aTemplateFile: String; var aOutputFilename: string)
   : TPluginReturn;
 begin
-  aOutputFile := ExtractFilePath(aTemplateFile) +  '_' + ExtractFileName(aTemplateFile);
+  aOutputFilename := ExtractFilePath(aTemplateFile) +  '_' + ExtractFileName(aTemplateFile);
 
   Result := PRPassed;
 end;
 
-function tLessCssProcessorItem.Convert(aFilename: string;
-  var aOutputFile: string): TPluginReturn;
+function tLessCssProcessorItem.Convert(aProjectItem: tObject;aInputFilename: string; var aOutputFilename: string): TPluginReturn;
+Var
+  fsDefaultOutputFilename: String;
 begin
+  fsDefaultOutputFilename := Self.DefaultOutputFilename;
+
   Result := PRIgnore;
 end;
 

@@ -38,7 +38,14 @@ type
        aProjectItem: tProjectItem;
        aTemplate: tNovusTemplate;
        aTemplateFile: String;
-       var aOutputFile: string;
+       var aOutputFilename: string;
+       aProcessorPlugin: tProcessorPlugin): TPluginReturn;
+
+     function Convert(aProcessorItem: tProcessorItem;
+       aProjectItem: tProjectItem;
+       aTemplate: tNovusTemplate;
+       aTemplateFile: String;
+       var aOutputFilename: string;
        aProcessorPlugin: tProcessorPlugin): TPluginReturn;
 
      function PreProcessor(aFilename: string;
@@ -296,21 +303,30 @@ function TPlugins.PostProcessor(aProcessorItem: tProcessorItem;
                                 aProjectItem: tProjectItem;
                                 aTemplate: tNovusTemplate;
                                 aTemplateFile: String;
-                                var aOutputFile: string;
+                                var aOutputFilename: string;
                                 aProcessorPlugin: tProcessorPlugin): TPluginReturn;
-//var
-  //loPlugin: TPlugin;
-  //I: Integer;
-  //fssourceextension: string;
 begin
   Result := PRIgnore ;
 
   if Not Assigned(aProcessorItem) then Exit;
 
-  Result := aProcessorItem.PostProcessor(aProjectItem, aTemplate, aTemplateFile, aOutputFile);
+  Result := aProcessorItem.PostProcessor(aProjectItem, aTemplate, aTemplateFile, aOutputFilename);
   if Result = PRFailed then Fooutput.Failed := true;
+end;
 
+function TPlugins.Convert(aProcessorItem: tProcessorItem;
+                                aProjectItem: tProjectItem;
+                                aTemplate: tNovusTemplate;
+                                aTemplateFile: String;
+                                var aOutputFilename: string;
+                                aProcessorPlugin: tProcessorPlugin): TPluginReturn;
+begin
+  Result := PRIgnore ;
 
+  if Not Assigned(aProcessorItem) then Exit;
+
+  Result := aProcessorItem.Convert(aProjectItem, aTemplateFile, aOutputFilename);
+  if Result = PRFailed then Fooutput.Failed := true;
 end;
 
 function TPlugins.PreProcessor(aFilename: string; aTemplate: tNovusTemplate): tProcessorItem;
