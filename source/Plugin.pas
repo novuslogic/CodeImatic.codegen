@@ -73,6 +73,8 @@ type
     function GetProcessorName: String; virtual;
     function Getsourceextension: string;
     function Getoutputextension: string;
+    function GetConvertFilename: String;
+    function GetConvertFilenameParameters: String;
   public
     constructor Create(aConfigPlugin: tConfigPlugin; aOutput: TOutput);
 
@@ -86,6 +88,9 @@ type
     property ProcessorName: String read GetProcessorName;
     property Sourceextension: string read Getsourceextension;
     property outputextension: string read Getoutputextension;
+    property ConvertFilename: string read GetConvertFilename;
+    property ConvertFilenameParameters: String read GetConvertFilenameParameters;
+
 
     property oOutput: TOutput
       read foOutput;
@@ -253,6 +258,36 @@ begin
     begin
       if oConfigPlugin.oConfigProperties.IsPropertyExists('outputextension', loProperties) then
         Result := oConfigPlugin.oConfigProperties.GetProperty('outputextension', loProperties);
+    end;
+end;
+
+
+function TProcessorItem.GetConvertFilename: String;
+var
+  loProperties, loconvert: TJvSimpleXmlElem;
+begin
+  loProperties := oConfigPlugin.oConfigProperties.IsPropertyExistsEx(GetProcessorName);
+  if Assigned(loProperties) then
+    begin
+     loconvert :=  oConfigPlugin.oConfigProperties.IsPropertyExistsEx('convert', loProperties);
+     if assigned(loconvert) then
+       if oConfigPlugin.oConfigProperties.IsPropertyExists('filename', loconvert) then
+          Result := oConfigPlugin.oConfigProperties.GetProperty('filename', loconvert);
+    end;
+end;
+
+
+function TProcessorItem.GetConvertFilenameParameters: string;
+var
+  loProperties, loconvert: TJvSimpleXmlElem;
+begin
+  loProperties := oConfigPlugin.oConfigProperties.IsPropertyExistsEx(GetProcessorName);
+  if Assigned(loProperties) then
+    begin
+     loconvert :=  oConfigPlugin.oConfigProperties.IsPropertyExistsEx('convert', loProperties);
+     if assigned(loconvert) then
+       if oConfigPlugin.oConfigProperties.IsPropertyExists('parameters', loconvert) then
+          Result := oConfigPlugin.oConfigProperties.GetProperty('parameters', loconvert);
     end;
 end;
 

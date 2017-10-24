@@ -46,8 +46,17 @@ end;
 function tLessCssProcessorItem.Convert(aProjectItem: tObject;aInputFilename: string; var aOutputFilename: string): TPluginReturn;
 Var
   fsDefaultOutputFilename: String;
+  fsFilename,
+  fsparameters: String;
 begin
   fsDefaultOutputFilename := Self.DefaultOutputFilename;
+
+  fsFilename :=  ConvertFilename;
+
+
+  fsparameters := ConvertFilenameparameters;
+
+
 
   Result := PRIgnore;
 end;
