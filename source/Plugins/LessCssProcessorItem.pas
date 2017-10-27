@@ -4,7 +4,7 @@ interface
 
 Uses
   Winapi.Windows, System.SysUtils, System.Classes, NovusFileUtils,
-  Plugin, NovusPlugin, NovusVersionUtils, Project, NovusTemplate,
+  Plugin, NovusPlugin, NovusVersionUtils, Project, NovusTemplate, NovusEnvironment,
   Output, System.Generics.Defaults, runtime, Config, NovusStringUtils,
   APIBase, ProjectItem, TagType, JvSimpleXml;
 
@@ -45,16 +45,24 @@ end;
 
 function tLessCssProcessorItem.Convert(aProjectItem: tObject;aInputFilename: string; var aOutputFilename: string): TPluginReturn;
 Var
-  fsDefaultOutputFilename: String;
+  fsPathCoverFilename,
+  fsDefaultOutputFilename,
   fsFilename,
   fsparameters: String;
 begin
   fsDefaultOutputFilename := Self.DefaultOutputFilename;
 
-  fsFilename :=  ConvertFilename;
+  fsFilename :=  tNovusEnvironment.ParseGetEnvironmentVar(ConvertFilename,ETTToken2 );
+  fsFilename :=  tNovusEnvironment.ParseGetEnvironmentVar(fsFilename, ETTToken1);
 
+  fsparameters := ParseConvertParameters(ConvertFilenameparameters, aInputFilename, aOutputFilename);
 
-  fsparameters := ConvertFilenameparameters;
+  if not FileExists(fsFilename) then
+    begin
+      oOutput.LogError('Error: Cannot find convert file : ' + fsFilename);
+      Result := PRFailed;
+      Exit;
+    end;
 
 
 

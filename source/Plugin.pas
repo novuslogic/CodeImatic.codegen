@@ -82,6 +82,7 @@ type
       : TPluginReturn; virtual;
     function PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; aTemplateFile: String; var aOutputFilename: string): TPluginReturn; virtual;
     function Convert(aProjectItem: tObject;aInputFilename: string; var aOutputFilename: string): TPluginReturn; virtual;
+    function ParseConvertParameters(aParameters, aInputFilename, aOutputFilename: string): string;
 
     property oConfigPlugin: tConfigPlugin
       read foConfigPlugin;
@@ -310,5 +311,51 @@ function TProcessorItem.Convert(aProjectItem: tObject;aInputFilename: string; va
 begin
   Result := PRIgnore;
 end;
+
+function TProcessorItem.ParseConvertParameters(aParameters, aInputFilename, aOutputFilename: string): string;
+Var
+  loTemplate: tNovusTemplate;
+  I: Integer;
+  FTemplateTag: TTemplateTag;
+begin
+  result := aParameters;
+
+  if aParameters = '' then
+    Exit;
+
+  Try
+    loTemplate := tNovusTemplate.Create;
+
+    loTemplate.StartToken := '[';
+    loTemplate.EndToken := ']';
+    loTemplate.SecondToken :='%';
+
+    loTemplate.TemplateDoc.Text := Trim(aParameters);
+
+    loTemplate.ParseTemplate;
+
+    For I := 0 to loTemplate.TemplateTags.Count - 1 do
+    begin
+      FTemplateTag := TTemplateTag(loTemplate.TemplateTags.items[I]);
+
+      if CompareText(FTemplateTag.TagName, 'InputFilename' ) = 0 then
+        FTemplateTag.TagValue := aInputFilename
+      else
+      if CompareText(FTemplateTag.TagName, 'OutputFilename' ) = 0 then
+        FTemplateTag.TagValue := aOutputFilename
+    end;
+
+    loTemplate.InsertAllTagValues;
+
+    result := Trim(loTemplate.OutputDoc.Text);
+
+  Finally
+    loTemplate.Free;
+  End;
+end;
+
+
+
+
 
 end.

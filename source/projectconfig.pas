@@ -185,10 +185,6 @@ begin
 end;
 
 function TProjectConfig.Getproperties(aPropertyName: String): String;
-Var
-  loTemplate: tNovusTemplate;
-  I: INteger;
-  FTemplateTag: TTemplateTag;
 begin
   result := aPropertyName;
 
@@ -196,8 +192,9 @@ begin
 
   Result := GetFirstNodeName(aPropertyName, 'properties');
 
-  Result := tNovusEnvironment.ParseGetEnvironmentVar(Result);
- end;
+  Result :=  tNovusEnvironment.ParseGetEnvironmentVar(Result,ETTToken2 );
+  Result :=  tNovusEnvironment.ParseGetEnvironmentVar(Result, ETTToken1);
+end;
 
 
 
