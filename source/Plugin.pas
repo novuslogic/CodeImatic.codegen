@@ -3,7 +3,8 @@ unit Plugin;
 interface
 
 uses classes, Output, NovusPlugin, Project, config, NovusTemplate, uPSRuntime,
-  uPSCompiler, NovusList, SysUtils, JvSimpleXml, CodeGeneratorItem;
+  uPSCompiler, NovusList, SysUtils, JvSimpleXml, CodeGeneratorItem,
+  NovusShell, System.IoUtils;
 
 type
   TPluginReturn = (PRFailed, PRPassed, PRIgnore);
@@ -83,6 +84,8 @@ type
     function PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; aTemplateFile: String; var aOutputFilename: string): TPluginReturn; virtual;
     function Convert(aProjectItem: tObject;aInputFilename: string; var aOutputFilename: string): TPluginReturn; virtual;
     function ParseConvertParameters(aParameters, aInputFilename, aOutputFilename: string): string;
+    function RunCaptureCommand(const aCommandLine: string; var aOutput: String): Integer;
+    function Delete(const aFilename: String): Boolean;
 
     property oConfigPlugin: tConfigPlugin
       read foConfigPlugin;
@@ -354,7 +357,41 @@ begin
   End;
 end;
 
+function TProcessorItem.RunCaptureCommand(const aCommandLine: string;
+  var aOutput: String): Integer;
+Var
+  loShell: TNovusShell;
+begin
+  Try
+    Try
+      loShell := TNovusShell.Create;
 
+      Result := loShell.RunCaptureCommand(aCommandLine, aOutput);
+
+    Except
+      foOutput.InternalError;
+    End;
+  Finally
+    loShell.Free;
+  End;
+end;
+
+function TProcessorItem.Delete(const aFilename: String): Boolean;
+begin
+  Try
+    Try
+      TFile.Delete(aFilename);
+
+      Result := True;
+    Except
+      Result := False;
+
+      oOutput.InternalError;
+    End;
+  Finally
+
+  End;
+end;
 
 
 

@@ -355,7 +355,6 @@ begin
     if Trim(aOutputFilename) <> '' then
       begin
         DoPostProcessor(FoProcesorItem, fsSourceFilename, aOutputFilename);
-        DoConvert(FoProcesorItem, aOutputFilename, aOutputFilename);
       end;
 
     Result := true;
@@ -370,6 +369,12 @@ begin
   End;
 
   Result := DoOutputFilename(fsSourceFilename,aOutputFilename,FoProcesorItem);
+
+  if Result  then
+    begin
+      if Trim(aOutputFilename) <> '' then
+        DoConvert(FoProcesorItem, aOutputFilename, aOutputFilename);
+    end;
 end;
 
 function TCodeGenerator.DoOutputFilename(aTemplateFile: String;aOutputFilename: string;aProcesorItem: TProcessorItem): boolean;

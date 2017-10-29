@@ -40,33 +40,58 @@ function tLessCssProcessorItem.PostProcessor(aProjectItem: tObject; aTemplate: t
 begin
   aOutputFilename := ExtractFilePath(aTemplateFile) +  '_' + ExtractFileName(aTemplateFile);
 
+ // oOutput.Log('Less tempfilename:' + aOutputFilename );
+
   Result := PRPassed;
 end;
 
 function tLessCssProcessorItem.Convert(aProjectItem: tObject;aInputFilename: string; var aOutputFilename: string): TPluginReturn;
 Var
-  fsPathCoverFilename,
-  fsDefaultOutputFilename,
+  lsOutput,
+  lsCommandLine ,
   fsFilename,
   fsparameters: String;
+  liExitCode: Integer;
+  SB: TStringBuilder;
 begin
-  fsDefaultOutputFilename := Self.DefaultOutputFilename;
+  Try
+      Try
+      aOutputFilename := ChangeFileExt(Self.DefaultOutputFilename, '.' + outputextension);
 
-  fsFilename :=  tNovusEnvironment.ParseGetEnvironmentVar(ConvertFilename,ETTToken2 );
-  fsFilename :=  tNovusEnvironment.ParseGetEnvironmentVar(fsFilename, ETTToken1);
+      fsFilename :=  tNovusEnvironment.ParseGetEnvironmentVar(ConvertFilename,ETTToken2 );
+      fsFilename :=  tNovusEnvironment.ParseGetEnvironmentVar(fsFilename, ETTToken1);
 
-  fsparameters := ParseConvertParameters(ConvertFilenameparameters, aInputFilename, aOutputFilename);
+      fsparameters := ParseConvertParameters(ConvertFilenameparameters, aInputFilename, aOutputFilename);
 
-  if not FileExists(fsFilename) then
-    begin
-      oOutput.LogError('Error: Cannot find convert file : ' + fsFilename);
+      if not FileExists(fsFilename) then
+        begin
+          oOutput.LogError('Error: Cannot find convert file : ' + fsFilename);
+          Result := PRFailed;
+          Exit;
+        end;
+
+      lsCommandLine := fsFilename + ' ' + fsparameters;
+
+      oOutput.LogFormat('Running: %s', [lsCommandLine]);
+
+      liExitCode := RunCaptureCommand(lsCommandLine, lsOutput);
+
+      oOutput.Log(lsoutput);
+      if liExitCode = 0 then Result := PRPassed
+        else Result := PRFailed;
+
+    Except
+      oOutput.InternalError;
+
       Result := PRFailed;
-      Exit;
-    end;
-
-
-
-  Result := PRIgnore;
+    End;
+  Finally
+    if fileExists(aInputFilename) then
+      begin
+      //  oOutput.Log('Delete Less tempfilename:' + aInputFilename);
+        DeleteFile(aInputFilename);
+      end;
+  End;
 end;
 
 end.
