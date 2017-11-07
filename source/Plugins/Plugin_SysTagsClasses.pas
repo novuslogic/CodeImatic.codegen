@@ -90,7 +90,6 @@ type
     property PluginName: string read GetPluginName;
 
     function CreatePlugin(aOutput: tOutput; aProject: Tproject; aConfigPlugin: TConfigPlugin): TPlugin; safecall;
-
   end;
 
 function GetPluginObject: INovusPlugin; stdcall;

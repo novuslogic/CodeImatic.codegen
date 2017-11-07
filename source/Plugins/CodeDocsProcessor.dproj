@@ -3,7 +3,7 @@
         <ProjectGuid>{720C19B2-2DE0-497C-B0A2-9C259463E0A9}</ProjectGuid>
         <ProjectVersion>17.2</ProjectVersion>
         <FrameworkType>None</FrameworkType>
-        <MainSource>CodeDocs.dpr</MainSource>
+        <MainSource>CodeDocsProcessor.dpr</MainSource>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
@@ -57,7 +57,7 @@
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
         <VerInfo_Locale>3081</VerInfo_Locale>
         <DCC_UnitSearchPath>..\..\build\;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
-        <SanitizedProjectName>CodeDocs</SanitizedProjectName>
+        <SanitizedProjectName>CodeDocsProcessor</SanitizedProjectName>
         <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <DCC_DcuOutput>..\..\units\$(Platform)\</DCC_DcuOutput>
         <DCC_ExeOutput>..\..\build\plugins\</DCC_ExeOutput>
@@ -92,8 +92,8 @@
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <Debugger_HostApplication>D:\Projects\Zcodegen\build\Zcodegen.exe</Debugger_HostApplication>
-        <Debugger_RunParams>-project zautomatic.zcproject -projectconfig zautomatic.zcconfig -webserver</Debugger_RunParams>
-        <Debugger_CWD>D:\Projects\Zautomatic\zautomatic.github.io</Debugger_CWD>
+        <Debugger_RunParams>-project codeimatic.zcproject -projectconfig codeimatic.zcconfig -webserver  -openbrowser</Debugger_RunParams>
+        <Debugger_CWD>D:\Projects\CodeImatic\codeimatic.com\</Debugger_CWD>
         <DCC_RemoteDebug>false</DCC_RemoteDebug>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
@@ -111,6 +111,7 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="Plugin_CodeDocsClasses.pas"/>
+        <DCCReference Include="CodeDocsProcessorItem.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -129,7 +130,7 @@
         <BorlandProject>
             <Delphi.Personality>
                 <Source>
-                    <Source Name="MainSource">CodeDocs.dpr</Source>
+                    <Source Name="MainSource">CodeDocsProcessor.dpr</Source>
                 </Source>
                 <Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\bcboffice2k220.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
@@ -139,9 +140,9 @@
                 </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="1">
-                <DeployFile LocalName="..\..\..\Zcodegen\build\plugins\CodeDocs.dll" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="..\..\build\plugins\CodeDocsProcessor.dll" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
-                        <RemoteName>CodeDocs.dll</RemoteName>
+                        <RemoteName>CodeDocsProcessor.dll</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
@@ -531,12 +532,12 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Android" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME).app"/>
-                <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
+                <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
             </Deployment>
             <Platforms>

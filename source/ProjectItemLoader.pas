@@ -85,15 +85,22 @@ begin
 
   if FRootNodeLoader.PropertyName = 'FOLDER' then
   begin
-    foProjectItem.ItemFolder := GetValue(FrootNodeLoader.PropertyValue)
+    foProjectItem.ItemFolder := GetValue(FrootNodeLoader.PropertyValue);
+    foProjectItem.ProjectItemType := pitFolder;
   end
   else if FRootNodeLoader.PropertyName = 'NAME' then
   begin
-    foProjectItem.ItemName := GetValue(FRootNodeLoader.PropertyValue)
+    foProjectItem.ItemName := GetValue(FRootNodeLoader.PropertyValue);
+    foProjectItem.ProjectItemType := pitItem;
+  end
+  else if FRootNodeLoader.PropertyName = 'PROCESSOR' then
+  begin
+    foProjectItem.Processor := GetValue(FRootNodeLoader.PropertyValue);
+    foProjectItem.ProjectItemType := pitProcessor;
   end
   else
   begin
-    foOutput.LogError('projectitem.folder or projectitem.name required.');
+    foOutput.LogError('projectitem.folder or projectitem.name or projectitem.processor required.');
     Result := False;
 
     exit;
@@ -140,7 +147,8 @@ begin
       FNodeLoader := GetNode(FRootNodeLoader, 'processor');
       if FNodeLoader.IsExists then
          foProjectItem.processor := GetValue(FNodeLoader.Value);
-    end;
+    end
+  else
   if FRootNodeLoader.PropertyName = 'FOLDER' then
     begin
       FSrcFileNodeLoader := GetNode(FRootNodeLoader, 'sourcefiles');

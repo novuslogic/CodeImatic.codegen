@@ -5,7 +5,7 @@ interface
 uses Winapi.Windows, System.SysUtils, System.Classes,
   Plugin, NovusPlugin, NovusVersionUtils, Project, NovusTemplate,
   Output, System.Generics.Defaults, runtime, Config, NovusStringUtils,
-  APIBase, ProjectItem, TagType;
+  APIBase, ProjectItem, TagType, CodeDocsProcessorItem;
 
 type
   tPlugin_CodeDocsBase = class(TProcessorPlugin)
@@ -14,14 +14,6 @@ type
   public
     constructor Create(aOutput: tOutput; aPluginName: String;
       aProject: TProject; aConfigPlugin: tConfigPlugin); override;
-//    destructor Destroy; override;
-
-(*
-    function PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate;
-      var aOutputFile: string): TPluginReturn; overload; override;
-    function PreProcessor(aFilename: String; aTemplate: tNovusTemplate)
-      : TPluginReturn; override;
-*)
   end;
 
   TPlugin_CodeDocs = class(TSingletonImplementation, INovusPlugin, IExternalPlugin)
@@ -53,14 +45,13 @@ var
 constructor tPlugin_CodeDocsBase.Create(aOutput: tOutput; aPluginName: String;
   aProject: TProject; aConfigPlugin: tConfigPlugin);
 begin
-  Inherited Create(aOutput, aPluginName, aProject, aConfigPlugin);
+   Inherited Create(aOutput, aPluginName, aProject, aConfigPlugin);
 
   Try
-   // fCodeDocsprocessor := TDelphiLibCodeDocs.LoadInstance;
+    AddProcessorItem(tCodeDocsProcessorItem.Create(aConfigPlugin, aOutput));
   Except
     aOutput.InternalError;
   End;
-
 end;
 
 (*
@@ -105,64 +96,6 @@ begin
 end;
 
 // tPlugin_CodeDocsBase
-{
-function tPlugin_CodeDocsBase.PreProcessor(aFilename: string;
-  aTemplate: tNovusTemplate): TPluginReturn;
-begin
-  Result := PRIgnore;
-
-  //foOutput.Log('Processor:' + PluginName);
-
-
-
-  (*
-  foOutput.Log('Processor:' + PluginName);
-
-  Try
-    Try
-      fScssResult := NIL;
-
-      if Assigned(fCodeDocsprocessor) then
-      begin
-        fScssResult := fCodeDocsprocessor.ConvertToCss(aTemplateDoc.Text);
-        if Assigned(fScssResult) then
-        begin
-          aTemplateDoc.Text := fScssResult.CSS;
-          Result := true;
-        end;
-
-      end;
-    Except
-      Result := False;
-
-      foOutput.InternalError;
-    End;
-  Finally
-    if Assigned(fScssResult) then
-      fScssResult.Free;
-  End;
-  *)
-end;
-
-function tPlugin_CodeDocsBase.PostProcessor(aProjectItem: tObject;
-  aTemplate: tNovusTemplate; var aOutputFile: string): TPluginReturn;
-begin
-  Result := PRIgnore;
-
-  //foOutput.Log('Postprocessor:' + PluginName);
-
-  Try
-    //aOutputFile := ChangeFileExt(aOutputFile, '.' + outputextension);
-
-    //foOutput.Log('New output:' + aOutputFile);
-
-
-  Except
-    Result := PRFailed;
-    foOutput.InternalError;
-  End;
-end;
-}
 
 function GetPluginObject: INovusPlugin;
 begin

@@ -52,8 +52,6 @@ begin
     AddProcessorItem(tSassProcessorItem.Create(aConfigPlugin, aOutput));
     AddProcessorItem(tMarkdownProcessorItem.Create(aConfigPlugin, aOutput));
     AddProcessorItem(tLessCssProcessorItem.Create(aConfigPlugin, aOutput));
-
-
   Except
     aOutput.InternalError;
   End;

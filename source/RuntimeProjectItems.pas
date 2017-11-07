@@ -44,63 +44,71 @@ begin
     begin
       loProjectItem := tProjectItem(foProject.oProjectItemList.items[I]);
 
-      if loProjectItem.ItemName <> '' then
-      begin
-        foOutput.Log('Project Item: ' + loProjectItem.Name);
 
-        Try
-          if foProject.oProjectConfig.IsLoaded then
-            loProjectItem.templateFile :=
-              tProjectconfigParser.ParseProjectconfig
-              (loProjectItem.templateFile, foProject, foOutput);
+      case loProjectItem.ProjectItemType of
+         pitProcessor: begin
 
-          if TNovusFileUtils.IsValidFolder(loProjectItem.templateFile) then
-            loProjectItem.templateFile := TNovusFileUtils.TrailingBackSlash
-              (loProjectItem.templateFile) + loProjectItem.ItemName;
-        Except
-          foOutput.Log('TemplateFile Projectconfig error.');
 
-          Break;
-        End;
 
-        if Not FileExists(loProjectItem.templateFile) then
-        begin
-          foOutput.Log('template ' + loProjectItem.templateFile +
-            ' cannot be found.');
 
-          foOutput.Failed := true;
+         end;
 
-          Continue;
-        end;
-      end
-      else
-      begin
-        loProjectItem.ItemFolder := tProjectconfigParser.ParseProjectconfig
-          (loProjectItem.ItemFolder, foProject, foOutput);
+         pitItem: begin
+            foOutput.Log('Project Item: ' + loProjectItem.Name);
 
-        if not TNovusFileUtils.IsValidFolder(loProjectItem.ItemFolder) then
-        begin
-          foOutput.Log('Folder ' + loProjectItem.ItemFolder +
-            ' cannot be found.');
+            Try
+              if foProject.oProjectConfig.IsLoaded then
+                loProjectItem.templateFile :=
+                  tProjectconfigParser.ParseProjectconfig
+                  (loProjectItem.templateFile, foProject, foOutput);
 
-          foOutput.Failed := true;
+              if TNovusFileUtils.IsValidFolder(loProjectItem.templateFile) then
+                loProjectItem.templateFile := TNovusFileUtils.TrailingBackSlash
+                  (loProjectItem.templateFile) + loProjectItem.ItemName;
+            Except
+              foOutput.Log('TemplateFile Projectconfig error.');
 
-          Continue;
-        end;
+              Break;
+            End;
 
-        loProjectItem.oSourceFiles.Folder :=
-          tProjectconfigParser.ParseProjectconfig
-          (loProjectItem.oSourceFiles.Folder, foProject, foOutput);
+            if Not FileExists(loProjectItem.templateFile) then
+            begin
+              foOutput.Log('template ' + loProjectItem.templateFile +
+                ' cannot be found.');
 
-        if not TNovusFileUtils.IsValidFolder(loProjectItem.oSourceFiles.Folder)
-        then
-        begin
-          foOutput.Log('Sourcefiles.Folder ' + loProjectItem.oSourceFiles.Folder
-            + ' cannot be found.');
+              foOutput.Failed := true;
 
-          foOutput.Failed := true;
+              Continue;
+            end;
+         end;
+        pitFolder: begin
+           loProjectItem.ItemFolder := tProjectconfigParser.ParseProjectconfig
+            (loProjectItem.ItemFolder, foProject, foOutput);
 
-          Continue;
+          if not TNovusFileUtils.IsValidFolder(loProjectItem.ItemFolder) then
+          begin
+            foOutput.Log('Folder ' + loProjectItem.ItemFolder +
+              ' cannot be found.');
+
+            foOutput.Failed := true;
+
+            Continue;
+          end;
+
+          loProjectItem.oSourceFiles.Folder :=
+            tProjectconfigParser.ParseProjectconfig
+            (loProjectItem.oSourceFiles.Folder, foProject, foOutput);
+
+          if not TNovusFileUtils.IsValidFolder(loProjectItem.oSourceFiles.Folder)
+          then
+          begin
+            foOutput.Log('Sourcefiles.Folder ' + loProjectItem.oSourceFiles.Folder
+              + ' cannot be found.');
+
+            foOutput.Failed := true;
+
+            Continue;
+          end;
         end;
       end;
 
