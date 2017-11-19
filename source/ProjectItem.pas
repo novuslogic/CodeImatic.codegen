@@ -7,9 +7,8 @@ Uses NovusBO, JvSimpleXml, Project, SysUtils, NovusSimpleXML,
   DBSchema, Properties, NovusTemplate, CodeGenerator, Output, Template,
   NovusFileUtils,
   NovusList, System.RegularExpressions, NovusUtilities, plugin;
-
 type
-  TProjectItemType = (pitItem, pitFolder, pitProcessor);
+  TProjectItemType = (pitItem, pitFolder);
 
   TProjectItem = class;
 
@@ -20,6 +19,7 @@ type
     fbIsTemplateFile: Boolean;
     fsFullPathname: String;
     fsfilename: String;
+    fsProcessor: String;
   protected
   public
     constructor Create;
@@ -34,8 +34,7 @@ type
 
     property FullPathname: String read fsFullPathname write fsFullPathname;
 
-    property oprocessorPlugin: tProcessorPlugin read foProcessorPlugin
-      write foProcessorPlugin;
+    property Processor: String read fsProcessor write fsProcessor;
   end;
 
   tFiltered = class(tFileType)
@@ -171,7 +170,7 @@ type
 
 implementation
 
-Uses Config, ProjectItemFolder;
+Uses Config, ProjectItemFolder, Plugins;
 
 constructor TProjectItem.Create(aProject: tProject; aOutput: Toutput;
   aNodeProjectItem: TJvSimpleXmlElem);
@@ -314,67 +313,9 @@ begin
           End;
 
         end;
-      pitProcessor:
-        ;
+
     end;
 
-    (*
-      if ItemFolder <> '' then
-      begin
-      Try
-      foOutput.Log('Build started ' + foOutput.FormatedNow);
-
-      loProjectItemFolder:= tProjectItemFolder.Create(foOutput, foProject,self);
-
-      loProjectItemFolder.Execute;
-
-      if Not foOutput.Failed then
-      begin
-      if Not foOutput.Errors then
-      foOutput.Log('Build succeeded ' + foOutput.FormatedNow)
-      else
-      foOutput.Log('Build with errors ' + foOutput.FormatedNow);
-      end
-      else
-      foOutput.LogError('Build failed ' + foOutput.FormatedNow);
-
-      result := (Not foOutput.Failed);
-      Finally
-      loProjectItemFolder.Free;
-      End;
-      end
-      else
-      if ItemName <> '' then
-      begin
-      foOutput.Log('Source : ' + fsTemplateFile);
-
-      foOutput.Log('Output: ' + fsOutputFile);
-
-      foOutput.Log('Build started ' + foOutput.FormatedNow);
-
-      foTemplate.TemplateDoc.LoadFromFile(TemplateFile);
-
-      foTemplate.ParseTemplate;
-
-      foCodeGenerator := tCodeGenerator.Create(foTemplate, foOutput,
-      foProject, Self, NIL, fsTemplateFile, fsTemplateFile);
-
-      foCodeGenerator.Execute(fsOutputFile);
-
-      if Not foOutput.Failed then
-      begin
-      if Not foOutput.Errors then
-      foOutput.Log('Build succeeded ' + foOutput.FormatedNow)
-      else
-      foOutput.Log('Build with errors ' + foOutput.FormatedNow);
-      end
-      else
-      foOutput.LogError('Build failed ' + foOutput.FormatedNow);
-
-      result := (Not foOutput.Failed);
-
-      end;
-    *)
   Except
     foOutput.InternalError;
   End;
@@ -382,10 +323,11 @@ end;
 
 function TProjectItem.GetName: String;
 begin
-  if ItemName <> '' then
-    result := ItemName
-  else
-    result := ItemFolder;
+   Result := '';
+   case Self.ProjectItemType of
+      pitItem:  result := ItemName;
+      pitFolder: result := ItemFolder;
+   end;
 end;
 
 // tSourceFiles
@@ -427,12 +369,12 @@ begin
     if loSourceFile.IsFolder = false then
     begin
       foTemplateFile := IsTemplateFile(aFullPathname);
-
-      loSourceFile.IsTemplateFile := (foTemplateFile <> NIL);
-
-      if loSourceFile.IsTemplateFile then
-        TNovusUtilities.CopyObject(foTemplateFile.oprocessorPlugin,
-          loSourceFile.oprocessorPlugin);
+      loSourceFile.IsTemplateFile := False;
+      if Assigned( foTemplateFile) then
+        begin
+          loSourceFile.IsTemplateFile := true;
+          loSourceFile.Processor :=  foTemplateFile.Processor;
+        end;
     end;
 
     loSourceFile.IsFiltered := IsFiltered(aFullPathname);
@@ -510,12 +452,16 @@ end;
 // tFileType
 constructor tFileType.Create;
 begin
-  foProcessorPlugin := tProcessorPlugin.Create(NIL, '', NIL, NIL);
+  foProcessorPlugin := NIL;
+
+//  foProcessorPlugin := tProcessorPlugin.Create(NIL, '', NIL, NIL);
 end;
 
 destructor tFileType.Destroy;
 begin
-  foProcessorPlugin.Free;
+  foProcessorPlugin := NIL;
+
+//  foProcessorPlugin.Free;
 end;
 
 // tFilters
@@ -538,12 +484,13 @@ function tTemplates.AddFile(aFullPathname: string; aFilename: String;
   aProcessor: String): tTemplateFile;
 var
   loTemplateFile: tTemplateFile;
+  loPlugin: TPlugin;
 begin
   loTemplateFile := tTemplateFile.Create;
   loTemplateFile.FullPathname := Trim(aFullPathname);
   loTemplateFile.IsFolder := false;
   loTemplateFile.IsTemplateFile := true;
-  loTemplateFile.oprocessorPlugin.PluginName := aProcessor;
+  loTemplateFile.Processor := aProcessor;
   loTemplateFile.Filename := aFilename;
 
   Add(loTemplateFile);

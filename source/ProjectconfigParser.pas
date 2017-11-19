@@ -3,7 +3,7 @@ unit ProjectconfigParser;
 interface
 
 uses ExpressionParser, system.Classes,  Variables, output, SysUtils, Project,
-     TagType, tagTypeParser, TokenProcessor;
+     TagType, tagTypeParser, TokenProcessor, NovusEnvironment;
 
 
 type
@@ -81,6 +81,10 @@ begin
     lTokens.Free;
     lEParser.Free;
   End;
+
+
+  Result :=  tNovusEnvironment.ParseGetEnvironmentVar(Result,ETTToken2 );
+  Result :=  tNovusEnvironment.ParseGetEnvironmentVar(Result, ETTToken1);
 end;
 
 

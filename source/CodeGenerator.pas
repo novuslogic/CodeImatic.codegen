@@ -34,7 +34,8 @@ Type
   private
     function GetScriptFilename: string;
     function DoInternalCodeBehine(aFilename: string): boolean;
-    procedure DoInternalCode(aScript: String; aCodeGeneratorItem : TCodeGeneratorItem);
+    procedure DoInternalCode(aScript: String;
+      aCodeGeneratorItem: TCodeGeneratorItem);
     procedure DoPluginTags;
     procedure DoLanguage;
     procedure DoConnections;
@@ -42,8 +43,10 @@ Type
     procedure DoCodeBehine;
     procedure DoCodeTags;
     function DoScriptEngine: boolean;
-    procedure DoPostProcessor(aProcessorItem: tProcessorItem;aTemplateFile: String;var aOutputFilename: string);
-    procedure DoConvert(aProcessorItem: tProcessorItem;aTemplateFile: String;var aOutputFilename: string);
+    procedure DoPostProcessor(aProcessorItem: tProcessorItem;
+      aTemplateFile: String; var aOutputFilename: string);
+    procedure DoConvert(aProcessorItem: tProcessorItem; aTemplateFile: String;
+      var aOutputFilename: string);
 
     function DoIncludes: boolean;
     function DoPreLayout: boolean;
@@ -56,14 +59,14 @@ Type
     function DoInternalIncludes(aTagType: TTagType = ttInclude): boolean;
     function LocalWorkingdirectory: String;
   public
-    constructor Create(ATemplate: TTemplate; AOutput: tOutput;
+    constructor Create(aTemplate: TTemplate; AOutput: tOutput;
       aProject: tProject; aProjectItem: TObject; aProcessorPlugin: TObject;
-      aInputFilename: string;
-      aSourceFilename: String); virtual;
+      aInputFilename: string; aSourceFilename: String); virtual;
 
     destructor Destroy; override;
 
-    function DoOutputFilename(aTemplateFile: string;aOutputFilename: string;aProcesorItem: TProcessorItem): boolean;
+    function DoOutputFilename(aTemplateFile: string; aOutputFilename: string;
+      aProcesorItem: tProcessorItem): boolean;
 
     function IsNonOutputCommandonly(ASourceLineNo: Integer): boolean;
 
@@ -94,8 +97,7 @@ Type
 
     property RenderBodyTag: string read fsRenderBodyTag write fsRenderBodyTag;
 
-    property DefaultOutputFilename: String
-      read fsDefaultOutputFilename
+    property DefaultOutputFilename: String read fsDefaultOutputFilename
       write fsDefaultOutputFilename;
 
   end;
@@ -103,7 +105,7 @@ Type
 implementation
 
 uses runtime, TokenParser, ProjectItemLoader, ProjectItem, Processor,
-  TagTypeParser;
+  TagTypeParser, Plugins;
 
 constructor TCodeGenerator.Create;
 begin
@@ -119,13 +121,13 @@ begin
 
   foProject := aProject;
 
-  fsSourceFilename:= aSourceFileName;
+  fsSourceFilename := aSourceFilename;
 
   foVariables := tVariables.Create;
 
   foOutput := AOutput;
 
-  FoTemplate := ATemplate;
+  FoTemplate := aTemplate;
 
   FCodeGeneratorList := TNovusList.Create(TCodeGeneratorItem);
 
@@ -133,7 +135,7 @@ begin
 
   FLanguage := tLanguage.Create;
 
-  FScript := TstringList.Create;
+  FScript := TStringList.Create;
 
   Folayout := NIL;
 end;
@@ -175,14 +177,14 @@ begin
 
 end;
 
-function TCodeGenerator.AddTag(ATemplateTag: TTemplateTag)
-  : TCodeGeneratorItem;
+function TCodeGenerator.AddTag(ATemplateTag: TTemplateTag): TCodeGeneratorItem;
 Var
   lCodeGeneratorItem: TCodeGeneratorItem;
 begin
   Result := NIL;
 
-  lCodeGeneratorItem := TCodeGeneratorItem.Create(foProjectItem, Self, foVariables, foProject);
+  lCodeGeneratorItem := TCodeGeneratorItem.Create(foProjectItem, Self,
+    foVariables, foProject);
 
   lCodeGeneratorItem.oTemplateTag := ATemplateTag;
 
@@ -218,8 +220,7 @@ begin
       if LiSkipPos1 > I then
         Continue;
 
-    LCodeGeneratorItem1 := TCodeGeneratorItem
-      (FCodeGeneratorList.Items[I]);
+    LCodeGeneratorItem1 := TCodeGeneratorItem(FCodeGeneratorList.Items[I]);
 
     if LCodeGeneratorItem1.tagtype = ttInterpreter then
     begin
@@ -242,16 +243,16 @@ begin
     if aClearRun then
     begin
       Try
-         (*
-        FSourceTemplateTags:= TTemplateTags.Create(TTemplateTag);
+        (*
+          FSourceTemplateTags:= TTemplateTags.Create(TTemplateTag);
 
-        for I := 0 to FoTemplate.TemplateTags.Count - 1 do
+          for I := 0 to FoTemplate.TemplateTags.Count - 1 do
           begin
-            FoTemplateTag := TTemplateTag.Create(NIL);
-            FoTemplateTag.Assign(TTemplateTag(FoTemplate.TemplateTags.Items[I]));
+          FoTemplateTag := TTemplateTag.Create(NIL);
+          FoTemplateTag.Assign(TTemplateTag(FoTemplate.TemplateTags.Items[I]));
 
 
-            FSourceTemplateTags.Add(FoTemplateTag);
+          FSourceTemplateTags.Add(FoTemplateTag);
           end;
         *)
 
@@ -260,19 +261,19 @@ begin
         FoTemplate.ParseTemplate;
       Finally
         (*
-        for I := 0 to FoTemplate.TemplateTags.Count - 1 do
+          for I := 0 to FoTemplate.TemplateTags.Count - 1 do
           begin
-            FoTemplateTag := TTemplateTag(FoTemplate.TemplateTags.Items[I]);
+          FoTemplateTag := TTemplateTag(FoTemplate.TemplateTags.Items[I]);
 
-            fiIndex := FSourceTemplateTags.FindTagNameIndexOf(FoTemplateTag.TagName, 0);
-            if fiIndex <> -1 then
-              FoTemplateTag.TagValue := TTemplateTag(FSourceTemplateTags.Items[fiIndex]).TagValue;
+          fiIndex := FSourceTemplateTags.FindTagNameIndexOf(FoTemplateTag.TagName, 0);
+          if fiIndex <> -1 then
+          FoTemplateTag.TagValue := TTemplateTag(FSourceTemplateTags.Items[fiIndex]).TagValue;
           end;
 
-        FSourceTemplateTags.Free;
+          FSourceTemplateTags.Free;
         *)
       End;
-     end;
+    end;
 
     Result := true;
 
@@ -297,10 +298,10 @@ end;
 
 function TCodeGenerator.Execute;
 var
-  FoProcesorItem: TProcessorItem;
+  FoProcesorItem: tProcessorItem;
 begin
   Try
-    DefaultOutputFilename :=  aOutputFilename;
+    DefaultOutputFilename := aOutputFilename;
 
     // Pass 1
     Result := false;
@@ -323,12 +324,12 @@ begin
     DoCodeTags;
 
     if Trim(FScript.text) <> '' then
-      if not DoScriptEngine then Exit;
+      if not DoScriptEngine then
+        Exit;
 
     FoProcesorItem := DoPreProcessor;
-    if Assigned(foProcesorItem) then
-       FoProcesorItem.DefaultOutputFilename := DefaultOutputFilename;
-
+    if Assigned(FoProcesorItem) then
+      FoProcesorItem.DefaultOutputFilename := DefaultOutputFilename;
 
     // Pass 2
     if DoPreLayout then
@@ -353,9 +354,9 @@ begin
     DoSpecialTags;
 
     if Trim(aOutputFilename) <> '' then
-      begin
-        DoPostProcessor(FoProcesorItem, fsSourceFilename, aOutputFilename);
-      end;
+    begin
+      DoPostProcessor(FoProcesorItem, fsSourceFilename, aOutputFilename);
+    end;
 
     Result := true;
   Except
@@ -368,16 +369,17 @@ begin
     Exit;
   End;
 
-  Result := DoOutputFilename(fsSourceFilename,aOutputFilename,FoProcesorItem);
+  Result := DoOutputFilename(fsSourceFilename, aOutputFilename, FoProcesorItem);
 
-  if Result  then
-    begin
-      if Trim(aOutputFilename) <> '' then
-        DoConvert(FoProcesorItem, aOutputFilename, aOutputFilename);
-    end;
+  if Result then
+  begin
+    if Trim(aOutputFilename) <> '' then
+      DoConvert(FoProcesorItem, aOutputFilename, aOutputFilename);
+  end;
 end;
 
-function TCodeGenerator.DoOutputFilename(aTemplateFile: String;aOutputFilename: string;aProcesorItem: TProcessorItem): boolean;
+function TCodeGenerator.DoOutputFilename(aTemplateFile: String;
+  aOutputFilename: string; aProcesorItem: tProcessorItem): boolean;
 var
   fEncoding: TEncoding;
 begin
@@ -390,20 +392,20 @@ begin
       fEncoding := NIL;
 
       if TNovusFileUtils.IsTextFile(aTemplateFile, fEncoding) = -1 then
-        begin
-          Result := false;
+      begin
+        Result := false;
 
-          foOutput.LogError('Save Error: ' + aOutputFilename + ' - IsTextFile Fail');
+        foOutput.LogError('Save Error: ' + aOutputFilename +
+          ' - IsTextFile Fail');
 
-          Exit;
-        end;
+        Exit;
+      end;
 
       if not foOutput.Failed then
         if fEncoding = NIL then
           FoTemplate.OutputDoc.SaveToFile(aOutputFilename, TEncoding.Unicode)
         else
           FoTemplate.OutputDoc.SaveToFile(aOutputFilename, fEncoding);
-
 
     Except
       Result := false;
@@ -415,16 +417,20 @@ begin
   end;
 end;
 
-procedure TCodeGenerator.DoPostProcessor(aProcessorItem: tProcessorItem;aTemplateFile: String;var aOutputFilename: string);
+procedure TCodeGenerator.DoPostProcessor(aProcessorItem: tProcessorItem;
+  aTemplateFile: String; var aOutputFilename: string);
 begin
-  oRuntime.oPlugins.PostProcessor(aProcessorItem, (foProjectItem as TProjectItem), FoTemplate,
-    aTemplateFile, aOutputFilename, (foProcessorPlugin as TProcessorPlugin));
+  oRuntime.oPlugins.PostProcessor(aProcessorItem,
+    (foProjectItem as TProjectItem), FoTemplate, aTemplateFile, aOutputFilename,
+    (foProcessorPlugin as TProcessorPlugin));
 end;
 
-procedure TCodeGenerator.DoConvert(aProcessorItem: tProcessorItem;aTemplateFile: String;var aOutputFilename: string);
+procedure TCodeGenerator.DoConvert(aProcessorItem: tProcessorItem;
+  aTemplateFile: String; var aOutputFilename: string);
 begin
-  oRuntime.oPlugins.Convert(aProcessorItem, (foProjectItem as TProjectItem), FoTemplate,
-    aTemplateFile, aOutputFilename, (foProcessorPlugin as TProcessorPlugin));
+  oRuntime.oPlugins.Convert(aProcessorItem, (foProjectItem as TProjectItem),
+    FoTemplate, aTemplateFile, aOutputFilename,
+    (foProcessorPlugin as TProcessorPlugin));
 end;
 
 function TCodeGenerator.IsNonOutputCommandonly(ASourceLineNo: Integer): boolean;
@@ -470,8 +476,7 @@ begin
 
       for X := 0 to FCodeGeneratorList.Count - 1 do
       begin
-        lCodeGeneratorItem := TCodeGeneratorItem
-          (FCodeGeneratorList.Items[X]);
+        lCodeGeneratorItem := TCodeGeneratorItem(FCodeGeneratorList.Items[X]);
 
         if lCodeGeneratorItem.tagtype = ttInterpreter then
         begin
@@ -487,8 +492,7 @@ begin
       begin
         for X := 0 to FCodeGeneratorList.Count - 1 do
         begin
-          lCodeGeneratorItem := TCodeGeneratorItem
-            (FCodeGeneratorList.Items[X]);
+          lCodeGeneratorItem := TCodeGeneratorItem(FCodeGeneratorList.Items[X]);
 
           if lCodeGeneratorItem.tagtype = ttInterpreter then
           begin
@@ -517,7 +521,7 @@ Var
 begin
   try
     loTemplate := TTemplate.CreateTemplate;
-    loTemplate.TemplateDoc.Text := aStrings.Text;
+    loTemplate.TemplateDoc.text := aStrings.text;
     loTemplate.StartToken := '{';
     loTemplate.EndToken := '}';
 
@@ -528,7 +532,8 @@ begin
     begin
       LTemplateTag := TTemplateTag(loTemplate.TemplateTags.Items[I]);
 
-      if ((LTemplateTag.RawTagEx = cBlankline) or (LTemplateTag.TagValue = cBlankline)) then
+      if ((LTemplateTag.RawTagEx = cBlankline) or
+        (LTemplateTag.TagValue = cBlankline)) then
       begin
         loTemplate.TemplateDoc.Strings[LTemplateTag.SourceLineNo - 1] := '';
 
@@ -536,8 +541,8 @@ begin
 
         Dec(I);
       end
-      else
-      if ((LTemplateTag.RawTagEx = cDeleteLine) or (LTemplateTag.TagValue = cDeleteLine)) then
+      else if ((LTemplateTag.RawTagEx = cDeleteLine) or
+        (LTemplateTag.TagValue = cDeleteLine)) then
       begin
         loTemplate.TemplateDoc.Delete(LTemplateTag.SourceLineNo - 1);
 
@@ -549,7 +554,7 @@ begin
       Inc(I);
     end;
     loTemplate.InsertAllTagValues;
-    aStrings.Text := loTemplate.OutputDoc.Text;
+    aStrings.text := loTemplate.OutputDoc.text;
   finally
     loTemplate.Free;
   end;
@@ -603,7 +608,7 @@ begin
       begin
         if FCodeGeneratorItem.oTokens.Count > 1 then
           FoTemplateTag.TagValue := (foProjectItem as TProjectItem)
-              .oProperties.GetProperty(FCodeGeneratorItem.oTokens[1])
+            .oProperties.GetProperty(FCodeGeneratorItem.oTokens[1])
       end;
     end;
 
@@ -622,8 +627,8 @@ begin
         if FCodeGeneratorItem.tagtype = ttConnection then
         begin
           for Y := 0 to FCodeGeneratorItem.oTokens.Count - 1 do
-            If Pos(lsPropertieVariable,
-              Uppercase(FCodeGeneratorItem.oTokens[Y])) > 0 then
+            If Pos(lsPropertieVariable, Uppercase(FCodeGeneratorItem.oTokens[Y]
+              )) > 0 then
               FCodeGeneratorItem.oTokens[Y] := TNovusStringUtils.ReplaceStr
                 (FCodeGeneratorItem.oTokens[Y], lsPropertieVariable,
                 lsVariableResult, true);
@@ -632,8 +637,8 @@ begin
         else if FCodeGeneratorItem.tagtype = ttInterpreter then
         begin
           for Y := 0 to FCodeGeneratorItem.oTokens.Count - 1 do
-            If Pos(lsPropertieVariable,
-              Uppercase(FCodeGeneratorItem.oTokens[Y])) > 0 then
+            If Pos(lsPropertieVariable, Uppercase(FCodeGeneratorItem.oTokens[Y]
+              )) > 0 then
               FCodeGeneratorItem.oTokens[Y] := TNovusStringUtils.ReplaceStr
                 (FCodeGeneratorItem.oTokens[Y], lsPropertieVariable,
                 '' + lsVariableResult + '', true);
@@ -650,7 +655,7 @@ Var
   I: Integer;
   FoTemplateTag: TTemplateTag;
   FCodeGeneratorItem: TCodeGeneratorItem;
-  FiIndex: Integer;
+  fiIndex: Integer;
 begin
   for I := 0 to FCodeGeneratorList.Count - 1 do
   begin
@@ -664,10 +669,10 @@ begin
         [FoTemplateTag.SourceLineNo - 1]) then
         FoTemplateTag.TagValue := cDeleteLine;
 
-      FiIndex := 0;
-      fsLanguage := tTokenParser.ParseToken(Self,
-        FCodeGeneratorItem.oTokens[2], (foProjectItem as TProjectItem),
-        foVariables, foOutput, NIL, FiIndex, foProject);
+      fiIndex := 0;
+      fsLanguage := tTokenParser.ParseToken(Self, FCodeGeneratorItem.oTokens[2],
+        (foProjectItem as TProjectItem), foVariables, foOutput, NIL, fiIndex,
+        foProject);
 
       if FileExists(oConfig.Languagespath + fsLanguage + '.xml') then
       begin
@@ -688,8 +693,8 @@ Var
   FCodeGeneratorItem: TCodeGeneratorItem;
   FoTemplateTag: TTemplateTag;
   lsTempIncludeFilename, lsIncludeFilename: String;
-  FIncludeTemplate: TstringList;
-  FiIndex: Integer;
+  FIncludeTemplate: TStringList;
+  fiIndex: Integer;
   FTokenProcessor: tTokenProcessor;
   lsOutputTag: String;
   lsRenderBodyTag: String;
@@ -777,12 +782,12 @@ begin
           LineNo := FoTemplateTag.SourceLineNo - 1;
 
           Try
-            FIncludeTemplate := TstringList.Create;
+            FIncludeTemplate := TStringList.Create;
 
             FIncludeTemplate.LoadFromFile(lsIncludeFilename);
 
             // Pre Processor
-           // oRuntime.oPlugins.PreProcessor(lsIncludeFilename, FIncludeTemplate);
+            // oRuntime.oPlugins.PreProcessor(lsIncludeFilename, FIncludeTemplate);
 
             FoTemplate.TemplateDoc.Delete(LineNo);
 
@@ -803,7 +808,8 @@ begin
         else if FCodeGeneratorItem.tagtype = TTagType.ttlayout then
         begin
           Folayout := TProcessor.Create(foOutput, foProject,
-            (foProjectItem as TProjectItem), NIL, '', '', lsIncludeFilename);
+            (foProjectItem as TProjectItem), '', '', '', lsIncludeFilename,
+            (oProject.oPlugins as tPlugins));
 
           (Folayout as TProcessor).InputFilename := lsIncludeFilename;
           (Folayout as TProcessor).OutputFilename := '';
@@ -845,14 +851,14 @@ begin
     lOK := DoInternalIncludes;
 end;
 
-function TCodeGenerator.DoPreProcessor: TProcessorItem;
+function TCodeGenerator.DoPreProcessor: tProcessorItem;
 begin
   Result := NIL;
   if fsInputFilename = '' then
     Exit;
 
-  Result := oRuntime.oPlugins.PreProcessor(fsInputFilename,
-      FoTemplate);
+  Result := oRuntime.oPlugins.PreProcessor(fsInputFilename, FoTemplate,
+    (foProcessorPlugin as TProcessorPlugin));
 end;
 
 function TCodeGenerator.DoPreLayout: boolean;
@@ -867,8 +873,7 @@ begin
   begin
     for I := 0 to FCodeGeneratorList.Count - 1 do
     begin
-      FCodeGeneratorItem := TCodeGeneratorItem
-        (FCodeGeneratorList.Items[I]);
+      FCodeGeneratorItem := TCodeGeneratorItem(FCodeGeneratorList.Items[I]);
 
       FoTemplateTag := FCodeGeneratorItem.oTemplateTag;
 
@@ -907,7 +912,8 @@ begin
       FoTemplateTag.TagValue := cDeleteLine;
 
       Try
-        FTokenProcessor := tTokenParser.ParseSimpleToken(FoTemplateTag.RawTag, foOutput);
+        FTokenProcessor := tTokenParser.ParseSimpleToken(FoTemplateTag.RawTag,
+          foOutput);
 
         if Uppercase(FTokenProcessor.GetNextToken) = 'CODE' then
         begin
@@ -917,10 +923,10 @@ begin
             if Trim(lsScript) = '' then
               foOutput.LogError('CODE: Empty script.')
             else
-              begin
-                DoInternalCode(lsScript, FCodeGeneratorItem);
+            begin
+              DoInternalCode(lsScript, FCodeGeneratorItem);
 
-              end;
+            end;
           end
           else
             foOutput.LogError('CODE: Equals symbol not found.');
@@ -938,14 +944,14 @@ function TCodeGenerator.DoScriptEngine: boolean;
 begin
 
   if (Pos('UNIT', Uppercase(FScript.Strings[0])) = 0) and
-     (Pos('BEGIN', Uppercase(FScript.Strings[0])) = 0) then
+    (Pos('BEGIN', Uppercase(FScript.Strings[0])) = 0) then
     FScript.Insert(0, 'begin');
 
   if Pos('END.', Uppercase(FScript.text)) = 0 then
-     FScript.Add('end.');
+    FScript.Add('end.');
 
-//  foOutput.Log('Script Filename: ' + GetScriptFilename);
-//  FScript.SaveToFile(GetScriptFilename);
+  // foOutput.Log('Script Filename: ' + GetScriptFilename);
+  // FScript.SaveToFile(GetScriptFilename);
 
   Result := oRuntime.oScriptEngine.ExecuteScript(FScript.text);
 
@@ -953,7 +959,8 @@ end;
 
 function TCodeGenerator.GetScriptFilename: string;
 begin
-  Result := TNovusStringUtils.JustPathname(fsSourceFilename) + '_' + TPath.GetFileNameWithoutExtension(fsSourceFilename)+ '.pas';
+  Result := TNovusStringUtils.JustPathname(fsSourceFilename) + '_' +
+    TPath.GetFileNameWithoutExtension(fsSourceFilename) + '.pas';
 end;
 
 procedure TCodeGenerator.DoCodeBehine;
@@ -990,10 +997,10 @@ begin
             if lsFilename = '' then
               foOutput.LogError('CODEBEHINE: Filename not found.')
             else
-              begin
-                DoInternalCodeBehine(lsfilename);
+            begin
+              DoInternalCodeBehine(lsFilename);
 
-              end;
+            end;
           end
           else
             foOutput.LogError('CODEBEHINE: Equals symbol not found.');
@@ -1052,16 +1059,15 @@ begin
 
       if FCodeGeneratorItem.oTokens.Count > 1 then
       begin
-        FCodeGeneratorItem.TokenIndex :=0;
+        FCodeGeneratorItem.TokenIndex := 0;
 
         lsToken1 := FCodeGeneratorItem.GetNextToken;
         lsToken2 := FCodeGeneratorItem.GetNextToken;
 
-        if oRuntime.oPlugins.IsTagExists(lsToken1,
-          lsToken2) then
+        if oRuntime.oPlugins.IsTagExists(lsToken1, lsToken2) then
         begin
-          FoTemplateTag.TagValue := oRuntime.oPlugins.GetTag(lsToken1,
-          lsToken2, FCodeGeneratorItem, FCodeGeneratorItem.TokenIndex -1);
+          FoTemplateTag.TagValue := oRuntime.oPlugins.GetTag(lsToken1, lsToken2,
+            FCodeGeneratorItem, FCodeGeneratorItem.TokenIndex - 1);
         end;
       end
       else
@@ -1124,19 +1130,18 @@ begin
         begin
           LTemplateTag :=
             TTemplateTag(loLayoutTemplate.TemplateTags.Items[LIndex]);
-          LTemplateTag.TagValue := FoTemplate.TemplateDoc.Text;
+          LTemplateTag.TagValue := FoTemplate.TemplateDoc.text;
         end;
 
         loLayoutTemplate.InsertAllTagValues;
-        FoTemplate.TemplateDoc.Text := loLayoutTemplate.OutputDoc.Text;
+        FoTemplate.TemplateDoc.text := loLayoutTemplate.OutputDoc.text;
 
         if Not PassTemplateTags(true) then
           Result := false;
 
         for I := 0 to FCodeGeneratorList.Count - 1 do
         begin
-          lCodeGeneratorItem := TCodeGeneratorItem
-            (FCodeGeneratorList.Items[I]);
+          lCodeGeneratorItem := TCodeGeneratorItem(FCodeGeneratorList.Items[I]);
 
           if lCodeGeneratorItem.tagtype = ttlayout then
           begin
@@ -1159,21 +1164,21 @@ begin
   Result := TNovusFileUtils.TrailingBackSlash(ExtractFileDir(fsSourceFilename));
 end;
 
-
 function TCodeGenerator.DoInternalCodeBehine(aFilename: string): boolean;
 var
   lsTempFilename: String;
 begin
-  Result := False;
+  Result := false;
 
   lsTempFilename := LocalWorkingdirectory + aFilename;
 
   if Not FileExists(lsTempFilename) then
-    begin
-      foOutput.LogError('CODEBEHINE: Filename not found [' +lsTempFilename + ']');
+  begin
+    foOutput.LogError('CODEBEHINE: Filename not found [' +
+      lsTempFilename + ']');
 
-      Exit;
-    end;
+    Exit;
+  end;
 
   Try
     Try
@@ -1185,13 +1190,14 @@ begin
   End;
 end;
 
-procedure TCodeGenerator.DoInternalCode(aScript: String; aCodeGeneratorItem : TCodeGeneratorItem);
+procedure TCodeGenerator.DoInternalCode(aScript: String;
+  aCodeGeneratorItem: TCodeGeneratorItem);
 Var
   lsScript: String;
 begin
   lsScript := aScript;
 
-  fScript.Add(lsScript);
+  FScript.Add(lsScript);
 end;
 
 end.

@@ -50,7 +50,7 @@ Var
   I: Integer;
 begin
   Try
-    loRuntimeProjectItems:= tRuntimeProjectItems.Create(foOutput, foProject);
+    loRuntimeProjectItems:= tRuntimeProjectItems.Create(foOutput, foProject, foPlugins);
 
     Result := loRuntimeProjectItems.RunProjectItems
   Finally
@@ -114,6 +114,7 @@ begin
   end;
 
   FoOutput := TOutput.Create('');
+
 
   foProject.LoadProjectFile(oConfig.ProjectFileName,
     oConfig.ProjectConfigFileName, FoOutput);
@@ -194,6 +195,8 @@ begin
   if not foPlugins.IsCommandLine then Exit;
 
   if not foPlugins.BeforeCodeGen then Exit;
+
+  foProject.oPlugins := foPlugins;
 
   RunProjectItems;
 

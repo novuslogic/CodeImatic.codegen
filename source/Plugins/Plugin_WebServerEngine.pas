@@ -5,7 +5,7 @@ interface
 Uses Output, APIBase, IdBaseComponent, IdComponent, IdTCPServer, IdHTTPServer,
   StdCtrls,
   ExtCtrls, HTTPApp, Windows, NovusConsoleUtils, SysUtils, IdCustomHTTPServer,
-  IdContext,
+  IdContext, Plugins,
   Classes, NovusFileUtils, IdServerIOHandler, IdSSL, IdSSLOpenSSL,
   NovusStringUtils,
   NovusIndyUtils, Config, Project, NovusWebUtils, IdGlobalProtocols, IdGlobal,
@@ -381,7 +381,7 @@ Var
   I: Integer;
 begin
   Try
-    loRuntimeProjectItems:= tRuntimeProjectItems.Create(foOutput, foProject);
+    loRuntimeProjectItems:= tRuntimeProjectItems.Create(foOutput, foProject, (foProject.oPlugins as TPlugins));
 
     Result := loRuntimeProjectItems.RunProjectItems
   Finally

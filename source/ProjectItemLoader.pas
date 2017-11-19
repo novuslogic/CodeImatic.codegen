@@ -3,8 +3,7 @@ unit ProjectItemLoader;
 interface
 
 Uses NovusBO, JvSimpleXml, Project, SysUtils, ProjectItem, NovusFileUtils,
-  Loader, Output,  NovusStringUtils,
-  variants;
+  Loader, Output,  NovusStringUtils,Plugins;
 
 Type
   TProjectItemLoader = class(TLoader)
@@ -13,9 +12,10 @@ Type
     foOutput: tOutput;
     foProject: Tproject;
     foProjectItem: TProjectItem;
+    foPlugins: tPlugins;
   public
     constructor Create(aProject: Tproject; aProjectItem: TProjectItem;
-      aNode: TJvSimpleXmlElem; aOutput: tOutput);
+      aNode: TJvSimpleXmlElem; aOutput: tOutput; aPlugins: tPlugins);
     destructor Destroy;
 
     function Load: boolean; override;
@@ -24,7 +24,7 @@ Type
 
     class function LoadProjectItem(aProject: Tproject;
       aProjectItem: TProjectItem; aNode: TJvSimpleXmlElem;
-      aOutput: tOutput): boolean;
+      aOutput: tOutput; aPlugins: tPlugins): boolean;
   end;
 
 implementation
@@ -32,11 +32,14 @@ implementation
 Uses novusSimpleXML, ProjectconfigParser;
 
 constructor TProjectItemLoader.Create(aProject: Tproject;
-  aProjectItem: TProjectItem; aNode: TJvSimpleXmlElem; aOutput: tOutput);
+  aProjectItem: TProjectItem; aNode: TJvSimpleXmlElem; aOutput: tOutput;
+     aPlugins: tPlugins);
 begin
   RootNode := aNode;
 
   foOutput := aOutput;
+
+  foPlugins:=  aPlugins;
 
   foProject := aProject;
   foProjectItem := aProjectItem;
@@ -49,7 +52,7 @@ end;
 
 class function TProjectItemLoader.LoadProjectItem(aProject: Tproject;
   aProjectItem: TProjectItem; aNode: TJvSimpleXmlElem;
-  aOutput: tOutput): boolean;
+  aOutput: tOutput; aPlugins: tPlugins): boolean;
 var
   loProjectItemLoader: TProjectItemLoader;
 begin
@@ -57,7 +60,7 @@ begin
 
   Try
     loProjectItemLoader := TProjectItemLoader.Create(aProject, aProjectItem,
-      aNode, aOutput);
+      aNode, aOutput, aPlugins);
 
     Result := loProjectItemLoader.Load;
   Finally
@@ -93,14 +96,9 @@ begin
     foProjectItem.ItemName := GetValue(FRootNodeLoader.PropertyValue);
     foProjectItem.ProjectItemType := pitItem;
   end
-  else if FRootNodeLoader.PropertyName = 'PROCESSOR' then
-  begin
-    foProjectItem.Processor := GetValue(FRootNodeLoader.PropertyValue);
-    foProjectItem.ProjectItemType := pitProcessor;
-  end
   else
   begin
-    foOutput.LogError('projectitem.folder or projectitem.name or projectitem.processor required.');
+    foOutput.LogError('projectitem.folder or projectitem.name required.');
     Result := False;
 
     exit;
@@ -118,7 +116,7 @@ begin
   foProjectItem.deleteoutput := false;
   FNodeLoader := GetNode(FRootNodeLoader, 'deleteoutput');
   if FNodeLoader.IsExists then
-    foProjectItem.deleteoutput := TNovusStringUtils.IsBoolean(GetValue(FNodeLoader.Value));
+    foProjectItem.deleteoutput := TNovusStringUtils.StrToBoolean(GetValue(FNodeLoader.Value));
 
   FNodeLoader := GetNode(FRootNodeLoader, 'output');
   if FNodeLoader.IsExists then
@@ -146,7 +144,12 @@ begin
 
       FNodeLoader := GetNode(FRootNodeLoader, 'processor');
       if FNodeLoader.IsExists then
-         foProjectItem.processor := GetValue(FNodeLoader.Value);
+        begin
+          if (FNodeLoader.PropertyName = 'NAME') then
+            foProjectItem.processor := FNodeLoader.PropertyValue
+           else
+             foProjectItem.processor := GetValue(FNodeLoader.Value);
+        end;
     end
   else
   if FRootNodeLoader.PropertyName = 'FOLDER' then
@@ -179,7 +182,12 @@ begin
                        FNodeLoader := GetNode(FTmpFilesNodeLoader,
                          'processor');
                        if FNodeLoader.IsExists then
-                         lsprocessor := GetValue(FNodeLoader.Value);
+                         begin
+                           if (FNodeLoader.PropertyName = 'NAME') then
+                             lsprocessor := FNodeLoader.PropertyValue
+                           else
+                             lsprocessor := GetValue(FNodeLoader.Value);
+                         end;
 
                        foProjectItem.oSourceFiles.oTemplates.AddFile
                          (foProjectItem.oSourceFiles.Folder + lsFullPathname,

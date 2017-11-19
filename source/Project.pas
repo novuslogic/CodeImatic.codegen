@@ -10,6 +10,7 @@ Type
   TProject = class(TXMLlist)
   protected
   private
+    foPlugins: tObject;
     foOutput: TOutput;
     fbcreateoutputdir: Boolean;
     foProjectConfig: TProjectConfig;
@@ -54,12 +55,14 @@ Type
       read foProjectConfig
       write foProjectConfig;
 
-
+    property oPlugins: tObject
+       read foPlugins
+       write foPlugins;
   end;
 
 implementation
 
-uses Runtime, ProjectConfigParser, ProjectItem, ProjectItemLoader;
+uses Runtime, ProjectConfigParser, ProjectItem, ProjectItemLoader, Plugins;
 
 
 constructor TProject.Create;
@@ -146,29 +149,9 @@ begin
     begin
       loProjectItem:= TProjectItem.Create(self, foOutput, fNodeProjectItem);
 
-      (*
-      if fJvSimpleXmlElem.Properties.Count > 0 then
-        begin
-          if uppercase(fJvSimpleXmlElem.Properties[0].Name) = 'FOLDER' then
-            loProjectItem.ItemFolder := fJvSimpleXmlElem.Properties[0].Value
-          else
-          if uppercase(fJvSimpleXmlElem.Properties[0].Name) = 'NAME' then
-            loProjectItem.ItemName := fJvSimpleXmlElem.Properties[0].Value
-          else
-            loProjectItem.ItemName := fJvSimpleXmlElem.Properties[0].Value;
-        end;
-      *)
-      if TProjectItemLoader.LoadProjectItem(Self, loProjectItem, fNodeProjectItem, foOutput) then
+
+      if TProjectItemLoader.LoadProjectItem(Self, loProjectItem, fNodeProjectItem, foOutput, (foPlugins as TPlugins) ) then
         oProjectItemList.Add(loProjectItem);
-
-
-      (*
-      if loProjectItem.ItemName <> '' then
-        TProjectItemLoader.LoadProjectItemName(Self, loProjectItem.ItemName, loProjectItem)
-      else
-        TProjectItemLoader.LoadProjectItemFolder(Self, loProjectItem.ItemFolder, loProjectItem);
-      *)
-
 
 
       fNodeProjectItem  := TNovusSimpleXML.FindNode(oXMLDocument.Root, 'projectitem', Index);

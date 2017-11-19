@@ -6,7 +6,7 @@ uses  NovusPlugin, Config, Output,Classes, SysUtils, PluginsMapFactory, Plugin, 
       NovusTemplate, ScriptEngine, uPSRuntime, uPSCompiler, NovusFileUtils, CodeGeneratorItem;
 
 type
-   TPlugins = class
+   TPlugins = class(TObject)
    private
    protected
      foScriptEngine: tScriptEngine;
@@ -49,7 +49,7 @@ type
        aProcessorPlugin: tProcessorPlugin): TPluginReturn;
 
      function PreProcessor(aFilename: string;
-       aTemplate: tNovusTemplate):tProcessorItem;
+       aTemplate: tNovusTemplate; aProcessorPlugin: TProcessorPlugin):tProcessorItem;
 
      function IsCommandLine: boolean;
 
@@ -329,31 +329,30 @@ begin
   if Result = PRFailed then Fooutput.Failed := true;
 end;
 
-function TPlugins.PreProcessor(aFilename: string; aTemplate: tNovusTemplate): tProcessorItem;
+function TPlugins.PreProcessor(aFilename: string; aTemplate: tNovusTemplate; aProcessorPlugin: TProcessorPlugin ): tProcessorItem;
 var
   loPlugin: TPlugin;
   I: Integer;
   lProcessorItem: tProcessorItem;
   lPluginReturn: TPluginReturn;
+
 begin
   Result := NIL;
 
-  for I := 0 to fPluginsList.Count -1 do
+  if Assigned(aProcessorPlugin) then
     begin
-      loPlugin := TPlugin(fPluginsList.Items[i]);
-      if loPlugin is TProcessorPlugin then
-        begin
-           lProcessorItem := TProcessorPlugin(loPlugin).GetProcesorItem(TNovusFileUtils.ExtractFileExtA(aFilename));
-           if Assigned(lProcessorItem) then
-             begin
-               Result := lProcessorItem;
+      if not aProcessorPlugin.SingleItem then
+        lProcessorItem := aProcessorPlugin.GetProcesorItem(TNovusFileUtils.ExtractFileExtA(aFilename))
+      else
+        lProcessorItem := aProcessorPlugin.GetProcesorItem;
 
-               lPluginReturn := lProcessorItem.PreProcessor(aFilename, aTemplate);
-               if lPluginReturn = PRFailed then Fooutput.Failed := true;
+      if Assigned(lProcessorItem) then
+       begin
+         Result := lProcessorItem;
 
-               Exit;
-             end;
-        end;
+         lPluginReturn := lProcessorItem.PreProcessor(aFilename, aTemplate);
+         if lPluginReturn = PRFailed then Fooutput.Failed := true;
+       end;
     end;
 end;
 

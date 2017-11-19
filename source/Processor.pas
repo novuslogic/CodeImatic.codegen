@@ -3,11 +3,13 @@ unit Processor;
 interface
 
 Uses Output, Project, ProjectItem, classes, variables, NovusTemplate,
-     CodeGenerator, CodeGeneratorItem, Template, Plugin;
+     CodeGenerator, CodeGeneratorItem, Template, Plugin, Plugins, SysUtils;
 
 type
   TProcessor = class(tobject)
   protected
+    fsSourceFilename: String;
+    fsProcessor: String;
     foProcessorPlugin: tProcessorPlugin;
     foCodeGenerator: tCodegenerator;
     foOutput: TOutput;
@@ -17,20 +19,22 @@ type
     fsInputFileName: String;
     fsOutputFilename: String;
     fsRenderBodyTag: String;
+    foPlugins: tPlugins;
+    foPlugin: tPlugin;
+    function InsertTagValue(aTagValue: String; aTagName: String): boolean;
   private
   public
     constructor Create(AOutput: tOutput;
       aProject: tProject; aProjectItem: TProjectItem;
-      aProcessorPlugin: tProcessorPlugin;
+      aProcessor: String;
       aInputFileName: String;
       aOutputFilename: string;
-      aSourceFilename: String); virtual;
+      aSourceFilename: String;
+      aPlugins: TPlugins); virtual;
 
     destructor Destroy; override;
 
     function Execute: boolean;
-
-    function InsertTagValue(aTagValue: String; aTagName: String): boolean;
 
     property OutputFilename: String
       read fsOutputFilename
@@ -58,12 +62,26 @@ begin
 
   fsOutputFilename := aOutputFilename;
   fsInputFilename := aInputFilename;
+  fsSourceFilename := aSourceFilename;
 
   foProjectItem := aProjectItem;
 
   foProject := aProject;
+  fsProcessor := aProcessor;
 
-  foProcessorPlugin := aProcessorPlugin;
+  if Trim(aProcessor) <> '' then
+    begin
+      if (aPlugins as TPlugins).IsPluginNameExists(aProcessor) then
+        begin
+          foPlugin := (aPlugins as TPlugins).FindPlugin(aProcessor);
+
+          if (foPlugin Is TProcessorPlugin) then
+            begin
+               foprocessorPlugin := TProcessorPlugin(foPlugin);
+            end;
+        end;
+    end;
+
 
   foOutput := AOutput;
 
@@ -77,27 +95,27 @@ end;
 
 destructor TProcessor.Destroy;
 begin
-  foCodeGenerator.Free;
+  //foCodeGenerator.Free;
 
-  FoTemplate.Free;
+  //FoTemplate.Free;
 
   inherited;
 end;
 
 function TProcessor.Execute: boolean;
 begin
-  Try
-    result := false;
+   result := false;
 
-    foTemplate.TemplateDoc.LoadFromFile(InputFilename);
+    Try
+      foTemplate.TemplateDoc.LoadFromFile(InputFilename);
 
-    foTemplate.ParseTemplate;
+      foTemplate.ParseTemplate;
 
-    Result := foCodeGenerator.Execute(OutputFilename);
-  Except
-    foOutput.InternalError;
+      Result := foCodeGenerator.Execute(OutputFilename);
+   Except
+     foOutput.InternalError;
 
-    Result := False;
+     Result := False;
   End;
 
 end;

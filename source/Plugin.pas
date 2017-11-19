@@ -107,14 +107,22 @@ type
   TProcessorPlugin = class(TPlugin)
   private
   protected
+    fbSingleItem: boolean;
     fProcessorItems: tNovusList;
+    function GetSingleItem: boolean; virtual;
     procedure AddProcessorItem(aProcessorItem: TProcessorItem);
   public
     constructor Create(aOutput: tOutput; aPluginName: String;
       aProject: tProject; aConfigPlugin: TConfigPlugin); override;
     destructor Destroy;
 
-    function GetProcesorItem(aFileExt: string): TProcessorItem;
+    function GetProcesorItem(aFileExt: string): TProcessorItem; overload;
+    function GetProcesorItem: TProcessorItem; overload;
+
+    property SingleItem: boolean
+      read fbSingleItem
+      write fbSingleItem default false;
+
   end;
 
   IExternalPlugin = interface(INovusPlugin)
@@ -223,6 +231,18 @@ begin
           Break;
         end;
     end;
+end;
+
+function TProcessorPlugin.GetSingleItem: boolean;
+begin
+  result := false;
+end;
+
+function TProcessorPlugin.GetProcesorItem: TProcessorItem;
+begin
+  Result := NIL;
+  if (fProcessorItems.Count > 0) then
+    Result := TProcessorItem(fProcessorItems.Items[0]);
 end;
 
 procedure TProcessorPlugin.AddProcessorItem(aProcessorItem: TProcessorItem);

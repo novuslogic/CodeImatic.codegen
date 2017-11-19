@@ -18,11 +18,15 @@ type
 
   TPlugin_CodeDocs = class(TSingletonImplementation, INovusPlugin, IExternalPlugin)
   private
+
   protected
     foOutput: TOutput;
     foProject: TProject;
     FPlugin_CodeDocs: tPlugin_CodeDocsBase;
+
   public
+
+
     function GetPluginName: string; safecall;
 
     procedure Initialize; safecall;
@@ -47,6 +51,8 @@ constructor tPlugin_CodeDocsBase.Create(aOutput: tOutput; aPluginName: String;
 begin
    Inherited Create(aOutput, aPluginName, aProject, aConfigPlugin);
 
+   SingleItem := true;
+
   Try
     AddProcessorItem(tCodeDocsProcessorItem.Create(aConfigPlugin, aOutput));
   Except
@@ -54,24 +60,10 @@ begin
   End;
 end;
 
-(*
-destructor tPlugin_CodeDocsBase.Destroy;
-begin
-  Inherited;
-
-  Try
-   // if Assigned(fCodeDocsprocessor) then
-  //    fCodeDocsprocessor.Free;
-  Except
-    foOutput.InternalError;
-  End;
-end;
-*)
-
 // Plugin_CodeDocs
 function TPlugin_CodeDocs.GetPluginName: string;
 begin
-  Result := 'CodeDocs';
+  Result := 'CodeDocsProcessor';
 end;
 
 procedure TPlugin_CodeDocs.Initialize;

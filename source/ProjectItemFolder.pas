@@ -24,7 +24,7 @@ type
 
 implementation
 
-uses Processor, Plugin;
+uses Processor, Plugin, Plugins;
 
 constructor tProjectItemFolder.Create(AOutput: TOutput; aProject: TProject;
   aProjectItem: tProjectItem);
@@ -103,12 +103,11 @@ begin
     if aSourceFile.IsTemplateFile then
       begin
         Try
-          loProcessorPlugin := aSourceFile.oProcessorPlugin;
-
-          loProcessor:= TProcessor.Create(foOutput, foProject, foProjectItem, loProcessorPlugin,
+          loProcessor:= TProcessor.Create(foOutput, foProject, foProjectItem, aSourceFile.Processor,
             aSourceFile.FullPathname,
             aSourceFile.DestFullPathname,
-            aSourceFile.FullPathname );
+            aSourceFile.FullPathname,
+            (foProject.oPlugins as tPlugins));
 
           result := loProcessor.Execute;
 

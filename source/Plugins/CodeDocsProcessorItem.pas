@@ -24,7 +24,7 @@ implementation
 
 function tCodeDocsProcessorItem.GetProcessorName: String;
 begin
-  Result := 'CODEDOCS';
+  Result := 'CODEDOCSPROCESSOR';
 end;
 
 function tCodeDocsProcessorItem.PreProcessor(aFilename: String; aTemplate: tNovusTemplate): TPluginReturn;
@@ -34,7 +34,11 @@ end;
 
 function tCodeDocsProcessorItem.PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; aTemplateFile: String; var aOutputFilename: string): TPluginReturn;
 begin
-  Result := PRIgnore;
+  aOutputFilename := ChangeFileExt(aOutputFilename, '.' + outputextension);
+
+  oOutput.Log('New output:' + aOutputFilename);
+
+  Result := TPluginReturn.PRPassed;
 end;
 
 function tCodeDocsProcessorItem.Convert(aProjectItem: tObject;aInputFilename: string; var aOutputFilename: string): TPluginReturn;

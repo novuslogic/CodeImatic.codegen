@@ -3,17 +3,18 @@ unit RuntimeProjectItems;
 interface
 
 Uses Output, ProjectItem, NovusFileUtils, Project, ProjectconfigParser,
-  SysUtils,
+  SysUtils, Plugins,
   NovusStringUtils, System.IOUtils;
 
 type
   tRuntimeProjectItems = class
   protected
   private
+    foPlugins: tPlugins;
     foOutput: TOutput;
     foProject: TProject;
   public
-    constructor Create(aOutput: TOutput; aProject: TProject);
+    constructor Create(aOutput: TOutput; aProject: TProject; aPlugins: tPlugins);
     destructor Destroy;
 
     function RunProjectItems: boolean;
@@ -25,6 +26,7 @@ constructor tRuntimeProjectItems.Create;
 begin
   foOutput := aOutput;
   foProject := aProject;
+  foPlugins := aPlugins
 end;
 
 destructor tRuntimeProjectItems.Destroy;
@@ -44,15 +46,7 @@ begin
     begin
       loProjectItem := tProjectItem(foProject.oProjectItemList.items[I]);
 
-
       case loProjectItem.ProjectItemType of
-         pitProcessor: begin
-
-
-
-
-         end;
-
          pitItem: begin
             foOutput.Log('Project Item: ' + loProjectItem.Name);
 
