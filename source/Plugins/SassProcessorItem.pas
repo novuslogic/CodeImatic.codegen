@@ -2,7 +2,7 @@ unit SassProcessorItem;
 
 interface
 
-Uses Winapi.Windows, System.SysUtils, System.Classes,NovusFileUtils,
+Uses Winapi.Windows, System.SysUtils, System.Classes, NovusFileUtils,
   Plugin, NovusPlugin, NovusVersionUtils, Project, NovusTemplate,
   Output, System.Generics.Defaults, runtime, Config, NovusStringUtils,
   APIBase, ProjectItem, TagType, JvSimpleXml, DelphiLibSass;
@@ -10,15 +10,18 @@ Uses Winapi.Windows, System.SysUtils, System.Classes,NovusFileUtils,
 type
   tSassProcessorItem = class(TProcessorItem)
   private
-    fSassprocessor : TDelphiLibSass;
+    fSassprocessor: TDelphiLibSass;
   protected
     function GetProcessorName: String; override;
   public
-    function PreProcessor(aFilename: String; aTemplate: tNovusTemplate)
+    function PreProcessor(aProjectItem: tObject; aFilename: String;
+      aTemplate: tNovusTemplate): TPluginReturn; override;
+    function PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate;
+      aTemplateFile: String; var aOutputFilename: string)
       : TPluginReturn; override;
-    function PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; aTemplateFile: String; var aOutputFilename: string): TPluginReturn; override;
 
-    function Convert(aProjectItem: tObject;aInputFilename: string; var aOutputFilename: string):TPluginReturn; override;
+    function Convert(aProjectItem: tObject; aInputFilename: string;
+      var aOutputFilename: string): TPluginReturn; override;
   end;
 
 implementation
@@ -28,18 +31,21 @@ begin
   Result := 'SASS';
 end;
 
-function tSassProcessorItem.PreProcessor(aFilename: String; aTemplate: tNovusTemplate): TPluginReturn;
+function tSassProcessorItem.PreProcessor(aProjectItem: tObject;
+  aFilename: String; aTemplate: tNovusTemplate): TPluginReturn;
 begin
   Result := PRIgnore;
 end;
 
-function tSassProcessorItem.PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; aTemplateFile: String; var aOutputFilename: string): TPluginReturn;
+function tSassProcessorItem.PostProcessor(aProjectItem: tObject;
+  aTemplate: tNovusTemplate; aTemplateFile: String; var aOutputFilename: string)
+  : TPluginReturn;
 Var
   fScssResult: TScssResult;
-  FDelphiLibSass : TDelphiLibSass;
+  FDelphiLibSass: TDelphiLibSass;
 begin
   Try
-     Try
+    Try
       Try
         fScssResult := NIL;
         fSassprocessor := TDelphiLibSass.LoadInstance;
@@ -68,11 +74,11 @@ begin
     End;
 
     if Result = TPluginReturn.PRPassed then
-      begin
-        aOutputFilename := ChangeFileExt(aOutputFilename, '.' + outputextension);
+    begin
+      aOutputFilename := ChangeFileExt(aOutputFilename, '.' + outputextension);
 
-        oOutput.Log('New output:' + aOutputFilename);
-      end;
+      oOutput.Log('New output:' + aOutputFilename);
+    end;
 
   Except
     Result := TPluginReturn.PRFailed;
@@ -81,11 +87,10 @@ begin
   End;
 end;
 
-function tSassProcessorItem.Convert(aProjectItem: tObject;aInputFilename: string; var aOutputFilename: string): TPluginReturn;
+function tSassProcessorItem.Convert(aProjectItem: tObject;
+  aInputFilename: string; var aOutputFilename: string): TPluginReturn;
 begin
   Result := PRIgnore;
 end;
-
-
 
 end.

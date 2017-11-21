@@ -14,7 +14,7 @@ type
   protected
     function GetProcessorName: String; override;
   public
-    function PreProcessor(aFilename: String; aTemplate: tNovusTemplate)
+    function PreProcessor(aProjectItem: tObject;aFilename: String; aTemplate: tNovusTemplate)
       : TPluginReturn; override;
     function PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; aTemplateFile: String; var aOutputFilename: string): TPluginReturn; override;
 
@@ -29,7 +29,7 @@ begin
   Result := 'LESSCSS';
 end;
 
-function tLessCssProcessorItem.PreProcessor(aFilename: String;
+function tLessCssProcessorItem.PreProcessor(aProjectItem: tObject;aFilename: String;
   aTemplate: tNovusTemplate): TPluginReturn;
 begin
   Result := PRIgnore;

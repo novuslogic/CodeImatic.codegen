@@ -857,7 +857,8 @@ begin
   if fsInputFilename = '' then
     Exit;
 
-  Result := oRuntime.oPlugins.PreProcessor(fsInputFilename, FoTemplate,
+  Result := oRuntime.oPlugins.PreProcessor(foProjectItem,
+    fsInputFilename, FoTemplate,
     (foProcessorPlugin as TProcessorPlugin));
 end;
 

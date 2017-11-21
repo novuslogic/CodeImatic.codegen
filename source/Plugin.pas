@@ -72,14 +72,14 @@ type
     foOutput: TOutput;
   protected
     function GetProcessorName: String; virtual;
-    function Getsourceextension: string;
-    function Getoutputextension: string;
-    function GetConvertFilename: String;
+    function Getsourceextension: string; virtual;
+    function Getoutputextension: string; virtual;
+    function GetConvertFilename: String; virtual;
     function GetConvertFilenameParameters: String;
   public
     constructor Create(aConfigPlugin: tConfigPlugin; aOutput: TOutput);
 
-    function PreProcessor(aFilename: String; aTemplate: tNovusTemplate)
+    function PreProcessor(aProjectItem: tObject; aFilename: String; aTemplate: tNovusTemplate)
       : TPluginReturn; virtual;
     function PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; aTemplateFile: String; var aOutputFilename: string): TPluginReturn; virtual;
     function Convert(aProjectItem: tObject;aInputFilename: string; var aOutputFilename: string): TPluginReturn; virtual;
@@ -320,7 +320,7 @@ begin
   Result := '';
 end;
 
-function TProcessorItem.PreProcessor(aFilename: String; aTemplate: tNovusTemplate): TPluginReturn;
+function TProcessorItem.PreProcessor(aProjectItem: tObject; aFilename: String; aTemplate: tNovusTemplate): TPluginReturn;
 begin
   Result := PRIgnore;
 end;

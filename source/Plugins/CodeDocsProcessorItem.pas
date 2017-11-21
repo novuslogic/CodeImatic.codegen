@@ -12,8 +12,9 @@ type
   private
   protected
     function GetProcessorName: String; override;
+    function Getoutputextension: string; override;
   public
-    function PreProcessor(aFilename: String; aTemplate: tNovusTemplate)
+    function PreProcessor(aProjectItem: tObject;aFilename: String; aTemplate: tNovusTemplate)
       : TPluginReturn; override;
     function PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; aTemplateFile: String; var aOutputFilename: string): TPluginReturn; override;
 
@@ -22,21 +23,37 @@ type
 
 implementation
 
+
+
 function tCodeDocsProcessorItem.GetProcessorName: String;
 begin
-  Result := 'CODEDOCSPROCESSOR';
+  Result := 'CodeDocsProcessor';
 end;
 
-function tCodeDocsProcessorItem.PreProcessor(aFilename: String; aTemplate: tNovusTemplate): TPluginReturn;
+function tCodeDocsProcessorItem.Getoutputextension: string;
+begin
+
+
+  if oConfigPlugin.oConfigProperties.IsPropertyExists('outputextension') then
+    Result := oConfigPlugin.oConfigProperties.GetProperty('outputextension');
+
+
+end;
+
+function tCodeDocsProcessorItem.PreProcessor(aProjectItem: tObject;aFilename: String; aTemplate: tNovusTemplate): TPluginReturn;
 begin
   Result := PRIgnore;
 end;
 
 function tCodeDocsProcessorItem.PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; aTemplateFile: String; var aOutputFilename: string): TPluginReturn;
+Var
+  loProjectItem: tProjectItem;
 begin
+  loProjectItem := (aProjectItem as tProjectItem);
+
   aOutputFilename := ChangeFileExt(aOutputFilename, '.' + outputextension);
 
-  oOutput.Log('New output:' + aOutputFilename);
+ // oOutput.Log('New output:' + aOutputFilename);
 
   Result := TPluginReturn.PRPassed;
 end;

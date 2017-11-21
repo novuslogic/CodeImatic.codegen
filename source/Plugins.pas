@@ -2,72 +2,71 @@ unit Plugins;
 
 interface
 
-uses  NovusPlugin, Config, Output,Classes, SysUtils, PluginsMapFactory, Plugin, Project, ProjectItem,
-      NovusTemplate, ScriptEngine, uPSRuntime, uPSCompiler, NovusFileUtils, CodeGeneratorItem;
+uses NovusPlugin, Config, Output, Classes, SysUtils, PluginsMapFactory, Plugin,
+  Project, ProjectItem,
+  NovusTemplate, ScriptEngine, uPSRuntime, uPSCompiler, NovusFileUtils,
+  CodeGeneratorItem;
 
 type
-   TPlugins = class(TObject)
-   private
-   protected
-     foScriptEngine: tScriptEngine;
-     foProject: tProject;
-     foOutput: TOutput;
-     FExternalPlugins: TNovusPlugins;
-     fPluginsList: TList;
-     fImp: TPSRuntimeClassImporter;
-   public
-     constructor Create(aOutput: tOutput; aProject: Tproject; aScriptEngine: tScriptEngine);
-     destructor Destroy; override;
+  TPlugins = class(TObject)
+  private
+  protected
+    foScriptEngine: tScriptEngine;
+    foProject: tProject;
+    foOutput: TOutput;
+    FExternalPlugins: TNovusPlugins;
+    fPluginsList: TList;
+    fImp: TPSRuntimeClassImporter;
+  public
+    constructor Create(aOutput: TOutput; aProject: tProject;
+      aScriptEngine: tScriptEngine);
+    destructor Destroy; override;
 
-     procedure LoadPlugins;
-     procedure UnloadPlugins;
+    procedure LoadPlugins;
+    procedure UnloadPlugins;
 
-     procedure RegisterImports;
-     procedure RegisterFunctions(aExec: TPSExec);
-     function FindPlugin(aPluginName: String): TPlugin;
+    procedure RegisterImports;
+    procedure RegisterFunctions(aExec: TPSExec);
+    function FindPlugin(aPluginName: String): TPlugin;
 
-     function IsPluginNameExists(aPluginName: string): Boolean;
-     function CustomOnUses(aCompiler: TPSPascalCompiler): Boolean;
+    function IsPluginNameExists(aPluginName: string): Boolean;
+    function CustomOnUses(aCompiler: TPSPascalCompiler): Boolean;
 
-     procedure SetVariantToClasses(aExec: TPSExec);
+    procedure SetVariantToClasses(aExec: TPSExec);
 
-     function IsTagExists(aPluginName: String; aTagName: string): Boolean;
-     function GetTag(aPluginName: String;aTagName: string; aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
+    function IsTagExists(aPluginName: String; aTagName: string): Boolean;
+    function GetTag(aPluginName: String; aTagName: string;
+      aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
 
-     function PostProcessor(aProcessorItem: tProcessorItem;
-       aProjectItem: tProjectItem;
-       aTemplate: tNovusTemplate;
-       aTemplateFile: String;
-       var aOutputFilename: string;
-       aProcessorPlugin: tProcessorPlugin): TPluginReturn;
+    function PostProcessor(aProcessorItem: tProcessorItem;
+      aProjectItem: tProjectItem; aTemplate: tNovusTemplate;
+      aTemplateFile: String; var aOutputFilename: string;
+      aProcessorPlugin: tProcessorPlugin): TPluginReturn;
 
-     function Convert(aProcessorItem: tProcessorItem;
-       aProjectItem: tProjectItem;
-       aTemplate: tNovusTemplate;
-       aTemplateFile: String;
-       var aOutputFilename: string;
-       aProcessorPlugin: tProcessorPlugin): TPluginReturn;
+    function Convert(aProcessorItem: tProcessorItem; aProjectItem: tProjectItem;
+      aTemplate: tNovusTemplate; aTemplateFile: String;
+      var aOutputFilename: string; aProcessorPlugin: tProcessorPlugin)
+      : TPluginReturn;
 
-     function PreProcessor(aFilename: string;
-       aTemplate: tNovusTemplate; aProcessorPlugin: TProcessorPlugin):tProcessorItem;
+    function PreProcessor(aProjectItem: TObject; aFilename: string;
+      aTemplate: tNovusTemplate; aProcessorPlugin: tProcessorPlugin)
+      : tProcessorItem;
 
-     function IsCommandLine: boolean;
+    function IsCommandLine: Boolean;
 
-     function BeforeCodeGen: boolean;
-     function AfterCodeGen: boolean;
+    function BeforeCodeGen: Boolean;
+    function AfterCodeGen: Boolean;
 
-     property PluginsList: TList
-       read fPluginsList
-       write fPluginsList;
-   end;
+    property PluginsList: TList read fPluginsList write fPluginsList;
+  end;
 
 implementation
 
 Uses Runtime;
 
-constructor TPlugins.create;
+constructor TPlugins.Create;
 begin
-  foOutput:= aOutput;
+  foOutput := aOutput;
 
   foProject := aProject;
 
@@ -75,13 +74,12 @@ begin
 
   fImp := foScriptEngine.oImp;
 
-
   FExternalPlugins := TNovusPlugins.Create;
 
   fPluginsList := TList.Create;
 end;
 
-destructor TPlugins.destroy;
+destructor TPlugins.Destroy;
 begin
   Inherited;
 
@@ -95,50 +93,49 @@ end;
 procedure TPlugins.UnloadPlugins;
 Var
   I: Integer;
-  loPlugin: tPlugin;
+  loPlugin: TPlugin;
 begin
 
-  for I := 0 to fPluginsList.Count -1 do
-   begin
-     loPlugin := TPlugin(fPluginsList.Items[i]);
-     loPlugin.Free;
-     loPlugin := nil;
-   end;
+  for I := 0 to fPluginsList.Count - 1 do
+  begin
+    loPlugin := TPlugin(fPluginsList.Items[I]);
+    loPlugin.Free;
+    loPlugin := nil;
+  end;
 
   fPluginsList.Clear;
 
   FExternalPlugins.UnloadAllPlugins;
 end;
 
-
 procedure TPlugins.RegisterImports;
 var
-  loPlugin: tPlugin;
+  loPlugin: TPlugin;
   I: Integer;
   FExternalPlugin: IExternalPlugin;
 begin
   for I := 0 to fPluginsList.Count - 1 do
   begin
-    loPlugin := tPlugin(fPluginsList.Items[I]);
+    loPlugin := TPlugin(fPluginsList.Items[I]);
 
-    loPlugin := TPlugin(fPluginsList.Items[i]);
+    loPlugin := TPlugin(fPluginsList.Items[I]);
     if loPlugin is TScriptEnginePlugin then
-      begin
-        TScriptEnginePlugin(loPlugin).Initialize(fImp);
-        TScriptEnginePlugin(loPlugin).RegisterImport;
-      end;
+    begin
+      TScriptEnginePlugin(loPlugin).Initialize(fImp);
+      TScriptEnginePlugin(loPlugin).RegisterImport;
+    end;
   end;
 end;
 
 procedure TPlugins.SetVariantToClasses(aExec: TPSExec);
 var
-  loPlugin: tPlugin;
+  loPlugin: TPlugin;
   I: Integer;
   FExternalPlugin: IExternalPlugin;
 begin
   for I := 0 to fPluginsList.Count - 1 do
   begin
-    loPlugin := tPlugin(fPluginsList.Items[I]);
+    loPlugin := TPlugin(fPluginsList.Items[I]);
     if loPlugin is TScriptEnginePlugin then
       TScriptEnginePlugin(loPlugin).SetVariantToClass(aExec);
   end;
@@ -147,12 +144,12 @@ end;
 procedure TPlugins.RegisterFunctions(aExec: TPSExec);
 var
   I: Integer;
-  loPlugin: tPlugin;
+  loPlugin: TPlugin;
   FExternalPlugin: IExternalPlugin;
 begin
   for I := 0 to fPluginsList.Count - 1 do
   begin
-    loPlugin := tPlugin(fPluginsList.Items[I]);
+    loPlugin := TPlugin(fPluginsList.Items[I]);
     if loPlugin is TScriptEnginePlugin then
       TScriptEnginePlugin(loPlugin).RegisterFunction(aExec);
   end;
@@ -163,12 +160,12 @@ end;
 function TPlugins.CustomOnUses(aCompiler: TPSPascalCompiler): Boolean;
 Var
   I: Integer;
-  loPlugin: tPlugin;
+  loPlugin: TPlugin;
 begin
   Try
     for I := 0 to fPluginsList.Count - 1 do
     begin
-      loPlugin := tPlugin(fPluginsList.Items[I]);
+      loPlugin := TPlugin(fPluginsList.Items[I]);
       if loPlugin is TScriptEnginePlugin then
         TScriptEnginePlugin(loPlugin).CustomOnUses(aCompiler)
     end;
@@ -182,154 +179,166 @@ begin
 
 end;
 
-
 procedure TPlugins.LoadPlugins;
 Var
   I: Integer;
-  FPlugin: tPlugin;
+  FPlugin: TPlugin;
   FExternalPlugin: IExternalPlugin;
   loConfigPlugin: TConfigPlugin;
 begin
-  //External Plugin
+  // External Plugin
   foOutput.Log('Loading plugins');
 
   if oConfig.oConfigPluginList.Count > 0 then
+  begin
+    for I := 0 to oConfig.oConfigPluginList.Count - 1 do
     begin
-      for I := 0 to oConfig.oConfigPluginList.Count - 1do
+      loConfigPlugin := TConfigPlugin(oConfig.oConfigPluginList.Items[I]);
+
+      if FileExists(loConfigPlugin.PluginFilenamePathname) then
+      begin
+        if FExternalPlugins.LoadPlugin(loConfigPlugin.PluginFilenamePathname)
+        then
         begin
-          loConfigPlugin := tConfigPlugin(oConfig.oConfigPluginList.Items[i]);
+          FExternalPlugin :=
+            IExternalPlugin(FExternalPlugins.Plugins
+            [FExternalPlugins.PluginCount - 1]);
 
-          if FileExists(loConfigPlugin.PluginFilenamePathname) then
-            begin
-              if FExternalPlugins.LoadPlugin(loConfigPlugin.PluginFilenamePathname) then
-                begin
-                  FExternalPlugin := IExternalPlugin(FExternalPlugins.Plugins[FExternalPlugins.PluginCount-1]);
-
-                  fPluginsList.Add(FExternalPlugin.CreatePlugin(foOutput, foProject, loConfigPlugin));
-                  foOutput.Log('Loaded: ' + FExternalPlugin.PluginName);
-                end;
-            end
-          else foOutput.Log('Missing: ' + loConfigPlugin.PluginFilenamePathname);
+          fPluginsList.Add(FExternalPlugin.CreatePlugin(foOutput, foProject,
+            loConfigPlugin));
+          foOutput.Log('Loaded: ' + FExternalPlugin.PluginName);
         end;
-
+      end
+      else
+        foOutput.Log('Missing: ' + loConfigPlugin.PluginFilenamePathname);
     end;
+
+  end;
 end;
 
-function TPlugins.IsCommandLine: boolean;
+function TPlugins.IsCommandLine: Boolean;
 var
   loPlugin: TPlugin;
   I: Integer;
 begin
   Result := True;
 
-  for I := 0 to fPluginsList.Count -1 do
-    begin
-      loPlugin := TPlugin(fPluginsList.Items[i]);
+  for I := 0 to fPluginsList.Count - 1 do
+  begin
+    loPlugin := TPlugin(fPluginsList.Items[I]);
 
-      Result :=  loPlugin.IsCommandLine;
-      if Not Result then break;
-    end;
+    Result := loPlugin.IsCommandLine;
+    if Not Result then
+      break;
+  end;
 end;
 
-
-function TPlugins.BeforeCodeGen: boolean;
+function TPlugins.BeforeCodeGen: Boolean;
 var
   loPlugin: TPlugin;
   I: Integer;
 begin
   Result := True;
 
-  for I := 0 to fPluginsList.Count -1 do
-    begin
-      loPlugin := TPlugin(fPluginsList.Items[i]);
+  for I := 0 to fPluginsList.Count - 1 do
+  begin
+    loPlugin := TPlugin(fPluginsList.Items[I]);
 
-      Result :=  loPlugin.BeforeCodeGen;
-      if Not Result then break;
-    end;
+    Result := loPlugin.BeforeCodeGen;
+    if Not Result then
+      break;
+  end;
 end;
 
-function TPlugins.AfterCodeGen: boolean;
+function TPlugins.AfterCodeGen: Boolean;
 var
   loPlugin: TPlugin;
   I: Integer;
 begin
-  Result := true;
+  Result := True;
 
-  for I := 0 to fPluginsList.Count -1 do
-    begin
-      loPlugin := TPlugin(fPluginsList.Items[i]);
+  for I := 0 to fPluginsList.Count - 1 do
+  begin
+    loPlugin := TPlugin(fPluginsList.Items[I]);
 
-      Result := loPlugin.AfterCodeGen;
+    Result := loPlugin.AfterCodeGen;
 
-      if NOt Result then break;
-    end;
+    if NOt Result then
+      break;
+  end;
 end;
-
 
 function TPlugins.IsPluginNameExists(aPluginName: string): Boolean;
 begin
   Result := False;
 
-  if Assigned(FindPlugin(aPluginName)) then Result := true;
+  if Assigned(FindPlugin(aPluginName)) then
+    Result := True;
 end;
 
-function TPlugins.IsTagExists(aPluginName: string;aTagName: string): Boolean;
+function TPlugins.IsTagExists(aPluginName: string; aTagName: string): Boolean;
 var
   loPlugin: TPlugin;
   I: Integer;
 begin
   Result := False;
 
-  if not assigned(fPluginsList) then exit;
+  if not Assigned(fPluginsList) then
+    exit;
 
-  for I := 0 to fPluginsList.Count -1 do
+  for I := 0 to fPluginsList.Count - 1 do
+  begin
+    loPlugin := TPlugin(fPluginsList.Items[I]);
+    if loPlugin is TTagsPlugin then
     begin
-      loPlugin := TPlugin(fPluginsList.Items[i]);
-      if loPlugin is TTagsPlugin then
+      if Uppercase(TTagsPlugin(loPlugin).PluginName) = Uppercase(aPluginName)
+      then
+      begin
+        if TTagsPlugin(loPlugin).IsTagExists(aTagName) <> -1 then
         begin
-          if Uppercase(TTagsPlugin(loPlugin).PluginName) = Uppercase(aPluginName) then
-            begin
-              if TTagsPlugin(loPlugin).IsTagExists(aTagName) <> -1 then
-                begin
-                  Result := True;
-                  Break;
-                end;
-            end;
+          Result := True;
+          break;
         end;
+      end;
     end;
+  end;
 end;
 
 function TPlugins.PostProcessor(aProcessorItem: tProcessorItem;
-                                aProjectItem: tProjectItem;
-                                aTemplate: tNovusTemplate;
-                                aTemplateFile: String;
-                                var aOutputFilename: string;
-                                aProcessorPlugin: tProcessorPlugin): TPluginReturn;
+  aProjectItem: tProjectItem; aTemplate: tNovusTemplate; aTemplateFile: String;
+  var aOutputFilename: string; aProcessorPlugin: tProcessorPlugin)
+  : TPluginReturn;
 begin
-  Result := PRIgnore ;
+  Result := PRIgnore;
 
-  if Not Assigned(aProcessorItem) then Exit;
+  if Not Assigned(aProcessorItem) then
+    exit;
 
-  Result := aProcessorItem.PostProcessor(aProjectItem, aTemplate, aTemplateFile, aOutputFilename);
-  if Result = PRFailed then Fooutput.Failed := true;
+  Result := aProcessorItem.PostProcessor(aProjectItem, aTemplate, aTemplateFile,
+    aOutputFilename);
+  if Result = PRFailed then
+    foOutput.Failed := True;
 end;
 
 function TPlugins.Convert(aProcessorItem: tProcessorItem;
-                                aProjectItem: tProjectItem;
-                                aTemplate: tNovusTemplate;
-                                aTemplateFile: String;
-                                var aOutputFilename: string;
-                                aProcessorPlugin: tProcessorPlugin): TPluginReturn;
+  aProjectItem: tProjectItem; aTemplate: tNovusTemplate; aTemplateFile: String;
+  var aOutputFilename: string; aProcessorPlugin: tProcessorPlugin)
+  : TPluginReturn;
 begin
-  Result := PRIgnore ;
+  Result := PRIgnore;
 
-  if Not Assigned(aProcessorItem) then Exit;
+  if Not Assigned(aProcessorItem) then
+    exit;
 
-  Result := aProcessorItem.Convert(aProjectItem, aTemplateFile, aOutputFilename);
-  if Result = PRFailed then Fooutput.Failed := true;
+  Result := aProcessorItem.Convert(aProjectItem, aTemplateFile,
+    aOutputFilename);
+  if Result = PRFailed then
+    foOutput.Failed := True;
 end;
 
-function TPlugins.PreProcessor(aFilename: string; aTemplate: tNovusTemplate; aProcessorPlugin: TProcessorPlugin ): tProcessorItem;
+function TPlugins.PreProcessor(aProjectItem: TObject; aFilename: string;
+  aTemplate: tNovusTemplate; aProcessorPlugin: tProcessorPlugin)
+  : tProcessorItem;
 var
   loPlugin: TPlugin;
   I: Integer;
@@ -340,51 +349,53 @@ begin
   Result := NIL;
 
   if Assigned(aProcessorPlugin) then
+  begin
+    if not aProcessorPlugin.SingleItem then
+      lProcessorItem := aProcessorPlugin.GetProcesorItem
+        (TNovusFileUtils.ExtractFileExtA(aFilename))
+    else
+      lProcessorItem := aProcessorPlugin.GetProcesorItem;
+
+    if Assigned(lProcessorItem) then
     begin
-      if not aProcessorPlugin.SingleItem then
-        lProcessorItem := aProcessorPlugin.GetProcesorItem(TNovusFileUtils.ExtractFileExtA(aFilename))
-      else
-        lProcessorItem := aProcessorPlugin.GetProcesorItem;
+      Result := lProcessorItem;
 
-      if Assigned(lProcessorItem) then
-       begin
-         Result := lProcessorItem;
-
-         lPluginReturn := lProcessorItem.PreProcessor(aFilename, aTemplate);
-         if lPluginReturn = PRFailed then Fooutput.Failed := true;
-       end;
+      lPluginReturn := lProcessorItem.PreProcessor(aProjectItem, aFilename, aTemplate);
+      if lPluginReturn = PRFailed then
+        foOutput.Failed := True;
     end;
+  end;
 end;
 
-
-function TPlugins.GetTag(aPluginName: String;aTagName: string; aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
+function TPlugins.GetTag(aPluginName: String; aTagName: string;
+  aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
 var
   loPlugin: TPlugin;
   I: Integer;
 begin
   Result := '';
-  for I := 0 to fPluginsList.Count -1 do
+  for I := 0 to fPluginsList.Count - 1 do
+  begin
+    loPlugin := TPlugin(fPluginsList.Items[I]);
+    if Uppercase(TTagsPlugin(loPlugin).PluginName) = Uppercase(aPluginName) then
     begin
-      loPlugin := TPlugin(fPluginsList.Items[i]);
-      if Uppercase(TTagsPlugin(loPlugin).PluginName) = Uppercase(aPluginName) then
+      if loPlugin is TTagPlugin then
+      begin
+        if Uppercase(TTagPlugin(loPlugin).TagName) = Uppercase(aTagName) then
+          Result := Uppercase(TTagPlugin(loPlugin).TagName);
+      end
+      else if loPlugin is TTagsPlugin then
+      begin
+        if TTagsPlugin(loPlugin).IsTagExists(aTagName) <> -1 then
         begin
-          if loPlugin is TTagPlugin then
-            begin
-              if Uppercase(ttagplugin(loplugin).TagName) = Uppercase(aTagName) then
-                result := Uppercase(ttagplugin(loplugin).TagName);
-            end
-          else
-          if loPlugin is TTagsPlugin then
-            begin
-              if ttagsplugin(loplugin).istagexists(atagname) <> -1 then
-                begin
-                  result := ttagsplugin(loplugin).gettag(atagname, aCodeGeneratorItem, aTokenIndex);
+          Result := TTagsPlugin(loPlugin).GetTag(aTagName, aCodeGeneratorItem,
+            aTokenIndex);
 
-                  break;
-                end;
-            end;
+          break;
         end;
+      end;
     end;
+  end;
 end;
 
 function TPlugins.FindPlugin(aPluginName: String): TPlugin;
@@ -394,16 +405,16 @@ var
 begin
   Result := NIL;
 
-  for I := 0 to fPluginsList.Count -1 do
+  for I := 0 to fPluginsList.Count - 1 do
+  begin
+    loPlugin := TPlugin(fPluginsList.Items[I]);
+    if Uppercase(Trim(loPlugin.PluginName)) = Uppercase(Trim(aPluginName)) then
     begin
-      loPlugin := TPlugin(fPluginsList.Items[i]);
-      if Uppercase(Trim(loPlugin.PluginName)) =  Uppercase(Trim(aPluginName)) then
-        begin
-          Result :=  loPlugin;
+      Result := loPlugin;
 
-          break;
-        end;
+      break;
     end;
+  end;
 end;
 
 end.

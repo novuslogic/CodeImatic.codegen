@@ -12,11 +12,14 @@ type
   protected
     function GetProcessorName: String; override;
   public
-    function PreProcessor(aFilename: String; aTemplate: tNovusTemplate)
+    function PreProcessor(aProjectItem: tObject; aFilename: String;
+      aTemplate: tNovusTemplate): TPluginReturn; override;
+    function PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate;
+      aTemplateFile: String; var aOutputFilename: string)
       : TPluginReturn; override;
-    function PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; aTemplateFile: String; var aOutputFilename: string): TPluginReturn; override;
 
-    function Convert(aProjectItem: tObject;aInputFilename: string; var aOutputFilename: string) : TPluginReturn; override;
+    function Convert(aProjectItem: tObject; aInputFilename: string;
+      var aOutputFilename: string): TPluginReturn; override;
   end;
 
 implementation
@@ -26,8 +29,8 @@ begin
   Result := 'Markdown';
 end;
 
-function tMarkdownProcessorItem.PreProcessor(aFilename: String;
-  aTemplate: tNovusTemplate): TPluginReturn;
+function tMarkdownProcessorItem.PreProcessor(aProjectItem: tObject;
+  aFilename: String; aTemplate: tNovusTemplate): TPluginReturn;
 Var
   fMarkdownprocessor: TMarkdownDaringFireball;
 begin
@@ -49,7 +52,8 @@ begin
   End;
 end;
 
-function tMarkdownProcessorItem.PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; aTemplateFile: String; var aOutputFilename: string)
+function tMarkdownProcessorItem.PostProcessor(aProjectItem: tObject;
+  aTemplate: tNovusTemplate; aTemplateFile: String; var aOutputFilename: string)
   : TPluginReturn;
 begin
   aOutputFilename := ChangeFileExt(aOutputFilename, '.' + outputextension);
@@ -59,7 +63,8 @@ begin
   Result := TPluginReturn.PRPassed;
 end;
 
-function tMarkdownProcessorItem.Convert(aProjectItem: tObject;aInputFilename: string; var aOutputFilename: string): TPluginReturn;
+function tMarkdownProcessorItem.Convert(aProjectItem: tObject;
+  aInputFilename: string; var aOutputFilename: string): TPluginReturn;
 begin
   Result := PRIgnore;
 end;
