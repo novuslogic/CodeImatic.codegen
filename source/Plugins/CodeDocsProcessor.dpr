@@ -5,7 +5,8 @@ uses
   System.SysUtils,
   System.Classes,
   Plugin_CodeDocsClasses in 'Plugin_CodeDocsClasses.pas',
-  CodeDocsProcessorItem in 'CodeDocsProcessorItem.pas';
+  CodeDocsProcessorItem in 'CodeDocsProcessorItem.pas',
+  XMLDocumentationClasses in 'XMLDocumentationClasses.pas';
 
 {$R *.res}
 

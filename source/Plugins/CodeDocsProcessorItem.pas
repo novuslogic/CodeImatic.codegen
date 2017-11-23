@@ -5,15 +5,19 @@ interface
 Uses Winapi.Windows, System.SysUtils, System.Classes,NovusFileUtils,
   Plugin, NovusPlugin, NovusVersionUtils, Project, NovusTemplate,
   Output, System.Generics.Defaults, runtime, Config, NovusStringUtils,
-  APIBase, ProjectItem, TagType, JvSimpleXml;
+  APIBase, ProjectItem, TagType, JvSimpleXml, XMLDocumentationClasses;
 
 type
   tCodeDocsProcessorItem = class(TProcessorItem)
   private
+    foXMLDocumentation: TXMLDocumentation;
   protected
     function GetProcessorName: String; override;
     function Getoutputextension: string; override;
   public
+    constructor Create(aConfigPlugin: tConfigPlugin; aOutput: TOutput); override;
+    destructor Destroy; Override;
+
     function PreProcessor(aProjectItem: tObject;aFilename: String; aTemplate: tNovusTemplate)
       : TPluginReturn; override;
     function PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; aTemplateFile: String; var aOutputFilename: string): TPluginReturn; override;
@@ -24,6 +28,18 @@ type
 implementation
 
 
+constructor tCodeDocsProcessorItem.Create(aConfigPlugin: tConfigPlugin; aOutput: TOutput);
+begin
+  inherited;
+
+  foXMLDocumentation.Create(aOutput);
+
+end;
+
+destructor tCodeDocsProcessorItem.Destroy;
+begin
+  foXMLDocumentation.Free;
+end;
 
 function tCodeDocsProcessorItem.GetProcessorName: String;
 begin
@@ -43,6 +59,10 @@ end;
 function tCodeDocsProcessorItem.PreProcessor(aProjectItem: tObject;aFilename: String; aTemplate: tNovusTemplate): TPluginReturn;
 begin
   Result := PRIgnore;
+
+
+
+
 end;
 
 function tCodeDocsProcessorItem.PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; aTemplateFile: String; var aOutputFilename: string): TPluginReturn;
@@ -52,8 +72,6 @@ begin
   loProjectItem := (aProjectItem as tProjectItem);
 
   aOutputFilename := ChangeFileExt(aOutputFilename, '.' + outputextension);
-
- // oOutput.Log('New output:' + aOutputFilename);
 
   Result := TPluginReturn.PRPassed;
 end;

@@ -77,7 +77,8 @@ type
     function GetConvertFilename: String; virtual;
     function GetConvertFilenameParameters: String;
   public
-    constructor Create(aConfigPlugin: tConfigPlugin; aOutput: TOutput);
+    constructor Create(aConfigPlugin: tConfigPlugin; aOutput: TOutput); virtual;
+    destructor Destroy; virtual;
 
     function PreProcessor(aProjectItem: tObject; aFilename: String; aTemplate: tNovusTemplate)
       : TPluginReturn; virtual;
@@ -254,6 +255,11 @@ constructor TProcessorItem.Create(aConfigPlugin: tConfigPlugin; aOutput: TOutput
 begin
   foConfigPlugin := aConfigPlugin;
   foOutput := aOutput;
+end;
+
+destructor TProcessorItem.Destroy;
+begin
+  //
 end;
 
 function TProcessorItem.Getsourceextension: string;

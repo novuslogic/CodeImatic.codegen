@@ -112,6 +112,7 @@
         </DelphiCompile>
         <DCCReference Include="Plugin_CodeDocsClasses.pas"/>
         <DCCReference Include="CodeDocsProcessorItem.pas"/>
+        <DCCReference Include="XMLDocumentationClasses.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
