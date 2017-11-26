@@ -32,7 +32,7 @@ constructor tCodeDocsProcessorItem.Create(aConfigPlugin: tConfigPlugin; aOutput:
 begin
   inherited;
 
-  foXMLDocumentation.Create(aOutput);
+  foXMLDocumentation := tXMLDocumentation.Create(aOutput);
 
 end;
 
@@ -50,8 +50,12 @@ function tCodeDocsProcessorItem.Getoutputextension: string;
 begin
 
 
+
+
+
   if oConfigPlugin.oConfigProperties.IsPropertyExists('outputextension') then
     Result := oConfigPlugin.oConfigProperties.GetProperty('outputextension');
+
 
 
 end;
@@ -60,7 +64,10 @@ function tCodeDocsProcessorItem.PreProcessor(aProjectItem: tObject;aFilename: St
 begin
   Result := PRIgnore;
 
-
+  if not   foXMLDocumentation.Parser(aTemplate) then
+    Result := PRFailed
+  else
+    Result := PRPassed;
 
 
 end;
