@@ -6,7 +6,7 @@ Uses NovusBO, JvSimpleXml, Project, SysUtils, NovusSimpleXML,
   ProjectConfigParser,
   DBSchema, Properties, NovusTemplate, CodeGenerator, Output, Template,
   NovusFileUtils,
-  NovusList, System.RegularExpressions, NovusUtilities, plugin;
+  NovusList, System.RegularExpressions, NovusUtilities, plugin, Loader;
 type
   TProjectItemType = (pitItem, pitFolder);
 
@@ -20,6 +20,7 @@ type
     fsFullPathname: String;
     fsfilename: String;
     fsProcessor: String;
+    foNodeLoader: tNodeLoader;
   protected
   public
     constructor Create;
@@ -35,6 +36,10 @@ type
     property FullPathname: String read fsFullPathname write fsFullPathname;
 
     property Processor: String read fsProcessor write fsProcessor;
+
+    property oNodeLoader: tNodeLoader
+      read foNodeLoader
+      write foNodeLoader;
   end;
 
   tFiltered = class(tFileType)
@@ -47,7 +52,6 @@ type
   private
   protected
   public
-
   end;
 
   tSourceFile = class(tFileType)
@@ -74,7 +78,8 @@ type
   protected
   public
     function AddFile(aFullPathname: string; aFilename: String;
-      aProcessor: String): tTemplateFile;
+      aProcessor: String;
+      aNodeLoader: tNodeLoader): tTemplateFile;
   end;
 
   tSourceFiles = class(tnovusList)
@@ -481,7 +486,7 @@ end;
 // TemplateFile
 
 function tTemplates.AddFile(aFullPathname: string; aFilename: String;
-  aProcessor: String): tTemplateFile;
+  aProcessor: String; aNodeLoader: tNodeLoader): tTemplateFile;
 var
   loTemplateFile: tTemplateFile;
   loPlugin: TPlugin;
@@ -492,6 +497,7 @@ begin
   loTemplateFile.IsTemplateFile := true;
   loTemplateFile.Processor := aProcessor;
   loTemplateFile.Filename := aFilename;
+  loTemplateFile.oNodeLoader := aNodeLoader;
 
   Add(loTemplateFile);
 

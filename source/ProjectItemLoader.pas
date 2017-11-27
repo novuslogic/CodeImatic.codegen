@@ -77,6 +77,7 @@ Var
   FSrcFltNodeLoader,
   FSrcTmpNodeLoader,
   FTmpFilesNodeLoader,
+  FprocessorNodeLoader,
   FFltFilesNodeLoader: tNodeLoader;
   lsName: string;
   lsFullPathname,
@@ -142,13 +143,13 @@ begin
            Result := False;
          end;
 
-      FNodeLoader := GetNode(FRootNodeLoader, 'processor');
-      if FNodeLoader.IsExists then
+      FprocessorNodeLoader := GetNode(FRootNodeLoader, 'processor');
+      if FprocessorNodeLoader.IsExists then
         begin
-          if (FNodeLoader.PropertyName = 'NAME') then
+          if (FprocessorNodeLoader.PropertyName = 'NAME') then
             foProjectItem.processor := FNodeLoader.PropertyValue
            else
-             foProjectItem.processor := GetValue(FNodeLoader.Value);
+             foProjectItem.processor := GetValue(FprocessorNodeLoader.Value);
         end;
     end
   else
@@ -179,19 +180,22 @@ begin
                        lsFullPathname :=
                          GetValue(FTmpFilesNodeLoader.PropertyValue);
 
-                       FNodeLoader := GetNode(FTmpFilesNodeLoader,
+                       FprocessorNodeLoader := GetNode(FTmpFilesNodeLoader,
                          'processor');
-                       if FNodeLoader.IsExists then
+
+                       if FprocessorNodeLoader.IsExists then
                          begin
-                           if (FNodeLoader.PropertyName = 'NAME') then
-                             lsprocessor := FNodeLoader.PropertyValue
+                           if (FprocessorNodeLoader.PropertyName = 'NAME') then
+                             lsprocessor := FprocessorNodeLoader.PropertyValue
                            else
-                             lsprocessor := GetValue(FNodeLoader.Value);
+                             lsprocessor := GetValue(FprocessorNodeLoader.Value);
                          end;
 
                        foProjectItem.oSourceFiles.oTemplates.AddFile
                          (foProjectItem.oSourceFiles.Folder + lsFullPathname,
-                         lsFullPathname, lsprocessor);
+                         lsFullPathname,
+                         lsprocessor,
+                         FprocessorNodeLoader);
                      end
                      else
                      begin

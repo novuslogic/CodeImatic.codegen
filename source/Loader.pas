@@ -8,7 +8,6 @@ type
   tNodeLoader = record
   private
     fiIndexPos: INteger;
-
     fNode: TJvSimpleXmlElem;
     function GetPropertyName: string;
     function GetPropertyValue: string;
