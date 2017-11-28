@@ -1,7 +1,7 @@
-Zcodegen
+CodeImatic.codegen
 ========
 
-Zcodegen is a template driven source code and static website generator.
+CodeImatic.codegen is a template driven source code and static website generator for CodeImatic Tools.
 
 
 Dependencies
