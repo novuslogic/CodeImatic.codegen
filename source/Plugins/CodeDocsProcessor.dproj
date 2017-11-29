@@ -91,7 +91,7 @@
         <UsePackages>true</UsePackages>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <Debugger_HostApplication>D:\Projects\Zcodegen\build\Zcodegen.exe</Debugger_HostApplication>
+        <Debugger_HostApplication>D:\Projects\CodeImatic.codegen\build\Zcodegen.exe</Debugger_HostApplication>
         <Debugger_RunParams>-project codeimatic.zcproject -projectconfig codeimatic.zcconfig -webserver  -openbrowser</Debugger_RunParams>
         <Debugger_CWD>D:\Projects\CodeImatic\codeimatic.com\</Debugger_CWD>
         <DCC_RemoteDebug>false</DCC_RemoteDebug>
@@ -533,13 +533,13 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Android" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME).app"/>
-                <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
             </Deployment>
             <Platforms>
                 <Platform value="OSX32">False</Platform>

@@ -3,7 +3,7 @@ unit Processor;
 interface
 
 Uses Output, Project, ProjectItem, classes, variables, NovusTemplate,
-     CodeGenerator, CodeGeneratorItem, Template, Plugin, Plugins, SysUtils;
+     CodeGenerator, CodeGeneratorItem, Template, Plugin, Plugins, SysUtils, Loader;
 
 type
   TProcessor = class(tobject)
@@ -21,16 +21,27 @@ type
     fsRenderBodyTag: String;
     foPlugins: tPlugins;
     foPlugin: tPlugin;
+    foNodeLoader: tNodeLoader;
     function InsertTagValue(aTagValue: String; aTagName: String): boolean;
+    procedure Init;
   private
   public
-    constructor Create(AOutput: tOutput;
+    constructor Create(aOutput: tOutput;
       aProject: tProject; aProjectItem: TProjectItem;
       aProcessor: String;
       aInputFileName: String;
       aOutputFilename: string;
       aSourceFilename: String;
-      aPlugins: TPlugins); virtual;
+      aPlugins: TPlugins;
+      aNodeLoader: tNodeLoader); overload;
+
+      constructor Create(aOutput: tOutput;
+      aProject: tProject; aProjectItem: TProjectItem;
+      aProcessor: String;
+      aInputFileName: String;
+      aOutputFilename: string;
+      aSourceFilename: String;
+      aPlugins: TPlugins); overload;
 
     destructor Destroy; override;
 
@@ -56,7 +67,14 @@ type
 
 implementation
 
-constructor TProcessor.Create;
+constructor TProcessor.Create(aOutput: tOutput;
+      aProject: tProject; aProjectItem: TProjectItem;
+      aProcessor: String;
+      aInputFileName: String;
+      aOutputFilename: string;
+      aSourceFilename: String;
+      aPlugins: TPlugins;
+      aNodeLoader: tNodeLoader);
 begin
   inherited Create;
 
@@ -68,7 +86,14 @@ begin
 
   foProject := aProject;
   fsProcessor := aProcessor;
+  foNodeLoader := aNodeLoader;
+  foOutput := AOutput;
+  foPlugins := aPlugins;
 
+
+  Init;
+
+  (*
   if Trim(aProcessor) <> '' then
     begin
       if (aPlugins as TPlugins).IsPluginNameExists(aProcessor) then
@@ -91,15 +116,87 @@ begin
 
   foCodeGenerator := tCodegenerator.Create(foTemplate, foOutput, foProject,
     foProjectItem, foProcessorPlugin, fsInputFileName, aSourceFileName);
+    *)
+end;
+
+constructor TProcessor.Create(aOutput: tOutput;
+      aProject: tProject; aProjectItem: TProjectItem;
+      aProcessor: String;
+      aInputFileName: String;
+      aOutputFilename: string;
+      aSourceFilename: String;
+      aPlugins: TPlugins);
+begin
+  inherited Create;
+
+  fsOutputFilename := aOutputFilename;
+  fsInputFilename := aInputFilename;
+  fsSourceFilename := aSourceFilename;
+
+  foProjectItem := aProjectItem;
+
+  foProject := aProject;
+  fsProcessor := aProcessor;
+  foOutput := AOutput;
+  foPlugins := aPlugins;
+
+  Init;
+
+  (*
+  if Trim(aProcessor) <> '' then
+    begin
+      if (aPlugins as TPlugins).IsPluginNameExists(aProcessor) then
+        begin
+          foPlugin := (aPlugins as TPlugins).FindPlugin(aProcessor);
+
+          if (foPlugin Is TProcessorPlugin) then
+            begin
+               foprocessorPlugin := TProcessorPlugin(foPlugin);
+            end;
+        end;
+    end;
+
+
+  FoTemplate := TTemplate.CreateTemplate;
+
+  fsRenderBodyTag := '';
+
+  foCodeGenerator := tCodegenerator.Create(foTemplate, foOutput, foProject,
+    foProjectItem, foProcessorPlugin, fsInputFileName, aSourceFileName);
+    *)
 end;
 
 destructor TProcessor.Destroy;
 begin
-  //foCodeGenerator.Free;
+  foCodeGenerator.Free;
 
-  //FoTemplate.Free;
+  FoTemplate.Free;
 
   inherited;
+end;
+
+procedure TProcessor.Init;
+begin
+  if Trim(fsProcessor) <> '' then
+    begin
+      if (foPlugins as TPlugins).IsPluginNameExists(fsProcessor) then
+        begin
+          foPlugin := (foPlugins as TPlugins).FindPlugin(fsProcessor);
+
+          if (foPlugin Is TProcessorPlugin) then
+            begin
+               foprocessorPlugin := TProcessorPlugin(foPlugin);
+            end;
+        end;
+    end;
+
+
+  FoTemplate := TTemplate.CreateTemplate;
+
+  fsRenderBodyTag := '';
+
+  foCodeGenerator := tCodegenerator.Create(foTemplate, foOutput, foProject,
+    foProjectItem, foProcessorPlugin, fsInputFileName, fsSourceFileName);
 end;
 
 function TProcessor.Execute: boolean;

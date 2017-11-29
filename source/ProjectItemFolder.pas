@@ -107,7 +107,8 @@ begin
             aSourceFile.FullPathname,
             aSourceFile.DestFullPathname,
             aSourceFile.FullPathname,
-            (foProject.oPlugins as tPlugins));
+            (foProject.oPlugins as tPlugins),
+            aSourceFile.oNodeLoader);
 
           result := loProcessor.Execute;
 

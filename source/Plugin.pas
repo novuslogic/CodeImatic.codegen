@@ -80,7 +80,7 @@ type
     constructor Create(aConfigPlugin: tConfigPlugin; aOutput: TOutput); virtual;
     destructor Destroy; virtual;
 
-    function PreProcessor(aProjectItem: tObject; aFilename: String; aTemplate: tNovusTemplate)
+    function PreProcessor(aProjectItem: tObject; var aFilename: String; aTemplate: tNovusTemplate)
       : TPluginReturn; virtual;
     function PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; aTemplateFile: String; var aOutputFilename: string): TPluginReturn; virtual;
     function Convert(aProjectItem: tObject;aInputFilename: string; var aOutputFilename: string): TPluginReturn; virtual;
@@ -326,7 +326,7 @@ begin
   Result := '';
 end;
 
-function TProcessorItem.PreProcessor(aProjectItem: tObject; aFilename: String; aTemplate: tNovusTemplate): TPluginReturn;
+function TProcessorItem.PreProcessor(aProjectItem: tObject; var aFilename: String; aTemplate: tNovusTemplate): TPluginReturn;
 begin
   Result := PRIgnore;
 end;

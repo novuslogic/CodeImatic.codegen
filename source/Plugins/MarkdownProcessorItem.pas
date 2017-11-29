@@ -12,7 +12,7 @@ type
   protected
     function GetProcessorName: String; override;
   public
-    function PreProcessor(aProjectItem: tObject; aFilename: String;
+    function PreProcessor(aProjectItem: tObject; var aFilename: String;
       aTemplate: tNovusTemplate): TPluginReturn; override;
     function PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate;
       aTemplateFile: String; var aOutputFilename: string)
@@ -30,7 +30,7 @@ begin
 end;
 
 function tMarkdownProcessorItem.PreProcessor(aProjectItem: tObject;
-  aFilename: String; aTemplate: tNovusTemplate): TPluginReturn;
+  var aFilename: String; aTemplate: tNovusTemplate): TPluginReturn;
 Var
   fMarkdownprocessor: TMarkdownDaringFireball;
 begin

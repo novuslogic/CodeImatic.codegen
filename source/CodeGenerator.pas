@@ -105,7 +105,7 @@ Type
 implementation
 
 uses runtime, TokenParser, ProjectItemLoader, ProjectItem, Processor,
-  TagTypeParser, Plugins;
+  TagTypeParser, Plugins, Loader;
 
 constructor TCodeGenerator.Create;
 begin
