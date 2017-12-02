@@ -4,7 +4,8 @@ interface
 
 uses Classes, Plugin, NovusPlugin, NovusVersionUtils, Project, NovusTemplate,
   Output, SysUtils, System.Generics.Defaults, runtime, Config, NovusStringUtils,
-  APIBase, MarkdownDaringFireball, MarkdownProcessor, ProjectItem, TagType;
+  APIBase, MarkdownDaringFireball, MarkdownProcessor, ProjectItem, TagType,
+  Loader;
 
 type
   tMarkdownProcessorItem = class(TProcessorItem)
@@ -13,7 +14,7 @@ type
     function GetProcessorName: String; override;
   public
     function PreProcessor(aProjectItem: tObject; var aFilename: String;
-      aTemplate: tNovusTemplate): TPluginReturn; override;
+      aTemplate: tNovusTemplate;aNodeLoaer: tNodeLoader): TPluginReturn; override;
     function PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate;
       aTemplateFile: String; var aOutputFilename: string)
       : TPluginReturn; override;
@@ -30,7 +31,7 @@ begin
 end;
 
 function tMarkdownProcessorItem.PreProcessor(aProjectItem: tObject;
-  var aFilename: String; aTemplate: tNovusTemplate): TPluginReturn;
+  var aFilename: String; aTemplate: tNovusTemplate; aNodeLoaer: tNodeLoader): TPluginReturn;
 Var
   fMarkdownprocessor: TMarkdownDaringFireball;
 begin

@@ -2,10 +2,11 @@ unit CodeDocsProcessorItem;
 
 interface
 
-Uses Winapi.Windows, System.SysUtils, System.Classes,NovusFileUtils,
+Uses Winapi.Windows, System.SysUtils, System.Classes, NovusFileUtils,
   Plugin, NovusPlugin, NovusVersionUtils, Project, NovusTemplate,
   Output, System.Generics.Defaults, runtime, Config, NovusStringUtils,
-  APIBase, ProjectItem, TagType, JvSimpleXml, XMLDocumentationClasses;
+  APIBase, ProjectItem, TagType, JvSimpleXml, XMLDocumentationClasses,
+  Loader;
 
 type
   tCodeDocsProcessorItem = class(TProcessorItem)
@@ -15,24 +16,28 @@ type
     function GetProcessorName: String; override;
     function Getoutputextension: string; override;
   public
-    constructor Create(aConfigPlugin: tConfigPlugin; aOutput: TOutput); override;
+    constructor Create(aConfigPlugin: tConfigPlugin; aOutput: TOutput);
+      override;
     destructor Destroy; Override;
 
-    function PreProcessor(aProjectItem: tObject;aFilename: String; aTemplate: tNovusTemplate)
+    function PreProcessor(aProjectItem: tObject; var aFilename: String;
+      aTemplate: tNovusTemplate; aNodeLoaer: tNodeLoader): TPluginReturn; override;
+    function PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate;
+      aTemplateFile: String; var aOutputFilename: string)
       : TPluginReturn; override;
-    function PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; aTemplateFile: String; var aOutputFilename: string): TPluginReturn; override;
 
-    function Convert(aProjectItem: tObject;aInputFilename: string; var aOutputFilename: string):TPluginReturn; override;
+    function Convert(aProjectItem: tObject; aInputFilename: string;
+      var aOutputFilename: string): TPluginReturn; override;
   end;
 
 implementation
 
-
-constructor tCodeDocsProcessorItem.Create(aConfigPlugin: tConfigPlugin; aOutput: TOutput);
+constructor tCodeDocsProcessorItem.Create(aConfigPlugin: tConfigPlugin;
+  aOutput: TOutput);
 begin
   inherited;
 
-  foXMLDocumentation := tXMLDocumentation.Create(aOutput);
+  foXMLDocumentation := TXMLDocumentation.Create(aOutput);
 
 end;
 
@@ -49,30 +54,26 @@ end;
 function tCodeDocsProcessorItem.Getoutputextension: string;
 begin
 
-
-
-
-
   if oConfigPlugin.oConfigProperties.IsPropertyExists('outputextension') then
     Result := oConfigPlugin.oConfigProperties.GetProperty('outputextension');
 
-
-
 end;
 
-function tCodeDocsProcessorItem.PreProcessor(aProjectItem: tObject;aFilename: String; aTemplate: tNovusTemplate): TPluginReturn;
+function tCodeDocsProcessorItem.PreProcessor(aProjectItem: tObject;
+  var aFilename: String; aTemplate: tNovusTemplate; aNodeLoaer: tNodeLoader): TPluginReturn;
 begin
   Result := PRIgnore;
 
-  if not   foXMLDocumentation.Parser(aTemplate) then
+  if not foXMLDocumentation.Parser(aTemplate) then
     Result := PRFailed
   else
     Result := PRPassed;
 
-
 end;
 
-function tCodeDocsProcessorItem.PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; aTemplateFile: String; var aOutputFilename: string): TPluginReturn;
+function tCodeDocsProcessorItem.PostProcessor(aProjectItem: tObject;
+  aTemplate: tNovusTemplate; aTemplateFile: String; var aOutputFilename: string)
+  : TPluginReturn;
 Var
   loProjectItem: tProjectItem;
 begin
@@ -83,7 +84,8 @@ begin
   Result := TPluginReturn.PRPassed;
 end;
 
-function tCodeDocsProcessorItem.Convert(aProjectItem: tObject;aInputFilename: string; var aOutputFilename: string): TPluginReturn;
+function tCodeDocsProcessorItem.Convert(aProjectItem: tObject;
+  aInputFilename: string; var aOutputFilename: string): TPluginReturn;
 begin
   Result := PRIgnore;
 end;

@@ -6,7 +6,7 @@ Uses Classes, NovusTemplate, NovusList, ExpressionParser, SysUtils,
   Config, NovusStringUtils, Interpreter, Language, Project,
   Output, Variables, NovusUtilities, CodeGeneratorItem, tagtype,
   NovusBO, NovusFileUtils, Template, ScriptEngine, System.IOUtils, Plugin,
-  TokenProcessor;
+  TokenProcessor, Loader;
 
 Const
   cDeleteLine = '{%DELETELINE%}';
@@ -15,6 +15,7 @@ Const
 Type
   TCodeGenerator = class(TObject)
   protected
+    FoNodeLoader: tNodeLoader;
     FScript: TStringList;
     foProcessorPlugin: TObject;
     foProject: tProject;
@@ -100,12 +101,14 @@ Type
     property DefaultOutputFilename: String read fsDefaultOutputFilename
       write fsDefaultOutputFilename;
 
+    property oNodeLoader: tNodeLoader
+      read FoNodeLoader write FoNodeLoader;
   end;
 
 implementation
 
 uses runtime, TokenParser, ProjectItemLoader, ProjectItem, Processor,
-  TagTypeParser, Plugins, Loader;
+  TagTypeParser, Plugins;
 
 constructor TCodeGenerator.Create;
 begin
@@ -859,7 +862,8 @@ begin
 
   Result := oRuntime.oPlugins.PreProcessor(foProjectItem,
     fsInputFilename, FoTemplate,
-    (foProcessorPlugin as TProcessorPlugin));
+    (foProcessorPlugin as TProcessorPlugin),
+    foNodeLoader);
 end;
 
 function TCodeGenerator.DoPreLayout: boolean;

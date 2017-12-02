@@ -93,30 +93,7 @@ begin
 
   Init;
 
-  (*
-  if Trim(aProcessor) <> '' then
-    begin
-      if (aPlugins as TPlugins).IsPluginNameExists(aProcessor) then
-        begin
-          foPlugin := (aPlugins as TPlugins).FindPlugin(aProcessor);
 
-          if (foPlugin Is TProcessorPlugin) then
-            begin
-               foprocessorPlugin := TProcessorPlugin(foPlugin);
-            end;
-        end;
-    end;
-
-
-  foOutput := AOutput;
-
-  FoTemplate := TTemplate.CreateTemplate;
-
-  fsRenderBodyTag := '';
-
-  foCodeGenerator := tCodegenerator.Create(foTemplate, foOutput, foProject,
-    foProjectItem, foProcessorPlugin, fsInputFileName, aSourceFileName);
-    *)
 end;
 
 constructor TProcessor.Create(aOutput: tOutput;
@@ -141,29 +118,6 @@ begin
   foPlugins := aPlugins;
 
   Init;
-
-  (*
-  if Trim(aProcessor) <> '' then
-    begin
-      if (aPlugins as TPlugins).IsPluginNameExists(aProcessor) then
-        begin
-          foPlugin := (aPlugins as TPlugins).FindPlugin(aProcessor);
-
-          if (foPlugin Is TProcessorPlugin) then
-            begin
-               foprocessorPlugin := TProcessorPlugin(foPlugin);
-            end;
-        end;
-    end;
-
-
-  FoTemplate := TTemplate.CreateTemplate;
-
-  fsRenderBodyTag := '';
-
-  foCodeGenerator := tCodegenerator.Create(foTemplate, foOutput, foProject,
-    foProjectItem, foProcessorPlugin, fsInputFileName, aSourceFileName);
-    *)
 end;
 
 destructor TProcessor.Destroy;
@@ -207,6 +161,8 @@ begin
       foTemplate.TemplateDoc.LoadFromFile(InputFilename);
 
       foTemplate.ParseTemplate;
+
+      foCodeGenerator.oNodeLoader := foNodeLoader;
 
       Result := foCodeGenerator.Execute(OutputFilename);
    Except

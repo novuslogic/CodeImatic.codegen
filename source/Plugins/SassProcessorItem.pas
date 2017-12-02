@@ -5,7 +5,7 @@ interface
 Uses Winapi.Windows, System.SysUtils, System.Classes, NovusFileUtils,
   Plugin, NovusPlugin, NovusVersionUtils, Project, NovusTemplate,
   Output, System.Generics.Defaults, runtime, Config, NovusStringUtils,
-  APIBase, ProjectItem, TagType, JvSimpleXml, DelphiLibSass;
+  APIBase, ProjectItem, TagType, JvSimpleXml, DelphiLibSass, Loader;
 
 type
   tSassProcessorItem = class(TProcessorItem)
@@ -15,7 +15,7 @@ type
     function GetProcessorName: String; override;
   public
     function PreProcessor(aProjectItem: tObject; var aFilename: String;
-      aTemplate: tNovusTemplate): TPluginReturn; override;
+      aTemplate: tNovusTemplate; aNodeLoaer: tNodeLoader): TPluginReturn; override;
     function PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate;
       aTemplateFile: String; var aOutputFilename: string)
       : TPluginReturn; override;
@@ -32,7 +32,7 @@ begin
 end;
 
 function tSassProcessorItem.PreProcessor(aProjectItem: tObject;
-  var aFilename: String; aTemplate: tNovusTemplate): TPluginReturn;
+  var aFilename: String; aTemplate: tNovusTemplate; aNodeLoaer: tNodeLoader): TPluginReturn;
 begin
   Result := PRIgnore;
 end;

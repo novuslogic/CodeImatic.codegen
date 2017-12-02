@@ -6,7 +6,7 @@ Uses
   Winapi.Windows, System.SysUtils, System.Classes, NovusFileUtils,
   Plugin, NovusPlugin, NovusVersionUtils, Project, NovusTemplate, NovusEnvironment,
   Output, System.Generics.Defaults, runtime, Config, NovusStringUtils,
-  APIBase, ProjectItem, TagType, JvSimpleXml;
+  APIBase, ProjectItem, TagType, JvSimpleXml, Loader;
 
 type
   tLessCssProcessorItem = class(TProcessorItem)
@@ -14,7 +14,8 @@ type
   protected
     function GetProcessorName: String; override;
   public
-    function PreProcessor(aProjectItem: tObject;aFilename: String; aTemplate: tNovusTemplate)
+    function PreProcessor(aProjectItem: tObject;var aFilename: String;
+         aTemplate: tNovusTemplate; aNodeLoaer: tNodeLoader)
       : TPluginReturn; override;
     function PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; aTemplateFile: String; var aOutputFilename: string): TPluginReturn; override;
 
@@ -29,8 +30,8 @@ begin
   Result := 'LESSCSS';
 end;
 
-function tLessCssProcessorItem.PreProcessor(aProjectItem: tObject;aFilename: String;
-  aTemplate: tNovusTemplate): TPluginReturn;
+function tLessCssProcessorItem.PreProcessor(aProjectItem: tObject;var aFilename: String;
+  aTemplate: tNovusTemplate; aNodeLoaer: tNodeLoader): TPluginReturn;
 begin
   Result := PRIgnore;
 end;
