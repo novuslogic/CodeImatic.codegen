@@ -21,7 +21,7 @@ type
     destructor Destroy; Override;
 
     function PreProcessor(aProjectItem: tObject; var aFilename: String;
-      aTemplate: tNovusTemplate; aNodeLoaer: tNodeLoader): TPluginReturn; override;
+      aTemplate: tNovusTemplate; aNodeLoader: tNodeLoader): TPluginReturn; override;
     function PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate;
       aTemplateFile: String; var aOutputFilename: string)
       : TPluginReturn; override;
@@ -60,9 +60,14 @@ begin
 end;
 
 function tCodeDocsProcessorItem.PreProcessor(aProjectItem: tObject;
-  var aFilename: String; aTemplate: tNovusTemplate; aNodeLoaer: tNodeLoader): TPluginReturn;
+  var aFilename: String; aTemplate: tNovusTemplate; aNodeLoader: tNodeLoader): TPluginReturn;
 begin
   Result := PRIgnore;
+
+  if aNodeLoader.IsExists then ;
+
+
+
 
   if not foXMLDocumentation.Parser(aTemplate) then
     Result := PRFailed

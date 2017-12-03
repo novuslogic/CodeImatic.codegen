@@ -379,6 +379,7 @@ begin
         begin
           loSourceFile.IsTemplateFile := true;
           loSourceFile.Processor :=  foTemplateFile.Processor;
+          loSourceFile.oNodeLoader := foTemplateFile.oNodeLoader;
         end;
     end;
 

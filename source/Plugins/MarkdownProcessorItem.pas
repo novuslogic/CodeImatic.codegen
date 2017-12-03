@@ -14,7 +14,7 @@ type
     function GetProcessorName: String; override;
   public
     function PreProcessor(aProjectItem: tObject; var aFilename: String;
-      aTemplate: tNovusTemplate;aNodeLoaer: tNodeLoader): TPluginReturn; override;
+      aTemplate: tNovusTemplate;aNodeLoader: tNodeLoader): TPluginReturn; override;
     function PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate;
       aTemplateFile: String; var aOutputFilename: string)
       : TPluginReturn; override;
@@ -31,7 +31,7 @@ begin
 end;
 
 function tMarkdownProcessorItem.PreProcessor(aProjectItem: tObject;
-  var aFilename: String; aTemplate: tNovusTemplate; aNodeLoaer: tNodeLoader): TPluginReturn;
+  var aFilename: String; aTemplate: tNovusTemplate; aNodeLoader: tNodeLoader): TPluginReturn;
 Var
   fMarkdownprocessor: TMarkdownDaringFireball;
 begin
