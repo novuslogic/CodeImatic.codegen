@@ -76,6 +76,7 @@ type
     function Getoutputextension: string; virtual;
     function GetConvertFilename: String; virtual;
     function GetConvertFilenameParameters: String;
+    function GetProjectItem(aLoader: tLoader; aNodeName: String): String;
   public
     constructor Create(aConfigPlugin: tConfigPlugin; aOutput: TOutput); virtual;
     destructor Destroy; virtual;
@@ -326,6 +327,18 @@ begin
   Result := '';
 end;
 
+function TProcessorItem.GetProjectItem(aLoader: tLoader; aNodeName: String): String;
+Var
+  fotmpNodeLoader: tNodeLoader;
+begin
+  result := '';
+
+  fotmpNodeLoader := aLoader.GetNode(aLoader.RootNodeLoader,aNodeName, 0);
+
+  if fotmpNodeLoader.IsExists then
+    Result := fotmpNodeLoader.Node.Value;
+end;
+
 function TProcessorItem.PreProcessor(aProjectItem: tObject; var aFilename: String; aTemplate: tNovusTemplate; aNodeLoader: tNodeLoader): TPluginReturn;
 begin
   Result := PRIgnore;
@@ -340,6 +353,8 @@ function TProcessorItem.Convert(aProjectItem: tObject;aInputFilename: string; va
 begin
   Result := PRIgnore;
 end;
+
+
 
 function TProcessorItem.ParseConvertParameters(aParameters, aInputFilename, aOutputFilename: string): string;
 Var

@@ -11,10 +11,13 @@ Uses Winapi.Windows, System.SysUtils, System.Classes, NovusFileUtils,
 type
   tCodeDocsProcessorItem = class(TProcessorItem)
   private
+    foLoader: tLoader;
     foXMLDocumentation: TXMLDocumentation;
+    fssourcefile: string;
   protected
     function GetProcessorName: String; override;
     function Getoutputextension: string; override;
+    function GetSourcefile: String;
   public
     constructor Create(aConfigPlugin: tConfigPlugin; aOutput: TOutput);
       override;
@@ -37,6 +40,8 @@ constructor tCodeDocsProcessorItem.Create(aConfigPlugin: tConfigPlugin;
 begin
   inherited;
 
+  foLoader := tLoader.Create;
+
   foXMLDocumentation := TXMLDocumentation.Create(aOutput);
 
 end;
@@ -44,6 +49,8 @@ end;
 destructor tCodeDocsProcessorItem.Destroy;
 begin
   foXMLDocumentation.Free;
+
+  foLoader.Free;
 end;
 
 function tCodeDocsProcessorItem.GetProcessorName: String;
@@ -53,19 +60,38 @@ end;
 
 function tCodeDocsProcessorItem.Getoutputextension: string;
 begin
+  result := GetProjectItem(Foloader,'outputextension');
 
-  if oConfigPlugin.oConfigProperties.IsPropertyExists('outputextension') then
-    Result := oConfigPlugin.oConfigProperties.GetProperty('outputextension');
+  if Result = '' then
+    begin
+      if oConfigPlugin.oConfigProperties.IsPropertyExists('outputextension') then
+        Result := oConfigPlugin.oConfigProperties.GetProperty('outputextension');
+    end;
+end;
 
+function tCodeDocsProcessorItem.GetSourcefile: String;
+Var
+  fotmpNodeLoader: tNodeLoader;
+begin
+  result := GetProjectItem(Foloader,'sourcefile');
 end;
 
 function tCodeDocsProcessorItem.PreProcessor(aProjectItem: tObject;
   var aFilename: String; aTemplate: tNovusTemplate; aNodeLoader: tNodeLoader): TPluginReturn;
+
 begin
   Result := PRIgnore;
 
-  if aNodeLoader.IsExists then ;
+  if aNodeLoader.IsExists then
+    begin
+      Foloader.Init(aNodeLoader);
 
+
+
+
+
+
+    end;
 
 
 

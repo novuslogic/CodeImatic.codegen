@@ -30,9 +30,12 @@ type
   TLoader = class
   protected
   private
+    fRootNodeLoader: tNodeLoader;
     fRootNode: TJvSimpleXmlElem;
   public
     function Load: Boolean; virtual;
+
+    procedure Init(aNodeLoader: tNodeLoader);
 
     function GetNode(aNodeLoader: TNodeLoader; aNodeName: String; aIndexPos: integer = 0): TNodeLoader;
     function GetRootNode: TNodeLoader;
@@ -40,6 +43,7 @@ type
     function GetValue(aValue: String): String; virtual;
 
     property RootNode: TJvSimpleXmlElem read fRootNode write fRootNode;
+    property RootNodeLoader: tNodeLoader read fRootNodeLoader write fRootNodeLoader;
 
   end;
 
@@ -48,6 +52,15 @@ implementation
 function TLoader.Load: Boolean;
 begin
   Result := false;
+end;
+
+procedure TLoader.Init(aNodeLoader: tNodeLoader);
+begin
+  if aNodeLoader.IsExists then
+    begin
+      RootNode := aNodeLoader.Node;
+      RootNodeLoader := aNodeLoader;
+    end;
 end;
 
 function TLoader.GetRootNode: TNodeLoader;
