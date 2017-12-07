@@ -49,9 +49,9 @@ begin
   Inherited Create(aOutput, aPluginName, aProject, aConfigPlugin);
 
   Try
-    AddProcessorItem(tSassProcessorItem.Create(aConfigPlugin, aOutput));
-    AddProcessorItem(tMarkdownProcessorItem.Create(aConfigPlugin, aOutput));
-    AddProcessorItem(tLessCssProcessorItem.Create(aConfigPlugin, aOutput));
+    AddProcessorItem(tSassProcessorItem.Create(aConfigPlugin, aOutput, aProject));
+    AddProcessorItem(tMarkdownProcessorItem.Create(aConfigPlugin, aOutput, aProject));
+    AddProcessorItem(tLessCssProcessorItem.Create(aConfigPlugin, aOutput, aProject));
   Except
     aOutput.InternalError;
   End;

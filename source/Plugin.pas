@@ -67,6 +67,7 @@ type
 
   TProcessorItem = class
   private
+    foProject: tProject;
     fsDefaultOutputFilename: String;
     foConfigPlugin: tConfigPlugin;
     foOutput: TOutput;
@@ -78,7 +79,7 @@ type
     function GetConvertFilenameParameters: String;
     function GetProjectItem(aLoader: tLoader; aNodeName: String): String;
   public
-    constructor Create(aConfigPlugin: tConfigPlugin; aOutput: TOutput); virtual;
+    constructor Create(aConfigPlugin: tConfigPlugin; aOutput: TOutput; aProject: tProject); virtual;
     destructor Destroy; virtual;
 
     function PreProcessor(aProjectItem: tObject; var aFilename: String; aTemplate: tNovusTemplate; aNodeLoader: tNodeLoader)
@@ -137,6 +138,8 @@ type
   TPluginClass = class of TPlugin;
 
 implementation
+
+uses ProjectconfigParser;
 
 constructor TPlugin.Create;
 begin
@@ -252,10 +255,11 @@ begin
   fProcessorItems.Add(aProcessorItem)
 end;
 
-constructor TProcessorItem.Create(aConfigPlugin: tConfigPlugin; aOutput: TOutput);
+constructor TProcessorItem.Create(aConfigPlugin: tConfigPlugin; aOutput: TOutput; aProject: tProject);
 begin
   foConfigPlugin := aConfigPlugin;
   foOutput := aOutput;
+  foProject := aProject;
 end;
 
 destructor TProcessorItem.Destroy;
@@ -336,7 +340,10 @@ begin
   fotmpNodeLoader := aLoader.GetNode(aLoader.RootNodeLoader,aNodeName, 0);
 
   if fotmpNodeLoader.IsExists then
-    Result := fotmpNodeLoader.Node.Value;
+    begin
+       Result := tProjectconfigParser.ParseProjectconfig
+          (fotmpNodeLoader.Node.Value, foProject, foOutput);
+     end;
 end;
 
 function TProcessorItem.PreProcessor(aProjectItem: tObject; var aFilename: String; aTemplate: tNovusTemplate; aNodeLoader: tNodeLoader): TPluginReturn;

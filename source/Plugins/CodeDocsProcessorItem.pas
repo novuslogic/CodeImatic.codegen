@@ -19,7 +19,7 @@ type
     function Getoutputextension: string; override;
     function GetSourcefile: String;
   public
-    constructor Create(aConfigPlugin: tConfigPlugin; aOutput: TOutput);
+    constructor Create(aConfigPlugin: tConfigPlugin; aOutput: TOutput; aProject: TProject);
       override;
     destructor Destroy; Override;
 
@@ -36,7 +36,7 @@ type
 implementation
 
 constructor tCodeDocsProcessorItem.Create(aConfigPlugin: tConfigPlugin;
-  aOutput: TOutput);
+  aOutput: TOutput; aProject: TProject);
 begin
   inherited;
 
@@ -70,8 +70,6 @@ begin
 end;
 
 function tCodeDocsProcessorItem.GetSourcefile: String;
-Var
-  fotmpNodeLoader: tNodeLoader;
 begin
   result := GetProjectItem(Foloader,'sourcefile');
 end;
@@ -82,9 +80,38 @@ function tCodeDocsProcessorItem.PreProcessor(aProjectItem: tObject;
 begin
   Result := PRIgnore;
 
-  if aNodeLoader.IsExists then
+  if aNodeLoader.IsExists then  Foloader.Init(aNodeLoader);
+
+  if Getoutputextension = '' then
     begin
-      Foloader.Init(aNodeLoader);
+      oOutput.LogError('outputextension cannot be blank.');
+
+      Result := PRFailed;
+
+      exit;
+
+    end;
+
+
+  if Not FileExists(getsourcefile) then
+    begin
+      oOutput.LogError('sourcefile [' +getsourcefile + '] cannot be found.');
+
+      Result := PRFailed;
+
+      exit;
+    end;
+
+  if not foXMLDocumentation.Parser(aTemplate) then
+    Result := PRFailed
+  else
+    Result := PRPassed;
+
+
+
+  if Result = PRPassed then
+    begin
+
 
 
 
@@ -92,13 +119,6 @@ begin
 
 
     end;
-
-
-
-  if not foXMLDocumentation.Parser(aTemplate) then
-    Result := PRFailed
-  else
-    Result := PRPassed;
 
 end;
 

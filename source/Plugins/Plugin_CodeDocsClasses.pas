@@ -54,7 +54,7 @@ begin
    SingleItem := true;
 
   Try
-    AddProcessorItem(tCodeDocsProcessorItem.Create(aConfigPlugin, aOutput));
+    AddProcessorItem(tCodeDocsProcessorItem.Create(aConfigPlugin, aOutput, aProject));
   Except
     aOutput.InternalError;
   End;
