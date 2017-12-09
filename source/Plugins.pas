@@ -5,7 +5,7 @@ interface
 uses NovusPlugin, Config, Output, Classes, SysUtils, PluginsMapFactory, Plugin,
   Project, ProjectItem,
   NovusTemplate, ScriptEngine, uPSRuntime, uPSCompiler, NovusFileUtils,
-  CodeGeneratorItem, Loader;
+  CodeGeneratorItem, Loader, CodeGenerator;
 
 type
   TPlugins = class(TObject)
@@ -50,7 +50,8 @@ type
 
     function PreProcessor(aProjectItem: TObject; aFilename: string;
       aTemplate: tNovusTemplate; aProcessorPlugin: tProcessorPlugin;
-      aNodeLoader: tNodeLoader)
+      aNodeLoader: tNodeLoader;
+      aCodeGenerator: tCodeGenerator)
       : tProcessorItem;
 
     function IsCommandLine: Boolean;
@@ -339,7 +340,8 @@ end;
 
 function TPlugins.PreProcessor(aProjectItem: TObject; aFilename: string;
   aTemplate: tNovusTemplate; aProcessorPlugin: tProcessorPlugin;
-  aNodeLoader: tNodeLoader)
+  aNodeLoader: tNodeLoader;
+  aCodeGenerator: tCodeGenerator)
   : tProcessorItem;
 var
   loPlugin: TPlugin;
@@ -362,7 +364,7 @@ begin
     begin
       Result := lProcessorItem;
 
-      lPluginReturn := lProcessorItem.PreProcessor(aProjectItem, aFilename, aTemplate, aNodeLoader);
+      lPluginReturn := lProcessorItem.PreProcessor(aProjectItem, aFilename, aTemplate, aNodeLoader, aCodeGenerator);
       if lPluginReturn = PRFailed then
         foOutput.Failed := True;
     end;

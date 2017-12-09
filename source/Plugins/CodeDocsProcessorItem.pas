@@ -24,7 +24,7 @@ type
     destructor Destroy; Override;
 
     function PreProcessor(aProjectItem: tObject; var aFilename: String;
-      aTemplate: tNovusTemplate; aNodeLoader: tNodeLoader): TPluginReturn; override;
+      aTemplate: tNovusTemplate; aNodeLoader: tNodeLoader; aCodeGenerator: tObject): TPluginReturn; override;
     function PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate;
       aTemplateFile: String; var aOutputFilename: string)
       : TPluginReturn; override;
@@ -75,7 +75,7 @@ begin
 end;
 
 function tCodeDocsProcessorItem.PreProcessor(aProjectItem: tObject;
-  var aFilename: String; aTemplate: tNovusTemplate; aNodeLoader: tNodeLoader): TPluginReturn;
+  var aFilename: String; aTemplate: tNovusTemplate; aNodeLoader: tNodeLoader; aCodeGenerator: tObject): TPluginReturn;
 
 begin
   Result := PRIgnore;
@@ -92,7 +92,6 @@ begin
 
     end;
 
-
   if Not FileExists(getsourcefile) then
     begin
       oOutput.LogError('sourcefile [' +getsourcefile + '] cannot be found.');
@@ -107,12 +106,8 @@ begin
   else
     Result := PRPassed;
 
-
-
   if Result = PRPassed then
     begin
-
-
 
 
 

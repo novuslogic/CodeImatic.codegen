@@ -69,6 +69,8 @@ Type
     function DoOutputFilename(aTemplateFile: string; aOutputFilename: string;
       aProcesorItem: tProcessorItem): boolean;
 
+    function Pass1: Boolean;
+
     function IsNonOutputCommandonly(ASourceLineNo: Integer): boolean;
 
     procedure RunPropertyVariables(AStartPos, AEndPos: Integer);
@@ -299,6 +301,53 @@ begin
   End;
 end;
 
+function TCodeGenerator.Pass1: Boolean;
+begin
+  Result := true;
+
+  Try
+    If Not PassTemplateTags then
+    begin
+      Result := False;
+
+      Exit;
+    end;
+
+    DoProperties;
+
+    DoPluginTags;
+
+    RunPropertyVariables(0, (FCodeGeneratorList.Count - 1));
+
+    DoIncludes;
+
+    DoCodeBehine;
+
+    DoCodeTags;
+
+    if Trim(FScript.text) <> '' then
+      if not DoScriptEngine then
+        begin
+          Result := False;
+
+          Exit;
+        end;
+  Except
+    foOutput.Internalerror;
+    Result := False;
+  End;
+
+
+
+
+
+
+
+
+
+end;
+
+
 function TCodeGenerator.Execute;
 var
   FoProcesorItem: tProcessorItem;
@@ -306,11 +355,14 @@ begin
   Try
     DefaultOutputFilename := aOutputFilename;
 
-    // Pass 1
+
     Result := false;
 
     FoProcesorItem := NIL;
 
+
+    // Pass 1
+    (*
     If Not PassTemplateTags then
       Exit;
 
@@ -329,6 +381,10 @@ begin
     if Trim(FScript.text) <> '' then
       if not DoScriptEngine then
         Exit;
+    *)
+
+    if Not Pass1 then Exit;
+
 
     FoProcesorItem := DoPreProcessor;
     if Assigned(FoProcesorItem) then
@@ -863,7 +919,8 @@ begin
   Result := oRuntime.oPlugins.PreProcessor(foProjectItem,
     fsInputFilename, FoTemplate,
     (foProcessorPlugin as TProcessorPlugin),
-    foNodeLoader);
+    foNodeLoader,
+    Self);
 end;
 
 function TCodeGenerator.DoPreLayout: boolean;

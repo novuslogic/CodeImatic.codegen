@@ -82,7 +82,7 @@ type
     constructor Create(aConfigPlugin: tConfigPlugin; aOutput: TOutput; aProject: tProject); virtual;
     destructor Destroy; virtual;
 
-    function PreProcessor(aProjectItem: tObject; var aFilename: String; aTemplate: tNovusTemplate; aNodeLoader: tNodeLoader)
+    function PreProcessor(aProjectItem: tObject; var aFilename: String; aTemplate: tNovusTemplate; aNodeLoader: tNodeLoader; aCodeGenerator: tObject)
       : TPluginReturn; virtual;
     function PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; aTemplateFile: String; var aOutputFilename: string): TPluginReturn; virtual;
     function Convert(aProjectItem: tObject;aInputFilename: string; var aOutputFilename: string): TPluginReturn; virtual;
@@ -139,7 +139,7 @@ type
 
 implementation
 
-uses ProjectconfigParser;
+uses ProjectconfigParser, CodeGenerator;
 
 constructor TPlugin.Create;
 begin
@@ -346,7 +346,7 @@ begin
      end;
 end;
 
-function TProcessorItem.PreProcessor(aProjectItem: tObject; var aFilename: String; aTemplate: tNovusTemplate; aNodeLoader: tNodeLoader): TPluginReturn;
+function TProcessorItem.PreProcessor(aProjectItem: tObject; var aFilename: String; aTemplate: tNovusTemplate; aNodeLoader: tNodeLoader; aCodeGenerator: tObject): TPluginReturn;
 begin
   Result := PRIgnore;
 end;
