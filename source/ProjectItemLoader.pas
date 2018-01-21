@@ -134,6 +134,11 @@ begin
       if FNodeLoader.IsExists then
        foProjectItem.TemplateFile := GetValue(FNodeLoader.Value);
 
+      FNodeLoader := GetNode(FRootNodeLoader, 'sourcefile');
+      if FNodeLoader.IsExists then
+       foProjectItem.TemplateFile := GetValue(FNodeLoader.Value);
+
+
       FNodeLoader := GetNode(FRootNodeLoader, 'source');
       if FNodeLoader.IsExists then
        foProjectItem.TemplateFile := GetValue(FNodeLoader.Value);

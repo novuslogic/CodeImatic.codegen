@@ -5,7 +5,7 @@ interface
 uses NovusPlugin, Config, Output, Classes, SysUtils, PluginsMapFactory, Plugin,
   Project, ProjectItem,
   NovusTemplate, ScriptEngine, uPSRuntime, uPSCompiler, NovusFileUtils,
-  CodeGeneratorItem, Loader, CodeGenerator;
+  CodeGeneratorItem, Loader, CodeGenerator, Template;
 
 type
   TPlugins = class(TObject)
@@ -39,17 +39,20 @@ type
       aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
 
     function PostProcessor(aProcessorItem: tProcessorItem;
-      aProjectItem: tProjectItem; aTemplate: tNovusTemplate;
+      aProjectItem: tProjectItem;
+      var aTemplate: tTemplate;
       aTemplateFile: String; var aOutputFilename: string;
       aProcessorPlugin: tProcessorPlugin): TPluginReturn;
 
     function Convert(aProcessorItem: tProcessorItem; aProjectItem: tProjectItem;
-      aTemplate: tNovusTemplate; aTemplateFile: String;
+      var aTemplate: tTemplate;
+      aTemplateFile: String;
       var aOutputFilename: string; aProcessorPlugin: tProcessorPlugin)
       : TPluginReturn;
 
     function PreProcessor(aProjectItem: TObject; aFilename: string;
-      aTemplate: tNovusTemplate; aProcessorPlugin: tProcessorPlugin;
+      var aTemplate: TTemplate;
+      aProcessorPlugin: tProcessorPlugin;
       aNodeLoader: tNodeLoader;
       aCodeGenerator: tCodeGenerator)
       : tProcessorItem;
@@ -307,7 +310,8 @@ begin
 end;
 
 function TPlugins.PostProcessor(aProcessorItem: tProcessorItem;
-  aProjectItem: tProjectItem; aTemplate: tNovusTemplate; aTemplateFile: String;
+  aProjectItem: tProjectItem;
+  var aTemplate: tTemplate; aTemplateFile: String;
   var aOutputFilename: string; aProcessorPlugin: tProcessorPlugin)
   : TPluginReturn;
 begin
@@ -323,7 +327,8 @@ begin
 end;
 
 function TPlugins.Convert(aProcessorItem: tProcessorItem;
-  aProjectItem: tProjectItem; aTemplate: tNovusTemplate; aTemplateFile: String;
+  aProjectItem: tProjectItem;
+  var aTemplate: tTemplate; aTemplateFile: String;
   var aOutputFilename: string; aProcessorPlugin: tProcessorPlugin)
   : TPluginReturn;
 begin
@@ -339,7 +344,8 @@ begin
 end;
 
 function TPlugins.PreProcessor(aProjectItem: TObject; aFilename: string;
-  aTemplate: tNovusTemplate; aProcessorPlugin: tProcessorPlugin;
+  var aTemplate: TTemplate;
+  aProcessorPlugin: tProcessorPlugin;
   aNodeLoader: tNodeLoader;
   aCodeGenerator: tCodeGenerator)
   : tProcessorItem;

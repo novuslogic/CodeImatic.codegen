@@ -6,7 +6,7 @@ Uses Winapi.Windows, System.SysUtils, System.Classes, NovusFileUtils,
   Plugin, NovusPlugin, NovusVersionUtils, Project, NovusTemplate,
   Output, System.Generics.Defaults, runtime, Config, NovusStringUtils,
   APIBase, ProjectItem, TagType, JvSimpleXml, XMLDocumentationClasses,
-  Loader;
+  Loader, Template;
 
 type
   tCodeDocsProcessorItem = class(TProcessorItem)
@@ -24,8 +24,8 @@ type
     destructor Destroy; Override;
 
     function PreProcessor(aProjectItem: tObject; var aFilename: String;
-      aTemplate: tNovusTemplate; aNodeLoader: tNodeLoader; aCodeGenerator: tObject): TPluginReturn; override;
-    function PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate;
+      var aTemplate: tTemplate; aNodeLoader: tNodeLoader; aCodeGenerator: tObject): TPluginReturn; override;
+    function PostProcessor(aProjectItem: tObject; var aTemplate: tTemplate;
       aTemplateFile: String; var aOutputFilename: string)
       : TPluginReturn; override;
 
@@ -34,6 +34,8 @@ type
   end;
 
 implementation
+
+Uses CodeGenerator;
 
 constructor tCodeDocsProcessorItem.Create(aConfigPlugin: tConfigPlugin;
   aOutput: TOutput; aProject: TProject);
@@ -75,8 +77,9 @@ begin
 end;
 
 function tCodeDocsProcessorItem.PreProcessor(aProjectItem: tObject;
-  var aFilename: String; aTemplate: tNovusTemplate; aNodeLoader: tNodeLoader; aCodeGenerator: tObject): TPluginReturn;
-
+  var aFilename: String; var aTemplate: tTemplate; aNodeLoader: tNodeLoader; aCodeGenerator: tObject): TPluginReturn;
+var
+ lsSourceFile: string;
 begin
   Result := PRIgnore;
 
@@ -92,9 +95,11 @@ begin
 
     end;
 
-  if Not FileExists(getsourcefile) then
+  lsSourceFile := getsourcefile;
+
+  if Not FileExists(lsSourceFile) then
     begin
-      oOutput.LogError('sourcefile [' +getsourcefile + '] cannot be found.');
+      oOutput.LogError('sourcefile [' +lsSourceFile + '] cannot be found.');
 
       Result := PRFailed;
 
@@ -108,17 +113,23 @@ begin
 
   if Result = PRPassed then
     begin
+      Try
+        aTemplate.TemplateDoc.LoadFromFile(lsSourceFile);
 
+        aTemplate.ParseTemplate;
 
+       // (aCodeGenerator as tCodeGenerator).Pass1;
+      Except
+        oOutput.InternalError;
 
-
-
+        Result := PRFailed
+      End;
     end;
 
 end;
 
 function tCodeDocsProcessorItem.PostProcessor(aProjectItem: tObject;
-  aTemplate: tNovusTemplate; aTemplateFile: String; var aOutputFilename: string)
+  var aTemplate: tTemplate; aTemplateFile: String; var aOutputFilename: string)
   : TPluginReturn;
 Var
   loProjectItem: tProjectItem;

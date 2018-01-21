@@ -4,7 +4,7 @@ interface
 
 uses classes, Output, NovusPlugin, Project, config, NovusTemplate, uPSRuntime,
   uPSCompiler, NovusList, SysUtils, JvSimpleXml, CodeGeneratorItem,
-  NovusShell, System.IoUtils, Loader;
+  NovusShell, System.IoUtils, Loader, Template;
 
 type
   TPluginReturn = (PRFailed, PRPassed, PRIgnore);
@@ -82,9 +82,9 @@ type
     constructor Create(aConfigPlugin: tConfigPlugin; aOutput: TOutput; aProject: tProject); virtual;
     destructor Destroy; virtual;
 
-    function PreProcessor(aProjectItem: tObject; var aFilename: String; aTemplate: tNovusTemplate; aNodeLoader: tNodeLoader; aCodeGenerator: tObject)
+    function PreProcessor(aProjectItem: tObject; var aFilename: String; var aTemplate: tTemplate; aNodeLoader: tNodeLoader; aCodeGenerator: tObject)
       : TPluginReturn; virtual;
-    function PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; aTemplateFile: String; var aOutputFilename: string): TPluginReturn; virtual;
+    function PostProcessor(aProjectItem: tObject; var aTemplate: tTemplate; aTemplateFile: String; var aOutputFilename: string): TPluginReturn; virtual;
     function Convert(aProjectItem: tObject;aInputFilename: string; var aOutputFilename: string): TPluginReturn; virtual;
     function ParseConvertParameters(aParameters, aInputFilename, aOutputFilename: string): string;
     function RunCaptureCommand(const aCommandLine: string; var aOutput: String): Integer;
@@ -346,12 +346,12 @@ begin
      end;
 end;
 
-function TProcessorItem.PreProcessor(aProjectItem: tObject; var aFilename: String; aTemplate: tNovusTemplate; aNodeLoader: tNodeLoader; aCodeGenerator: tObject): TPluginReturn;
+function TProcessorItem.PreProcessor(aProjectItem: tObject; var aFilename: String; var aTemplate: tTemplate; aNodeLoader: tNodeLoader; aCodeGenerator: tObject): TPluginReturn;
 begin
   Result := PRIgnore;
 end;
 
-function TProcessorItem.PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; aTemplateFile: String; var aOutputFilename: string): TPluginReturn;
+function TProcessorItem.PostProcessor(aProjectItem: tObject; var aTemplate: tTemplate; aTemplateFile: String; var aOutputFilename: string): TPluginReturn;
 begin
   Result := PRIgnore;
 end;

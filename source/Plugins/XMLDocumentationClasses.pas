@@ -2,7 +2,8 @@ unit XMLDocumentationClasses;
 
 interface
 
-Uses Output, NovusTemplate, SysUtils, System.RegularExpressions, Novuslist;
+Uses Output, NovusTemplate, SysUtils, System.RegularExpressions, Novuslist,
+  Template;
 
 type
   TXMLTagItems = class(TnovusList)
@@ -16,20 +17,11 @@ type
     fsValue: String;
     fiLength: Integer;
   public
-    property Tag: string
-      read fsTag
-      write fsTag;
-    Property Index: Integer
-      read fiIndex
-      write fiIndex;
-    property Value: String
-      read fsValue
-      write fsValue;
-    property Length: Integer
-      read fiLength
-      write fiLength;
+    property Tag: string read fsTag write fsTag;
+    Property Index: Integer read fiIndex write fiIndex;
+    property Value: String read fsValue write fsValue;
+    property Length: Integer read fiLength write fiLength;
   end;
-
 
   TXMLDocumentation = class
   protected
@@ -37,21 +29,19 @@ type
     foOutput: TOutput;
     foTemplate: tNovusTemplate;
     foXTLTagItems: TXMLTagItems;
-    function InternalParserTag(aTemplate: tNovusTemplate; aTag: string): boolean;
+    function InternalParserTag(aTemplate: tTemplate; aTag: string): boolean;
   public
     constructor Create(aOutput: TOutput);
     destructor Destroy; override;
 
     function GetRegExTag(aTag: String): String;
 
-    function Parser(aTemplate: tNovusTemplate): boolean;
+    function Parser(aTemplate: tTemplate): boolean;
 
-    property oXTLTagItems:  TXMLTagItems
-      read foXTLTagItems
-      write foXTLTagItems;
+    property oXTLTagItems: TXMLTagItems read foXTLTagItems write foXTLTagItems;
   end;
-implementation
 
+implementation
 
 constructor TXMLDocumentation.Create(aOutput: TOutput);
 begin
@@ -65,48 +55,51 @@ begin
   foXTLTagItems.Free;
 end;
 
-function TXMLDocumentation.InternalParserTag(aTemplate: tNovusTemplate; aTag: string): boolean;
+function TXMLDocumentation.InternalParserTag(aTemplate: tTemplate;
+  aTag: string): boolean;
 Var
-  fRegularExpression : TRegEx;
+  fRegularExpression: TRegEx;
   fMatchCollection: TMatchCollection;
-  I: integer;
+  I: Integer;
   loXMLTagItem: TXMLTagItem;
 begin
   Try
-    fRegularExpression := TRegEx.Create(GetRegExTag(aTag), [roIgnoreCase, roMultiLine] );
+    Result := true;
+
+    fRegularExpression := TRegEx.Create(GetRegExTag(aTag),
+      [roIgnoreCase, roMultiLine]);
 
     fMatchCollection := fRegularExpression.Matches(aTemplate.TemplateDoc.Text);
 
-     for i := 0 to fMatchCollection.Count-1 do
-       begin
-         loXMLTagItem :=  TXMLTagItem.Create;
-         loXMLTagItem.Tag := aTag;
-         loXMLTagItem.Index := fMatchCollection.Item[i].Index;
-         loXMLTagItem.Value := fMatchCollection.Item[i].Value;
-         loXMLTagItem.Length := fMatchCollection.Item[i].Length;
+    for I := 0 to fMatchCollection.Count - 1 do
+    begin
+      loXMLTagItem := TXMLTagItem.Create;
+      loXMLTagItem.Tag := aTag;
+      loXMLTagItem.Index := fMatchCollection.Item[I].Index;
+      loXMLTagItem.Value := fMatchCollection.Item[I].Value;
+      loXMLTagItem.Length := fMatchCollection.Item[I].Length;
 
-         foXTLTagItems.Add(loXMLTagItem)
-       end;
-  Finally
+      foXTLTagItems.Add(loXMLTagItem)
+    end;
+  Except
+    foOutput.InternalError;
+
+    Result := False;
   End;
 
 end;
 
-function TXMLDocumentation.Parser(aTemplate: tNovusTemplate): Boolean;
+function TXMLDocumentation.Parser(aTemplate: tTemplate): boolean;
 begin
-  Result := false;
+  Result := true;
 
-  if Not InternalParserTag(aTemplate, 'summary') then  ;
-
-
-
-
+  if Not InternalParserTag(aTemplate, 'summary') then;
 
 end;
 
 function TXMLDocumentation.GetRegExTag(aTag: String): String;
 begin
-  result :=  format('\/\/\/ <%s[^>]*>([\s\S]+?)<\/%s>', [aTag, aTag])  ;
+  Result := format('\/\/\/ <%s[^>]*>([\s\S]+?)<\/%s>', [aTag, aTag]);
 end;
 
 end.

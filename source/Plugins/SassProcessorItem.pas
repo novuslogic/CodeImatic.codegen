@@ -5,7 +5,7 @@ interface
 Uses Winapi.Windows, System.SysUtils, System.Classes, NovusFileUtils,
   Plugin, NovusPlugin, NovusVersionUtils, Project, NovusTemplate,
   Output, System.Generics.Defaults, runtime, Config, NovusStringUtils,
-  APIBase, ProjectItem, TagType, JvSimpleXml, DelphiLibSass, Loader;
+  APIBase, ProjectItem, TagType, JvSimpleXml, DelphiLibSass, Loader, template;
 
 type
   tSassProcessorItem = class(TProcessorItem)
@@ -15,8 +15,8 @@ type
     function GetProcessorName: String; override;
   public
     function PreProcessor(aProjectItem: tObject; var aFilename: String;
-      aTemplate: tNovusTemplate; aNodeLoader: tNodeLoader; aCodeGenerator: tObject): TPluginReturn; override;
-    function PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate;
+      var aTemplate: tTemplate; aNodeLoader: tNodeLoader; aCodeGenerator: tObject): TPluginReturn; override;
+    function PostProcessor(aProjectItem: tObject; var aTemplate: tTemplate;
       aTemplateFile: String; var aOutputFilename: string)
       : TPluginReturn; override;
 
@@ -32,13 +32,13 @@ begin
 end;
 
 function tSassProcessorItem.PreProcessor(aProjectItem: tObject;
-  var aFilename: String; aTemplate: tNovusTemplate; aNodeLoader: tNodeLoader; aCodeGenerator: tObject): TPluginReturn;
+  var aFilename: String; var aTemplate: tTemplate; aNodeLoader: tNodeLoader; aCodeGenerator: tObject): TPluginReturn;
 begin
   Result := PRIgnore;
 end;
 
 function tSassProcessorItem.PostProcessor(aProjectItem: tObject;
-  aTemplate: tNovusTemplate; aTemplateFile: String; var aOutputFilename: string)
+  var aTemplate: tTemplate; aTemplateFile: String; var aOutputFilename: string)
   : TPluginReturn;
 Var
   fScssResult: TScssResult;

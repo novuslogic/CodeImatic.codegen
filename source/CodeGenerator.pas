@@ -91,7 +91,7 @@ Type
 
     function Execute(aOutputFilename: String): boolean;
 
-    property CodeGeneratorList: TNovusList read FCodeGeneratorList
+    property oCodeGeneratorList: TNovusList read FCodeGeneratorList
       write FCodeGeneratorList;
 
     property oTemplate: TTemplate read FoTemplate write FoTemplate;
@@ -248,35 +248,10 @@ begin
     if aClearRun then
     begin
       Try
-        (*
-          FSourceTemplateTags:= TTemplateTags.Create(TTemplateTag);
-
-          for I := 0 to FoTemplate.TemplateTags.Count - 1 do
-          begin
-          FoTemplateTag := TTemplateTag.Create(NIL);
-          FoTemplateTag.Assign(TTemplateTag(FoTemplate.TemplateTags.Items[I]));
-
-
-          FSourceTemplateTags.Add(FoTemplateTag);
-          end;
-        *)
-
         FCodeGeneratorList.Clear; // Clearing need to be backup
 
         FoTemplate.ParseTemplate;
       Finally
-        (*
-          for I := 0 to FoTemplate.TemplateTags.Count - 1 do
-          begin
-          FoTemplateTag := TTemplateTag(FoTemplate.TemplateTags.Items[I]);
-
-          fiIndex := FSourceTemplateTags.FindTagNameIndexOf(FoTemplateTag.TagName, 0);
-          if fiIndex <> -1 then
-          FoTemplateTag.TagValue := TTemplateTag(FSourceTemplateTags.Items[fiIndex]).TagValue;
-          end;
-
-          FSourceTemplateTags.Free;
-        *)
       End;
     end;
 
@@ -360,35 +335,12 @@ begin
 
     FoProcesorItem := NIL;
 
-
     // Pass 1
-    (*
-    If Not PassTemplateTags then
-      Exit;
-
-    DoProperties;
-
-    DoPluginTags;
-
-    RunPropertyVariables(0, (FCodeGeneratorList.Count - 1));
-
-    DoIncludes;
-
-    DoCodeBehine;
-
-    DoCodeTags;
-
-    if Trim(FScript.text) <> '' then
-      if not DoScriptEngine then
-        Exit;
-    *)
-
     if Not Pass1 then Exit;
 
-
     FoProcesorItem := DoPreProcessor;
-    if Assigned(FoProcesorItem) then
-      FoProcesorItem.DefaultOutputFilename := DefaultOutputFilename;
+     if Assigned(FoProcesorItem) then
+       FoProcesorItem.DefaultOutputFilename := DefaultOutputFilename;
 
     // Pass 2
     if DoPreLayout then

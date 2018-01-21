@@ -6,7 +6,7 @@ Uses
   Winapi.Windows, System.SysUtils, System.Classes, NovusFileUtils,
   Plugin, NovusPlugin, NovusVersionUtils, Project, NovusTemplate, NovusEnvironment,
   Output, System.Generics.Defaults, runtime, Config, NovusStringUtils,
-  APIBase, ProjectItem, TagType, JvSimpleXml, Loader;
+  APIBase, ProjectItem, TagType, JvSimpleXml, Loader, template;
 
 type
   tLessCssProcessorItem = class(TProcessorItem)
@@ -15,9 +15,9 @@ type
     function GetProcessorName: String; override;
   public
     function PreProcessor(aProjectItem: tObject;var aFilename: String;
-         aTemplate: tNovusTemplate; aNodeLoader: tNodeLoader; aCodeGenerator: tObject)
+         var aTemplate: tTemplate; aNodeLoader: tNodeLoader; aCodeGenerator: tObject)
       : TPluginReturn; override;
-    function PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; aTemplateFile: String; var aOutputFilename: string): TPluginReturn; override;
+    function PostProcessor(aProjectItem: tObject; var aTemplate: tTemplate; aTemplateFile: String; var aOutputFilename: string): TPluginReturn; override;
 
     function Convert(aProjectItem: tObject;aInputFilename: string; var aOutputFilename: string)
       : TPluginReturn; override;
@@ -31,12 +31,12 @@ begin
 end;
 
 function tLessCssProcessorItem.PreProcessor(aProjectItem: tObject;var aFilename: String;
-  aTemplate: tNovusTemplate; aNodeLoader: tNodeLoader; aCodeGenerator: tObject): TPluginReturn;
+  var aTemplate: tTemplate; aNodeLoader: tNodeLoader; aCodeGenerator: tObject): TPluginReturn;
 begin
   Result := PRIgnore;
 end;
 
-function tLessCssProcessorItem.PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate; aTemplateFile: String; var aOutputFilename: string)
+function tLessCssProcessorItem.PostProcessor(aProjectItem: tObject; var aTemplate: tTemplate; aTemplateFile: String; var aOutputFilename: string)
   : TPluginReturn;
 begin
   aOutputFilename := ExtractFilePath(aTemplateFile) +  '_' + ExtractFileName(aTemplateFile);

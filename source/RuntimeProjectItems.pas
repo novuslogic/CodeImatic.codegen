@@ -113,9 +113,9 @@ begin
 
         if TNovusFileUtils.IsValidFolder(loProjectItem.OutputFile) then
         begin
-          // if ExtractFilename(loProjectItem.OutputFile) = '' then
-          loProjectItem.OutputFile := TNovusFileUtils.TrailingBackSlash
-            (loProjectItem.OutputFile) + loProjectItem.ItemName;
+          if DirectoryExists(loProjectItem.OutputFile) then
+            loProjectItem.OutputFile := TNovusFileUtils.TrailingBackSlash
+               (loProjectItem.OutputFile) + loProjectItem.ItemName;
         end;
       Except
         foOutput.Log('Output Projectconfig error.');

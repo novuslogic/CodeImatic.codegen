@@ -5,17 +5,18 @@ interface
 uses Classes, Plugin, NovusPlugin, NovusVersionUtils, Project, NovusTemplate,
   Output, SysUtils, System.Generics.Defaults, runtime, Config, NovusStringUtils,
   APIBase, MarkdownDaringFireball, MarkdownProcessor, ProjectItem, TagType,
-  Loader;
+  Loader, template, CodeGenerator;
 
 type
   tMarkdownProcessorItem = class(TProcessorItem)
   private
   protected
+    FoCodeGenerator: tCodeGenerator;
     function GetProcessorName: String; override;
   public
     function PreProcessor(aProjectItem: tObject; var aFilename: String;
-      aTemplate: tNovusTemplate;aNodeLoader: tNodeLoader; aCodeGenerator: tObject): TPluginReturn; override;
-    function PostProcessor(aProjectItem: tObject; aTemplate: tNovusTemplate;
+      var aTemplate: tTemplate;aNodeLoader: tNodeLoader; aCodeGenerator: tObject): TPluginReturn; override;
+    function PostProcessor(aProjectItem: tObject; var aTemplate: tTemplate;
       aTemplateFile: String; var aOutputFilename: string)
       : TPluginReturn; override;
 
@@ -25,19 +26,27 @@ type
 
 implementation
 
+
 function tMarkdownProcessorItem.GetProcessorName: String;
 begin
   Result := 'Markdown';
 end;
 
 function tMarkdownProcessorItem.PreProcessor(aProjectItem: tObject;
-  var aFilename: String; aTemplate: tNovusTemplate; aNodeLoader: tNodeLoader; aCodeGenerator: tObject): TPluginReturn;
+  var aFilename: String; var aTemplate: tTemplate; aNodeLoader: tNodeLoader; aCodeGenerator: tObject): TPluginReturn;
 Var
   fMarkdownprocessor: TMarkdownDaringFireball;
+
 begin
   Try
     Try
       fMarkdownprocessor := TMarkdownDaringFireball.Create;
+
+      FoCodeGenerator := (aCodeGenerator as tCodeGenerator);
+
+      FoCodeGenerator.oCodeGeneratorList.Count;
+
+
 
       aTemplate.TemplateDoc.Text := fMarkdownprocessor.process
         (aTemplate.TemplateDoc.Text);
@@ -54,7 +63,7 @@ begin
 end;
 
 function tMarkdownProcessorItem.PostProcessor(aProjectItem: tObject;
-  aTemplate: tNovusTemplate; aTemplateFile: String; var aOutputFilename: string)
+  var aTemplate: tTemplate; aTemplateFile: String; var aOutputFilename: string)
   : TPluginReturn;
 begin
   aOutputFilename := ChangeFileExt(aOutputFilename, '.' + outputextension);

@@ -720,9 +720,9 @@ Var
   begin
     Result := NIL;
 
-    for z := APos to tCodeGenerator(FoCodeGenerator).CodeGeneratorList.Count - 1 do
+    for z := APos to tCodeGenerator(FoCodeGenerator).oCodeGeneratorList.Count - 1 do
       begin
-        LCodeGeneratorItem := tCodeGeneratorItem(tCodeGenerator(FoCodeGenerator).CodeGeneratorList.Items[z]);
+        LCodeGeneratorItem := tCodeGeneratorItem(tCodeGenerator(FoCodeGenerator).oCodeGeneratorList.Items[z]);
 
         if LCodeGeneratorItem.oTemplateTag.SourceLineNo = ASourceLineNo then
           begin
@@ -808,7 +808,7 @@ begin
 
         for I := liStartPos1 to liEndPos1 do
           begin
-            LCodeGeneratorItem1 := tCodeGeneratorItem(tCodeGenerator(FoCodeGenerator).CodeGeneratorList.Items[i]);
+            LCodeGeneratorItem1 := tCodeGeneratorItem(tCodeGenerator(FoCodeGenerator).oCodeGeneratorList.Items[i]);
             LCodeGeneratorItem1.LoopId := fiLoopCounter;
           end;
 
@@ -827,7 +827,7 @@ begin
         Repeat
           liPos := 0;
 
-          While(liPos < tCodeGenerator(FoCodeGenerator).CodeGeneratorList.Count) do
+          While(liPos < tCodeGenerator(FoCodeGenerator).oCodeGeneratorList.Count) do
             begin
               LCodeGeneratorItem1 := GetCodeGeneratorItemBySourceLineNo((liLastNextSourceLineNo + i) + 1, liPos);
 
@@ -896,7 +896,7 @@ begin
 
               liPos := 0;
 
-              While(liPos < tCodeGenerator(FoCodeGenerator).CodeGeneratorList.Count) do
+              While(liPos < tCodeGenerator(FoCodeGenerator).oCodeGeneratorList.Count) do
                 begin
                   LCodeGeneratorItem1 := GetCodeGeneratorItemBySourceLineNo((liStartSourceLineNo + i) + 1, liPos);
                   if Assigned(LCodeGeneratorItem1) then
@@ -1320,7 +1320,7 @@ Var
 begin
   Result := -1;
 
-  LCodeGeneratorList := (FoCodeGenerator As TCodeGenerator).CodeGeneratorList;
+  LCodeGeneratorList := (FoCodeGenerator As TCodeGenerator).oCodeGeneratorList;
 
   iCount := 0;
   for I := AIndex to LCodeGeneratorList.Count -1 do
