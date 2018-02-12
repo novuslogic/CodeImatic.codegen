@@ -15,6 +15,8 @@ type
      function GetNextToken(aTokenIndex: Integer): string; overload;
      function IsNextTokenEquals: boolean;
 
+     function EOF: Boolean;
+
      property TokenIndex: Integer
          read fiTokenIndex
          write fiTokenIndex;
@@ -26,6 +28,11 @@ implementation
 constructor tTokenProcessor.Create;
 begin
   fiTokenIndex:= 0;
+end;
+
+function tTokenProcessor.EOF: Boolean;
+begin
+  Result := (fiTokenIndex > Count);
 end;
 
 function tTokenProcessor.GetNextToken(aIgnoreNextToken: Boolean): String;

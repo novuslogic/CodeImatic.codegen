@@ -149,7 +149,6 @@ begin
     begin
       loProjectItem:= TProjectItem.Create(self, foOutput, fNodeProjectItem);
 
-
       if TProjectItemLoader.LoadProjectItem(Self, loProjectItem, fNodeProjectItem, foOutput, (foPlugins as TPlugins) ) then
         oProjectItemList.Add(loProjectItem);
 

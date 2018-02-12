@@ -35,7 +35,9 @@ type
       aPlugins: TPlugins;
       aNodeLoader: tNodeLoader); overload;
 
-      constructor Create(aOutput: tOutput;
+
+
+   constructor Create(aOutput: tOutput;
       aProject: tProject; aProjectItem: TProjectItem;
       aProcessor: String;
       aInputFileName: String;

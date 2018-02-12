@@ -136,6 +136,10 @@ begin
   while (FExpr[FExprID]='.') and (FExprID<=FLExpr) do
      Inc(FExprID);
 
+  while (FExpr[FExprID]='%') and (FExprID<=FLExpr) do
+     Inc(FExprID);
+
+
    //Check if End of Expression
   if FExpr[FExprID]=EndSymbol then
   begin

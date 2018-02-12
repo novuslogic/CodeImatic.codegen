@@ -10,10 +10,10 @@ Type
   private
     class function InternalParseTagType(aProjectItem: tObject;
       aCodeGenerator: tObject; aToken: string; aTokens: tTokenProcessor;
-      aOutput: toutput; aTokenIndex: Integer = 0): TTagType;
+      aOutput: toutput; aTokenIndex: Integer; aIsTokens: Boolean): TTagType;
   public
     class function ParseTagType(aProjectItem: tObject; aCodeGenerator: tObject;
-      aToken: String; aOutput: toutput): TTagType; overload;
+      aString: String; aOutput: toutput; aIsTokens: Boolean): TTagType; overload;
 
     class function ParseTagType(aProjectItem: tObject; aCodeGenerator: tObject;
       aTokens: tTokenProcessor; aOutput: toutput; aTokenIndex: Integer): TTagType; overload;
@@ -25,23 +25,26 @@ implementation
 Uses Runtime, ProjectItem, CodeGenerator, TokenParser, Variables;
 
 class function TTagTypeParser.ParseTagType(aProjectItem: tObject; aCodeGenerator: tObject;
-      aToken: String; aOutput: toutput): TTagType;
+      aString: String; aOutput: toutput; aIsTokens: Boolean): TTagType;
 begin
    Result := TTagTypeParser.InternalParseTagType(aProjectItem,
-       aCodeGenerator,aToken, NIL, aOutput);
+       aCodeGenerator,aString, NIL, aOutput, 0, aIsTokens);
 end;
+
 
 class function TTagTypeParser.ParseTagType(aProjectItem: tObject; aCodeGenerator: tObject;
       aTokens: tTokenProcessor; aOutput: toutput; aTokenIndex: Integer): TTagType;
 begin
   Result := TTagTypeParser.InternalParseTagType(aProjectItem,
-       aCodeGenerator,'',aTokens, aOutput, aTokenIndex);
+       aCodeGenerator,'',aTokens, aOutput, aTokenIndex, false);
 end;
+
+
 
 
 class function TTagTypeParser.InternalParseTagType(aProjectItem: tObject;
   aCodeGenerator: tObject; aToken: string; aTokens: tTokenProcessor;
-  aOutput: toutput; aTokenIndex: Integer): TTagType;
+  aOutput: toutput; aTokenIndex: Integer; aIsTokens: Boolean): TTagType;
 var
   FTokenProcessor: tTokenProcessor;
   lsToken, lsToken1, lsToken2: string;
@@ -78,6 +81,7 @@ begin
     FTokenProcessor := tTokenParser.ParseExpressionToken(lsToken1, aOutput);
 
     lsToken := FTokenProcessor.GetNextToken;
+
 
     if lsToken = '' then
       result := ttunknown

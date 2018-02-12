@@ -1153,9 +1153,7 @@ end;
 
 function TInterpreter.LanguageFunctions(AFunction: string; ADataType: String): String;
 begin
-  //Result := (foProjectItem as tProjectItem).oCodeGenerator.oLanguage.ReadXML(Afunction, ADataType);
-
-  Result := (foProjectItem as TProjectItem).oCodeGenerator.oLanguage.ReadXML(Afunction, ADataType);
+//  Result := (foProjectItem as TProjectItem).oCodeGenerator.oLanguage.ReadXML(Afunction, ADataType);
 end;
 
 function TInterpreter.CommandSyntaxIndex(ACommand: String): integer;
@@ -1263,12 +1261,12 @@ end;
 
 function TInterpreter.FieldTypeToDataType(AFieldType: String): String;
 begin
-  Result := (foProjectItem as tProjectItem).oCodeGenerator.oLanguage.ReadXML('FieldTypeToDataType', AFieldType);
+   //Result := (foProjectItem as tProjectItem).oCodeGenerator.oLanguage.ReadXML('FieldTypeToDataType', AFieldType);
 end;
 
 function TInterpreter.ClearDataType(ADataType: String): String;
 begin
-  Result := (foProjectItem as tProjectItem).oCodeGenerator.oLanguage.ReadXML('ClearDataType', ADataType);
+  //Result := (foProjectItem as tProjectItem).oCodeGenerator.oLanguage.ReadXML('ClearDataType', ADataType);
 end;
 
 function TInterpreter.GetNextToken(Var AIndex: Integer; ATokens: tTokenProcessor): String;

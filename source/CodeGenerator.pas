@@ -44,8 +44,8 @@ Type
     procedure DoCodeBehine;
     procedure DoCodeTags;
     function DoScriptEngine: boolean;
-    procedure DoPostProcessor(aProcessorItem: tProcessorItem;
-      aTemplateFile: String; var aOutputFilename: string);
+    function DoPostProcessor(aProcessorItem: tProcessorItem;
+      aTemplateFile: String; var aOutputFilename: string): TPluginReturn;
     procedure DoConvert(aProcessorItem: tProcessorItem; aTemplateFile: String;
       var aOutputFilename: string);
 
@@ -335,12 +335,12 @@ begin
 
     FoProcesorItem := NIL;
 
-    // Pass 1
-    if Not Pass1 then Exit;
-
     FoProcesorItem := DoPreProcessor;
      if Assigned(FoProcesorItem) then
        FoProcesorItem.DefaultOutputFilename := DefaultOutputFilename;
+
+    // Pass 1
+    if Not Pass1 then Exit;
 
     // Pass 2
     if DoPreLayout then
@@ -364,10 +364,10 @@ begin
 
     DoSpecialTags;
 
-    if Trim(aOutputFilename) <> '' then
-    begin
-      DoPostProcessor(FoProcesorItem, fsSourceFilename, aOutputFilename);
-    end;
+   // if Trim(aOutputFilename) <> '' then
+   // begin
+   //   DoPostProcessor(FoProcesorItem, fsSourceFilename, aOutputFilename);
+   // end;
 
     Result := true;
   Except
@@ -400,6 +400,8 @@ begin
   begin
 {$I-}
     Try
+      DoPostProcessor(aProcesorItem, fsSourceFilename, aOutputFilename);
+
       fEncoding := NIL;
 
       if TNovusFileUtils.IsTextFile(aTemplateFile, fEncoding) = -1 then
@@ -428,8 +430,8 @@ begin
   end;
 end;
 
-procedure TCodeGenerator.DoPostProcessor(aProcessorItem: tProcessorItem;
-  aTemplateFile: String; var aOutputFilename: string);
+function TCodeGenerator.DoPostProcessor(aProcessorItem: tProcessorItem;
+  aTemplateFile: String; var aOutputFilename: string):TPluginReturn;
 begin
   oRuntime.oPlugins.PostProcessor(aProcessorItem,
     (foProjectItem as TProjectItem), FoTemplate, aTemplateFile, aOutputFilename,

@@ -178,7 +178,7 @@ begin
       lsToken1 := fsToken;
 
       lTagType := TTagTypeParser.ParseTagType(aProjectItem, NIL,
-        lsToken1, aOutput);
+        lsToken1, aOutput, false);
     end
     else if aObject is TCodeGenerator then
     begin

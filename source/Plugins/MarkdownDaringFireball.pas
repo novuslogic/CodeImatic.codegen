@@ -405,6 +405,8 @@ Type
 
   end;
 
+  TBlockEvent = procedure(const aBlock: TBlock) of object;
+
   TMarkToken = (
     // No token.
     mtNONE,
@@ -461,6 +463,7 @@ Type
   // Emitter class responsible for generating HTML output.
   TEmitter = class
   private
+    FBlockEvent: TBlockEvent;
     linkRefs: TStringList;
     FConfig: TConfiguration;
     FuseExtensions: boolean;
@@ -482,10 +485,12 @@ Type
     procedure emit(out_: TStringBuilder; root: TBlock);
     procedure emitLines(out_: TStringBuilder; block: TBlock);
 
+    property OnBlock: TBlockEvent read FBlockEvent write FBlockEvent;
   end;
 
   TMarkdownDaringFireball = class(TMarkdownProcessor)
   private
+    FBlockEvent: TBlockEvent;
     FConfig: TConfiguration;
     Femitter: TEmitter;
     FuseExtensions: boolean;
@@ -503,6 +508,8 @@ Type
     function process(source: String): String; override;
 
     property config: TConfiguration read FConfig;
+
+    property OnBlock: TBlockEvent read FBlockEvent write FBlockEvent;
   end;
 
 implementation
@@ -588,6 +595,8 @@ var
   parent, block: TBlock;
   rdr : TReader;
 begin
+  Femitter.OnBlock := FBlockEvent;
+
   FuseExtensions := config.forceExtendedProfile;
   rdr := TReader.Create(source);
   try
@@ -600,6 +609,9 @@ begin
         block := parent.blocks;
         while (block <> nil) do
         begin
+          if Assigned(FBlockEvent) then
+             FBlockEvent(block);
+
           Femitter.emit(out_, block);
           block := block.next;
         end;
@@ -1266,6 +1278,10 @@ begin
     block := root.blocks;
     while (block <> nil) do
     begin
+      if Assigned(FBlockEvent) then
+        FBlockEvent(block);
+
+
       emit(out_, block);
       block := block.next;
     end;

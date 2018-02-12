@@ -7,6 +7,7 @@ Uses NovusBO, JvSimpleXml, Project, SysUtils, NovusSimpleXML,
   DBSchema, Properties, NovusTemplate, CodeGenerator, Output, Template,
   NovusFileUtils,
   NovusList, System.RegularExpressions, NovusUtilities, plugin, Loader;
+
 type
   TProjectItemType = (pitItem, pitFolder);
 
@@ -37,9 +38,7 @@ type
 
     property Processor: String read fsProcessor write fsProcessor;
 
-    property oNodeLoader: tNodeLoader
-      read foNodeLoader
-      write foNodeLoader;
+    property oNodeLoader: tNodeLoader read foNodeLoader write foNodeLoader;
   end;
 
   tFiltered = class(tFileType)
@@ -59,11 +58,13 @@ type
   protected
     fbIsFiltered: Boolean;
     fsDestFullPathname: String;
+
   public
     property DestFullPathname: string read fsDestFullPathname
       write fsDestFullPathname;
 
     property IsFiltered: Boolean read fbIsFiltered write fbIsFiltered;
+
   end;
 
   tFilters = class(tnovusList)
@@ -78,8 +79,7 @@ type
   protected
   public
     function AddFile(aFullPathname: string; aFilename: String;
-      aProcessor: String;
-      aNodeLoader: tNodeLoader): tTemplateFile;
+      aProcessor: String; aNodeLoader: tNodeLoader): tTemplateFile;
   end;
 
   tSourceFiles = class(tnovusList)
@@ -90,12 +90,14 @@ type
     foTemplates: tTemplates;
     foFilters: tFilters;
     fsFolder: String;
+    foNodeLoader: tNodeLoader;
   public
     constructor Create(aProject: tProject; aProjectItem: TProjectItem;
       aOutput: Toutput); overload;
     destructor Destroy; override;
 
-    function AddFile(aFullPathname: string; aFilename: String): tSourceFile;
+    function AddFile(aFullPathname: string; aFilename: String;
+      aIsFolder: Boolean): tSourceFile;
     function IsTemplateFile(aFullPathname: string): tTemplateFile;
     function IsFiltered(aFullPathname: string): Boolean;
     function WildcardToRegex(aPattern: string): String;
@@ -105,6 +107,8 @@ type
     property oTemplates: tTemplates read foTemplates write foTemplates;
 
     property Folder: String read fsFolder write fsFolder;
+
+    property oNodeLoader: tNodeLoader read foNodeLoader write foNodeLoader;
   end;
 
   TProjectItem = class(tobject)
@@ -117,8 +121,6 @@ type
     foDBSchema: TDBSchema;
     foProperties: tProperties;
     foConnections: tConnections;
-    foCodeGenerator: tCodeGenerator;
-    foTemplate: TTemplate;
     fsItemName: String;
     fsItemFolder: String;
     fsOutputFile: String;
@@ -126,12 +128,14 @@ type
     fsPropertiesFile: String;
     fboverrideoutput: Boolean;
     fbdeleteoutput: Boolean;
-    fsprocessor: string;
+    fsprocessorPlugin: string;
+    fNodeLoader: tNodeLoader;
     fNodeProjectItem: TJvSimpleXmlElem;
     function GetName: String;
   Public
     constructor Create(aProject: tProject; aOutput: Toutput;
       aNodeProjectItem: TJvSimpleXmlElem);
+
     destructor Destroy; override;
 
     function Execute: Boolean;
@@ -156,7 +160,8 @@ type
 
     property ItemFolder: String read fsItemFolder write fsItemFolder;
 
-    property Processor: String read fsprocessor write fsprocessor;
+    property ProcessorPlugin: String read fsprocessorPlugin
+      write fsprocessorPlugin;
 
     property oConnections: tConnections read foConnections write foConnections;
 
@@ -164,18 +169,17 @@ type
 
     property oDBSchema: TDBSchema read foDBSchema write foDBSchema;
 
-    property oCodeGenerator: tCodeGenerator read foCodeGenerator
-      write foCodeGenerator;
 
     property oSourceFiles: tSourceFiles read foSourceFiles write foSourceFiles;
 
     property ProjectItemType: TProjectItemType read fProjectItemType
       write fProjectItemType;
+
   end;
 
 implementation
 
-Uses Config, ProjectItemFolder, Plugins;
+Uses Config, ProjectItemFolder, Plugins, Processor;
 
 constructor TProjectItem.Create(aProject: tProject; aOutput: Toutput;
   aNodeProjectItem: TJvSimpleXmlElem);
@@ -184,11 +188,12 @@ begin
 
   foOutput := aOutput;
 
+
   foProperties := tProperties.Create;
 
   foDBSchema := TDBSchema.Create;
 
-  foTemplate := TTemplate.CreateTemplate;
+  // foTemplate := TTemplate.CreateTemplate;
 
   fNodeProjectItem := aNodeProjectItem;
 
@@ -201,11 +206,11 @@ begin
 
   FreeandNil(foConnections);
 
-  FreeandNil(foTemplate);
+  // FreeandNil(foTemplate);
   FreeandNil(foProperties);
   FreeandNil(foDBSchema);
 
-  FreeandNil(foCodeGenerator);
+  // FreeandNil(foCodeGenerator);
 
   inherited;
 end;
@@ -240,6 +245,7 @@ end;
 function TProjectItem.Execute: Boolean;
 Var
   loProjectItemFolder: tProjectItemFolder;
+  loProcessor: TProcessor;
 begin
   Try
     result := false;
@@ -270,14 +276,27 @@ begin
 
           foOutput.Log('Build started ' + foOutput.FormatedNow);
 
-          foTemplate.TemplateDoc.LoadFromFile(TemplateFile);
+          Try
+            loProcessor := TProcessor.Create(foOutput, foProject, Self,
+              fsprocessorPlugin, TemplateFile, fsOutputFile, TemplateFile,
+              (foProject.oPlugins as tPlugins));
 
-          foTemplate.ParseTemplate;
+            result := loProcessor.Execute;
 
-          foCodeGenerator := tCodeGenerator.Create(foTemplate, foOutput,
+          Finally
+            loProcessor.Free;
+          End;
+
+          (*
+            foTemplate.TemplateDoc.LoadFromFile(TemplateFile);
+
+            foTemplate.ParseTemplate;
+
+            foCodeGenerator := tCodeGenerator.Create(foTemplate, foOutput,
             foProject, Self, NIL, fsTemplateFile, fsTemplateFile);
 
-          foCodeGenerator.Execute(fsOutputFile);
+            foCodeGenerator.Execute(fsOutputFile);
+          *)
 
           if Not foOutput.Failed then
           begin
@@ -328,11 +347,13 @@ end;
 
 function TProjectItem.GetName: String;
 begin
-   Result := '';
-   case Self.ProjectItemType of
-      pitItem:  result := ItemName;
-      pitFolder: result := ItemFolder;
-   end;
+  result := '';
+  case Self.ProjectItemType of
+    pitItem:
+      result := ItemName;
+    pitFolder:
+      result := ItemFolder;
+  end;
 end;
 
 // tSourceFiles
@@ -357,8 +378,8 @@ begin
   inherited;
 end;
 
-function tSourceFiles.AddFile(aFullPathname: string; aFilename: String)
-  : tSourceFile;
+function tSourceFiles.AddFile(aFullPathname: string; aFilename: String;
+  aIsFolder: Boolean): tSourceFile;
 var
   loSourceFile: tSourceFile;
   fsSourcefullpathname: string;
@@ -367,20 +388,20 @@ begin
   try
     loSourceFile := tSourceFile.Create;
     loSourceFile.FullPathname := Trim(aFullPathname);
-    loSourceFile.IsFolder := TNovusFileUtils.IsValidFolder(aFullPathname);
+    loSourceFile.IsFolder := aIsFolder;
     loSourceFile.Filename := aFilename;
 
     loSourceFile.IsTemplateFile := false;
     if loSourceFile.IsFolder = false then
     begin
       foTemplateFile := IsTemplateFile(aFullPathname);
-      loSourceFile.IsTemplateFile := False;
-      if Assigned( foTemplateFile) then
-        begin
-          loSourceFile.IsTemplateFile := true;
-          loSourceFile.Processor :=  foTemplateFile.Processor;
-          loSourceFile.oNodeLoader := foTemplateFile.oNodeLoader;
-        end;
+      loSourceFile.IsTemplateFile := false;
+      if assigned(foTemplateFile) then
+      begin
+        loSourceFile.IsTemplateFile := true;
+        loSourceFile.Processor := foTemplateFile.Processor;
+        loSourceFile.oNodeLoader := foTemplateFile.oNodeLoader;
+      end;
     end;
 
     loSourceFile.IsFiltered := IsFiltered(aFullPathname);
@@ -460,14 +481,14 @@ constructor tFileType.Create;
 begin
   foProcessorPlugin := NIL;
 
-//  foProcessorPlugin := tProcessorPlugin.Create(NIL, '', NIL, NIL);
+  // foProcessorPlugin := tProcessorPlugin.Create(NIL, '', NIL, NIL);
 end;
 
 destructor tFileType.Destroy;
 begin
   foProcessorPlugin := NIL;
 
-//  foProcessorPlugin.Free;
+  // foProcessorPlugin.Free;
 end;
 
 // tFilters

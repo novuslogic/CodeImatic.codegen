@@ -43,6 +43,9 @@ begin
 
   foProject := aProject;
   foProjectItem := aProjectItem;
+
+
+
 end;
 
 destructor TProjectItemLoader.Destroy;
@@ -152,9 +155,9 @@ begin
       if FprocessorNodeLoader.IsExists then
         begin
           if (FprocessorNodeLoader.PropertyName = 'NAME') then
-            foProjectItem.processor := FNodeLoader.PropertyValue
+            foProjectItem.processorPlugin := FNodeLoader.PropertyValue
            else
-             foProjectItem.processor := GetValue(FprocessorNodeLoader.Value);
+             foProjectItem.processorPlugin := GetValue(FprocessorNodeLoader.Value);
         end;
     end
   else

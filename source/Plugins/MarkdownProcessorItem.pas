@@ -5,14 +5,16 @@ interface
 uses Classes, Plugin, NovusPlugin, NovusVersionUtils, Project, NovusTemplate,
   Output, SysUtils, System.Generics.Defaults, runtime, Config, NovusStringUtils,
   APIBase, MarkdownDaringFireball, MarkdownProcessor, ProjectItem, TagType,
-  Loader, template, CodeGenerator;
+  Loader, template, CodeGenerator, TagTypeParser;
 
 type
   tMarkdownProcessorItem = class(TProcessorItem)
   private
   protected
-    FoCodeGenerator: tCodeGenerator;
+    foCodeGenerator: tCodeGenerator;
+    foProjectItem: tProjectItem;
     function GetProcessorName: String; override;
+    procedure DoBlockEvent(const aBlock: tBlock);
   public
     function PreProcessor(aProjectItem: tObject; var aFilename: String;
       var aTemplate: tTemplate;aNodeLoader: tNodeLoader; aCodeGenerator: tObject): TPluginReturn; override;
@@ -32,6 +34,22 @@ begin
   Result := 'Markdown';
 end;
 
+
+procedure tMarkdownProcessorItem.DoBlockEvent(const aBlock: tBlock);
+var
+  fTagType: TTagType;
+  loTemplate: ttemplate;
+begin
+  aBlock.type_ := btNONE;
+
+  fTagType := TTagTypeParser.ParseTagType(foProjectItem, foCodeGenerator,
+      aBlock.lines.value,  oOutput, true);
+
+
+
+
+end;
+
 function tMarkdownProcessorItem.PreProcessor(aProjectItem: tObject;
   var aFilename: String; var aTemplate: tTemplate; aNodeLoader: tNodeLoader; aCodeGenerator: tObject): TPluginReturn;
 Var
@@ -43,10 +61,9 @@ begin
       fMarkdownprocessor := TMarkdownDaringFireball.Create;
 
       FoCodeGenerator := (aCodeGenerator as tCodeGenerator);
+      foProjectItem := (aProjectItem as tProjectItem);
 
-      FoCodeGenerator.oCodeGeneratorList.Count;
-
-
+      fMarkdownprocessor.OnBlock := DoBlockEvent;
 
       aTemplate.TemplateDoc.Text := fMarkdownprocessor.process
         (aTemplate.TemplateDoc.Text);
@@ -60,13 +77,15 @@ begin
   Finally
     fMarkdownprocessor.Free;
   End;
+
+  Result := TPluginReturn.PRIgnore;
 end;
 
 function tMarkdownProcessorItem.PostProcessor(aProjectItem: tObject;
   var aTemplate: tTemplate; aTemplateFile: String; var aOutputFilename: string)
   : TPluginReturn;
 begin
-  aOutputFilename := ChangeFileExt(aOutputFilename, '.' + outputextension);
+   aOutputFilename := ChangeFileExt(aOutputFilename, '.' + outputextension);
 
   oOutput.Log('New output:' + aOutputFilename);
 

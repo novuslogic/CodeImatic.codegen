@@ -3,7 +3,7 @@ unit RuntimeProjectItems;
 interface
 
 Uses Output, ProjectItem, NovusFileUtils, Project, ProjectconfigParser,
-  SysUtils, Plugins,
+  SysUtils, Plugins,  System.RegularExpressions,
   NovusStringUtils, System.IOUtils;
 
 type
@@ -38,6 +38,8 @@ function tRuntimeProjectItems.RunProjectItems: boolean;
 Var
   loProjectItem: tProjectItem;
   I: Integer;
+
+
 begin
   Try
     Result := true;
@@ -57,8 +59,8 @@ begin
                   (loProjectItem.templateFile, foProject, foOutput);
 
               if TNovusFileUtils.IsValidFolder(loProjectItem.templateFile) then
-                loProjectItem.templateFile := TNovusFileUtils.TrailingBackSlash
-                  (loProjectItem.templateFile) + loProjectItem.ItemName;
+               loProjectItem.templateFile := TNovusFileUtils.TrailingBackSlash
+                 (loProjectItem.templateFile) + loProjectItem.ItemName;
             Except
               foOutput.Log('TemplateFile Projectconfig error.');
 
@@ -76,8 +78,8 @@ begin
             end;
          end;
         pitFolder: begin
-           loProjectItem.ItemFolder := tProjectconfigParser.ParseProjectconfig
-            (loProjectItem.ItemFolder, foProject, foOutput);
+           loProjectItem.ItemFolder := TNovusFileUtils.TrailingBackSlash(tProjectconfigParser.ParseProjectconfig
+            (loProjectItem.ItemFolder, foProject, foOutput));
 
           if not TNovusFileUtils.IsValidFolder(loProjectItem.ItemFolder) then
           begin
@@ -89,9 +91,9 @@ begin
             Continue;
           end;
 
-          loProjectItem.oSourceFiles.Folder :=
+          loProjectItem.oSourceFiles.Folder := TNovusFileUtils.TrailingBackSlash(
             tProjectconfigParser.ParseProjectconfig
-            (loProjectItem.oSourceFiles.Folder, foProject, foOutput);
+            (loProjectItem.oSourceFiles.Folder, foProject, foOutput));
 
           if not TNovusFileUtils.IsValidFolder(loProjectItem.oSourceFiles.Folder)
           then

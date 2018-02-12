@@ -177,7 +177,7 @@ begin
         repeat
           if (Rec.Name <> '.') and (Rec.Name <> '..') then
           begin
-            loSourceFile := foProjectItem.oSourceFiles.AddFile(Path + Rec.Name, Rec.Name);
+            loSourceFile := foProjectItem.oSourceFiles.AddFile(Path + Rec.Name, Rec.Name, ((Rec.Attr AND faDirectory) = faDirectory));
 
             if Not DoProcessor(loSourceFile) then ;
 
