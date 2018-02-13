@@ -39,11 +39,17 @@ procedure tMarkdownProcessorItem.DoBlockEvent(const aBlock: tBlock);
 var
   fTagType: TTagType;
   loTemplate: ttemplate;
+  fTagTypeParser: TTagTypeParser;
 begin
   aBlock.type_ := btNONE;
 
-  fTagType := TTagTypeParser.ParseTagType(foProjectItem, foCodeGenerator,
-      aBlock.lines.value,  oOutput, true);
+  try
+    fTagTypeParser := TTagTypeParser.ParseTagType2(foProjectItem, foCodeGenerator,
+      aBlock.lines.value,  oOutput);
+  finally
+    fTagTypeParser.Free;
+  end;
+
 
 
 
