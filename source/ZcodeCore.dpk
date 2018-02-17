@@ -58,7 +58,7 @@ contains
   ProjectItemLoader in 'ProjectItemLoader.pas',
   CodeGeneratorItem in 'CodeGeneratorItem.pas',
   TagType in 'TagType.pas',
-  TagTypeParser in 'TagTypeParser.pas',
+  TagParser in 'TagParser.pas',
   Processor in 'Processor.pas',
   Template in 'Template.pas',
   ProjectItemFolder in 'ProjectItemFolder.pas',

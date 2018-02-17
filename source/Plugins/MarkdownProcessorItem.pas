@@ -5,7 +5,7 @@ interface
 uses Classes, Plugin, NovusPlugin, NovusVersionUtils, Project, NovusTemplate,
   Output, SysUtils, System.Generics.Defaults, runtime, Config, NovusStringUtils,
   APIBase, MarkdownDaringFireball, MarkdownProcessor, ProjectItem, TagType,
-  Loader, template, CodeGenerator, TagTypeParser;
+  Loader, template, CodeGenerator, TagParser;
 
 type
   tMarkdownProcessorItem = class(TProcessorItem)
@@ -39,19 +39,19 @@ procedure tMarkdownProcessorItem.DoBlockEvent(const aBlock: tBlock);
 var
   fTagType: TTagType;
   loTemplate: ttemplate;
-  fTagTypeParser: TTagTypeParser;
+  fTagParser: TTagParser;
 begin
   aBlock.type_ := btNONE;
 
   try
-    fTagTypeParser := TTagTypeParser.ParseTagType2(foProjectItem, foCodeGenerator,
+    fTagParser := TTagParser.ParseTag(foProjectItem, foCodeGenerator,
       aBlock.lines.value,  oOutput);
+
+    if fTagParser.Execute then ;
+
   finally
-    fTagTypeParser.Free;
+    fTagParser.Free;
   end;
-
-
-
 
 
 end;

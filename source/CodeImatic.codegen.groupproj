@@ -3,7 +3,7 @@
         <ProjectGuid>{B4360984-0565-4B49-A61B-3A2B98B7B1BD}</ProjectGuid>
     </PropertyGroup>
     <ItemGroup>
-        <Projects Include="Zcodegen.dproj">
+        <Projects Include="CodeImatic.codegen.dproj">
             <Dependencies>ZcodeCore.dproj</Dependencies>
         </Projects>
         <Projects Include="ZcodeCore.dproj">
@@ -32,14 +32,14 @@
             <Default.Personality/>
         </BorlandProject>
     </ProjectExtensions>
-    <Target Name="Zcodegen" DependsOnTargets="ZcodeCore">
-        <MSBuild Projects="Zcodegen.dproj"/>
+    <Target Name="CodeImatic_codegen" DependsOnTargets="ZcodeCore">
+        <MSBuild Projects="CodeImatic.codegen.dproj"/>
     </Target>
-    <Target Name="Zcodegen:Clean" DependsOnTargets="ZcodeCore:Clean">
-        <MSBuild Projects="Zcodegen.dproj" Targets="Clean"/>
+    <Target Name="CodeImatic_codegen:Clean" DependsOnTargets="ZcodeCore:Clean">
+        <MSBuild Projects="CodeImatic.codegen.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="Zcodegen:Make" DependsOnTargets="ZcodeCore:Make">
-        <MSBuild Projects="Zcodegen.dproj" Targets="Make"/>
+    <Target Name="CodeImatic_codegen:Make" DependsOnTargets="ZcodeCore:Make">
+        <MSBuild Projects="CodeImatic.codegen.dproj" Targets="Make"/>
     </Target>
     <Target Name="ZcodeCore">
         <MSBuild Projects="ZcodeCore.dproj"/>
@@ -96,13 +96,13 @@
         <MSBuild Projects="Plugins\CodeDocsProcessor.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="Zcodegen;ZcodeCore;SysTags;WebServer;WebProcessor;SystemExt;CodeDocsProcessor"/>
+        <CallTarget Targets="CodeImatic_codegen;ZcodeCore;SysTags;WebServer;WebProcessor;SystemExt;CodeDocsProcessor"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="Zcodegen:Clean;ZcodeCore:Clean;SysTags:Clean;WebServer:Clean;WebProcessor:Clean;SystemExt:Clean;CodeDocsProcessor:Clean"/>
+        <CallTarget Targets="CodeImatic_codegen:Clean;ZcodeCore:Clean;SysTags:Clean;WebServer:Clean;WebProcessor:Clean;SystemExt:Clean;CodeDocsProcessor:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="Zcodegen:Make;ZcodeCore:Make;SysTags:Make;WebServer:Make;WebProcessor:Make;SystemExt:Make;CodeDocsProcessor:Make"/>
+        <CallTarget Targets="CodeImatic_codegen:Make;ZcodeCore:Make;SysTags:Make;WebServer:Make;WebProcessor:Make;SystemExt:Make;CodeDocsProcessor:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

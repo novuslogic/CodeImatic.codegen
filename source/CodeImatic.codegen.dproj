@@ -1,7 +1,7 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
         <ProjectGuid>{315A6074-CD54-48B2-ABCC-0113388D8343}</ProjectGuid>
-        <MainSource>Zcodegen.dpr</MainSource>
+        <MainSource>CodeImatic.codegen.dpr</MainSource>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
         <TargetedPlatforms>1</TargetedPlatforms>
@@ -60,7 +60,7 @@
         <UsePackages>true</UsePackages>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
         <DCC_F>false</DCC_F>
-        <SanitizedProjectName>Zcodegen</SanitizedProjectName>
+        <SanitizedProjectName>CodeImatic_codegen</SanitizedProjectName>
         <DCC_S>false</DCC_S>
         <VerInfo_Locale>3081</VerInfo_Locale>
         <DCC_E>false</DCC_E>
@@ -100,11 +100,11 @@
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
         <Debugger_DebugSourcePath>D:\Projects\NovuscodeLibrary\Source\Core\Parser\;D:\Projects\NovuscodeLibrary\Source\Core\Utilities\;$(Debugger_DebugSourcePath)</Debugger_DebugSourcePath>
         <DCC_DcpOutput>..\build\</DCC_DcpOutput>
-        <VerInfo_Build>990</VerInfo_Build>
+        <VerInfo_Build>1012</VerInfo_Build>
         <Debugger_CWD>D:\Projects\CodeImatic\codeimatic.com</Debugger_CWD>
         <Debugger_RunParams>-project codeimatic.zcproject -projectconfig codeimatic.zcconfig -webserver -openbrowser</Debugger_RunParams>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=0.5.0.990;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=Zcodegen;ProductVersion=0.5.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=0.5.0.1012;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=Zcodegen;ProductVersion=0.5.0.0;Comments=</VerInfo_Keys>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
@@ -136,7 +136,7 @@
         <BorlandProject>
             <Delphi.Personality>
                 <Source>
-                    <Source Name="MainSource">Zcodegen.dpr</Source>
+                    <Source Name="MainSource">CodeImatic.codegen.dpr</Source>
                 </Source>
                 <Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\bcboffice2k220.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
@@ -157,9 +157,9 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\build\Zcodegen.exe" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="..\build\CodeImatic.codegen.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
-                        <RemoteName>Zcodegen.exe</RemoteName>
+                        <RemoteName>CodeImatic_codegen.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
@@ -486,13 +486,13 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Android" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
-                <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
-                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME)"/>
+                <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
             </Deployment>
         </BorlandProject>
         <ProjectFileVersion>12</ProjectFileVersion>

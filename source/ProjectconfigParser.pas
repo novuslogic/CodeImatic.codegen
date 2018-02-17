@@ -3,7 +3,7 @@ unit ProjectconfigParser;
 interface
 
 uses ExpressionParser, system.Classes,  Variables, output, SysUtils, Project,
-     TagType, tagTypeParser, TokenProcessor, NovusEnvironment;
+     TagType, tagParser, TokenProcessor, NovusEnvironment;
 
 
 type
@@ -33,10 +33,13 @@ var
 begin
   Result := '';
 
-  if aItemName= '' then Exit;
 
-  Try
-    lEParser:= tExpressionParser.Create;
+  if aItemName= '' then Exit;
+
+
+  Try
+
+    lEParser:= tExpressionParser.Create;
     lTokens:= tTokenProcessor.Create;
     loTemplate := tNovusTemplate.Create;
 
@@ -57,7 +60,7 @@ begin
          lEParser.Expr := FTemplateTag.TagName;
          lEParser.ListTokens(lTokens);
 
-         FTagType := TTagTypeParser.ParseTagType(NIL, NIL,lTokens, aOutput, 0);
+         FTagType := TTagParser.ParseTagType(NIL, NIL,lTokens, aOutput, 0);
 
          case FtagType of
            ttVariableCmdLine:
@@ -83,9 +86,13 @@ begin
   End;
 
 
-  Result :=  tNovusEnvironment.ParseGetEnvironmentVar(Result,ETTToken2 );
-  Result :=  tNovusEnvironment.ParseGetEnvironmentVar(Result, ETTToken1);
-end;
-
+
+  Result :=  tNovusEnvironment.ParseGetEnvironmentVar(Result,ETTToken2 );
+
+  Result :=  tNovusEnvironment.ParseGetEnvironmentVar(Result, ETTToken1);
+
+end;
+
+
 
 end.

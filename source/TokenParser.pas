@@ -49,7 +49,7 @@ type
 implementation
 
 uses CodeGenerator, Runtime, Interpreter, Config, ExpressionParser,
-  TagTypeParser;
+  TagParser;
 
 class function tTokenParser.ParseSimpleToken(aToken: string; aOutput: TOutput)
   : tTokenProcessor;
@@ -177,7 +177,7 @@ begin
     begin
       lsToken1 := fsToken;
 
-      lTagType := TTagTypeParser.ParseTagType(aProjectItem, NIL,
+      lTagType := TTagParser.ParseTagType(aProjectItem, NIL,
         lsToken1, aOutput, false);
     end
     else if aObject is TCodeGenerator then
@@ -198,7 +198,7 @@ begin
             lsToken2 := Uppercase(lTokens.Strings[1]);
         end;
 
-      lTagType := TTagTypeParser.ParseTagType(aProjectItem,
+      lTagType := TTagParser.ParseTagType(aProjectItem,
         (aObject as TCodeGenerator), lTokens, aOutput, 0);
       Finally
         lEParser.Free;
@@ -208,7 +208,7 @@ begin
 
     end
     else
-      lTagType := TTagTypeParser.ParseTagType(aProjectItem, NIL, ATokens,
+      lTagType := TTagParser.ParseTagType(aProjectItem, NIL, ATokens,
         aOutput, aTokenIndex);
 
     case lTagType of

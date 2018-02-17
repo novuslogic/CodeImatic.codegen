@@ -1,5 +1,5 @@
 {$I Zcodegen.inc}
-program Zcodegen;
+program CodeImatic.codegen;
 
 {$APPTYPE CONSOLE}
 

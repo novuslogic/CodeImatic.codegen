@@ -1,25 +1,40 @@
-unit TagTypeParser;
+unit TagParser;
 
 interface
 
 Uses TagType, SysUtils, output, Classes, TokenProcessor;
 
 Type
-  TTagTypeParser = class(Tobject)
+  TTagParser = class(Tobject)
   protected
   private
-    function TokensToTagType(aToken1, aToken2: string; aProjectItem: tObject; aCodeGenerator: tObject):TTagType;
+    foProjectItem : tObject;
+    foCodeGenerator : tObject;
+    fsToken : String;
+    foOutput: tOutput;
+    FoTokenProcessor: tTokenProcessor;
 
-    class function InternalParseTagType(aProjectItem: tObject;
+    function InternalParseTag(aProjectItem: tObject;
       aCodeGenerator: tObject; aToken: string; aTokens: tTokenProcessor;
       aOutput: toutput; aTokenIndex: Integer; aIsTokens: Boolean): TTagType;
   public
-    class function ParseTagType2(aProjectItem: tObject; aCodeGenerator: tObject;
-      aString: String; aOutput: toutput): TTagTypeParser;
+    constructor Create(aProjectItem: tObject; aCodeGenerator: tObject;
+      aToken: String; aOutput: toutput); overload;
+
+    destructor Destroy; override;
+
+    function Execute: boolean;
+
+    property oTokenProcessor: tTokenProcessor
+       read foTokenProcessor
+       write foTokenProcessor;
+
+    class function ParseTag(aProjectItem: tObject; aCodeGenerator: tObject;
+      aTag: String; aOutput: toutput): TTagParser;
 
 
     class function ParseTagType(aProjectItem: tObject; aCodeGenerator: tObject;
-      aString: String; aOutput: toutput; aIsTokens: Boolean): TTagType; overload;
+      aTag: String; aOutput: toutput; aIsTokens: Boolean): TTagType; overload;
 
     class function ParseTagType(aProjectItem: tObject; aCodeGenerator: tObject;
       aTokens: tTokenProcessor; aOutput: toutput; aTokenIndex: Integer): TTagType; overload;
@@ -31,25 +46,105 @@ implementation
 Uses Runtime, ProjectItem, CodeGenerator, TokenParser, Variables;
 
 
-class function TTagTypeParser.ParseTagType(aProjectItem: tObject; aCodeGenerator: tObject;
-      aString: String; aOutput: toutput; aIsTokens: Boolean): TTagType;
+constructor TTagParser.Create(aProjectItem: tObject; aCodeGenerator: tObject;
+      aToken: String; aOutput: toutput);
 begin
-   Result := TTagTypeParser.InternalParseTagType(aProjectItem,
-       aCodeGenerator,aString, NIL, aOutput, 0, aIsTokens);
+  foProjectItem := aProjectItem;
+  foCodeGenerator := aCodeGenerator;
+  fsToken := aToken;
+
+  foOutput:= aOutput;
+
+  FoTokenProcessor := NIL;
+
+end;
+
+destructor TTagParser.Destroy;
+begin
+  if Assigned(FoTokenProcessor) then
+     FoTokenProcessor.Free;
+
+
+  inherited;
 end;
 
 
-class function TTagTypeParser.ParseTagType(aProjectItem: tObject; aCodeGenerator: tObject;
+
+function TTagParser.Execute: boolean;
+var
+  FTokenProcessor: tTokenProcessor;
+  lsToken: String;
+  lTagType: TTagType;
+begin
+  result := False;
+
+  Try
+    FTokenProcessor := tTokenParser.ParseExpressionToken(fsToken, foOutput);
+    lsToken := FTokenProcessor.GetFirstToken;
+    While(not FTokenProcessor.EOF) do
+      begin
+        lTagType :=  InternalParseTag(foProjectItem,
+          foCodeGenerator, lsToken, NIL, foOutput, FTokenProcessor.TokenIndex, false);
+
+        lsToken := FTokenProcessor.GetNextToken;
+      end;
+
+
+
+  Finally
+
+  End;
+end;
+
+
+class function TTagParser.ParseTagType(aProjectItem: tObject; aCodeGenerator: tObject;
+      aTag: String; aOutput: toutput; aIsTokens: Boolean): TTagType;
+var
+  lTagParser: TTagParser;
+begin
+  Result := TTagType.ttUnknown;
+
+  Try
+    Try
+      lTagParser := TTagParser.ParseTag(aProjectItem, aCodeGenerator, '', aOutput);
+
+      Result := lTagParser.InternalParseTag(aProjectItem,
+       aCodeGenerator,aTag, NIL, aOutput, 0, aIsTokens);
+    Finally
+      lTagParser.Free;
+    End;
+  except
+    aOutput.InternalError;
+  End;
+end;
+
+
+class function TTagParser.ParseTagType(aProjectItem: tObject; aCodeGenerator: tObject;
       aTokens: tTokenProcessor; aOutput: toutput; aTokenIndex: Integer): TTagType;
+var
+  lTagParser: TTagParser;
 begin
-  Result := TTagTypeParser.InternalParseTagType(aProjectItem,
-       aCodeGenerator,'',aTokens, aOutput, aTokenIndex, false);
+  Result := TTagType.ttUnknown;
+
+  Try
+    Try
+      lTagParser := TTagParser.ParseTag(aProjectItem, aCodeGenerator, '', aOutput);
+
+      Result := lTagParser.InternalParseTag(aProjectItem,
+         aCodeGenerator,'',aTokens, aOutput, aTokenIndex, false);
+    Finally
+      lTagParser.Free;
+    End;
+  except
+    aOutput.InternalError;
+  End;
+
 end;
 
 
 
 
-class function TTagTypeParser.InternalParseTagType(aProjectItem: tObject;
+function TTagParser.InternalParseTag(aProjectItem: tObject;
   aCodeGenerator: tObject; aToken: string; aTokens: tTokenProcessor;
   aOutput: toutput; aTokenIndex: Integer; aIsTokens: Boolean): TTagType;
 var
@@ -87,7 +182,7 @@ begin
   Try
     FTokenProcessor := tTokenParser.ParseExpressionToken(lsToken1, aOutput);
 
-    lsToken := FTokenProcessor.GetNextToken;
+    lsToken := Uppercase(FTokenProcessor.GetNextToken);
 
     if lsToken = '' then
       result := ttunknown
@@ -111,6 +206,10 @@ begin
       result := ttCodebehine
     else if Uppercase(lsToken1) = 'CODE' then
       result := ttCode
+    else if lsToken ='<' then
+      result := ttOpenToken
+    else if lsToken = '>' then
+      result := ttCloseToken
     else if (Assigned(aProjectItem) and Assigned((aProjectItem as tProjectItem)
       .oProperties)) and ((aProjectItem as tProjectItem)
       .oProperties.IsPropertyExists(lsToken)) then
@@ -132,56 +231,11 @@ begin
   End;
 end;
 
-function TTagTypeParser.TokensToTagType(aToken1, aToken2: string; aProjectItem: tObject; aCodeGenerator: tObject):TTagType;
+
+class function TTagParser.ParseTag(aProjectItem: tObject; aCodeGenerator: tObject;
+      aTag: String; aOutput: toutput): TTagParser;
 begin
-   if aToken1 = '' then
-      result := ttunknown
-    else if aToken1 = 'LANGUAGE' then
-      result := ttlanguage
-    else if aToken1 = 'CONNECTION' then
-      result := ttConnection
-    else if aToken1 = 'LAYOUT' then
-      result := ttLayout
-    else if Uppercase(aToken1) = 'INCLUDE' then
-      result := ttInclude
-    else if Uppercase(aToken1) = 'PROJECTITEM' then
-      result := ttprojectitem
-    else if Uppercase(aToken1) = 'PROPERTIES' then
-      result := ttPropertyEx
-    else if Uppercase(aToken1) = 'CONFIGPROPERTIES' then
-      result := ttConfigProperties
-    else if Uppercase(aToken1) = 'VARIABLECMDLINE' then
-      result := ttVariableCmdLine
-    else if Uppercase(aToken1) = 'CODEBEHINE' then
-      result := ttCodebehine
-    else if Uppercase(aToken1) = 'CODE' then
-      result := ttCode
-    else if (Assigned(aProjectItem) and Assigned((aProjectItem as tProjectItem)
-      .oProperties)) and ((aProjectItem as tProjectItem)
-      .oProperties.IsPropertyExists(aToken1)) then
-      result := ttProperty
-    else if Assigned(oRuntime.oPlugins) and
-      (oRuntime.oPlugins.IsTagExists(aToken1,
-     aToken2 (* FTokenProcessor.GetNextToken *) ) or
-      oRuntime.oPlugins.IsPluginNameExists(aToken1)) then
-      result := ttplugintag
-    else if Assigned(aCodeGenerator) and
-      (Uppercase(TCodeGenerator(aCodeGenerator).renderbodytag)
-      = Uppercase(aToken1)) then
-      result := ttRenderBodyTag
-    else
-      result := ttInterpreter;
-end;
-
-
-class function TTagTypeParser.ParseTagType2(aProjectItem: tObject; aCodeGenerator: tObject;
-      aString: String; aOutput: toutput): TTagTypeParser;
-begin
-  Result := TTagTypeParser.Create;
-
-
-
-
+  Result := TTagParser.Create(aProjectItem,aCodeGenerator, aTag, aOutput);
 end;
 
 end.

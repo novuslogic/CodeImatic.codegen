@@ -67,7 +67,7 @@ type
 
 implementation
 
-Uses TagTypeParser;
+Uses TagParser;
 
 procedure TCodeGeneratorItem.Execute;
 var
@@ -88,7 +88,7 @@ begin
 
       ExpressionParser.ListTokens(foTokens);
 
-      FTagType := TTagTypeParser.ParseTagType(foProjectItem, foCodeGenerator, foTokens , foOutput, 0  );
+      FTagType := TTagParser.ParseTagType(foProjectItem, foCodeGenerator, foTokens , foOutput, 0  );
     end;
 end;
 
