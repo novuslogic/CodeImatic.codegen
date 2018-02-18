@@ -2,9 +2,22 @@ unit TokenProcessor;
 
 interface
 
-Uses SysUtils, Classes;
+Uses SysUtils, Classes, TagType;
 
 type
+  tTokenProcessorItem = class(Tobject)
+  protected
+  private
+    fTagType: TTagType;
+    fsToken: string;
+  public
+    property Token: string
+      read fsToken write fsToken;
+
+    property TagType: tTagType
+       read fTagType write fTagType;
+  end;
+
    tTokenProcessor = class(TStringList)
    private
      fiTokenIndex: Integer;
@@ -57,6 +70,7 @@ begin
   fiTokenIndex:=0;
   if Count =0 then Exit;
   Result := Trim(Strings[fiTokenIndex]);
+  Inc(fiTokenIndex);
 end;
 
 function tTokenProcessor.GetNextToken(aTokenIndex: Integer): string;

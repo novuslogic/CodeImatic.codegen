@@ -130,6 +130,8 @@ begin
   if Trim(aToken) = '' then
     Exit;
 
+
+
   Try
     Result := tTokenProcessor.Create;
 

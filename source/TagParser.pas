@@ -60,9 +60,17 @@ begin
 end;
 
 destructor TTagParser.Destroy;
+Var
+I: integer;
 begin
   if Assigned(FoTokenProcessor) then
-     FoTokenProcessor.Free;
+    begin
+      TNovusStringUtils.ClearStringlist(aStringlist: tStringlist);
+
+
+
+      FoTokenProcessor.Free;
+    end;
 
 
   inherited;
@@ -75,20 +83,31 @@ var
   FTokenProcessor: tTokenProcessor;
   lsToken: String;
   lTagType: TTagType;
+  liTokenIndex: Integer;
+  loTokenProcessorItem: tTokenProcessorItem;
 begin
   result := False;
 
   Try
     FTokenProcessor := tTokenParser.ParseExpressionToken(fsToken, foOutput);
+    liTokenIndex := FTokenProcessor.TokenIndex;
     lsToken := FTokenProcessor.GetFirstToken;
     While(not FTokenProcessor.EOF) do
       begin
         lTagType :=  InternalParseTag(foProjectItem,
-          foCodeGenerator, lsToken, NIL, foOutput, FTokenProcessor.TokenIndex, false);
+          foCodeGenerator, lsToken, NIL, foOutput, liTokenIndex, false);
 
+        loTokenProcessorItem:= tTokenProcessorItem.Create;
+
+        loTokenProcessorItem.Token := lsToken;
+        loTokenProcessorItem.TagType := lTagType;
+
+        FTokenProcessor.Objects[liTokenIndex] := loTokenProcessorItem;
+
+
+        liTokenIndex := FTokenProcessor.TokenIndex;
         lsToken := FTokenProcessor.GetNextToken;
       end;
-
 
 
   Finally
@@ -206,9 +225,9 @@ begin
       result := ttCodebehine
     else if Uppercase(lsToken1) = 'CODE' then
       result := ttCode
-    else if lsToken ='<' then
+    else if ((lsToken ='<') and (aTokenIndex = 0)) then
       result := ttOpenToken
-    else if lsToken = '>' then
+    else if ((lsToken = '>') and (EOF = true)) then
       result := ttCloseToken
     else if (Assigned(aProjectItem) and Assigned((aProjectItem as tProjectItem)
       .oProperties)) and ((aProjectItem as tProjectItem)
