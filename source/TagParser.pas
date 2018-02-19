@@ -2,7 +2,7 @@ unit TagParser;
 
 interface
 
-Uses TagType, SysUtils, output, Classes, TokenProcessor;
+Uses TagType, SysUtils, output, Classes, TokenProcessor, NovusStringUtils;
 
 Type
   TTagParser = class(Tobject)
@@ -65,7 +65,7 @@ I: integer;
 begin
   if Assigned(FoTokenProcessor) then
     begin
-      TNovusStringUtils.ClearStringlist(aStringlist: tStringlist);
+      TNovusStringUtils.ClearStringlist(FoTokenProcessor);
 
 
 
@@ -80,7 +80,6 @@ end;
 
 function TTagParser.Execute: boolean;
 var
-  FTokenProcessor: tTokenProcessor;
   lsToken: String;
   lTagType: TTagType;
   liTokenIndex: Integer;
@@ -89,10 +88,10 @@ begin
   result := False;
 
   Try
-    FTokenProcessor := tTokenParser.ParseExpressionToken(fsToken, foOutput);
-    liTokenIndex := FTokenProcessor.TokenIndex;
-    lsToken := FTokenProcessor.GetFirstToken;
-    While(not FTokenProcessor.EOF) do
+    FoTokenProcessor := tTokenParser.ParseExpressionToken(fsToken, foOutput);
+    liTokenIndex := FoTokenProcessor.TokenIndex;
+    lsToken := FoTokenProcessor.GetFirstToken;
+    While(not FoTokenProcessor.EOF) do
       begin
         lTagType :=  InternalParseTag(foProjectItem,
           foCodeGenerator, lsToken, NIL, foOutput, liTokenIndex, false);
@@ -102,11 +101,11 @@ begin
         loTokenProcessorItem.Token := lsToken;
         loTokenProcessorItem.TagType := lTagType;
 
-        FTokenProcessor.Objects[liTokenIndex] := loTokenProcessorItem;
+        FoTokenProcessor.Objects[liTokenIndex] := loTokenProcessorItem;
 
 
-        liTokenIndex := FTokenProcessor.TokenIndex;
-        lsToken := FTokenProcessor.GetNextToken;
+        liTokenIndex := FoTokenProcessor.TokenIndex;
+        lsToken := FoTokenProcessor.GetNextToken;
       end;
 
 
