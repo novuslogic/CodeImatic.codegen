@@ -47,7 +47,12 @@ begin
     fTagParser := TTagParser.ParseTag(foProjectItem, foCodeGenerator,
       aBlock.lines.value,  oOutput);
 
-    if fTagParser.Execute then ;
+    if fTagParser.Execute then
+      begin
+        if fTagParser.IsAnyDeleteLine then ;
+      end;
+
+
 
   finally
     fTagParser.Free;

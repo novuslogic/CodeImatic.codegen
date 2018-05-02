@@ -25,8 +25,10 @@ type
    public
      constructor Create; overload;
      function GetFirstToken: string;
+     function GetFirstTokenProcessorItem: tTokenProcessorItem;
      function GetNextToken(aIgnoreNextToken: Boolean = false): string; overload;
      function GetNextToken(aTokenIndex: Integer): string; overload;
+    // function GetNextTokenProcessorItem : tTokenProcessorItem;
      function IsNextTokenEquals: boolean;
 
      function EOF: Boolean;
@@ -70,6 +72,15 @@ begin
   fiTokenIndex:=0;
   if Count =0 then Exit;
   Result := Trim(Strings[fiTokenIndex]);
+  Inc(fiTokenIndex);
+end;
+
+
+function tTokenProcessor.GetFirstTokenProcessorItem: tTokenProcessorItem;
+begin
+  fiTokenIndex:=0;
+  if Count =0 then Exit;
+  Result := tTokenProcessorItem(Objects[fiTokenIndex]);
   Inc(fiTokenIndex);
 end;
 
