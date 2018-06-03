@@ -39,7 +39,8 @@ requires
   NovusCodeLibrary_Plugin,
   NovusCodeLibrary_Env,
   NovusCodeLibrary_SQLDir,
-  vcldb;
+  vcldb,
+  CodeImatc.cli.core;
 
 contains
   Plugin in 'Plugin.pas',

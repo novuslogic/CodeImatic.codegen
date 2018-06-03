@@ -8,8 +8,8 @@ Uses SysUtils, NovusXMLBO, Registry, Windows, NovusStringUtils, NovusFileUtils,
 
 
 Const
-  csOutputFile = 'zcoutput.log';
-  csConfigfile = 'zcodegen.config';
+  csOutputFile = 'codeimatic.codegen.log';
+  csConfigfile = 'codeimatic.codegen.config';
 
 Type
    TConfigPlugin = class(Tobject)
