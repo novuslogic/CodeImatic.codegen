@@ -65,6 +65,9 @@ begin
          case FtagType of
            ttVariableCmdLine:
               begin
+                lsToken1 := lTokens.GetFirstToken;
+                lsToken2 := lTokens.GetNextToken;
+
                 lVariable := oConfig.oVariablesCmdLine.GetVariableByName(lsToken2);
 
                 if Assigned(lVariable) then
