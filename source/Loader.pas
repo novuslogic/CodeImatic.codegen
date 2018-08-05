@@ -11,6 +11,7 @@ type
     fNode: TJvSimpleXmlElem;
     function GetPropertyName: string;
     function GetPropertyValue: string;
+    function GetPropertyValueA: string;
     function GetValue: string;
   public
     constructor Create(aIndexPos: Integer);
@@ -23,6 +24,7 @@ type
     property Value: String read GetValue;
 
     property PropertyValue: String read GetPropertyValue;
+    property PropertyValueA: String read GetPropertyValueA;
 
     property IndexPos: INteger read fiIndexPos write fiIndexPos;
   end;
@@ -107,10 +109,15 @@ end;
 
 function tNodeLoader.GetPropertyValue: string;
 begin
+  Result := uppercase(GetPropertyValueA);
+end;
+
+function tNodeLoader.GetPropertyValueA: string;
+begin
   Result := '';
   if IsExists then
     if Node.Properties.Count > 0 then
-      Result := uppercase(Node.Properties[0].Value);
+      Result := Trim(Node.Properties[0].Value);
 end;
 
 function tNodeLoader.GetValue: string;

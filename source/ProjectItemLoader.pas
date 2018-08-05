@@ -43,9 +43,6 @@ begin
 
   foProject := aProject;
   foProjectItem := aProjectItem;
-
-
-
 end;
 
 destructor TProjectItemLoader.Destroy;
@@ -97,7 +94,7 @@ begin
   end
   else if FRootNodeLoader.PropertyName = 'NAME' then
   begin
-    foProjectItem.ItemName := GetValue(FRootNodeLoader.PropertyValue);
+    foProjectItem.ItemName := GetValue(FRootNodeLoader.PropertyValueA);
     foProjectItem.ProjectItemType := pitItem;
   end
   else

@@ -128,6 +128,7 @@ Var
   fNodeProjectItem: TJvSimpleXmlElem;
   Index: Integer;
   loProjectItem: TProjectItem;
+  Tmp: string;
 begin
   foOutput := aOutput;
 
@@ -146,12 +147,12 @@ begin
   Index := 0;
   fNodeProjectItem  := TNovusSimpleXML.FindNode(oXMLDocument.Root, 'projectitem', Index);
   While(fNodeProjectItem <> NIL) do
-    begin
+  begin
       loProjectItem:= TProjectItem.Create(self, foOutput, fNodeProjectItem);
 
       if TProjectItemLoader.LoadProjectItem(Self, loProjectItem, fNodeProjectItem, foOutput, (foPlugins as TPlugins) ) then
         oProjectItemList.Add(loProjectItem);
-
+      tmp := fNodeProjectItem.SaveToString;
 
       fNodeProjectItem  := TNovusSimpleXML.FindNode(oXMLDocument.Root, 'projectitem', Index);
     end;
