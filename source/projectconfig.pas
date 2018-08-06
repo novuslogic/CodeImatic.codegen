@@ -16,6 +16,7 @@ type
      fsPassword: string;
      fsSQLLibrary: string;
      fsparams: string;
+     fiPort: Integer;
    protected
    public
      property Connectionname: string
@@ -50,6 +51,9 @@ type
        read fsparams
        write fsparams;
 
+     property Port: Integer
+       read fiPort
+       write fiPort;
    end;
 
 
@@ -254,6 +258,8 @@ begin
           lConnectionName.Password := GetFieldAsString(fXmlElemlDriver, 'Password');
           lConnectionName.SQLLibrary := GetFieldAsString(fXmlElemlDriver, 'SQLLibrary');
           lConnectionName.params := GetFieldAsString(fXmlElemlDriver, 'params');
+          lConnectionName.Port := GetFieldAsInteger(fXmlElemlDriver, 'Port');
+
 
           fConnectionNameList.Add(lConnectionName);
 

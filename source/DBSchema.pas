@@ -78,6 +78,7 @@ Type
      fsPassword: string;
      fsParams: String;
      fsSQLLibrary: String;
+     fiPort: Integer;
    private
      function GetConnected: Boolean;
      function GetTableNames: tStringList;
@@ -133,6 +134,10 @@ Type
      property SQLLibrary: String
        read fsSQLLibrary
        write fsSQLLibrary;
+
+     property Port: Integer
+        read fiPort
+        write fiPort;
    end;
 
    tConnections = class(Tobject)
@@ -242,70 +247,12 @@ begin
                   FConnectionDetails.UserID := FConnectionName.UserID;
                   FConnectionDetails.Password := FConnectionName.Password;
                   FConnectionDetails.SQLLibrary := FConnectionName.SQLLibrary;
-                  FConnectionDetails.Params := FConnectionName.params;
+                  FConnectionDetails.Port := FConnectionName.Port;
 
                 end;
             end;
 
-           (*
-          if lsToken = 'SERVER' then
-            begin
-              Inc(FiTokenIndex);
-              if Tokens[FiTokenIndex] = '=' then
-                begin
-                  Inc(FiTokenIndex);
-
-                  FConnectionDetails.Server := Tokens[FiTokenIndex];
-                end;
-             end;
-
-
-          if lsToken = 'DATABASE' then
-             begin
-               Inc(FiTokenIndex);
-               if Tokens[FiTokenIndex] = '=' then
-                 begin
-                   Inc(FiTokenIndex);
-
-                   FConnectionDetails.Database:= Tokens[FiTokenIndex];
-                 end;
-              end;
-
-          if lsToken = 'USERID' then
-             begin
-               Inc(FiTokenIndex);
-               if Tokens[FiTokenIndex] = '=' then
-                 begin
-                   Inc(FiTokenIndex);
-
-                   FConnectionDetails.UserId:= Tokens[FiTokenIndex];
-                 end;
-              end;
-
-          if lsToken = 'PASSWORD' then
-             begin
-               Inc(FiTokenIndex);
-               if Tokens[FiTokenIndex] = '=' then
-                 begin
-                   Inc(FiTokenIndex);
-
-                   FConnectionDetails.Password:= Tokens[FiTokenIndex];
-                 end;
-              end;
-
-          if lsToken = 'DRIVER' then
-             begin
-               Inc(FiTokenIndex);
-               if Tokens[FiTokenIndex] = '=' then
-                 begin
-                   Inc(FiTokenIndex);
-
-                   FConnectionDetails.Driver:= Tokens[FiTokenIndex];
-                 end;
-              end;
-           *)
-
-          Inc(fiTokenIndex);
+         Inc(fiTokenIndex);
         end;
     end;
 
@@ -369,7 +316,7 @@ begin
                      lStringList,
                      fsSQLLibrary,
                      False,
-                     0);
+                     fiPort);
 
   lStringList.Free;
 end;
