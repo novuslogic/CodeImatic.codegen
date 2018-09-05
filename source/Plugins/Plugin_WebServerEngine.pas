@@ -4,7 +4,7 @@ interface
 
 Uses Output, APIBase, IdBaseComponent, IdComponent, IdTCPServer, IdHTTPServer,
   StdCtrls,
-  ExtCtrls, HTTPApp, Windows, NovusConsoleUtils, SysUtils, IdCustomHTTPServer,
+  ExtCtrls, HTTPApp, Windows, NovusConsole, SysUtils, IdCustomHTTPServer,
   IdContext, Plugins,
   Classes, NovusFileUtils, IdServerIOHandler, IdSSL, IdSSLOpenSSL,
   NovusStringUtils,
@@ -185,14 +185,14 @@ begin
         if fbIsOpenBrowser then
           TNovusWebUtils.OpenDefaultWebBrowser(Address);
 
-        stdin := TNovusConsoleUtils.GetStdInputHandle;
+        stdin := TNovusConsole.GetStdInputHandle;
 
         SetConsoleCtrlHandler(@ConProc, True);
 
         FCtrlflag := -1;
         start := GetTickCount;
         Repeat
-          loKeyEvent := TNovusConsoleUtils.IsAvailableKeyEx(stdin);
+          loKeyEvent := TNovusConsole.IsAvailableKeyEx(stdin);
 
           if (loKeyEvent.KeyCode <> 0) or (loKeyEvent.ScanCode <> 0) then
           begin
@@ -202,7 +202,7 @@ begin
               end
             else
               begin
-                ch := TNovusConsoleUtils.GetAvailableChar(stdin);
+                ch := TNovusConsole.GetAvailableChar(stdin);
 
                 if ch = #18 then
                   begin
