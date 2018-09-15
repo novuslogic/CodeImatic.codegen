@@ -92,7 +92,7 @@
         <VerInfo_MajorVer>0</VerInfo_MajorVer>
         <VerInfo_MinorVer>5</VerInfo_MinorVer>
         <DCC_DcpOutput>..\build\</DCC_DcpOutput>
-        <DCC_DcuOutput>..\units\Win32</DCC_DcuOutput>
+        <DCC_DcuOutput>..\units\$(Platform)\</DCC_DcuOutput>
         <DCC_ExeOutput>..\build\</DCC_ExeOutput>
         <DCC_UnitSearchPath>..\build\;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DCC_UsePackage>vcl;rtl;CodeImatic.codegen.core;$(DCC_UsePackage)</DCC_UsePackage>
@@ -221,13 +221,12 @@
         <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=0.5.0.1025;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=Zcodegen;ProductVersion=0.5.0.0;Comments=</VerInfo_Keys>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
-        <Debugger_DebugSourcePath>D:\Projects\NovuscodeLibrary\Source\Core\Utilities\jvcl\;$(Debugger_DebugSourcePath)</Debugger_DebugSourcePath>
-        <Debugger_CWD>D:\Projects\NovuscodeLibrary\Source\BuildPackages\</Debugger_CWD>
-        <Debugger_RunParams>-project packages.zcproject -projectconfig packages.zcconfig -consoleoutputonly -workingdirectory D:\Projects\NovuscodeLibrary\Source\BuildPackages\ -var DELPHIVER=&quot;DELPHIXE&quot;;LIBSUFFIX=&quot;150&quot;</Debugger_RunParams>
+        <Debugger_CWD>D:\Projects\CodeImatic.codegen\samples\StaticWebsite</Debugger_CWD>
+        <Debugger_RunParams>-project StaticWebsite.zcproject -projectconfig StaticWebsite.zcconfig </Debugger_RunParams>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_IncludeVerInfo>false</VerInfo_IncludeVerInfo>
-        <VerInfo_Keys>CompanyName=;FileVersion=1.0.0.18;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName);FileDescription=$(MSBuildProjectName);ProductName=$(MSBuildProjectName)</VerInfo_Keys>
-        <VerInfo_Build>18</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=;FileVersion=1.0.0.24;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName);FileDescription=$(MSBuildProjectName);ProductName=$(MSBuildProjectName)</VerInfo_Keys>
+        <VerInfo_Build>24</VerInfo_Build>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
@@ -262,10 +261,9 @@
                     <Source Name="MainSource">CodeImatic.codegen.dpr</Source>
                 </Source>
                 <Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\bcboffice2k220.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\bcbofficexp220.bpl">Embarcadero C++Builder Office XP Servers Package</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k220.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp220.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="D:\Projects\CodeImatic\CodeImaticTools\build\19.0\Codeimatic.Delphi.AddIns320.bpl">File D:\Projects\CodeImatic\CodeImaticTools\build\19.0\Codeimatic.Delphi.AddIns320.bpl not found</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k250.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp250.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
                 </Excluded_Packages>
             </Delphi.Personality>
             <Platforms>

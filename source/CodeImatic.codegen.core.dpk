@@ -38,9 +38,8 @@ requires
   NovusCodeLibrary_Parser,
   NovusCodeLibrary_Plugin,
   NovusCodeLibrary_Env,
-  NovusCodeLibrary_SQLDir,
-  vcldb,
-  CodeImatc.cli.core;
+  NovusCodeLibrary_SQLDir;
+ // CodeImatc.cli.core;
 
 contains
   Plugin in 'Plugin.pas',

@@ -60,7 +60,7 @@ Type
      constructor Create; virtual; // override;
      destructor  Destroy; override;
 
-     procedure LoadConfig;
+     function LoadConfig: Integer;
 
      function ParseParams: Boolean;
 
@@ -213,7 +213,7 @@ begin
     end;
 end;
 
-procedure TConfig.LoadConfig;
+function  TConfig.LoadConfig: Integer;
 Var
   fPluginProperties,
   fPluginElem,
@@ -223,6 +223,8 @@ Var
   fsPluginFilename: String;
   loConfigPlugin: TConfigPlugin;
 begin
+  Result := 0;
+
   if fsRootPath = '' then
     fsRootPath := TNovusFileUtils.TrailingBackSlash(TNovusStringUtils.RootDirectory);
 

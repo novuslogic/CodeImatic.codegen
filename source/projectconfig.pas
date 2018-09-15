@@ -9,6 +9,7 @@ type
    TConnectionName = class
    private
      fsConnectionname: string;
+     fsDriverName: string;
      fsAuxdriver: string;
      fsServer: string;
      fsDatabase: string;
@@ -26,6 +27,10 @@ type
      property Auxdriver: string
        read fsAuxdriver
        write fsAuxdriver;
+
+     property DriverName: string
+       read fsDriverName
+       write fsDriverName;
 
      property Server: string
        read fsServer
@@ -251,6 +256,7 @@ begin
           // Driver
           fXmlElemlDriver := fXmlElemlConnectionName.Items[0];
 
+          lConnectionName.DriverName := GetFieldAsString(fXmlElemlDriver, 'DriverName');
           lConnectionName.Auxdriver := GetFieldAsString(fXmlElemlDriver, 'Auxdriver');
           lConnectionName.Server := GetFieldAsString(fXmlElemlDriver, 'Server');
           lConnectionName.Database := GetFieldAsString(fXmlElemlDriver, 'Database');

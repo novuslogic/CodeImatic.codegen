@@ -70,7 +70,7 @@ Type
      FTableNames: tStringlist;
      FDatabase: tSDDatabase;
      fsAuxDriver: String;
-
+     fsDriverName: string;
      fsConnectionname: string;
      fsServer: string;
      fsDatabase: string;
@@ -122,6 +122,10 @@ Type
      property Password: string
        read fsPassword
        write fsPassword;
+
+     property DriverName: string
+       read fsDriverName
+       write fsDriverName;
 
      property AuxDriver: String
        read fsAuxDriver
@@ -241,6 +245,7 @@ begin
                       Exit;
                     end;
 
+                  FConnectionDetails.DriverName := FConnectionName.DriverName;
                   FConnectionDetails.AuxDriver := FConnectionName.Auxdriver;
                   FConnectionDetails.Server := FConnectionName.Server;
                   FConnectionDetails.Database := FConnectionName.Database;

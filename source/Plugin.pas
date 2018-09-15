@@ -57,6 +57,12 @@ type
     function IsTagExists(aTagName: String): Integer; virtual;
   end;
 
+  TDBSchemaPlugin = class(TPlugin)
+  private
+  protected
+  public
+  end;
+
   TTagPlugin = class(TPlugin)
   private
   protected

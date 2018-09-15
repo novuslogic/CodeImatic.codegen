@@ -22,12 +22,15 @@ uses
 
 
 begin
-  oConfig.LoadConfig;
+  ExitCode := oConfig.LoadConfig;
+  if ExitCode <> 0 then Exit;
 
-  If Not oConfig.ParseParams then Exit;
+  If Not oConfig.ParseParams then
+    Exit;
 
   try
     ExitCode := oruntime.RunEnvironment;
+
   except
     on E: Exception do
       Writeln(E.ClassName, ': ', E.Message);

@@ -24,6 +24,9 @@
         <Projects Include="Plugins\CodeDocsProcessor.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="Plugins\SQLDirect.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -95,14 +98,23 @@
     <Target Name="CodeDocsProcessor:Make">
         <MSBuild Projects="Plugins\CodeDocsProcessor.dproj" Targets="Make"/>
     </Target>
+    <Target Name="SQLDirect">
+        <MSBuild Projects="Plugins\SQLDirect.dproj"/>
+    </Target>
+    <Target Name="SQLDirect:Clean">
+        <MSBuild Projects="Plugins\SQLDirect.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="SQLDirect:Make">
+        <MSBuild Projects="Plugins\SQLDirect.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="CodeImatic_codegen;CodeImatic_codegen_core;SysTags;WebServer;WebProcessor;SystemExt;CodeDocsProcessor"/>
+        <CallTarget Targets="CodeImatic_codegen;CodeImatic_codegen_core;SysTags;WebServer;WebProcessor;SystemExt;CodeDocsProcessor;SQLDirect"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="CodeImatic_codegen:Clean;CodeImatic_codegen_core:Clean;SysTags:Clean;WebServer:Clean;WebProcessor:Clean;SystemExt:Clean;CodeDocsProcessor:Clean"/>
+        <CallTarget Targets="CodeImatic_codegen:Clean;CodeImatic_codegen_core:Clean;SysTags:Clean;WebServer:Clean;WebProcessor:Clean;SystemExt:Clean;CodeDocsProcessor:Clean;SQLDirect:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="CodeImatic_codegen:Make;CodeImatic_codegen_core:Make;SysTags:Make;WebServer:Make;WebProcessor:Make;SystemExt:Make;CodeDocsProcessor:Make"/>
+        <CallTarget Targets="CodeImatic_codegen:Make;CodeImatic_codegen_core:Make;SysTags:Make;WebServer:Make;WebProcessor:Make;SystemExt:Make;CodeDocsProcessor:Make;SQLDirect:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
