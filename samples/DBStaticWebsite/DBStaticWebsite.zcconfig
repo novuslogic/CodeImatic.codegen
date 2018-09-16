@@ -5,4 +5,15 @@
      <propertiespath>..\Properties\</propertiespath>
      <sourcepath>..\Source\</sourcepath>
    </properties>  
+   <Connectionname name="test">
+     <Driver name = "SQLDir">
+        <Auxdriver>Firebird</Auxdriver>
+        <Server>127.0.0.1</Server>
+        <Database></Database>
+        <UserID>SYSDBA</UserID>
+        <Password>masterkey</Password>
+        <SQLLibrary></SQLLibrary>
+        <params></params>
+     </Driver>
+   </Connectionname>
 </projectconfig>
