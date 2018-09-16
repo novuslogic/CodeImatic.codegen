@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<project>
+  <outputconsole>true</outputconsole>
+  <messageslogpath></messageslogpath>
+  <Createoutputdir>true</Createoutputdir>
+  
+  <projectitem name = "index.html">
+    <template>[%sourcepath%]index.html</template>
+    <properties>[%propertiespath%]StaticWebsite.xml</properties>
+    <overrideoutput>true</overrideoutput>
+    <output>[%outputpath%]</output>
+  </projectitem>
+  
+</project>
