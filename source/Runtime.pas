@@ -142,7 +142,7 @@ begin
   end;
 
   FoOutput.Log
-    ('Zcodegen - © Copyright Novuslogic Software 2011 - 2018 All Rights Reserved');
+    ('CodeImatic.codegen - © Copyright Novuslogic Software 2011 - 2018 All Rights Reserved');
   FoOutput.Log('Version: ' + GetVersion(0));
 
   FoOutput.Log('Project: ' + foProject.ProjectFileName);

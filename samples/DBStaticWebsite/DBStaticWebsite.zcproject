@@ -6,7 +6,7 @@
   
   <projectitem name = "index.html">
     <template>[%sourcepath%]index.html</template>
-    <properties>[%propertiespath%]StaticWebsite.xml</properties>
+    <properties>[%propertiespath%]DBStaticWebsite.xml</properties>
     <overrideoutput>true</overrideoutput>
     <output>[%outputpath%]</output>
   </projectitem>

@@ -7,7 +7,7 @@
         <TargetedPlatforms>2</TargetedPlatforms>
         <AppType>Console</AppType>
         <FrameworkType>None</FrameworkType>
-        <ProjectVersion>18.2</ProjectVersion>
+        <ProjectVersion>18.4</ProjectVersion>
         <Platform Condition="'$(Platform)'==''">Win64</Platform>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
@@ -221,12 +221,12 @@
         <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=0.5.0.1025;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=Zcodegen;ProductVersion=0.5.0.0;Comments=</VerInfo_Keys>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
-        <Debugger_CWD>D:\Projects\CodeImatic.codegen\samples\StaticWebsite</Debugger_CWD>
-        <Debugger_RunParams>-project StaticWebsite.zcproject -projectconfig StaticWebsite.zcconfig </Debugger_RunParams>
+        <Debugger_CWD>D:\Projects\CodeImatic.codegen\samples\DBStaticWebsite</Debugger_CWD>
+        <Debugger_RunParams>-project DBStaticWebsite.zcproject -projectconfig DBStaticWebsite.zcconfig </Debugger_RunParams>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_IncludeVerInfo>false</VerInfo_IncludeVerInfo>
-        <VerInfo_Keys>CompanyName=;FileVersion=1.0.0.24;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName);FileDescription=$(MSBuildProjectName);ProductName=$(MSBuildProjectName)</VerInfo_Keys>
-        <VerInfo_Build>24</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=;FileVersion=1.0.0.29;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName);FileDescription=$(MSBuildProjectName);ProductName=$(MSBuildProjectName)</VerInfo_Keys>
+        <VerInfo_Build>29</VerInfo_Build>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
@@ -271,7 +271,6 @@
                 <Platform value="iOSDevice32">False</Platform>
                 <Platform value="iOSDevice64">False</Platform>
                 <Platform value="iOSSimulator">False</Platform>
-                <Platform value="Linux64">False</Platform>
                 <Platform value="OSX32">False</Platform>
                 <Platform value="Win32">False</Platform>
                 <Platform value="Win64">True</Platform>
