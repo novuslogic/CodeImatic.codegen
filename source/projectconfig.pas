@@ -3,9 +3,10 @@ unit projectconfig;
 interface
 
 uses XMLList, NovusTemplate, SysUtils, NovusSimpleXML, JvSimpleXml, novuslist,
-     NovusStringUtils, NovusFileUtils, NovusEnvironment;
+     NovusStringUtils, NovusFileUtils, NovusEnvironment, DBSchema, output;
 
 type
+   (*
    TConnectionName = class
    private
      fsConnectionname: string;
@@ -60,14 +61,16 @@ type
        read fiPort
        write fiPort;
    end;
-
+   *)
 
    tProjectConfig = Class(TXMLList)
    private
    protected
+     foOutput: tOutput;
+     foConnections: tConnections;
      fsSearchPath: String;
      fsOutputPath:String;
-     fConnectionNameList: tNovuslist;
+     //fConnectionNameList: tNovuslist;
      fsTemplatepath: String;
      fsProjectConfigFileName: String;
      fsDBSchemaPath: String;
@@ -81,24 +84,26 @@ type
      function GetOutputPath: String;
      function GetSearchPath: String;
    public
-      constructor Create; override;
+      constructor Create(aOutput: tOutput); overload;
       destructor Destroy; override;
 
       function Loadproperties(aPropertyName: String): String;
       function LoadProjectConfigFile(aProjectConfigFilename: String): Boolean;
-      procedure LoadConnectionNameList;
+      procedure LoadConnections;
       function Parseproperties(aInput: String): String;
       function GetProperties(aPropertyName: String): String;
 
-      function FindConnectionName(AConnectionName: String): TConnectionName;
+      //function FindConnectionName(AConnectionName: String): TConnectionName;
 
       property ProjectConfigFileName: String
         read fsProjectConfigFileName
         write fsProjectConfigFileName;
 
-      property ConnectionNameList: tNovuslist
-        read fConnectionNameList
-        write fConnectionNameList;
+    //  property ConnectionNameList: tNovuslist
+     //   read fConnectionNameList
+     //   write fConnectionNameList;
+
+      property oConnections: tConnections read foConnections write foConnections;
 
       property TemplatePath: String
         read GettemplatePath;
@@ -122,18 +127,24 @@ type
 
 implementation
 
-constructor tProjectConfig.Create;
+constructor tProjectConfig.Create(aOutput: tOutput);
 begin
-  inherited;
+  inherited Create;
 
-  fConnectionNameList:= tNovuslist.Create(TConnectionName);
+  foOutput := aOutput;
+
+  foConnections:= tConnections.Create(foOutput);
+
+  //fConnectionNameList:= tNovuslist.Create(TConnectionName);
 end;
 
 destructor tProjectConfig.Destroy;
 begin
   inherited;
 
-  fConnectionNameList.Free;
+  foConnections.Free;
+
+  //fConnectionNameList.Free;
 end;
 
 function TProjectConfig.LoadProjectConfigFile(aProjectConfigFilename: String): Boolean;
@@ -147,9 +158,7 @@ begin
 
     ProjectConfigFileName := aProjectConfigFilename;
 
-    LoadConnectionNameList;
-
-//    Loadproperties;
+    LoadConnections;
   Except
     Result := False;
   End;
@@ -231,15 +240,18 @@ end;
 
 
 
-procedure TProjectConfig.LoadConnectionNameList;
+procedure TProjectConfig.LoadConnections;
 Var
-  lConnectionName: TConnectionName;
+ // lConnectionName: TConnectionName;
+  loConnectionItem: tConnectionItem;
   lsConnectionName: string;
   fXmlElemlConnectionName,
   fXmlElemlDriver: TJvSimpleXmlElem;
   liIndex, i: Integer;
 begin
-  fConnectionNameList.Clear;
+  //foConnection
+
+  //fConnectionNameList.Clear;
 
   liIndex := 0;
 
@@ -249,25 +261,27 @@ begin
     begin
       if fXmlElemlConnectionName.Properties.count > 0 then
         begin
-          // ConnectionName
-          lConnectionName := TConnectionName.Create;
-          lConnectionName.Connectionname := fXmlElemlConnectionName.Properties[0].Value;
+          loConnectionItem := tConnectionItem.Create(foOutput);
+          loConnectionItem.Connectionname := fXmlElemlConnectionName.Properties.Value('name');
+          fxmlelemldriver := fxmlelemlconnectionname.items[0];
+          if Assigned(fxmlelemldriver) then
+            begin
+              loConnectionItem.drivername := fxmlelemldriver.Properties.Value('name');
+              if Trim(loConnectionItem.drivername) <> '' then
+                begin
+                  loConnectionItem.auxdriver := getfieldasstring(fxmlelemldriver, 'auxdriver');
+                  loConnectionItem.server := getfieldasstring(fxmlelemldriver, 'server');
+                  loConnectionItem.database := getfieldasstring(fxmlelemldriver, 'database');
+                  loConnectionItem.userid := getfieldasstring(fxmlelemldriver, 'userid');
+                  loConnectionItem.password := getfieldasstring(fxmlelemldriver, 'password');
+                  loConnectionItem.sqllibrary := getfieldasstring(fxmlelemldriver, 'sqllibrary');
+                  loConnectionItem.params := getfieldasstring(fxmlelemldriver, 'params');
+                  loConnectionItem.port := getfieldasinteger(fxmlelemldriver, 'port');
+                end;
+            end;
 
-          // Driver
-          fXmlElemlDriver := fXmlElemlConnectionName.Items[0];
 
-          lConnectionName.DriverName := GetFieldAsString(fXmlElemlDriver, 'DriverName');
-          lConnectionName.Auxdriver := GetFieldAsString(fXmlElemlDriver, 'Auxdriver');
-          lConnectionName.Server := GetFieldAsString(fXmlElemlDriver, 'Server');
-          lConnectionName.Database := GetFieldAsString(fXmlElemlDriver, 'Database');
-          lConnectionName.UserID := GetFieldAsString(fXmlElemlDriver, 'UserID');
-          lConnectionName.Password := GetFieldAsString(fXmlElemlDriver, 'Password');
-          lConnectionName.SQLLibrary := GetFieldAsString(fXmlElemlDriver, 'SQLLibrary');
-          lConnectionName.params := GetFieldAsString(fXmlElemlDriver, 'params');
-          lConnectionName.Port := GetFieldAsInteger(fXmlElemlDriver, 'Port');
-
-
-          fConnectionNameList.Add(lConnectionName);
+          foConnections.AddConnection(loConnectionItem);
 
           fXmlElemlConnectionName := TNovusSimpleXML.FindNode(self.oXMLDocument.Root, 'Connectionname',liIndex);
         end
@@ -277,10 +291,11 @@ begin
 end;
 
 
-function TProjectConfig.FindConnectionName(AConnectionName: String): TConnectionName;
+(*
+function TProjectConfig.FindConnectionName(AConnectionName: String): TConnectionItem;
 Var
   I: Integer;
-  lConnectionName: TConnectionName;
+  lConnectionItem: TConnectionItem;
 begin
   Result := NIL;
 
@@ -295,7 +310,7 @@ begin
        end;
    end;
 end;
-
+*)
 
 function TProjectConfig.GetTemplatepath: String;
 begin

@@ -1,15 +1,18 @@
-16/09/2018 21:11-Logging started
-16/09/2018 21:11-CodeImatic.codegen - © Copyright Novuslogic Software 2011 - 2018 All Rights Reserved
-16/09/2018 21:11-Version: 
-16/09/2018 21:11-Project: DBStaticWebsite.zcproject
-16/09/2018 21:11-Project Config: D:\Projects\CodeImatic.codegen\samples\DBStaticWebsite\DBStaticWebsite.zcconfig
-16/09/2018 21:11-Loading plugins
-16/09/2018 21:11-Loaded: Sys
-16/09/2018 21:11-Loaded: SystemExt
-16/09/2018 21:11-Loaded: WebProcessor
-16/09/2018 21:11-Loaded: WebServer
-16/09/2018 21:11-Loaded: CodeDocsProcessor
-16/09/2018 21:11-Loaded: SQLDIR
-16/09/2018 21:11-Project Item: index.html
-16/09/2018 21:11-template ..\Source\INDEX.HTML cannot be found.
-16/09/2018 21:11-Logging finished
+22/09/2018 22:08-Logging started
+22/09/2018 22:08-CodeImatic.codegen - © Copyright Novuslogic Software 2011 - 2018 All Rights Reserved
+22/09/2018 22:08-Version: 
+22/09/2018 22:08-Project: DBStaticWebsite.zcproject
+22/09/2018 22:08-Project Config: D:\Projects\CodeImatic.codegen\samples\DBStaticWebsite\DBStaticWebsite.zcconfig
+22/09/2018 22:08-Loading plugins
+22/09/2018 22:08-Loaded: Sys
+22/09/2018 22:08-Loaded: SystemExt
+22/09/2018 22:08-Loaded: WebProcessor
+22/09/2018 22:08-Loaded: WebServer
+22/09/2018 22:08-Loaded: CodeDocsProcessor
+22/09/2018 22:08-Loaded: SQLDIR
+22/09/2018 22:08-Project Item: index.html
+22/09/2018 22:08-Source : D:\Projects\CodeImatic.codegen\samples\DBStaticWebsite\Source\INDEX.HTML
+22/09/2018 22:08-Output: D:\Projects\CodeImatic.codegen\samples\DBStaticWebsite\Site\index.html
+22/09/2018 22:08-Build started 22/09/2018 22:08
+22/09/2018 22:09-Build succeeded 22/09/2018 22:09
+22/09/2018 22:09-Logging finished

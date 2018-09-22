@@ -3,8 +3,8 @@ unit DBSchema;
 interface
 
 Uses Classes, NovusList, NovusTemplate, NovusStringParser, SysUtils,
-     NovusStringUtils, SDEngine, NovusSQLDirUtils, NovusUtilities,CodeGeneratorItem,
-     DB, SDCommon, Output, NovusXMLBO, ProjectConfig, JvSimpleXml;
+     NovusStringUtils, SDEngine, NovusSQLDirUtils, NovusUtilities,
+     DB, SDCommon, Output, NovusXMLBO, JvSimpleXml;
 
 Type
    TFieldType = class(Tobject)
@@ -63,7 +63,7 @@ Type
      function GetFieldType(AFieldDesc: TFieldDesc; AAuxDriver: String):TFieldType;
    end;
 
-   tConnectionDetails = class(Tobject)
+   tConnectionItem = class(Tobject)
    protected
      foProjectItem: tObject;
      FOutput: TOutput;
@@ -83,7 +83,7 @@ Type
      function GetConnected: Boolean;
      function GetTableNames: tStringList;
    public
-     constructor Create(AOutput: TOutput; aProjectItem: tObject); virtual;
+     constructor Create(AOutput: TOutput); virtual;
      destructor  Destroy; override;
 
      function TableCount: Integer;
@@ -147,17 +147,15 @@ Type
    tConnections = class(Tobject)
    protected
    private
-     foProjectItem: tObject;
      fOutput: TOutput;
-     fProjectConfig: tProjectConfig;
      fConnectionList: tNovusList;
    public
-     constructor Create(AOutput: TOutput; aProjectConfig: tProjectConfig; aProjectItem: Tobject); virtual;
+     constructor Create(AOutput: TOutput); virtual;
      destructor  Destroy; override;
 
-     function FindConnectionName(AConnectionName: String): TConnectionDetails;
+     function FindConnectionName(AConnectionName: String): TConnectionItem;
 
-     function AddConnection(ACodeGeneratorItem: tCodeGeneratorItem): Boolean;
+     procedure  AddConnection(aConnectionItem: tConnectionItem);
    end;
 
 
@@ -169,13 +167,13 @@ constructor tConnections.Create;
 begin
   inherited Create;
 
-  foProjectItem := aProjectItem;
+  //foProjectItem := aProjectItem;
 
   fOutput := AOutput;
 
-  fProjectConfig := aProjectConfig;
+  //fProjectConfig := aProjectConfig;
 
-  fConnectionList := tNovusList.Create(tConnectionDetails);
+  fConnectionList := tNovusList.Create(tConnectionItem);
 end;
 
 destructor tConnections.Destroy;
@@ -186,16 +184,16 @@ begin
 end;
 
 
-function tConnections.FindConnectionName(AConnectionName: String): TConnectionDetails;
+function tConnections.FindConnectionName(AConnectionName: String): tConnectionItem;
 Var
   I: Integer;
-  lConnectionDetails: tConnectionDetails;
+  lConnectionDetails: tConnectionItem;
 begin
   Result := NIL;
 
   for I := 0 to fConnectionList.Count - 1 do
    begin
-     lConnectionDetails := tConnectionDetails(fConnectionList.Items[i]);
+     lConnectionDetails := tConnectionItem(fConnectionList.Items[i]);
 
      If Uppercase(Trim(lConnectionDetails.Connectionname)) = Uppercase(Trim(AConnectionName)) then
        begin
@@ -205,83 +203,21 @@ begin
    end;
 end;
 
-function tConnections.AddConnection(ACodeGeneratorItem: tCodeGeneratorItem): Boolean;
-Var
-  lsToken: String;
-  FStrParer: tStringlist;
-  I: Integer;
-  FConnectionDetails: tConnectionDetails;
-  FiTokenIndex: Integer;
-  FConnectionName: TConnectionName;
+
+procedure tConnections.AddConnection(aConnectionItem: tConnectionItem);
 begin
-  Result := False;
+  if not Assigned(aConnectionItem) then exit;
 
-  FConnectionDetails := tConnectionDetails.Create(fOutput, foProjectItem);
-  FiTokenIndex := 0;
+  aConnectionItem.SetupDatabase;
 
-  while (FiTokenIndex < ACodeGeneratorItem.oTokens.Count - 1) do
-    begin
-      With ACodeGeneratorItem do
-        begin
-          lsToken := Trim(Uppercase(oTokens[FiTokenIndex]));
-
-          if lsToken = 'CONNECTIONNAME' then
-            begin
-              Inc(FiTokenIndex);
-              if oTokens[FiTokenIndex] = '=' then
-                begin
-                  Inc(FiTokenIndex);
-
-                  FConnectionDetails.ConnectionName := oTokens[FiTokenIndex];
-
-                  FConnectionName := fProjectConfig.FindConnectionName(FConnectionDetails.ConnectionName);
-
-                  if Not Assigned(FConnectionName) then
-                    begin
-                      fOutput.Log('Connectionname [' + FConnectionDetails.ConnectionName + '] cannot be found in project config.');
-
-                      result := False;
-
-                      Exit;
-                    end;
-
-                  FConnectionDetails.DriverName := FConnectionName.DriverName;
-                  FConnectionDetails.AuxDriver := FConnectionName.Auxdriver;
-                  FConnectionDetails.Server := FConnectionName.Server;
-                  FConnectionDetails.Database := FConnectionName.Database;
-                  FConnectionDetails.UserID := FConnectionName.UserID;
-                  FConnectionDetails.Password := FConnectionName.Password;
-                  FConnectionDetails.SQLLibrary := FConnectionName.SQLLibrary;
-                  FConnectionDetails.Port := FConnectionName.Port;
-
-                end;
-            end;
-
-         Inc(fiTokenIndex);
-        end;
-    end;
-
-
-
-  fConnectionDetails.SetupDatabase;
-
-   If Not fConnectionDetails.Connected then
-    begin
-      Exit;
-    end;
-
-  fConnectionList.Add(FConnectionDetails);
-
-  Result := True;
+  fConnectionList.Add(aConnectionItem);
 end;
 
 // ConnectionList
 
-constructor tConnectionDetails.Create;
+constructor tConnectionItem.Create;
 begin
   inherited Create;
-
-  foProjectItem := aProjectItem;
 
   FOutput := AOutput;
 
@@ -291,7 +227,7 @@ begin
 
 end;
 
-destructor tConnectionDetails.Destroy;
+destructor tConnectionItem.Destroy;
 begin
   FDatabase.Connected := False;
 
@@ -303,7 +239,8 @@ begin
   inherited Destroy;
 end;
 
-procedure tConnectionDetails.SetupDatabase;
+
+procedure tConnectionItem.SetupDatabase;
 Var
   lStringList: tStringList;
 begin
@@ -327,14 +264,14 @@ begin
 end;
 
 
-function tConnectionDetails.TableCount: Integer;
+function tConnectionItem.TableCount: Integer;
 begin
   GetTableNames;
 
   Result := FTableNames.Count;
 end;
 
-function tConnectionDetails.GetConnected: Boolean;
+function tConnectionItem.GetConnected: Boolean;
 begin
   Result := False;
 
@@ -351,14 +288,14 @@ begin
   End;
 end;
 
-function tConnectionDetails.JustTableNamebyIndex(AIndex: Integer): String;
+function tConnectionItem.JustTableNamebyIndex(AIndex: Integer): String;
 begin
   if Pos('.', TableNames[AIndex]) > -1 then
     Result :=  Copy(TableNames[AIndex], Pos('.', TableNames[AIndex]) + 1, Length(TableNames[AIndex]))
   else TableNames[AIndex];
 end;
 
-function tConnectionDetails.TableExists(ATableName: String): Boolean;
+function tConnectionItem.TableExists(ATableName: String): Boolean;
 Var
   I: Integer;
 begin
@@ -377,7 +314,7 @@ begin
     end;
 end;
 
-function tConnectionDetails.GetFieldDesc(aDataSet: tDataSet): tFieldDesc;
+function tConnectionItem.GetFieldDesc(aDataSet: tDataSet): tFieldDesc;
 begin
   Result := TFieldDesc.Create;
 
@@ -397,7 +334,7 @@ begin
 end;
 
 
-function tConnectionDetails.FieldByIndex(ATableName: String; AIndex: Integer): TFieldDesc;
+function tConnectionItem.FieldByIndex(ATableName: String; AIndex: Integer): TFieldDesc;
 Var
   I: INteger;
   cmd: TDataSet;
@@ -432,7 +369,7 @@ begin
 
 end;
 
-function tConnectionDetails.FieldByName(ATableName: String; AFieldName: String): TFieldDesc;
+function tConnectionItem.FieldByName(ATableName: String; AFieldName: String): TFieldDesc;
 Var
   I: INteger;
   cmd: TDataSet;
@@ -452,7 +389,7 @@ begin
     end;
 end;
 
-function tConnectionDetails.FieldCount(ATableName: String): Integer;
+function tConnectionItem.FieldCount(ATableName: String): Integer;
 Var
   I: INteger;
   cmd: TDataSet;
@@ -474,7 +411,7 @@ begin
 end;
 
 
-function tConnectionDetails.GetTableNames: tStringList;
+function tConnectionItem.GetTableNames: tStringList;
 Var
   I: Integer;
 begin

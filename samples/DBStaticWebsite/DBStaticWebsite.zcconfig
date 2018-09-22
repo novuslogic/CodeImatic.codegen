@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <projectconfig>
    <properties> 
-     <outputpath>..\Site</outputpath>
-     <propertiespath>..\Properties\</propertiespath>
-     <sourcepath>..\Source\</sourcepath>
+     <outputpath>D:\Projects\CodeImatic.codegen\samples\DBStaticWebsite\Site\</outputpath>
+     <propertiespath>D:\Projects\CodeImatic.codegen\samples\DBStaticWebsite\Properties\</propertiespath>
+     <sourcepath>D:\Projects\CodeImatic.codegen\samples\DBStaticWebsite\Source\</sourcepath>
    </properties>  
-   <Connectionname name="test">
+   <Connectionname name="EMPLOYEE">
      <Driver name = "SQLDir">
         <Auxdriver>Firebird</Auxdriver>
         <Server>127.0.0.1</Server>
-        <Database></Database>
+        <Database>C:\Program Files\Firebird\Firebird_3_0\examples\empbuild\EMPLOYEE.FDB</Database>
         <UserID>SYSDBA</UserID>
         <Password>masterkey</Password>
         <SQLLibrary></SQLLibrary>

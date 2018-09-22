@@ -92,7 +92,7 @@ Type
     function FindEndRepeatIndexPos(AIndex: INteger): INteger;
     function FindLoop(ALoopType:TLoopType; ALoopID: Integer): TLoop;
 
-    function GetNextCommand(ATokens: tTokenProcessor; Var AIndex: Integer; Var ASkipPOs: Integer;ASubCommand: Boolean = False;ASubVariable:Boolean = False ): String;
+    function GetNextTag(ATokens: tTokenProcessor; Var AIndex: Integer; Var ASkipPOs: Integer;ASubCommand: Boolean = False;ASubVariable:Boolean = False ): String;
     procedure AddVariable(AVariableName: String;AValue: Variant);
 
     function FieldFunctions(ATokens: tTokenProcessor; Var AIndex: Integer; ACommandIndex: Integer): string;
@@ -154,6 +154,8 @@ constructor TInterpreter.Create;
 begin
   inherited Create;
 
+  foProjectItem := aProjectItem;
+
   FoCodeGenerator := ACodeGenerator;
 
   fLoopList := tNovusList.Create(TLoop);
@@ -172,7 +174,7 @@ end;
 
 function TInterpreter.FieldFunctions(ATokens: tTokenProcessor; Var AIndex: Integer; ACommandIndex: Integer): string;
 Var
-  lConnectionDetails: tConnectionDetails;
+  lConnectionItem: tConnectionItem;
   FFieldDesc: tFieldDesc;
 
   FConnectionName: String;
@@ -187,89 +189,97 @@ begin
     begin
       FConnectionName := GetNextToken(AIndex, ATokens);
 
-      lConnectionDetails := (foProjectItem as TProjectItem).oConnections.FindConnectionName(FConnectionName);
-      if Assigned(lConnectionDetails) then
+      lConnectionItem := (foProjectItem as TProjectItem).oProject.oProjectConfig.oConnections.FindConnectionName(FConnectionName);
+
+      if Assigned(lConnectionItem) then
         begin
-          FTableName := GetNextToken(AIndex, ATokens);
-
-          If lConnectionDetails.TableExists(FTableName) then
+          if lConnectionItem.Connected then
             begin
-              if ((ACommandIndex = 0) or (ACommandIndex = 1)) then
+              FTableName := GetNextToken(AIndex, ATokens);
+
+              If lConnectionItem.TableExists(FTableName) then
                 begin
-                  LStr := GetNextToken(AIndex, ATokens);
+                  if ((ACommandIndex = 0) or (ACommandIndex = 1)) then
+                    begin
+                      LStr := GetNextToken(AIndex, ATokens);
 
-                  if TNovusStringUtils.IsNumberStr(LStr) then
-                     begin
-                        FFieldIndex := StrToint(LStr);
+                      if TNovusStringUtils.IsNumberStr(LStr) then
+                         begin
+                            FFieldIndex := StrToint(LStr);
 
-                        FFieldDesc := lConnectionDetails.FieldByIndex(FTableName, FFieldIndex);
+                            FFieldDesc := lConnectionItem.FieldByIndex(FTableName, FFieldIndex);
 
-                        if Assigned(FFieldDesc) then
-                          begin
-                            if GetNextToken(AIndex, ATokens) = ')' then
+                            if Assigned(FFieldDesc) then
                               begin
-                                case ACommandIndex of
-                                  0: Result := FFieldDesc.FieldName;
-                                  1: begin
-                                       fFieldType := (foProjectItem as TProjectItem).oDBSchema.GetFieldType(FFieldDesc, lConnectionDetails.AuxDriver);
+                                if GetNextToken(AIndex, ATokens) = ')' then
+                                  begin
+                                    case ACommandIndex of
+                                      0: Result := FFieldDesc.FieldName;
+                                      1: begin
+                                           fFieldType := (foProjectItem as TProjectItem).oDBSchema.GetFieldType(FFieldDesc, lConnectionItem.AuxDriver);
 
-                                       Result := fFieldType.SqlType;
+                                           Result := fFieldType.SqlType;
 
-                                       fFieldType.Free;
-                                     end;
-                                end;
+                                           fFieldType.Free;
+                                         end;
+                                    end;
 
-                                FFieldDesc.Free;
+                                    FFieldDesc.Free;
 
-                                Exit;
+                                    Exit;
+                                  end
+                                else
+                                  FOutput.Log('Incorrect syntax: lack ")"');
                               end
                             else
-                              FOutput.Log('Incorrect syntax: lack ")"');
-                          end
-                        else
-                          begin
-                            FOutput.LogError('Error: Field cannot be found.');
-                          end;
-                     end
-                   else
-                     begin
-                       FOutput.Log('Incorrect syntax: Index is not a number ');
+                              begin
+                                FOutput.LogError('Error: Field cannot be found.');
+                              end;
+                         end
+                       else
+                         begin
+                           FOutput.Log('Incorrect syntax: Index is not a number ');
 
-                     end;
+                         end;
+                    end
+                  else
+                    begin
+                      case ACommandIndex of
+                        2: Result := IntToStr(lConnectionItem.FieldCount(FTableName));
+
+                        3: begin
+                             LStr := GetNextToken(AIndex, ATokens);
+
+                             FFieldDesc := lConnectionItem.FieldByName(FTableName, LStr);
+
+                             if Assigned(FFieldDesc) then
+                               begin
+                                 if GetNextToken(AIndex, ATokens) = ')' then
+                                    Result := FFieldDesc.FieldName;
+
+                                 FFieldDesc.Free;
+
+                                 Exit;
+                                end
+                              else
+                                 begin
+                                   FOutput.LogError('Error: Field cannot be found.');
+
+                                 end;
+                            end;
+                      end;
+                   end;
                 end
               else
                 begin
-                  case ACommandIndex of
-                    2: Result := IntToStr(lConnectionDetails.FieldCount(FTableName));
+                  FOutput.LogError('Error: Table cannot be found "'+ FTableName+ '"');
+                end;
 
-                    3: begin
-                         LStr := GetNextToken(AIndex, ATokens);
-
-                         FFieldDesc := lConnectionDetails.FieldByName(FTableName, LStr);
-
-                         if Assigned(FFieldDesc) then
-                           begin
-                             if GetNextToken(AIndex, ATokens) = ')' then
-                                Result := FFieldDesc.FieldName;
-
-                             FFieldDesc.Free;
-
-                             Exit;
-                            end
-                          else
-                             begin
-                               FOutput.LogError('Error: Field cannot be found.');
-
-                             end;
-                        end;
-                  end;
-               end;
             end
-          else
-            begin
-              FOutput.LogError('Error: Table cannot be found "'+ FTableName+ '"');
-            end;
-
+              else
+                begin
+                  FOutput.LogError('Error: Connectioname "'+ FConnectionName + '" connected.');
+                end;
           end
         else
           begin
@@ -285,7 +295,7 @@ end;
 
 function TInterpreter.Delimiter(ATokens: tTokenProcessor; Var AIndex: Integer): string;
 Var
-  lConnectionDetails: tConnectionDetails;
+  lConnectionItem: tConnectionItem;
   lsStr,
   lsDelimiter: String;
   liDelimiterCounter: Integer;
@@ -340,7 +350,7 @@ end;
 
 function TInterpreter.reservelist(ATokens: tTokenProcessor; Var AIndex: Integer; ACommandIndex: Integer): string;
 Var
-  lConnectionDetails: tConnectionDetails;
+  lConnectionItem: tConnectionItem;
   lsFilename: String;
   loreservelist: treservelist;
   lsWord: String;
@@ -389,7 +399,7 @@ end;
 
 function TInterpreter.XMLListIndex(ATokens: tTokenProcessor; Var AIndex: Integer): string;
 Var
-  lConnectionDetails: tConnectionDetails;
+  lConnectionItem: tConnectionItem;
   lsStr: String;
   loXMLlist: tXMLlist;
   lsDelimiter: string;
@@ -453,7 +463,7 @@ end;
 
 function TInterpreter.XMLListName(ATokens: tTokenProcessor; Var AIndex: Integer): string;
 Var
-  lConnectionDetails: tConnectionDetails;
+  lConnectionItem: tConnectionItem;
   lsStr: String;
   loXMLlist: tXMLlist;
   lsDelimiter: string;
@@ -517,7 +527,7 @@ end;
 
 function TInterpreter.XMLListCount(ATokens: tTokenProcessor; Var AIndex: Integer): string;
 Var
-  lConnectionDetails: tConnectionDetails;
+  lConnectionItem: tConnectionItem;
   lsStr: String;
   loXMLlist: tXMLlist;
   lsDelimiter: string;
@@ -569,7 +579,7 @@ end;
 
 function TInterpreter.TableFunctions(ATokens: tTokenProcessor; Var AIndex: Integer; ACommandIndex: Integer): string;
 Var
-  lConnectionDetails: tConnectionDetails;
+  lConnectionItem: tConnectionItem;
   FFieldDesc: tFieldDesc;
 
   FConnectionName: String;
@@ -583,11 +593,11 @@ begin
     begin
       FConnectionName := GetNextToken(AIndex, ATokens);
 
-      lConnectionDetails := (foProjectItem as TProjectItem).oConnections.FindConnectionName(FConnectionName);
-      if Assigned(lConnectionDetails) then
+      lConnectionItem := (foProjectItem as TProjectItem).oProject.oProjectConfig.oConnections.FindConnectionName(FConnectionName);
+      if Assigned(lConnectionItem) then
         begin
           case ACommandIndex of
-            0: Result := IntToStr(lConnectionDetails.TableCount);
+            0: Result := IntToStr(lConnectionItem.TableCount);
             1: begin
                  LStr := GetNextToken(AIndex, ATokens);
 
@@ -595,9 +605,9 @@ begin
                     begin
                        FTableIndex := StrToint(LStr);
 
-                       If lConnectionDetails.TableCount > 0 then
+                       If lConnectionItem.TableCount > 0 then
                          begin
-                           Result := lConnectionDetails.JustTableNamebyIndex(FTableIndex);
+                           Result := lConnectionItem.JustTableNamebyIndex(FTableIndex);
                          end
                        else
                          begin
@@ -625,7 +635,7 @@ begin
 end;
 
 
-function TInterpreter.GetNextCommand(ATokens: tTokenProcessor; Var AIndex: Integer;Var ASkipPos: INteger;ASubCommand: Boolean = False;ASubVariable:Boolean = False): String;
+function TInterpreter.GetNextTag(ATokens: tTokenProcessor; Var AIndex: Integer;Var ASkipPos: INteger;ASubCommand: Boolean = False;ASubVariable:Boolean = False): String;
 Var
   lsNextToken: string;
 begin
@@ -635,10 +645,10 @@ begin
   try
     lsNextToken := ATokens[AIndex];
 
-    Result := ParseCommand(lsNextToken);
+    //Result := ParseCommand(lsNextToken);
 
     // classic functions
-    if Result = '' then
+    if (CommandSyntaxIndex(lsNextToken ) <> 0) then
       begin
         case CommandSyntaxIndex(lsNextToken ) of
           1: Result := FieldFunctions(ATokens,AIndex, 0);
@@ -957,11 +967,6 @@ begin
   end;
 end;
 
-//function TInterpreter.CleanVariableName(AVariableName: String): String;
-//begin
-//  Result := Copy(AVariableName, 2, Length(AVariableName));
-//end;
-
 
 function TInterpreter.FindLoop(ALoopType:TLoopType; ALoopID: Integer): TLoop;
 Var
@@ -1001,7 +1006,7 @@ Var
      Inc(AIndex);
 
      if (AIndex <= ATokens.Count - 1)  then
-       Result := GetNextCommand(ATokens, AIndex, liSkipPos, True);
+       Result := GetNextTag(ATokens, AIndex, liSkipPos, True);
    end;
 begin
   Result := '';
@@ -1142,12 +1147,12 @@ begin
 
   if Fout = True then
     begin
-      Result := GetNextCommand(FTokens, FIndex, ASkipPos)
+      Result := GetNextTag(FTokens, FIndex, ASkipPos)
     end
   else
     begin
       Result := '';
-      GetNextCommand(FTokens, FIndex, ASkipPos);
+      GetNextTag(FTokens, FIndex, ASkipPos);
     end;
 end;
 
@@ -1279,7 +1284,7 @@ begin
 
   Inc(AIndex);
 
-  Result := GetNextCommand(ATokens, AIndex, LiSkipPos, True);
+  Result := GetNextTag(ATokens, AIndex, LiSkipPos, True);
 
   if Pos('$', Result) = 1  then
     begin
@@ -1362,7 +1367,7 @@ end;
 
 function TInterpreter.FieldAsSQL(ATokens: tTokenProcessor; Var AIndex: Integer): string;
 Var
-  lConnectionDetails: tConnectionDetails;
+  lConnectionItem: tConnectionItem;
   FFieldDesc: tFieldDesc;
 
   FConnectionName: String;
@@ -1377,22 +1382,22 @@ begin
     begin
       FConnectionName := GetNextToken(AIndex, ATokens);
 
-      lConnectionDetails := (foProjectItem as tProjectItem).oConnections.FindConnectionName(FConnectionName);
-      if Assigned(lConnectionDetails) then
+      lConnectionItem := (foProjectItem as tProjectItem).oProject.oProjectConfig.oConnections.FindConnectionName(FConnectionName);
+      if Assigned(lConnectionItem) then
         begin
           FTableName := GetNextToken(AIndex, ATokens);
 
-          If lConnectionDetails.TableExists(FTableName) then
+          If lConnectionItem.TableExists(FTableName) then
             begin
               LStr := GetNextToken(AIndex, ATokens);
 
-              FFieldDesc := lConnectionDetails.FieldByName(FTableName, LStr);
+              FFieldDesc := lConnectionItem.FieldByName(FTableName, LStr);
 
               if Assigned(FFieldDesc) then
                 begin
                   if GetNextToken(AIndex, ATokens) = ')' then
                     begin
-                      FFieldType := (foProjectItem as tProjectItem).oDBSchema.GetFieldType(FFieldDesc, lConnectionDetails.AuxDriver);
+                      FFieldType := (foProjectItem as tProjectItem).oDBSchema.GetFieldType(FFieldDesc, lConnectionItem.AuxDriver);
 
                       if FFieldType.SQLFormat = '' then
                         Result := FFieldDesc.FieldName + ' ' + FFieldType.SqlType

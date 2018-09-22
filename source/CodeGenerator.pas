@@ -39,7 +39,7 @@ Type
       aCodeGeneratorItem: TCodeGeneratorItem);
     procedure DoPluginTags;
     procedure DoLanguage;
-    procedure DoConnections;
+   // procedure DoConnections;
     function DoPreProcessor: tProcessorItem;
     procedure DoCodeBehine;
     procedure DoCodeTags;
@@ -346,7 +346,7 @@ begin
 
     RunPropertyVariables(0, (FCodeGeneratorList.Count - 1));
 
-    DoConnections;
+    //DoConnections;
 
     RunInterpreter(0, (FCodeGeneratorList.Count - 1));
 
@@ -1084,6 +1084,7 @@ begin
   end;
 end;
 
+(*
 procedure TCodeGenerator.DoConnections;
 Var
   I: Integer;
@@ -1107,6 +1108,7 @@ begin
     end;
   end;
 end;
+*)
 
 function TCodeGenerator.DoPostLayout;
 Var

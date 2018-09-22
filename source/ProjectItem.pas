@@ -120,7 +120,7 @@ type
     foOutput: Toutput;
     foDBSchema: TDBSchema;
     foProperties: tProperties;
-    foConnections: tConnections;
+   // foConnections: tConnections;
     fsItemName: String;
     fsItemFolder: String;
     fsOutputFile: String;
@@ -163,17 +163,18 @@ type
     property ProcessorPlugin: String read fsprocessorPlugin
       write fsprocessorPlugin;
 
-    property oConnections: tConnections read foConnections write foConnections;
+    //property oConnections: tConnections read foConnections write foConnections;
 
     Property oProperties: tProperties read foProperties write foProperties;
 
     property oDBSchema: TDBSchema read foDBSchema write foDBSchema;
 
-
     property oSourceFiles: tSourceFiles read foSourceFiles write foSourceFiles;
 
     property ProjectItemType: TProjectItemType read fProjectItemType
       write fProjectItemType;
+
+    property oProject: tProject read foProject write foProject;
 
   end;
 
@@ -204,7 +205,7 @@ destructor TProjectItem.Destroy;
 begin
   foSourceFiles.Free;
 
-  FreeandNil(foConnections);
+ // FreeandNil(foConnections);
 
   // FreeandNil(foTemplate);
   FreeandNil(foProperties);
@@ -264,8 +265,8 @@ begin
       foDBSchema.Retrieve;
     end;
 
-    foConnections := tConnections.Create(foOutput,
-      foProject.oProjectConfig, Self);
+    //foConnections := tConnections.Create(foOutput,
+    //  foProject.oProjectConfig, Self);
 
     case Self.ProjectItemType of
       pitItem:

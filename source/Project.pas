@@ -20,7 +20,7 @@ Type
     fsProjectFilename: String;
     fbOutputConsole: Boolean;
   public
-    constructor Create; override;
+    constructor Create(aOutput: tOutput); reintroduce;
     destructor Destroy; override;
 
     function GetBasePath: String;
@@ -65,11 +65,11 @@ implementation
 uses Runtime, ProjectConfigParser, ProjectItem, ProjectItemLoader, Plugins;
 
 
-constructor TProject.Create;
+constructor TProject.Create(aOutput: tOutput);
 begin
   inherited Create;
 
-  foProjectConfig := TProjectConfig.Create;
+  foProjectConfig := TProjectConfig.Create(aOutput);
 
   foProjectItemList:= TNovusList.Create(TProjectItem);
 end;

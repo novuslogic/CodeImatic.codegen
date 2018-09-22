@@ -83,7 +83,11 @@ begin
   if not DirectoryExists(fsworkingdirectory) then
     Exit;
 
-  foProject := tProject.Create;
+
+  FoOutput := TOutput.Create('');
+  FoOutput.Consoleoutputonly := true;
+
+  foProject := tProject.Create(FoOutput);
   foProject.oProjectConfig.ProjectConfigFileName :=
     oConfig.ProjectConfigFileName;
 
@@ -113,8 +117,8 @@ begin
     Exit;
   end;
 
-  FoOutput := TOutput.Create('');
-  FoOutput.Consoleoutputonly := true;
+ // FoOutput := TOutput.Create('');
+ // FoOutput.Consoleoutputonly := true;
 
   foProject.LoadProjectFile(oConfig.ProjectFileName,
     oConfig.ProjectConfigFileName, FoOutput);
