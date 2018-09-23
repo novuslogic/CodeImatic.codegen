@@ -65,8 +65,8 @@ Type
 
    tConnectionItem = class(Tobject)
    protected
-     foProjectItem: tObject;
-     FOutput: TOutput;
+     foPlugins: TObject;
+     FoOutput: TOutput;
      FTableNames: tStringlist;
      FDatabase: tSDDatabase;
      fsAuxDriver: String;
@@ -83,7 +83,7 @@ Type
      function GetConnected: Boolean;
      function GetTableNames: tStringList;
    public
-     constructor Create(AOutput: TOutput); virtual;
+     constructor Create(AOutput: TOutput; aPlugins: TObject); virtual;
      destructor  Destroy; override;
 
      function TableCount: Integer;
@@ -142,6 +142,10 @@ Type
      property Port: Integer
         read fiPort
         write fiPort;
+
+     property oPlugins: TObject
+       read foPlugins
+       write foPlugins;
    end;
 
    tConnections = class(Tobject)
@@ -150,7 +154,7 @@ Type
      fOutput: TOutput;
      fConnectionList: tNovusList;
    public
-     constructor Create(AOutput: TOutput); virtual;
+     constructor Create(aOutput: TOutput); virtual;
      destructor  Destroy; override;
 
      function FindConnectionName(AConnectionName: String): TConnectionItem;
@@ -161,17 +165,13 @@ Type
 
 implementation
 
-Uses Runtime, ProjectItem;
+Uses Runtime, ProjectItem, Plugins, Plugin;
 
 constructor tConnections.Create;
 begin
   inherited Create;
 
-  //foProjectItem := aProjectItem;
-
   fOutput := AOutput;
-
-  //fProjectConfig := aProjectConfig;
 
   fConnectionList := tNovusList.Create(tConnectionItem);
 end;
@@ -219,7 +219,9 @@ constructor tConnectionItem.Create;
 begin
   inherited Create;
 
-  FOutput := AOutput;
+  foPlugins := aPlugins;
+
+  FoOutput := aOutput;
 
   FTableNames := tStringList.Create;
 
@@ -239,11 +241,41 @@ begin
   inherited Destroy;
 end;
 
+(*
+function GetDBSchemaPlugin(aPluginName)
+begin
+  if (foPlugins as TPlugins).IsPluginNameExists(fsProcessor) then
+        begin
+          foPlugin := (foPlugins as TPlugins).FindPlugin(fsProcessor);
+
+          if (foPlugin Is TProcessorPlugin) then
+            begin
+               foprocessorPlugin := TProcessorPlugin(foPlugin);
+            end;
+        end;
+
+*)
 
 procedure tConnectionItem.SetupDatabase;
 Var
   lStringList: tStringList;
+  I: Integer;
+  loPlugin: TPlugin;
 begin
+  loPlugin := (foPlugins as TPlugins).FindPlugin(DriverName);
+  if Not Assigned(loPlugin) then
+    begin
+      foOutput.LogError('Error: Cannot find Plugin DBSchema Driver [' + DriverName + ']' );
+
+      Exit;
+    end;
+
+
+
+  (loPlugin as TDBSchemaPlugin).SetupDatabase;
+
+
+
   lStringList := tStringList.Create;
 
   lStringList.Text := fsParams;
@@ -282,7 +314,7 @@ begin
 
     Result := True;
   Except
-    FOutput.Log('Error: ' + fsConnectionname + ' - ' + TNovusUtilities.GetExceptMess);
+    FoOutput.Log('Error: ' + fsConnectionname + ' - ' + TNovusUtilities.GetExceptMess);
 
     Result := False;
   End;
@@ -303,8 +335,6 @@ begin
 
   for I := 0 to TableNames.Count - 1 do
     begin
-      //if Trim(Uppercase(TableNames[i])) = Trim(Uppercase(UserID + '.' +ATableName)) then
-
       if (pos(Uppercase(Trim(ATableName)), Uppercase(TableNames[i])) > 0) then
         begin
           Result := True;
@@ -318,6 +348,8 @@ function tConnectionItem.GetFieldDesc(aDataSet: tDataSet): tFieldDesc;
 begin
   Result := TFieldDesc.Create;
 
+  Result.TypeName := '';
+
   Result.FieldName := aDataSet.FieldByName('COLUMN_NAME').AsString;
 
   Result.TypeName := aDataSet.FieldByName('COLUMN_TYPENAME').AsString;
@@ -329,7 +361,9 @@ begin
   Result.Column_Length := aDataSet.FieldByName('COLUMN_LENGTH').Asinteger;
 
 
-  Result.TypeName := (foProjectItem as tProjectItem).oDBSchema.GetTypeName(Result, fsAuxDriver);
+
+  // This need t be fixed
+  //Result.TypeName := (foProjectItem as tProjectItem).oDBSchema.GetTypeName(Result, fsAuxDriver);
 
 end;
 

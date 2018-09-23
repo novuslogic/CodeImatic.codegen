@@ -66,6 +66,7 @@ type
    tProjectConfig = Class(TXMLList)
    private
    protected
+     foPlugins: tObject;
      foOutput: tOutput;
      foConnections: tConnections;
      fsSearchPath: String;
@@ -122,6 +123,10 @@ type
 
       property SearchPath: string
         read GetSearchPath;
+
+      property oPlugins: TObject
+        read foPlugins
+        write foPlugins;
    End;
 
 
@@ -134,8 +139,6 @@ begin
   foOutput := aOutput;
 
   foConnections:= tConnections.Create(foOutput);
-
-  //fConnectionNameList:= tNovuslist.Create(TConnectionName);
 end;
 
 destructor tProjectConfig.Destroy;
@@ -158,7 +161,7 @@ begin
 
     ProjectConfigFileName := aProjectConfigFilename;
 
-    LoadConnections;
+    //LoadConnections;
   Except
     Result := False;
   End;
@@ -242,26 +245,21 @@ end;
 
 procedure TProjectConfig.LoadConnections;
 Var
- // lConnectionName: TConnectionName;
   loConnectionItem: tConnectionItem;
   lsConnectionName: string;
   fXmlElemlConnectionName,
   fXmlElemlDriver: TJvSimpleXmlElem;
   liIndex, i: Integer;
 begin
-  //foConnection
-
-  //fConnectionNameList.Clear;
 
   liIndex := 0;
-
 
   fXmlElemlConnectionName := TNovusSimpleXML.FindNode(self.oXMLDocument.Root, 'Connectionname',liIndex);
   While(fXmlElemlConnectionName <> nil) do
     begin
       if fXmlElemlConnectionName.Properties.count > 0 then
         begin
-          loConnectionItem := tConnectionItem.Create(foOutput);
+          loConnectionItem := tConnectionItem.Create(foOutput, foPlugins);
           loConnectionItem.Connectionname := fXmlElemlConnectionName.Properties.Value('name');
           fxmlelemldriver := fxmlelemlconnectionname.items[0];
           if Assigned(fxmlelemldriver) then

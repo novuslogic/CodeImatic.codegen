@@ -9,13 +9,14 @@ uses Classes,Plugin, NovusPlugin, NovusVersionUtils, Project,
 
 
 type
-  tPlugin_SQLDirBase = class(TTagsPlugin)
+  tPlugin_SQLDirBase = class(TDBSchemaPlugin)
   private
   protected
-
   public
     constructor Create(aOutput: tOutput; aPluginName: String; aProject: TProject; aConfigPlugin: tConfigPlugin); override;
     destructor Destroy; override;
+
+    function SetupDatabase: Boolean; override;
   end;
 
   TPlugin_SQLDir = class( TSingletonImplementation, INovusPlugin, IExternalPlugin)
@@ -83,6 +84,13 @@ end;
 // tPlugin_SQLDirBase
 
 
+function tPlugin_SQLDirBase.SetupDatabase: Boolean;
+begin
+  Result := False;
+
+
+  foOutput.Log('yes');
+end;
 
 
 function GetPluginObject: INovusPlugin;

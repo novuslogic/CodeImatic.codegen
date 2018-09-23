@@ -61,6 +61,7 @@ type
   private
   protected
   public
+    function SetupDatabase: Boolean; virtual;
   end;
 
   TTagPlugin = class(TPlugin)
@@ -445,6 +446,13 @@ begin
   Finally
 
   End;
+end;
+
+
+// TDBSchemaPlugin
+function TDBSchemaPlugin.SetupDatabase: Boolean;
+begin
+  Result := False;
 end;
 
 

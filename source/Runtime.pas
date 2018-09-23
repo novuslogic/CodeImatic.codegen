@@ -4,7 +4,7 @@ unit Runtime;
 interface
 
 uses
-  SysUtils, Classes, NovusTemplate, Config, DBSchema, NovusFileUtils,
+  SysUtils, Classes, NovusTemplate, Config,  NovusFileUtils,
   Properties, NovusStringUtils, Snippits, Plugins, ScriptEngine,
   CodeGenerator, Output, NovusVersionUtils, Project, ProjectItem,
   ProjectConfig;
@@ -201,6 +201,8 @@ begin
   if not foPlugins.BeforeCodeGen then Exit;
 
   foProject.oPlugins := foPlugins;
+
+  foProject.oProjectConfig.LoadConnections;
 
   RunProjectItems;
 

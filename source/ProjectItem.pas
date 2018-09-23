@@ -4,8 +4,8 @@ interface
 
 Uses NovusBO, JvSimpleXml, Project, SysUtils, NovusSimpleXML,
   ProjectConfigParser,
-  DBSchema, Properties, NovusTemplate, CodeGenerator, Output, Template,
-  NovusFileUtils,
+  Properties, NovusTemplate, CodeGenerator, Output, Template,
+  NovusFileUtils,  DBSchema,
   NovusList, System.RegularExpressions, NovusUtilities, plugin, Loader;
 
 type

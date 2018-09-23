@@ -19,6 +19,8 @@ Type
     fsTemplatePath: String;
     fsProjectFilename: String;
     fbOutputConsole: Boolean;
+    function GetoPlugins: TObject;
+    procedure SetoPlugins(Value: tObject);
   public
     constructor Create(aOutput: tOutput); reintroduce;
     destructor Destroy; override;
@@ -56,8 +58,8 @@ Type
       write foProjectConfig;
 
     property oPlugins: tObject
-       read foPlugins
-       write foPlugins;
+       read GetoPlugins
+       write SetoPlugins;
   end;
 
 implementation
@@ -116,6 +118,17 @@ begin
 
   if lsOutputpath <> '' then
     Result := TNovusFileUtils.TrailingBackSlash(lsOutputpath);
+end;
+
+function TProject.GetoPlugins: TObject;
+begin
+  Result := FoPlugins;
+end;
+
+procedure TProject.SetoPlugins(Value: tObject);
+begin
+  foPlugins := Value;
+  oProjectConfig.oPlugins := Value;
 end;
 
 function TProject.GetOutputConsole: Boolean;
