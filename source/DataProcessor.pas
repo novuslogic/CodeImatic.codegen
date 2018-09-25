@@ -1,4 +1,4 @@
-unit DBSchema;
+unit DataProcessor;
 
 interface
 
@@ -7,6 +7,15 @@ Uses Classes, NovusList, NovusTemplate, NovusStringParser, SysUtils,
      DB, SDCommon, Output, NovusXMLBO, JvSimpleXml;
 
 Type
+   TConnection = class(TObject)
+   private
+   protected
+   public
+      constructor Create; virtual;
+      destructor Destroy; virtual;
+   end;
+
+
    TFieldType = class(Tobject)
    private
      fsSQLType: String;
@@ -65,7 +74,8 @@ Type
 
    tConnectionItem = class(Tobject)
    protected
-     foPlugins: TObject;
+     foConnection: tConnection;
+     foPlugin: TObject;
      FoOutput: TOutput;
      FTableNames: tStringlist;
      FDatabase: tSDDatabase;
@@ -95,7 +105,7 @@ Type
      function FieldCount(ATableName: String): Integer;
      function GetFieldDesc(aDataSet: tDataSet): tFieldDesc;
 
-     procedure SetupDatabase;
+     procedure CreateConnection;
 
      property Connected: Boolean
        read GetConnected;
@@ -143,15 +153,20 @@ Type
         read fiPort
         write fiPort;
 
-     property oPlugins: TObject
-       read foPlugins
-       write foPlugins;
+     property oPlugin: TObject
+        read foPlugin
+        write foPlugin;
+
+     property oConnection: tConnection
+       read foConnection
+       write foConnection;
    end;
 
    tConnections = class(Tobject)
    protected
    private
-     fOutput: TOutput;
+     foPlugins: TObject;
+     foOutput: TOutput;
      fConnectionList: tNovusList;
    public
      constructor Create(aOutput: TOutput); virtual;
@@ -159,7 +174,11 @@ Type
 
      function FindConnectionName(AConnectionName: String): TConnectionItem;
 
-     procedure  AddConnection(aConnectionItem: tConnectionItem);
+     function  AddConnection(aConnectionItem: tConnectionItem): boolean;
+
+     property oPlugins: TObject
+       read foPlugins
+       write foPlugins;
    end;
 
 
@@ -171,7 +190,7 @@ constructor tConnections.Create;
 begin
   inherited Create;
 
-  fOutput := AOutput;
+  foOutput := aOutput;
 
   fConnectionList := tNovusList.Create(tConnectionItem);
 end;
@@ -204,13 +223,30 @@ begin
 end;
 
 
-procedure tConnections.AddConnection(aConnectionItem: tConnectionItem);
+function tConnections.AddConnection(aConnectionItem: tConnectionItem): Boolean;
+var
+  loPlugin: tObject;
 begin
+  Result := False;
+
   if not Assigned(aConnectionItem) then exit;
 
-  aConnectionItem.SetupDatabase;
+  loPlugin := (foPlugins as TPlugins).FindPlugin(aConnectionItem.DriverName);
+  if Not Assigned(loPlugin) then
+    begin
+      foOutput.LogError('Error: Cannot find DataProcessor Plugin [' + aConnectionItem.DriverName + ']' );
+
+      Exit;
+    end;
+
+  aConnectionItem.foPlugin := loPlugin;
+
+  aConnectionItem.CreateConnection;
 
   fConnectionList.Add(aConnectionItem);
+
+
+
 end;
 
 // ConnectionList
@@ -219,13 +255,11 @@ constructor tConnectionItem.Create;
 begin
   inherited Create;
 
-  foPlugins := aPlugins;
-
   FoOutput := aOutput;
 
   FTableNames := tStringList.Create;
 
-  FDatabase := tSDDatabase.Create(NIL);
+  //FDatabase := tSDDatabase.Create(NIL);
 
 end;
 
@@ -241,38 +275,23 @@ begin
   inherited Destroy;
 end;
 
-(*
-function GetDBSchemaPlugin(aPluginName)
-begin
-  if (foPlugins as TPlugins).IsPluginNameExists(fsProcessor) then
-        begin
-          foPlugin := (foPlugins as TPlugins).FindPlugin(fsProcessor);
-
-          if (foPlugin Is TProcessorPlugin) then
-            begin
-               foprocessorPlugin := TProcessorPlugin(foPlugin);
-            end;
-        end;
-
-*)
-
-procedure tConnectionItem.SetupDatabase;
+procedure tConnectionItem.CreateConnection;
 Var
   lStringList: tStringList;
   I: Integer;
-  loPlugin: TPlugin;
+
 begin
-  loPlugin := (foPlugins as TPlugins).FindPlugin(DriverName);
-  if Not Assigned(loPlugin) then
-    begin
-      foOutput.LogError('Error: Cannot find Plugin DBSchema Driver [' + DriverName + ']' );
+  foConnection := (foPlugin as tDataProcessorPlugin).CreateConnection;
 
-      Exit;
-    end;
+
+  (foPlugin as tDataProcessorPlugin).ApplyConnection;
 
 
 
-  (loPlugin as TDBSchemaPlugin).SetupDatabase;
+
+
+
+  //(foPlugin as TDBSchemaPlugin).SetupDatabase(FDatabase);
 
 
 
@@ -551,4 +570,17 @@ begin
       end;
     end;
 end;
+
+// TConnection
+
+constructor TConnection.Create;
+begin
+end;
+
+destructor TConnection.Destroy;
+begin
+end;
+
+
+
 end.

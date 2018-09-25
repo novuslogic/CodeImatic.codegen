@@ -39,7 +39,6 @@ requires
   NovusCodeLibrary_Plugin,
   NovusCodeLibrary_Env,
   NovusCodeLibrary_SQLDir;
- // CodeImatc.cli.core;
 
 contains
   Plugin in 'Plugin.pas',
@@ -63,7 +62,7 @@ contains
   Template in 'Template.pas',
   ProjectItemFolder in 'ProjectItemFolder.pas',
   Loader in 'Loader.pas',
-  DBSchema in 'DBSchema.pas',
+  DataProcessor in 'DataProcessor.pas',
   Properties in 'Properties.pas',
   CodeGenerator in 'CodeGenerator.pas',
   Interpreter in 'Interpreter.pas',

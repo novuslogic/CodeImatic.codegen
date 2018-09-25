@@ -142,7 +142,7 @@ Uses
   NovusTemplate,
   CodeGenerator,
   reservelist,
-  DBSchema,
+  DataProcessor,
   runtime,
   ProjectItem,
   TokenParser,
@@ -216,7 +216,8 @@ begin
                                     case ACommandIndex of
                                       0: Result := FFieldDesc.FieldName;
                                       1: begin
-                                           fFieldType := (foProjectItem as TProjectItem).oDBSchema.GetFieldType(FFieldDesc, lConnectionItem.AuxDriver);
+                                           // this need to be fixed
+                                           //fFieldType := (foProjectItem as TProjectItem).oDBSchema.GetFieldType(FFieldDesc, lConnectionItem.AuxDriver);
 
                                            Result := fFieldType.SqlType;
 
@@ -1397,7 +1398,9 @@ begin
                 begin
                   if GetNextToken(AIndex, ATokens) = ')' then
                     begin
-                      FFieldType := (foProjectItem as tProjectItem).oDBSchema.GetFieldType(FFieldDesc, lConnectionItem.AuxDriver);
+
+                      // this need to be fixed
+                      //FFieldType := (foProjectItem as tProjectItem).oDBSchema.GetFieldType(FFieldDesc, lConnectionItem.AuxDriver);
 
                       if FFieldType.SQLFormat = '' then
                         Result := FFieldDesc.FieldName + ' ' + FFieldType.SqlType

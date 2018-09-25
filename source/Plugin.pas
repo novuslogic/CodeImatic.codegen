@@ -4,7 +4,7 @@ interface
 
 uses classes, Output, NovusPlugin, Project, config, NovusTemplate, uPSRuntime,
   uPSCompiler, NovusList, SysUtils, JvSimpleXml, CodeGeneratorItem,
-  NovusShell, System.IoUtils, Loader, Template;
+  NovusShell, System.IoUtils, Loader, Template, DataProcessor;
 
 type
   TPluginReturn = (PRFailed, PRPassed, PRIgnore);
@@ -57,11 +57,12 @@ type
     function IsTagExists(aTagName: String): Integer; virtual;
   end;
 
-  TDBSchemaPlugin = class(TPlugin)
+  TDataProcessorPlugin = class(TPlugin)
   private
   protected
   public
-    function SetupDatabase: Boolean; virtual;
+    function CreateConnection: TConnection; virtual;
+    procedure ApplyConnection; virtual;
   end;
 
   TTagPlugin = class(TPlugin)
@@ -449,10 +450,15 @@ begin
 end;
 
 
-// TDBSchemaPlugin
-function TDBSchemaPlugin.SetupDatabase: Boolean;
+// TDataProcessorPlugin
+function TDataProcessorPlugin.CreateConnection: TConnection;
 begin
-  Result := False;
+  Result := NIL;
+end;
+
+procedure TDataProcessorPlugin.ApplyConnection;
+begin
+  //
 end;
 
 

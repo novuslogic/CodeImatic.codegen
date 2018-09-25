@@ -164,7 +164,7 @@
         <DCCReference Include="Template.pas"/>
         <DCCReference Include="ProjectItemFolder.pas"/>
         <DCCReference Include="Loader.pas"/>
-        <DCCReference Include="DBSchema.pas"/>
+        <DCCReference Include="DataProcessor.pas"/>
         <DCCReference Include="Properties.pas"/>
         <DCCReference Include="CodeGenerator.pas"/>
         <DCCReference Include="Interpreter.pas"/>

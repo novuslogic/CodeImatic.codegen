@@ -3,7 +3,7 @@ unit projectconfig;
 interface
 
 uses XMLList, NovusTemplate, SysUtils, NovusSimpleXML, JvSimpleXml, novuslist,
-     NovusStringUtils, NovusFileUtils, NovusEnvironment, DBSchema, output;
+     NovusStringUtils, NovusFileUtils, NovusEnvironment, DataProcessor, output;
 
 type
    (*
@@ -251,6 +251,9 @@ Var
   fXmlElemlDriver: TJvSimpleXmlElem;
   liIndex, i: Integer;
 begin
+  if not  Assigned(foConnections) then Exit;
+
+  foConnections.oPlugins := foPlugins;
 
   liIndex := 0;
 

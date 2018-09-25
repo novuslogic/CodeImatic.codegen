@@ -5,18 +5,33 @@ interface
 uses Classes,Plugin, NovusPlugin, NovusVersionUtils, Project,
     Output, SysUtils, System.Generics.Defaults,  runtime, Config,
     APIBase, NovusGUIDEx, CodeGeneratorItem, FunctionsParser, ProjectItem,
-    Variables, NovusFileUtils;
+    Variables, NovusFileUtils, SDEngine, DataProcessor;
 
 
 type
-  tPlugin_SQLDirBase = class(TDBSchemaPlugin)
+  TSQLDirConnection = class(TConnection)
+  private
+    fSDDatabase: TSDDatabase;
+    fSDSession: tSDSession;
+  protected
+  public
+    constructor Create; override;
+    destructor Destroy; override;
+
+    property Database: TSDDatabase read fSDDatabase;
+    property Session: tSDSession read fSDSession;
+  end;
+
+
+  tPlugin_SQLDirBase = class(TDataProcessorPlugin)
   private
   protected
   public
     constructor Create(aOutput: tOutput; aPluginName: String; aProject: TProject; aConfigPlugin: tConfigPlugin); override;
     destructor Destroy; override;
 
-    function SetupDatabase: Boolean; override;
+    function CreateConnection: TConnection; override;
+    procedure ApplyConnection; override;
   end;
 
   TPlugin_SQLDir = class( TSingletonImplementation, INovusPlugin, IExternalPlugin)
@@ -84,12 +99,38 @@ end;
 // tPlugin_SQLDirBase
 
 
-function tPlugin_SQLDirBase.SetupDatabase: Boolean;
+function tPlugin_SQLDirBase.CreateConnection: TConnection;
 begin
-  Result := False;
+  Result := TSQLDirConnection.Create;
+end;
 
+procedure tPlugin_SQLDirBase.ApplyConnection;
+begin
 
-  foOutput.Log('yes');
+end;
+
+(*
+function tPlugin_SQLDirBase.GetDatabase: TObject;
+begin
+  Result := tSDDatabase.Create(NIL);
+end;
+ *)
+
+constructor TSQLDirConnection.Create;
+begin
+  fSDSession := tSDSession.Create(NIL);
+
+  fSDSession.AutoSessionName := True;
+
+  fSDDatabase := TSDDatabase.Create(NIL);
+
+  fSDDatabase.SessionName := fSDSession.SessionName;
+end;
+
+destructor TSQLDirConnection.Destroy;
+begin
+  If Assigned(fSDDatabase) then fSDDatabase.Free;
+  If Assigned(fSDSession) then fSDSession.Free;
 end;
 
 

@@ -5,7 +5,7 @@ interface
 Uses NovusBO, JvSimpleXml, Project, SysUtils, NovusSimpleXML,
   ProjectConfigParser,
   Properties, NovusTemplate, CodeGenerator, Output, Template,
-  NovusFileUtils,  DBSchema,
+  NovusFileUtils,  //DBSchema,
   NovusList, System.RegularExpressions, NovusUtilities, plugin, Loader;
 
 type
@@ -118,7 +118,7 @@ type
     foSourceFiles: tSourceFiles;
     foProject: tProject;
     foOutput: Toutput;
-    foDBSchema: TDBSchema;
+    //foDBSchema: TDBSchema;
     foProperties: tProperties;
    // foConnections: tConnections;
     fsItemName: String;
@@ -167,7 +167,7 @@ type
 
     Property oProperties: tProperties read foProperties write foProperties;
 
-    property oDBSchema: TDBSchema read foDBSchema write foDBSchema;
+   // property oDBSchema: TDBSchema read foDBSchema write foDBSchema;
 
     property oSourceFiles: tSourceFiles read foSourceFiles write foSourceFiles;
 
@@ -192,7 +192,7 @@ begin
 
   foProperties := tProperties.Create;
 
-  foDBSchema := TDBSchema.Create;
+  //foDBSchema := TDBSchema.Create;
 
   // foTemplate := TTemplate.CreateTemplate;
 
@@ -209,7 +209,7 @@ begin
 
   // FreeandNil(foTemplate);
   FreeandNil(foProperties);
-  FreeandNil(foDBSchema);
+  //FreeandNil(foDBSchema);
 
   // FreeandNil(foCodeGenerator);
 
@@ -258,13 +258,13 @@ begin
       foProperties.XMLFileName := PropertiesFile;
       foProperties.Retrieve;
     end;
-
+    (*
     if fileexists(oconfig.dbschemafilename) then
     begin
       foDBSchema.XMLFileName := oconfig.dbschemafilename;
       foDBSchema.Retrieve;
     end;
-
+     *)
     //foConnections := tConnections.Create(foOutput,
     //  foProject.oProjectConfig, Self);
 
