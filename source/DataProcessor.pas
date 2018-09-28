@@ -10,9 +10,14 @@ Type
    TConnection = class(TObject)
    private
    protected
+     foOutput: tOutput;
+     function GetConnected: Boolean; virtual;
+     procedure SetConnected(value: boolean); virtual;
    public
-      constructor Create; virtual;
+      constructor Create(aOutput: tOutput); virtual;
       destructor Destroy; virtual;
+
+      property Connected: Boolean read GetConnected write SetConnected;
    end;
 
 
@@ -69,7 +74,7 @@ Type
    protected
    public
      function GetTypeName(AFieldDesc: TFieldDesc; AAuxDriver: String): String;
-     function GetFieldType(AFieldDesc: TFieldDesc; AAuxDriver: String):TFieldType;
+     function GetFieldType(AFieldDesc: TFieldDesc; AAuxDriver: String): TFieldType;
    end;
 
    tConnectionItem = class(Tobject)
@@ -99,10 +104,10 @@ Type
      function TableCount: Integer;
 
      function JustTableNamebyIndex(AIndex: Integer): String;
-     function TableExists(ATableName: String): Boolean;
-     function FieldByIndex(ATableName: String; AIndex: Integer): TFieldDesc;
-     function FieldByName(ATableName: String; AFieldName: String): TFieldDesc;
-     function FieldCount(ATableName: String): Integer;
+     function TableExists(aTableName: String): Boolean;
+     function FieldByIndex(aTableName: String; AIndex: Integer): TFieldDesc;
+     function FieldByName(aTableName: String; AFieldName: String): TFieldDesc;
+     function FieldCount(aTableName: String): Integer;
      function GetFieldDesc(aDataSet: tDataSet): tFieldDesc;
 
      procedure CreateConnection;
@@ -284,34 +289,8 @@ begin
   foConnection := (foPlugin as tDataProcessorPlugin).CreateConnection;
 
 
-  (foPlugin as tDataProcessorPlugin).ApplyConnection;
+  (foPlugin as tDataProcessorPlugin).ApplyConnection(self, foConnection);
 
-
-
-
-
-
-  //(foPlugin as TDBSchemaPlugin).SetupDatabase(FDatabase);
-
-
-
-  lStringList := tStringList.Create;
-
-  lStringList.Text := fsParams;
-
-  TNovusSQLDirUtils.SetupSDDatabase(FDatabase,
-                     fsServer,
-                     fsDatabase,
-                     fsConnectionname,
-                     TSDServerType(TNovusSQLDirUtils.GetServerTypeAsInteger(fsAuxDriver)),
-                     fsUserID,
-                     fsPassword,
-                     lStringList,
-                     fsSQLLibrary,
-                     False,
-                     fiPort);
-
-  lStringList.Free;
 end;
 
 
@@ -326,10 +305,11 @@ function tConnectionItem.GetConnected: Boolean;
 begin
   Result := False;
 
-  If Not Assigned(fDatabase) Then Exit;
+
+  If Not Assigned(foConnection) Then Exit;
 
   Try
-    FDatabase.Connected := True;
+    foConnection.Connected := True;
 
     Result := True;
   Except
@@ -365,6 +345,9 @@ end;
 
 function tConnectionItem.GetFieldDesc(aDataSet: tDataSet): tFieldDesc;
 begin
+  Result := (foPlugin as TDataProcessorPlugin).GetFieldDesc(aDataSet);
+
+  (*
   Result := TFieldDesc.Create;
 
   Result.TypeName := '';
@@ -383,17 +366,19 @@ begin
 
   // This need t be fixed
   //Result.TypeName := (foProjectItem as tProjectItem).oDBSchema.GetTypeName(Result, fsAuxDriver);
-
+  *)
 end;
 
 
-function tConnectionItem.FieldByIndex(ATableName: String; AIndex: Integer): TFieldDesc;
+function tConnectionItem.FieldByIndex(aTableName: String; aIndex: Integer): TFieldDesc;
 Var
   I: INteger;
   cmd: TDataSet;
   FFieldDesc: TFieldDesc;
 begin
-  Result := NIL;
+  Result := (foPlugin as TDataProcessorPlugin).FieldByIndex(foConnection, aTableName, aIndex);
+
+(*
 
   cmd := FDatabase.GetSchemaInfo(stColumns, Uppercase(ATableName));
 
@@ -419,7 +404,7 @@ begin
     Finally
       Cmd.Free;
     end;
-
+   *)
 end;
 
 function tConnectionItem.FieldByName(ATableName: String; AFieldName: String): TFieldDesc;
@@ -442,14 +427,19 @@ begin
     end;
 end;
 
-function tConnectionItem.FieldCount(ATableName: String): Integer;
+function tConnectionItem.FieldCount(aTableName: String): Integer;
 Var
-  I: INteger;
+ // I: INteger;
   cmd: TDataSet;
-  FFieldDesc: TFieldDesc;
+  //FFieldDesc: TFieldDesc;
 begin
-  Result := -1;
 
+
+ // Result := -1;
+
+  Result := (foPlugin as TDataProcessorPlugin).FieldCount(foConnection, aTableName);
+
+  (*
   cmd := FDatabase.GetSchemaInfo(stColumns, Uppercase(ATableName));
 
   I := 0;
@@ -460,7 +450,7 @@ begin
 
     Finally
       Cmd.Free;
-    end;
+    end; *)
 end;
 
 
@@ -468,8 +458,7 @@ function tConnectionItem.GetTableNames: tStringList;
 Var
   I: Integer;
 begin
-  if FTableNames.Count = 0 then
-    FDatabase.GetTableNames('', false, FTableNames);
+  FTableNames := (foPlugin as TDataProcessorPlugin).GetTableNames(foConnection, FTableNames);
 
   Result := FTableNames;
 end;
@@ -575,9 +564,20 @@ end;
 
 constructor TConnection.Create;
 begin
+  foOutput := aOutput;
 end;
 
 destructor TConnection.Destroy;
+begin
+end;
+
+function TConnection.GetConnected: Boolean;
+begin
+  Result := False;
+end;
+
+
+procedure TConnection.SetConnected(value: boolean);
 begin
 end;
 

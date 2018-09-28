@@ -5,7 +5,8 @@ interface
 uses Classes,Plugin, NovusPlugin, NovusVersionUtils, Project,
     Output, SysUtils, System.Generics.Defaults,  runtime, Config,
     APIBase, NovusGUIDEx, CodeGeneratorItem, FunctionsParser, ProjectItem,
-    Variables, NovusFileUtils, SDEngine, DataProcessor;
+    Variables, NovusFileUtils, SDEngine, DataProcessor, NovusSQLDirUtils, DB,
+    SDCommon;
 
 
 type
@@ -14,8 +15,10 @@ type
     fSDDatabase: TSDDatabase;
     fSDSession: tSDSession;
   protected
+     function GetConnected: Boolean; override;
+     procedure SetConnected(value: boolean); override;
   public
-    constructor Create; override;
+    constructor Create(aOutput: tOutput); override;
     destructor Destroy; override;
 
     property Database: TSDDatabase read fSDDatabase;
@@ -31,7 +34,11 @@ type
     destructor Destroy; override;
 
     function CreateConnection: TConnection; override;
-    procedure ApplyConnection; override;
+    procedure ApplyConnection(aConnectionItem: TConnectionItem; aConnection: tConnection); override;
+    function GetTableNames(aConnection: tConnection; aTableNames: tStringList): tStringList; override;
+    function FieldCount(aConnection: tConnection;aTableName: String): Integer; override;
+    function FieldByIndex(aConnection: tConnection; aTableName: String; AIndex: Integer): TFieldDesc; override;
+    function GetFieldDesc(aDataSet: tDataSet): tFieldDesc; override;
   end;
 
   TPlugin_SQLDir = class( TSingletonImplementation, INovusPlugin, IExternalPlugin)
@@ -101,23 +108,148 @@ end;
 
 function tPlugin_SQLDirBase.CreateConnection: TConnection;
 begin
-  Result := TSQLDirConnection.Create;
+  Result := TSQLDirConnection.Create(foOutput);
 end;
 
-procedure tPlugin_SQLDirBase.ApplyConnection;
+procedure tPlugin_SQLDirBase.ApplyConnection(aConnectionItem: TConnectionItem; aConnection: tConnection);
+var
+  lsAliasName: string;
+  lsSQLLibrary: String;
+  lParams: tStringList;
+  I: Integer;
 begin
+
+  Try
+    lParams := tStringList.Create;
+
+    lParams.Text := aConnectionItem.Params;
+
+    TNovusSQLDirUtils.SetupSDDatabase(TSQLDirConnection(aConnection).Database,
+                     aConnectionItem.Server,
+                     aConnectionItem.Database,
+                     aConnectionItem.Connectionname,
+                     TSDServerType(TNovusSQLDirUtils.GetServerTypeAsInteger(aConnectionItem.AuxDriver)),
+                     aConnectionItem.UserID,
+                     aConnectionItem.Password,
+                     lParams,
+                     aConnectionItem.SQLLibrary,
+                     False,
+                     aConnectionItem.Port);
+  Finally
+    lParams.Free;
+  End;
+end;
+
+
+function tPlugin_SQLDirBase.GetTableNames(aConnection: tConnection; aTableNames: tStringList): tStringList;
+begin
+  Result := NIL;
+  if not Assigned(aTableNames) then Exit;
+
+  if aTableNames.Count = 0 then
+     TSQLDirConnection(aConnection).Database.GetTableNames('', false,  aTableNames);
+
+  Result := aTableNames;
+end;
+
+function tPlugin_SQLDirBase.FieldByIndex(aConnection: tConnection; aTableName: String; AIndex: Integer): TFieldDesc;
+Var
+  I: Integer;
+  FDataSet: TDataSet;
+  FFieldDesc: TFieldDesc;
+begin
+  result := NIL;
+
+  FDataSet := TSQLDirConnection(aConnection).Database.GetSchemaInfo(stColumns, Uppercase(aTableName));
+
+  I := 0;
+
+  if Assigned( FDataSet ) then
+    try
+      FDataSet.First;
+      While(Not FDataSet.Eof) do
+        begin
+          if I = AIndex then
+            begin
+              Result := GetFieldDesc(FDataSet);
+
+              Break;
+            end;
+
+          Inc(I);
+
+          FDataSet.Next;
+        end;
+
+    Finally
+      FDataSet.Free;
+    end;
+end;
+
+function tPlugin_SQLDirBase.GetFieldDesc(aDataSet: tDataSet): tFieldDesc;
+begin
+  Result := NIL;
+
+  if Not Assigned(aDataSet) then Exit;
+
+  Result := TFieldDesc.Create;
+
+  Result.TypeName := '';
+
+  Result.FieldName := aDataSet.FieldByName('COLUMN_NAME').AsString;
+
+  Result.TypeName := aDataSet.FieldByName('COLUMN_TYPENAME').AsString;
+
+  Result.Precision := aDataSet.FieldByName('COLUMN_PRECISION').AsInteger;
+
+  Result.Scale := Abs(aDataSet.FieldByName('COLUMN_SCALE').Asinteger);
+
+  Result.Column_Length := aDataSet.FieldByName('COLUMN_LENGTH').Asinteger;
+end;
+
+
+function tPlugin_SQLDirBase.FieldCount(aConnection: tConnection;aTableName: String): Integer;
+Var
+  FDataSet: TDataSet;
+begin
+  Result := -1;
+
+  FDataSet := TSQLDirConnection(aConnection).Database.GetSchemaInfo(stColumns, Uppercase(ATableName));
+
+
+  if Assigned( FDataSet) then
+    try
+      Result := FDataSet.RecordCount;
+
+    Finally
+      FDataSet.Free;
+    end;
 
 end;
 
-(*
-function tPlugin_SQLDirBase.GetDatabase: TObject;
-begin
-  Result := tSDDatabase.Create(NIL);
-end;
- *)
 
-constructor TSQLDirConnection.Create;
+// TSQLDirConnection
+
+function  TSQLDirConnection.GetConnected: Boolean;
 begin
+  result := fSDDatabase.Connected;
+end;
+
+
+procedure  TSQLDirConnection.SetConnected(value: boolean);
+begin
+  Try
+    fSDDatabase.Connected := Value;
+  Except
+    foOutput.WriteExceptLog;
+
+  End;
+end;
+
+constructor TSQLDirConnection.Create(aOutput: tOutput);
+begin
+  Inherited create(aOutput);
+
   fSDSession := tSDSession.Create(NIL);
 
   fSDSession.AutoSessionName := True;

@@ -1,19 +1,18 @@
-23/09/2018 23:29-Logging started
-23/09/2018 23:29-CodeImatic.codegen - © Copyright Novuslogic Software 2011 - 2018 All Rights Reserved
-23/09/2018 23:29-Version: 
-23/09/2018 23:29-Project: DBStaticWebsite.zcproject
-23/09/2018 23:29-Project Config: D:\Projects\CodeImatic.codegen\samples\DBStaticWebsite\DBStaticWebsite.zcconfig
-23/09/2018 23:29-Loading plugins
-23/09/2018 23:29-Loaded: Sys
-23/09/2018 23:29-Loaded: SystemExt
-23/09/2018 23:29-Loaded: WebProcessor
-23/09/2018 23:30-Loaded: WebServer
-23/09/2018 23:30-Loaded: CodeDocsProcessor
-23/09/2018 23:30-Loaded: SQLDIR
-23/09/2018 23:30-yes
-23/09/2018 23:30-Project Item: index.html
-23/09/2018 23:30-Source : D:\Projects\CodeImatic.codegen\samples\DBStaticWebsite\Source\INDEX.HTML
-23/09/2018 23:30-Output: D:\Projects\CodeImatic.codegen\samples\DBStaticWebsite\Site\index.html
-23/09/2018 23:30-Build started 23/09/2018 23:30
-23/09/2018 23:30-Build succeeded 23/09/2018 23:30
-23/09/2018 23:30-Logging finished
+28/09/2018 23:23-Logging started
+28/09/2018 23:23-CodeImatic.codegen - © Copyright Novuslogic Software 2011 - 2018 All Rights Reserved
+28/09/2018 23:23-Version: 
+28/09/2018 23:23-Project: DBStaticWebsite.zcproject
+28/09/2018 23:23-Project Config: D:\Projects\CodeImatic.codegen\samples\DBStaticWebsite\DBStaticWebsite.zcconfig
+28/09/2018 23:23-Loading plugins
+28/09/2018 23:23-Loaded: Sys
+28/09/2018 23:23-Loaded: SystemExt
+28/09/2018 23:23-Loaded: WebProcessor
+28/09/2018 23:23-Loaded: WebServer
+28/09/2018 23:23-Loaded: CodeDocsProcessor
+28/09/2018 23:23-Loaded: SQLDIR
+28/09/2018 23:23-Project Item: index.html
+28/09/2018 23:23-Source : D:\Projects\CodeImatic.codegen\samples\DBStaticWebsite\Source\INDEX.HTML
+28/09/2018 23:23-Output: D:\Projects\CodeImatic.codegen\samples\DBStaticWebsite\Site\index.html
+28/09/2018 23:23-Build started 28/09/2018 23:23
+28/09/2018 23:24-Build succeeded 28/09/2018 23:24
+28/09/2018 23:24-Logging finished

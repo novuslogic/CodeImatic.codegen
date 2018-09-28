@@ -7,7 +7,7 @@ Uses
   NovusList, Variants, Variables, XMLList,  NovusGUIDEx, TokenProcessor;
 
 const
-  csCommamdSyntax: array[1..24] of String = (
+  csCommamdSyntax: array[1..25] of String = (
     'fieldnamebyindex',
     'fieldtypebyindex',
     'lower',
@@ -31,7 +31,8 @@ const
     'listname',
     'newguid',
     'rlistformat',
-    'fieldbyname'
+    'fieldbyname' ,
+    'FieldByIndex'
   );
 
 Type
@@ -675,6 +676,7 @@ begin
           22: result := procedures(ATokens,AIndex, 1);
           23: result := Reservelist(ATokens,AIndex, 1);
           24: Result := FieldFunctions(ATokens,AIndex, 3);
+          25: Result := FieldFunctions(ATokens,AIndex, 0);
         end;
       end;
 

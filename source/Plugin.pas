@@ -4,7 +4,7 @@ interface
 
 uses classes, Output, NovusPlugin, Project, config, NovusTemplate, uPSRuntime,
   uPSCompiler, NovusList, SysUtils, JvSimpleXml, CodeGeneratorItem,
-  NovusShell, System.IoUtils, Loader, Template, DataProcessor;
+  NovusShell, System.IoUtils, Loader, Template, DataProcessor, DB;
 
 type
   TPluginReturn = (PRFailed, PRPassed, PRIgnore);
@@ -62,7 +62,11 @@ type
   protected
   public
     function CreateConnection: TConnection; virtual;
-    procedure ApplyConnection; virtual;
+    procedure ApplyConnection(aConnectionItem: TConnectionItem; aConnection: tConnection); virtual;
+    function GetTableNames(aConnection: tConnection; aTableNames: tStringList): tStringList; virtual;
+    function FieldCount(aConnection: tConnection;aTableName: String): Integer; virtual;
+    function FieldByIndex(aConnection: tConnection; aTableName: String; AIndex: Integer): TFieldDesc; virtual;
+    function GetFieldDesc(aDataSet: tDataSet): tFieldDesc; virtual;
   end;
 
   TTagPlugin = class(TPlugin)
@@ -456,11 +460,31 @@ begin
   Result := NIL;
 end;
 
-procedure TDataProcessorPlugin.ApplyConnection;
+procedure TDataProcessorPlugin.ApplyConnection(aConnectionItem: TConnectionItem; aConnection: tConnection);
 begin
   //
 end;
 
 
+function TDataProcessorPlugin.GetTableNames(aConnection: tConnection; aTableNames: tStringList): tStringList;
+begin
+  Result := NIL;
+end;
+
+function TDataProcessorPlugin.FieldCount(aConnection: tConnection;aTableName: String): Integer;
+begin
+  Result := -1;
+end;
+
+
+function TDataProcessorPlugin.FieldByIndex(aConnection: tConnection; aTableName: String; AIndex: Integer): TFieldDesc;
+begin
+  result := NIL;
+end;
+
+function TDataProcessorPlugin.GetFieldDesc(aDataSet: tDataSet): tFieldDesc;
+begin
+  Result := NIL;
+end;
 
 end.
