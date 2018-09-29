@@ -197,7 +197,7 @@ begin
         begin
           if lConnectionItem.Connected then
             begin
-              FTableName := GetNextToken(AIndex, ATokens);
+               FTableName := GetNextToken(AIndex, ATokens);
 
               If lConnectionItem.TableExists(FTableName) then
                 begin
@@ -1291,14 +1291,6 @@ begin
 
   Result := GetNextTag(ATokens, AIndex, LiSkipPos, True);
 
-  if Pos(' ', result) =1  then
-    begin
-
-
-
-
-    end
-  else
   if Pos('$', Result) = 1  then
     begin
       I := VariableExistsIndex(TVariables.CleanVariableName(Result));

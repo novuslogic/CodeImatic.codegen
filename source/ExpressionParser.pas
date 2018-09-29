@@ -29,7 +29,7 @@ type
   TTokenType=(ttDelimiter, ttNumber, ttQuote, ttString, ttFinished);
 
   //Main parser class
-  TExpressionParser = class
+  TExpressionParser = class(Tobject)
   private
     FExpr : String;
     FLExpr : Integer;
@@ -121,6 +121,7 @@ end;
 //Get next token
 procedure TExpressionParser.Get_Token;
 begin
+
   //Spaces
   while (FExpr[FExprID]=' ') and (FExprID<=FLExpr) do
      Inc(FExprID);
@@ -327,12 +328,15 @@ procedure TExpressionParser.ListTokens(Str: TStrings);
 begin
   while (FExprID<>-1) and (FExprID<=FLExpr) do
   begin
+    FToken := '';
+
     Get_Token;
     if FTokenType=ttFinished then break;
 
-    if FToken = '' then break;
+    if FToken = '' then Continue;
 
-    Str.Add(FToken);
+    if FToken <> '' then
+      Str.Add(FToken);
   end;
 end;
 
