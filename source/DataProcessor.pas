@@ -3,8 +3,8 @@ unit DataProcessor;
 interface
 
 Uses Classes, NovusList, NovusTemplate, NovusStringParser, SysUtils,
-     NovusStringUtils, SDEngine, NovusSQLDirUtils, NovusUtilities,
-     DB, SDCommon, Output, NovusXMLBO, JvSimpleXml;
+     NovusStringUtils, {SDEngine,} NovusSQLDirUtils, NovusUtilities,
+     DB, {SDCommon,} Output, NovusXMLBO, JvSimpleXml;
 
 Type
    TConnection = class(TObject)
@@ -83,7 +83,7 @@ Type
      foPlugin: TObject;
      FoOutput: TOutput;
      FTableNames: tStringlist;
-     FDatabase: tSDDatabase;
+    // FDatabase: tSDDatabase;
      fsAuxDriver: String;
      fsDriverName: string;
      fsConnectionname: string;
@@ -270,9 +270,9 @@ end;
 
 destructor tConnectionItem.Destroy;
 begin
-  FDatabase.Connected := False;
+  //FDatabase.Connected := False;
 
-  FDatabase.Free;
+  //FDatabase.Free;
 
   FTableNames.Free;
 
@@ -407,13 +407,17 @@ begin
    *)
 end;
 
-function tConnectionItem.FieldByName(ATableName: String; AFieldName: String): TFieldDesc;
+function tConnectionItem.FieldByName(aTableName: String; aFieldName: String): TFieldDesc;
+(*
 Var
   I: INteger;
   cmd: TDataSet;
   FFieldDesc: TFieldDesc;
+  *)
 begin
+  Result := (foPlugin as TDataProcessorPlugin).FieldByName(foConnection, aTableName, aFieldName);
 
+  (*
   Result := NIL;
 
   cmd := FDatabase.GetSchemaInfo(stColumns, Uppercase(ATableName));
@@ -425,6 +429,7 @@ begin
     Finally
       Cmd.Free;
     end;
+    *)
 end;
 
 function tConnectionItem.FieldCount(aTableName: String): Integer;

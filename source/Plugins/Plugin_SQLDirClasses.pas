@@ -39,6 +39,7 @@ type
     function FieldCount(aConnection: tConnection;aTableName: String): Integer; override;
     function FieldByIndex(aConnection: tConnection; aTableName: String; AIndex: Integer): TFieldDesc; override;
     function GetFieldDesc(aDataSet: tDataSet): tFieldDesc; override;
+    function FieldByName(aConnection: tConnection;aTableName: String; aFieldName: String): TFieldDesc; override;
   end;
 
   TPlugin_SQLDir = class( TSingletonImplementation, INovusPlugin, IExternalPlugin)
@@ -205,6 +206,24 @@ begin
   Result.Scale := Abs(aDataSet.FieldByName('COLUMN_SCALE').Asinteger);
 
   Result.Column_Length := aDataSet.FieldByName('COLUMN_LENGTH').Asinteger;
+end;
+
+function tPlugin_SQLDirBase.FieldByName(aConnection: tConnection;aTableName: String; aFieldName: String): TFieldDesc;
+Var
+  FDataSet: TDataSet;
+  FFieldDesc: TFieldDesc;
+begin
+  Result := NIL;
+
+  FDataSet := TSQLDirConnection(aConnection).Database.GetSchemaInfo(stColumns, Uppercase(ATableName));
+
+  if Assigned( FDataSet ) then
+    try
+      If FDataSet.Locate('COLUMN_NAME',AFieldName, [loCaseInsensitive]) then
+        Result := GetFieldDesc(FDataSet);
+    Finally
+      FDataSet.Free;
+    end;
 end;
 
 

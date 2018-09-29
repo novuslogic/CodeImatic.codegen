@@ -147,6 +147,7 @@ Uses
   runtime,
   ProjectItem,
   TokenParser,
+  TagParser,
   TagType,
   CodeGeneratorItem;
 
@@ -640,6 +641,7 @@ end;
 function TInterpreter.GetNextTag(ATokens: tTokenProcessor; Var AIndex: Integer;Var ASkipPos: INteger;ASubCommand: Boolean = False;ASubVariable:Boolean = False): String;
 Var
   lsNextToken: string;
+  fTagType: TTagType;
 begin
   Result := '';
   if ASubCommand then
@@ -647,9 +649,9 @@ begin
   try
     lsNextToken := ATokens[AIndex];
 
-    //Result := ParseCommand(lsNextToken);
+    fTagType := TTagParser.ParseTagType(foProjectItem, foCodeGenerator, lsNextToken, fOutput, true);
 
-    // classic functions
+    // internal functions needs be move into Plugins
     if (CommandSyntaxIndex(lsNextToken ) <> 0) then
       begin
         case CommandSyntaxIndex(lsNextToken ) of
@@ -1289,6 +1291,14 @@ begin
 
   Result := GetNextTag(ATokens, AIndex, LiSkipPos, True);
 
+  if Pos(' ', result) =1  then
+    begin
+
+
+
+
+    end
+  else
   if Pos('$', Result) = 1  then
     begin
       I := VariableExistsIndex(TVariables.CleanVariableName(Result));

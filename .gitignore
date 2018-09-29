@@ -28,3 +28,6 @@
 /source/Plugins/DocGen.dproj
 /source/Plugins/DocGen.res
 /source/Plugins/RDa06468
+samples/DBStaticWebsite/codeimatic.codegen.log
+*.log
+*.log

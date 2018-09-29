@@ -67,6 +67,7 @@ type
     function FieldCount(aConnection: tConnection;aTableName: String): Integer; virtual;
     function FieldByIndex(aConnection: tConnection; aTableName: String; AIndex: Integer): TFieldDesc; virtual;
     function GetFieldDesc(aDataSet: tDataSet): tFieldDesc; virtual;
+    function FieldByName(aConnection: tConnection;aTableName: String; aFieldName: String): TFieldDesc; virtual;
   end;
 
   TTagPlugin = class(TPlugin)
@@ -483,6 +484,11 @@ begin
 end;
 
 function TDataProcessorPlugin.GetFieldDesc(aDataSet: tDataSet): tFieldDesc;
+begin
+  Result := NIL;
+end;
+
+function  TDataProcessorPlugin.FieldByName(aConnection: tConnection;aTableName: String; aFieldName: String): TFieldDesc;
 begin
   Result := NIL;
 end;
