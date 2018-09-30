@@ -20,6 +20,8 @@ type
     constructor Create(aOutput: tOutput; aPluginName: String;
       aProject: tProject; aConfigPlugin: TConfigPlugin); virtual;
 
+    destructor Destroy; override;
+
     function BeforeCodeGen: boolean; virtual;
     function AfterCodeGen: boolean; virtual;
     function IsCommandLine: boolean; virtual;
@@ -60,7 +62,14 @@ type
   TDataProcessorPlugin = class(TPlugin)
   private
   protected
+    foDBSchema: TDBSchema;
+    function GetDBSchemaFile: string;
   public
+    constructor Create(aOutput: tOutput; aPluginName: String;
+      aProject: tProject; aConfigPlugin: TConfigPlugin); override;
+
+    destructor Destroy; override;
+
     function CreateConnection: TConnection; virtual;
     procedure ApplyConnection(aConnectionItem: TConnectionItem; aConnection: tConnection); virtual;
     function GetTableNames(aConnection: tConnection; aTableNames: tStringList): tStringList; virtual;
@@ -68,6 +77,14 @@ type
     function FieldByIndex(aConnection: tConnection; aTableName: String; AIndex: Integer): TFieldDesc; virtual;
     function GetFieldDesc(aDataSet: tDataSet): tFieldDesc; virtual;
     function FieldByName(aConnection: tConnection;aTableName: String; aFieldName: String): TFieldDesc; virtual;
+
+    function LoadDBSchemaFile: Boolean;
+
+    property oDBSchema: TDBSchema read foDBSchema write foDBSchema;
+
+    property DBSchemaFile: String read GetDBSchemaFile;
+
+
   end;
 
   TTagPlugin = class(TPlugin)
@@ -160,6 +177,12 @@ begin
   foProject := aProject;
   foOutput := aOutput;
   fsPluginName := aPluginName;
+end;
+
+destructor TPlugin.Destroy;
+begin
+  inherited Destroy;
+
 end;
 
 function TPlugin.BeforeCodeGen: boolean;
@@ -456,6 +479,23 @@ end;
 
 
 // TDataProcessorPlugin
+constructor TDataProcessorPlugin.Create;
+begin
+  inherited create(aOutput,aPluginName,aProject,aConfigPlugin);
+
+  foDBSchema:= TDBSchema.Create;
+end;
+
+destructor TDataProcessorPlugin.Destroy;
+begin
+  inherited Destroy;
+
+
+  foDBSchema.Free;
+end;
+
+
+
 function TDataProcessorPlugin.CreateConnection: TConnection;
 begin
   Result := NIL;
@@ -492,5 +532,19 @@ function  TDataProcessorPlugin.FieldByName(aConnection: tConnection;aTableName: 
 begin
   Result := NIL;
 end;
+
+function TDataProcessorPlugin.LoadDBSchemaFile: Boolean;
+begin
+  result := false;
+  foDBSchema.XMLFileName := oConfig.rootpath + 'plugins\' + DBSchemaFile;
+  result := foDBSchema.Retrieve;
+end;
+
+function TDataProcessorPlugin.GetDBSchemaFile: string;
+begin
+  if foConfigPlugin.oConfigProperties.IsPropertyExists('DBSchemaFile') then
+    Result := foConfigPlugin.oConfigProperties.GetProperty('DBSchemaFile');
+end;
+
 
 end.

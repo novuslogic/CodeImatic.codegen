@@ -83,7 +83,6 @@ Type
      foPlugin: TObject;
      FoOutput: TOutput;
      FTableNames: tStringlist;
-    // FDatabase: tSDDatabase;
      fsAuxDriver: String;
      fsDriverName: string;
      fsConnectionname: string;
@@ -408,54 +407,13 @@ begin
 end;
 
 function tConnectionItem.FieldByName(aTableName: String; aFieldName: String): TFieldDesc;
-(*
-Var
-  I: INteger;
-  cmd: TDataSet;
-  FFieldDesc: TFieldDesc;
-  *)
 begin
   Result := (foPlugin as TDataProcessorPlugin).FieldByName(foConnection, aTableName, aFieldName);
-
-  (*
-  Result := NIL;
-
-  cmd := FDatabase.GetSchemaInfo(stColumns, Uppercase(ATableName));
-
-  if Assigned( cmd ) then
-    try
-      If cmd.Locate('COLUMN_NAME',AFieldName, [loCaseInsensitive]) then
-        Result := GetFieldDesc(Cmd);
-    Finally
-      Cmd.Free;
-    end;
-    *)
 end;
 
 function tConnectionItem.FieldCount(aTableName: String): Integer;
-Var
- // I: INteger;
-  cmd: TDataSet;
-  //FFieldDesc: TFieldDesc;
 begin
-
-
- // Result := -1;
-
   Result := (foPlugin as TDataProcessorPlugin).FieldCount(foConnection, aTableName);
-
-  (*
-  cmd := FDatabase.GetSchemaInfo(stColumns, Uppercase(ATableName));
-
-  I := 0;
-
-  if Assigned( cmd ) then
-    try
-      Result := cmd.RecordCount;
-
-    Finally
-      Cmd.Free;
-    end; *)
 end;
 
 
@@ -479,7 +437,6 @@ begin
 end;
 
 // DBSchema
-
 function TDBSchema.GetFieldType(AFieldDesc: TFieldDesc; aAuxDriver: String): TFieldType;
 Var
   fJvSimpleXmlElem1,  fJvSimpleXmlElem2 : TJvSimpleXmlElem;

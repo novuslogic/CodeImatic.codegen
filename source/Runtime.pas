@@ -1,4 +1,4 @@
-{$I Zcodegen.inc}
+{$I CodeImatic.codegen.inc}
 unit Runtime;
 
 interface
@@ -154,6 +154,7 @@ begin
   FoOutput.Log('Project Config: ' + foProject.oProjectConfig.
     ProjectConfigFileName);
 
+    (*
   if Trim(foProject.oProjectConfig.DBSchemaPath) <> '' then
   begin
     if Not FileExists(foProject.oProjectConfig.DBSchemaPath + 'DBSchema.xml')
@@ -170,6 +171,7 @@ begin
 
     FoOutput.Log('DBSchema filename: ' + oConfig.dbschemafilename);
   end;
+  *)
 
   if Trim(foProject.oProjectConfig.LanguagesPath) <> '' then
   begin
@@ -194,7 +196,9 @@ begin
 
   foPlugins.LoadPlugins;
 
+
   foPlugins.RegisterImports;
+  if foPlugins.LoadDBSchemaFiles then Exit;
 
   if not foPlugins.IsCommandLine then Exit;
 

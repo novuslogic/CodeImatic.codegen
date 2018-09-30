@@ -1,4 +1,4 @@
-{$I Zcodegen.inc}
+{$I CodeImatic.codegen.inc}
 package CodeImatic.codegen.core;
 
 {$R *.res}

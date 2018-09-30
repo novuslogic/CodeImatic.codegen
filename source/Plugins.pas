@@ -26,6 +26,7 @@ type
     procedure UnloadPlugins;
 
     procedure RegisterImports;
+    function LoadDBSchemaFiles: boolean;
     procedure RegisterFunctions(aExec: TPSExec);
     function FindPlugin(aPluginName: String): TPlugin;
 
@@ -128,6 +129,34 @@ begin
     begin
       TScriptEnginePlugin(loPlugin).Initialize(fImp);
       TScriptEnginePlugin(loPlugin).RegisterImport;
+    end;
+  end;
+end;
+
+
+function TPlugins.LoadDBSchemaFiles: boolean;
+var
+  loPlugin: TPlugin;
+  I: Integer;
+  FExternalPlugin: IExternalPlugin;
+begin
+  Result := true;
+
+  for I := 0 to fPluginsList.Count - 1 do
+  begin
+    loPlugin := TPlugin(fPluginsList.Items[I]);
+
+    loPlugin := TPlugin(fPluginsList.Items[I]);
+    if loPlugin is TDataProcessorPlugin then
+    begin
+      if Not TDataProcessorPlugin(loPlugin).LoadDBSchemaFile then
+        begin
+          foOutput.Log('Missing: ' + TDataProcessorPlugin(loPlugin).DBSchemaFile);
+
+          Result := False;
+
+          Break;
+        end;
     end;
   end;
 end;

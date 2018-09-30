@@ -1,4 +1,4 @@
-{$I Zcodegen.inc}
+{$I CodeImatic.codegen.inc}
 program CodeImatic.codegen;
 
 {$APPTYPE CONSOLE}

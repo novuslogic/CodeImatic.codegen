@@ -80,9 +80,9 @@ Type
        read fsConfigfile
        write fsConfigfile;
 
-     property DBSchemafilename: string
-        read fsdbschemafilename
-        write fsdbschemafilename;
+  //   property DBSchemafilename: string
+  //      read fsdbschemafilename
+  //      write fsdbschemafilename;
 
      property LanguagesPath: string
        read fsLanguagesPath
