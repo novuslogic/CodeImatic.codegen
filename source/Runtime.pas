@@ -198,7 +198,7 @@ begin
 
 
   foPlugins.RegisterImports;
-  if foPlugins.LoadDBSchemaFiles then Exit;
+  if not foPlugins.LoadDBSchemaFiles then Exit;
 
   if not foPlugins.IsCommandLine then Exit;
 
