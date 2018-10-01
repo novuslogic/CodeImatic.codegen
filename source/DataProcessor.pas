@@ -10,6 +10,14 @@ Type
    TConnection = class(TObject)
    private
    protected
+     fsAuxDriver: string;
+     fsServer: string;
+     fsDatabase: string;
+     fsUserId: string;
+     fsPassword: string;
+     fsParams: string;
+     fsSQLLibrary: string;
+     fiPort: Integer;
      foOutput: tOutput;
      function GetConnected: Boolean; virtual;
      procedure SetConnected(value: boolean); virtual;
@@ -18,6 +26,39 @@ Type
       destructor Destroy; virtual;
 
       property Connected: Boolean read GetConnected write SetConnected;
+
+
+      property Server: string
+       read fsServer
+       write fsServer;
+
+     property Database: string
+        read fsDatabase
+        write fsDatabase;
+
+     property UserID: string
+       read fsUserId
+       write fsUserId;
+
+     property Password: string
+       read fsPassword
+       write fsPassword;
+
+     property AuxDriver: String
+       read fsAuxDriver
+       write fsAuxDriver;
+
+     property  Params: String
+       read fsParams
+       write fsParams;
+
+     property SQLLibrary: String
+       read fsSQLLibrary
+       write fsSQLLibrary;
+
+     property Port: Integer
+        read fiPort
+        write fiPort;
    end;
 
 
@@ -96,6 +137,7 @@ Type
    private
      function GetConnected: Boolean;
      function GetTableNames: tStringList;
+     function GetDBSchema: TDBSchema;
    public
      constructor Create(AOutput: TOutput; aPlugins: TObject); virtual;
      destructor  Destroy; override;
@@ -108,6 +150,7 @@ Type
      function FieldByName(aTableName: String; AFieldName: String): TFieldDesc;
      function FieldCount(aTableName: String): Integer;
      function GetFieldDesc(aDataSet: tDataSet): tFieldDesc;
+
 
      procedure CreateConnection;
 
@@ -164,6 +207,9 @@ Type
      property oConnection: tConnection
        read foConnection
        write foConnection;
+
+     property oDBSchema: tDBSchema
+       read GetDBSchema;
    end;
 
    tConnections = class(Tobject)
@@ -262,17 +308,10 @@ begin
   FoOutput := aOutput;
 
   FTableNames := tStringList.Create;
-
-  //FDatabase := tSDDatabase.Create(NIL);
-
 end;
 
 destructor tConnectionItem.Destroy;
 begin
-  //FDatabase.Connected := False;
-
-  //FDatabase.Free;
-
   FTableNames.Free;
 
 
@@ -286,7 +325,14 @@ Var
 
 begin
   foConnection := (foPlugin as tDataProcessorPlugin).CreateConnection;
-
+  foConnection.AuxDriver := AuxDriver;
+  foConnection.Server:= Server;
+  foConnection.Database:= database;
+  foConnection.UserId:= Userid;
+  foConnection.Password:= Password;
+  foConnection.Params:= Params;
+  foConnection.SQLLibrary:= SQLLibrary;
+  foConnection.Port:= Port;
 
   (foPlugin as tDataProcessorPlugin).ApplyConnection(self, foConnection);
 
@@ -344,28 +390,7 @@ end;
 
 function tConnectionItem.GetFieldDesc(aDataSet: tDataSet): tFieldDesc;
 begin
-  Result := (foPlugin as TDataProcessorPlugin).GetFieldDesc(aDataSet);
-
-  (*
-  Result := TFieldDesc.Create;
-
-  Result.TypeName := '';
-
-  Result.FieldName := aDataSet.FieldByName('COLUMN_NAME').AsString;
-
-  Result.TypeName := aDataSet.FieldByName('COLUMN_TYPENAME').AsString;
-
-  Result.Precision := aDataSet.FieldByName('COLUMN_PRECISION').AsInteger;
-
-  Result.Scale := Abs(aDataSet.FieldByName('COLUMN_SCALE').Asinteger);
-
-  Result.Column_Length := aDataSet.FieldByName('COLUMN_LENGTH').Asinteger;
-
-
-
-  // This need t be fixed
-  //Result.TypeName := (foProjectItem as tProjectItem).oDBSchema.GetTypeName(Result, fsAuxDriver);
-  *)
+  Result := (foPlugin as TDataProcessorPlugin).GetFieldDesc(aDataSet, self.AuxDriver);
 end;
 
 
@@ -376,34 +401,11 @@ Var
   FFieldDesc: TFieldDesc;
 begin
   Result := (foPlugin as TDataProcessorPlugin).FieldByIndex(foConnection, aTableName, aIndex);
+end;
 
-(*
-
-  cmd := FDatabase.GetSchemaInfo(stColumns, Uppercase(ATableName));
-
-  I := 0;
-
-  if Assigned( cmd ) then
-    try
-      cmd.First;
-      While(Not cmd.Eof) do
-        begin
-          if I = AIndex then
-            begin
-              Result := GetFieldDesc(Cmd);
-
-              Break;
-            end;
-
-          Inc(I);
-
-          cmd.Next;
-        end;
-
-    Finally
-      Cmd.Free;
-    end;
-   *)
+function tConnectionItem.GetDBSchema: TDBSchema;
+begin
+  Result := (foPlugin as TDataProcessorPlugin).oDBSchema;
 end;
 
 function tConnectionItem.FieldByName(aTableName: String; aFieldName: String): TFieldDesc;
@@ -522,11 +524,15 @@ begin
     end;
 end;
 
+
+
 // TConnection
 
 constructor TConnection.Create;
 begin
   foOutput := aOutput;
+
+  fsAuxDriver := '';
 end;
 
 destructor TConnection.Destroy;

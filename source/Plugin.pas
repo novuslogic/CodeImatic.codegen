@@ -75,7 +75,7 @@ type
     function GetTableNames(aConnection: tConnection; aTableNames: tStringList): tStringList; virtual;
     function FieldCount(aConnection: tConnection;aTableName: String): Integer; virtual;
     function FieldByIndex(aConnection: tConnection; aTableName: String; AIndex: Integer): TFieldDesc; virtual;
-    function GetFieldDesc(aDataSet: tDataSet): tFieldDesc; virtual;
+    function GetFieldDesc(aDataSet: tDataSet; aAuxDriver: string): tFieldDesc; virtual;
     function FieldByName(aConnection: tConnection;aTableName: String; aFieldName: String): TFieldDesc; virtual;
 
     function LoadDBSchemaFile: Boolean;
@@ -523,7 +523,7 @@ begin
   result := NIL;
 end;
 
-function TDataProcessorPlugin.GetFieldDesc(aDataSet: tDataSet): tFieldDesc;
+function TDataProcessorPlugin.GetFieldDesc(aDataSet: tDataSet; aAuxDriver: string): tFieldDesc;
 begin
   Result := NIL;
 end;

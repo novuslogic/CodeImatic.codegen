@@ -38,7 +38,7 @@ type
     function GetTableNames(aConnection: tConnection; aTableNames: tStringList): tStringList; override;
     function FieldCount(aConnection: tConnection;aTableName: String): Integer; override;
     function FieldByIndex(aConnection: tConnection; aTableName: String; AIndex: Integer): TFieldDesc; override;
-    function GetFieldDesc(aDataSet: tDataSet): tFieldDesc; override;
+    function GetFieldDesc(aDataSet: tDataSet; aAuxDriver: string): tFieldDesc; override;
     function FieldByName(aConnection: tConnection;aTableName: String; aFieldName: String): TFieldDesc; override;
   end;
 
@@ -172,7 +172,7 @@ begin
         begin
           if I = AIndex then
             begin
-              Result := GetFieldDesc(FDataSet);
+              Result := GetFieldDesc(FDataSet, aConnection.AuxDriver);
 
               Break;
             end;
@@ -187,7 +187,7 @@ begin
     end;
 end;
 
-function tPlugin_SQLDirBase.GetFieldDesc(aDataSet: tDataSet): tFieldDesc;
+function tPlugin_SQLDirBase.GetFieldDesc(aDataSet: tDataSet; aAuxDriver: string): tFieldDesc;
 begin
   Result := NIL;
 
@@ -206,6 +206,8 @@ begin
   Result.Scale := Abs(aDataSet.FieldByName('COLUMN_SCALE').Asinteger);
 
   Result.Column_Length := aDataSet.FieldByName('COLUMN_LENGTH').Asinteger;
+
+  Result.TypeName := oDBSchema.GetTypeName(Result, aAuxDriver);
 end;
 
 function tPlugin_SQLDirBase.FieldByName(aConnection: tConnection;aTableName: String; aFieldName: String): TFieldDesc;
@@ -220,7 +222,7 @@ begin
   if Assigned( FDataSet ) then
     try
       If FDataSet.Locate('COLUMN_NAME',AFieldName, [loCaseInsensitive]) then
-        Result := GetFieldDesc(FDataSet);
+        Result := GetFieldDesc(FDataSet, aConnection.AuxDriver);
     Finally
       FDataSet.Free;
     end;

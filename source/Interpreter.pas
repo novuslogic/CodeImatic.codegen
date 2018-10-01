@@ -108,8 +108,6 @@ Type
 
     function ParseVariable(ATokens: tTokenProcessor; Var AIndex: Integer;ASubCommand: Boolean = False): String;
 
-
-
     function Functions(ATokens: tTokenProcessor; Var AIndex: Integer; ACommandIndex: Integer): String;
     function Procedures(ATokens: tTokenProcessor; Var AIndex: Integer; ACommandIndex: Integer): String;
 
@@ -220,8 +218,8 @@ begin
                                       1: begin
                                            // this need to be fixed
                                            //fFieldType := (foProjectItem as TProjectItem).oDBSchema.GetFieldType(FFieldDesc, lConnectionItem.AuxDriver);
+                                           fFieldType := lConnectionItem.oDBSchema.GetFieldType(FFieldDesc, lConnectionItem.AuxDriver);
 
-                                           Result := fFieldType.SqlType;
 
                                            fFieldType.Free;
                                          end;
@@ -1402,9 +1400,7 @@ begin
                 begin
                   if GetNextToken(AIndex, ATokens) = ')' then
                     begin
-
-                      // this need to be fixed
-                      //FFieldType := (foProjectItem as tProjectItem).oDBSchema.GetFieldType(FFieldDesc, lConnectionItem.AuxDriver);
+                      FFieldType := lConnectionItem.oDBSchema.GetFieldType(FFieldDesc, lConnectionItem.AuxDriver);
 
                       if FFieldType.SQLFormat = '' then
                         Result := FFieldDesc.FieldName + ' ' + FFieldType.SqlType
