@@ -4,36 +4,15 @@ interface
 
 Uses
   Classes, ExpressionParser, SysUtils, DB, NovusStringUtils, Output,
-  NovusList, Variants, Variables, XMLList,  NovusGUIDEx, TokenProcessor;
+  NovusList, Variants, Variables, XMLList, NovusGUIDEx, TokenProcessor;
 
 const
-  csCommamdSyntax: array[1..25] of String = (
-    'fieldnamebyindex',
-    'fieldtypebyindex',
-    'lower',
-    'upper',
-    'uplower',
-    'fieldtypetodatatype' ,
-    'cleardatatype',
-    'repeat',
-    'endrepeat',
-    'fieldcount',
-    'pred',
-    'blankline',
-    'tablecount',
-    'tablenamebyindex',
-    'fieldassql',
-    'delimiter' ,
-    'reservelist' ,
-    'rlist',
-    'list',
-    'listcount',
-    'listname',
-    'newguid',
-    'rlistformat',
-    'fieldbyname' ,
-    'FieldByIndex'
-  );
+  csCommamdSyntax: array [1 .. 25] of String = ('fieldnamebyindex',
+    'fieldtypebyindex', 'lower', 'upper', 'uplower', 'fieldtypetodatatype',
+    'cleardatatype', 'repeat', 'endrepeat', 'fieldcount', 'pred', 'blankline',
+    'tablecount', 'tablenamebyindex', 'fieldassql', 'delimiter', 'reservelist',
+    'rlist', 'list', 'listcount', 'listname', 'newguid', 'rlistformat',
+    'fieldbyname', 'FieldByIndex');
 
 Type
   TLoopType = (ltrepeat, ltendrepeat);
@@ -42,74 +21,74 @@ Type
 
   TLoop = Class(TObject)
   protected
-    FLoopType: tLoopType;
+    FLoopType: TLoopType;
     FLoopPos: TLoopPos;
     fiID: Integer;
-    FoCodeGeneratorItem : TObject;
+    FoCodeGeneratorItem: TObject;
     FiValue: Integer;
     FbNegitiveFlag: Boolean;
   private
   public
-    property LoopPos: TLoopPos
-      read FLoopPos
-      write FLoopPos;
+    property LoopPos: TLoopPos read FLoopPos write FLoopPos;
 
-    property LoopType: tLoopType
-      read FLoopType
-      write FLoopType;
+    property LoopType: TLoopType read FLoopType write FLoopType;
 
-    property ID: INteger
-      read fiID
-      write fiID;
+    property ID: Integer read fiID write fiID;
 
-    property CodeGeneratorItem : TObject
-      read FoCodeGeneratorItem
+    property CodeGeneratorItem: TObject read FoCodeGeneratorItem
       write FoCodeGeneratorItem;
 
-    property Value: Integer
-       read fiValue
-       write fiValue;
+    property Value: Integer read FiValue write FiValue;
 
-    property NegitiveFlag: Boolean
-      read FbNegitiveFlag
-      write FbNegitiveFlag;
+    property NegitiveFlag: Boolean read FbNegitiveFlag write FbNegitiveFlag;
 
   End;
 
-  TInterpreter = Class(Tobject)
+  TInterpreter = Class(TObject)
   protected
-    FoCodeGenerator: tObject;
+    FoCodeGenerator: TObject;
     fiLoopCounter: Integer;
     fLoopList: tNovusList;
     FTokens: tTokenProcessor;
     FOutput: TOutput;
-    FoCodeGeneratorItem : TObject;
-    foProjectItem: tObject;
+    FoCodeGeneratorItem: TObject;
+    foProjectItem: TObject;
   private
     function ParseCommand(aCommand: string): string;
 
+    function plugintag(aTokens: tTokenProcessor; Var aIndex: Integer): string;
     function IsRepeat(ACodeGeneratorItem: TObject): Boolean;
     function IsEndRepeat(ACodeGeneratorItem: TObject): Boolean;
-    function FindEndRepeatIndexPos(AIndex: INteger): INteger;
-    function FindLoop(ALoopType:TLoopType; ALoopID: Integer): TLoop;
+    function FindEndRepeatIndexPos(AIndex: Integer): Integer;
+    function FindLoop(ALoopType: TLoopType; ALoopID: Integer): TLoop;
 
-    function GetNextTag(ATokens: tTokenProcessor; Var AIndex: Integer; Var ASkipPOs: Integer;ASubCommand: Boolean = False;ASubVariable:Boolean = False ): String;
-    procedure AddVariable(AVariableName: String;AValue: Variant);
+    function GetNextTag(ATokens: tTokenProcessor; Var AIndex: Integer;
+      Var ASkipPOs: Integer; ASubCommand: Boolean = False;
+      ASubVariable: Boolean = False): String;
+    procedure AddVariable(AVariableName: String; AValue: Variant);
 
-    function FieldFunctions(ATokens: tTokenProcessor; Var AIndex: Integer; ACommandIndex: Integer): string;
+    function FieldFunctions(ATokens: tTokenProcessor; Var AIndex: Integer;
+      ACommandIndex: Integer): string;
     function FieldAsSQL(ATokens: tTokenProcessor; Var AIndex: Integer): string;
     function Delimiter(ATokens: tTokenProcessor; Var AIndex: Integer): string;
-    function Reservelist(ATokens: tTokenProcessor; Var AIndex: Integer; ACommandIndex: Integer): string;
-    function XMLlistIndex(ATokens: tTokenProcessor; Var AIndex: Integer): string;
+    function Reservelist(ATokens: tTokenProcessor; Var AIndex: Integer;
+      ACommandIndex: Integer): string;
+    function XMLlistIndex(ATokens: tTokenProcessor;
+      Var AIndex: Integer): string;
     function XMLListName(ATokens: tTokenProcessor; Var AIndex: Integer): string;
-    function XMLlistCount(ATokens: tTokenProcessor; Var AIndex: Integer): string;
+    function XMLlistCount(ATokens: tTokenProcessor;
+      Var AIndex: Integer): string;
 
-    function TableFunctions(ATokens: tTokenProcessor; Var AIndex: Integer; ACommandIndex: Integer): string;
+    function TableFunctions(ATokens: tTokenProcessor; Var AIndex: Integer;
+      ACommandIndex: Integer): string;
 
-    function ParseVariable(ATokens: tTokenProcessor; Var AIndex: Integer;ASubCommand: Boolean = False): String;
+    function ParseVariable(ATokens: tTokenProcessor; Var AIndex: Integer;
+      ASubCommand: Boolean = False): String;
 
-    function Functions(ATokens: tTokenProcessor; Var AIndex: Integer; ACommandIndex: Integer): String;
-    function Procedures(ATokens: tTokenProcessor; Var AIndex: Integer; ACommandIndex: Integer): String;
+    function Functions(ATokens: tTokenProcessor; Var AIndex: Integer;
+      ACommandIndex: Integer): String;
+    function Procedures(ATokens: tTokenProcessor; Var AIndex: Integer;
+      ACommandIndex: Integer): String;
 
     function FieldTypeToDataType(AFieldType: String): String;
     function ClearDataType(ADataType: String): String;
@@ -117,21 +96,24 @@ Type
     function VariableExistsIndex(AVariableName: String): Integer;
     function GetVariableByIndex(AIndex: Integer): TVariable;
 
-    function LoopFunctions(ATokens: tTokenProcessor; Var AIndex: Integer; ACommandIndex: Integer; Var ASkipPos: Integer): string;
+    function LoopFunctions(ATokens: tTokenProcessor; Var AIndex: Integer;
+      ACommandIndex: Integer; Var ASkipPOs: Integer): string;
   public
-    constructor Create(ACodeGenerator: TObject; AOutput: TOutput; aProjectItem: tObject); virtual;
+    constructor Create(ACodeGenerator: TObject; AOutput: TOutput;
+      aProjectItem: TObject); virtual;
     destructor Destroy; override;
 
-    function GetNextToken(Var AIndex: Integer; ATokens: tTokenProcessor): String;
+    function GetNextToken(Var AIndex: Integer;
+      ATokens: tTokenProcessor): String;
 
     function CommandSyntaxIndexByTokens(ATokens: tTokenProcessor): Integer;
-    function CommandSyntaxIndex(ACommand: String): integer;
+    function CommandSyntaxIndex(aCommand: String): Integer;
 
-    function Execute(ACodeGeneratorItem: tObject; Var ASkipPos: Integer) : String;
+    function Execute(ACodeGeneratorItem: TObject;
+      Var ASkipPOs: Integer): String;
     function LanguageFunctions(AFunction: string; ADataType: String): String;
 
-    property oCodeGeneratorItem : TObject
-      read FoCodeGeneratorItem
+    property oCodeGeneratorItem: TObject read FoCodeGeneratorItem
       write FoCodeGeneratorItem;
   End;
 
@@ -140,7 +122,7 @@ implementation
 Uses
   NovusTemplate,
   CodeGenerator,
-  reservelist,
+  Reservelist,
   DataProcessor,
   runtime,
   ProjectItem,
@@ -148,7 +130,6 @@ Uses
   TagParser,
   TagType,
   CodeGeneratorItem;
-
 
 constructor TInterpreter.Create;
 begin
@@ -172,7 +153,8 @@ begin
   inherited;
 end;
 
-function TInterpreter.FieldFunctions(ATokens: tTokenProcessor; Var AIndex: Integer; ACommandIndex: Integer): string;
+function TInterpreter.FieldFunctions(ATokens: tTokenProcessor;
+  Var AIndex: Integer; ACommandIndex: Integer): string;
 Var
   lConnectionItem: tConnectionItem;
   FFieldDesc: tFieldDesc;
@@ -186,119 +168,127 @@ begin
   Result := '';
 
   If GetNextToken(AIndex, ATokens) = '(' then
+  begin
+    FConnectionName := GetNextToken(AIndex, ATokens);
+
+    lConnectionItem := (foProjectItem as TProjectItem)
+      .oProject.oProjectConfig.oConnections.FindConnectionName(FConnectionName);
+
+    if Assigned(lConnectionItem) then
     begin
-      FConnectionName := GetNextToken(AIndex, ATokens);
+      if lConnectionItem.Connected then
+      begin
+        FTableName := GetNextToken(AIndex, ATokens);
 
-      lConnectionItem := (foProjectItem as TProjectItem).oProject.oProjectConfig.oConnections.FindConnectionName(FConnectionName);
-
-      if Assigned(lConnectionItem) then
+        If lConnectionItem.TableExists(FTableName) then
         begin
-          if lConnectionItem.Connected then
-            begin
-               FTableName := GetNextToken(AIndex, ATokens);
-
-              If lConnectionItem.TableExists(FTableName) then
-                begin
-                  if ((ACommandIndex = 0) or (ACommandIndex = 1)) then
-                    begin
-                      LStr := GetNextToken(AIndex, ATokens);
-
-                      if TNovusStringUtils.IsNumberStr(LStr) then
-                         begin
-                            FFieldIndex := StrToint(LStr);
-
-                            FFieldDesc := lConnectionItem.FieldByIndex(FTableName, FFieldIndex);
-
-                            if Assigned(FFieldDesc) then
-                              begin
-                                if GetNextToken(AIndex, ATokens) = ')' then
-                                  begin
-                                    case ACommandIndex of
-                                      0: Result := FFieldDesc.FieldName;
-                                      1: begin
-                                           // this need to be fixed
-                                           //fFieldType := (foProjectItem as TProjectItem).oDBSchema.GetFieldType(FFieldDesc, lConnectionItem.AuxDriver);
-                                           fFieldType := lConnectionItem.oDBSchema.GetFieldType(FFieldDesc, lConnectionItem.AuxDriver);
-
-
-                                           fFieldType.Free;
-                                         end;
-                                    end;
-
-                                    FFieldDesc.Free;
-
-                                    Exit;
-                                  end
-                                else
-                                  FOutput.Log('Incorrect syntax: lack ")"');
-                              end
-                            else
-                              begin
-                                FOutput.LogError('Error: Field cannot be found.');
-                              end;
-                         end
-                       else
-                         begin
-                           FOutput.Log('Incorrect syntax: Index is not a number ');
-
-                         end;
-                    end
-                  else
-                    begin
-                      case ACommandIndex of
-                        2: Result := IntToStr(lConnectionItem.FieldCount(FTableName));
-
-                        3: begin
-                             LStr := GetNextToken(AIndex, ATokens);
-
-                             FFieldDesc := lConnectionItem.FieldByName(FTableName, LStr);
-
-                             if Assigned(FFieldDesc) then
-                               begin
-                                 if GetNextToken(AIndex, ATokens) = ')' then
-                                    Result := FFieldDesc.FieldName;
-
-                                 FFieldDesc.Free;
-
-                                 Exit;
-                                end
-                              else
-                                 begin
-                                   FOutput.LogError('Error: Field cannot be found.');
-
-                                 end;
-                            end;
-                      end;
-                   end;
-                end
-              else
-                begin
-                  FOutput.LogError('Error: Table cannot be found "'+ FTableName+ '"');
-                end;
-
-            end
-              else
-                begin
-                  FOutput.LogError('Error: Connectioname "'+ FConnectionName + '" connected.');
-                end;
-          end
-        else
+          if ((ACommandIndex = 0) or (ACommandIndex = 1)) then
           begin
-            FOutput.LogError('Error: Connectioname cannot be found "'+ FConnectionName + '"');
+            LStr := GetNextToken(AIndex, ATokens);
+
+            if TNovusStringUtils.IsNumberStr(LStr) then
+            begin
+              FFieldIndex := StrToint(LStr);
+
+              FFieldDesc := lConnectionItem.FieldByIndex(FTableName,
+                FFieldIndex);
+
+              if Assigned(FFieldDesc) then
+              begin
+                if GetNextToken(AIndex, ATokens) = ')' then
+                begin
+                  case ACommandIndex of
+                    0:
+                      Result := FFieldDesc.FieldName;
+                    1:
+                      begin
+                        // this need to be fixed
+                        // fFieldType := (foProjectItem as TProjectItem).oDBSchema.GetFieldType(FFieldDesc, lConnectionItem.AuxDriver);
+                        FFieldType := lConnectionItem.oDBSchema.GetFieldType
+                          (FFieldDesc, lConnectionItem.AuxDriver);
+
+                        FFieldType.Free;
+                      end;
+                  end;
+
+                  FFieldDesc.Free;
+
+                  Exit;
+                end
+                else
+                  FOutput.Log('Incorrect syntax: lack ")"');
+              end
+              else
+              begin
+                FOutput.LogError('Error: Field cannot be found.');
+              end;
+            end
+            else
+            begin
+              FOutput.Log('Incorrect syntax: Index is not a number ');
+
+            end;
+          end
+          else
+          begin
+            case ACommandIndex of
+              2:
+                Result := IntToStr(lConnectionItem.FieldCount(FTableName));
+
+              3:
+                begin
+                  LStr := GetNextToken(AIndex, ATokens);
+
+                  FFieldDesc := lConnectionItem.FieldByName(FTableName, LStr);
+
+                  if Assigned(FFieldDesc) then
+                  begin
+                    if GetNextToken(AIndex, ATokens) = ')' then
+                      Result := FFieldDesc.FieldName;
+
+                    FFieldDesc.Free;
+
+                    Exit;
+                  end
+                  else
+                  begin
+                    FOutput.LogError('Error: Field cannot be found.');
+
+                  end;
+                end;
+            end;
           end;
         end
-     else
-       begin
-         FOutput.Log('Incorrect syntax: lack "("');
+        else
+        begin
+          FOutput.LogError('Error: Table cannot be found "' + FTableName + '"');
+        end;
 
-       end;
+      end
+      else
+      begin
+        FOutput.LogError('Error: Connectioname "' + FConnectionName +
+          '" connected.');
+      end;
+    end
+    else
+    begin
+      FOutput.LogError('Error: Connectioname cannot be found "' +
+        FConnectionName + '"');
+    end;
+  end
+  else
+  begin
+    FOutput.Log('Incorrect syntax: lack "("');
+
+  end;
 end;
 
-function TInterpreter.Delimiter(ATokens: tTokenProcessor; Var AIndex: Integer): string;
+function TInterpreter.Delimiter(ATokens: tTokenProcessor;
+  Var AIndex: Integer): string;
 Var
   lConnectionItem: tConnectionItem;
-  lsStr,
-  lsDelimiter: String;
+  lsStr, lsDelimiter: String;
   liDelimiterCounter: Integer;
   liDelimiterLength: Integer;
 
@@ -306,50 +296,52 @@ begin
   Result := '';
 
   If GetNextToken(AIndex, ATokens) = '(' then
+  begin
+    lsDelimiter := GetNextToken(AIndex, ATokens);
+
+    if lsDelimiter <> '' then
     begin
-      lsDelimiter := GetNextToken(AIndex, ATokens);
+      lsStr := GetNextToken(AIndex, ATokens);
 
-      if lsDelimiter <> '' then
+      if TNovusStringUtils.IsNumberStr(lsStr) then
+      begin
+        liDelimiterCounter := StrToint(lsStr);
+
+        lsStr := GetNextToken(AIndex, ATokens);
+
+        if TNovusStringUtils.IsNumberStr(lsStr) then
         begin
-          lsStr := GetNextToken(AIndex, ATokens);
+          liDelimiterLength := StrToint(lsStr);
 
-          if TNovusStringUtils.IsNumberStr(LsStr) then
-            begin
-              liDelimiterCounter := StrToint(LsStr);
-
-              lsStr := GetNextToken(AIndex, ATokens);
-
-              if TNovusStringUtils.IsNumberStr(LsStr) then
-                begin
-                  liDelimiterLength := StrToint(LsStr);
-
-                  if GetNextToken(AIndex, ATokens) = ')' then
-                    begin
-                      result := lsDelimiter;
-                      if liDelimiterCounter = liDelimiterLength then Result := '';
-                    end
-                  else
-                    FOutput.Log('Incorrect syntax: lack ")"');
-                end
-              else
-                FOutput.Log('Incorrect syntax: delimiter length is not a number ');
-
-            end
+          if GetNextToken(AIndex, ATokens) = ')' then
+          begin
+            Result := lsDelimiter;
+            if liDelimiterCounter = liDelimiterLength then
+              Result := '';
+          end
           else
-            FOutput.Log('Incorrect syntax: delimiter counter is not a number ');
-
+            FOutput.Log('Incorrect syntax: lack ")"');
         end
-      else
-         FOutput.Log('Incorrect syntax: delimiter is blank.');
-    end
-     else
-       begin
-         FOutput.Log('Incorrect syntax: lack "("');
+        else
+          FOutput.Log('Incorrect syntax: delimiter length is not a number ');
 
-       end;
+      end
+      else
+        FOutput.Log('Incorrect syntax: delimiter counter is not a number ');
+
+    end
+    else
+      FOutput.Log('Incorrect syntax: delimiter is blank.');
+  end
+  else
+  begin
+    FOutput.Log('Incorrect syntax: lack "("');
+
+  end;
 end;
 
-function TInterpreter.reservelist(ATokens: tTokenProcessor; Var AIndex: Integer; ACommandIndex: Integer): string;
+function TInterpreter.Reservelist(ATokens: tTokenProcessor; Var AIndex: Integer;
+  ACommandIndex: Integer): string;
 Var
   lConnectionItem: tConnectionItem;
   lsFilename: String;
@@ -360,45 +352,46 @@ begin
   Result := '';
 
   If GetNextToken(AIndex, ATokens) = '(' then
+  begin
+    lsFilename := GetNextToken(AIndex, ATokens);
+
+    lsWord := GetNextToken(AIndex, ATokens);
+
+    If lsWord <> '' then
     begin
-      lsFilename := GetNextToken(AIndex, ATokens);
+      If FileExists(lsFilename) then
+      begin
+        loreservelist := treservelist.Create;
 
-      lsWord := GetNextToken(AIndex, ATokens);
+        loreservelist.XMLFileName := lsFilename;
+        loreservelist.Retrieve;
 
-      If lsWord <> '' then
+        Result := lsWord;
+        if loreservelist.IsReserveWordExists(lsWord) then
+          Result := loreservelist.GetReserveWord(lsWord);
+
+        If ACommandIndex = 1 then
         begin
-          If FileExists(lsFilename) then
-            begin
-              loreservelist := treservelist.Create;
+          lsFormatOption := GetNextToken(AIndex, ATokens);
 
-              loreservelist.XMLFileName := lsFilename;
-              loreservelist.Retrieve;
+          Result := Format(Result, [lsFormatOption]);
+        end;
 
-              result := lsWord;
-              if loreservelist.IsReserveWordExists(lsWord) then
-                Result := loreservelist.GetReserveWord(lsWord);
+        loreservelist.Free;
+      end
+      else
+        Result := lsWord;
+    end;
+  end
+  else
+  begin
+    FOutput.Log('Incorrect syntax: lack "("');
 
-                If ACommandIndex = 1 then
-                  begin
-                    lsFormatOption := GetNextToken(AIndex, ATokens);
-
-                    Result := Format(Result, [lsFormatOption]);
-                  end;
-
-               loreservelist.Free;
-             end
-           else
-             result := lsWord;
-          end;
-        end
-     else
-       begin
-         FOutput.Log('Incorrect syntax: lack "("');
-
-       end;
+  end;
 end;
 
-function TInterpreter.XMLListIndex(ATokens: tTokenProcessor; Var AIndex: Integer): string;
+function TInterpreter.XMLlistIndex(ATokens: tTokenProcessor;
+  Var AIndex: Integer): string;
 Var
   lConnectionItem: tConnectionItem;
   lsStr: String;
@@ -409,60 +402,61 @@ begin
   Result := '';
 
   If GetNextToken(AIndex, ATokens) = '(' then
+  begin
+    lsStr := GetNextToken(AIndex, ATokens);
+
+    if lsStr <> '' then
     begin
-      lsStr := GetNextToken(AIndex, ATokens);
+      Result := lsStr;
 
-      if lsStr <> '' then
+      loXMLlist := NIL;
+      if FileExists(lsStr) then
+      begin
+        loXMLlist := tXMLlist.Create;
+
+        loXMLlist.XMLFileName := lsStr;
+        loXMLlist.Retrieve;
+
+        lsStr := GetNextToken(AIndex, ATokens);
+        if lsStr <> '' then
         begin
-          result := lsStr;
-
-          loXMLlist := NIL;
-          if FileExists(lsStr) then
-            begin
-              loXMLlist := tXMLlist.Create;
-
-              loXMLlist.XMLFileName := lsStr;
-              loXMLlist.Retrieve;
-
-              lsStr := GetNextToken(AIndex, ATokens);
-              if lsStr <> '' then
-                begin
-                  if TNovusStringUtils.IsNumberStr(LsStr) then
-                    begin
-                      Result := loXMLlist.GetValueByIndex(StrToInt(LsStr));
-                    end
-                  else
-                    FOutput.Log('Incorrect syntax: Index is not a number ');
-
-                end
-              else
-                 FOutput.Log('Incorrect syntax: Index is blank.');
-
-              if Assigned(loXMLlist) then loXMLlist.Free;
-
-            end
+          if TNovusStringUtils.IsNumberStr(lsStr) then
+          begin
+            Result := loXMLlist.GetValueByIndex(StrToint(lsStr));
+          end
           else
-            begin
-              FOutput.LogError('Error: List filname cannot be found.');
-
-            end;
+            FOutput.Log('Incorrect syntax: Index is not a number ');
 
         end
+        else
+          FOutput.Log('Incorrect syntax: Index is blank.');
+
+        if Assigned(loXMLlist) then
+          loXMLlist.Free;
+
+      end
       else
-         FOutput.Log('Incorrect syntax: List is blank.');
+      begin
+        FOutput.LogError('Error: List filname cannot be found.');
+
+      end;
+
     end
-     else
-       begin
-         FOutput.Log('Incorrect syntax: lack "("');
+    else
+      FOutput.Log('Incorrect syntax: List is blank.');
+  end
+  else
+  begin
+    FOutput.Log('Incorrect syntax: lack "("');
 
-       end;
-
+  end;
 
   if GetNextToken(AIndex, ATokens) <> ')' then
-     FOutput.Log('Incorrect syntax: lack ")"');
+    FOutput.Log('Incorrect syntax: lack ")"');
 end;
 
-function TInterpreter.XMLListName(ATokens: tTokenProcessor; Var AIndex: Integer): string;
+function TInterpreter.XMLListName(ATokens: tTokenProcessor;
+  Var AIndex: Integer): string;
 Var
   lConnectionItem: tConnectionItem;
   lsStr: String;
@@ -473,60 +467,61 @@ begin
   Result := '';
 
   If GetNextToken(AIndex, ATokens) = '(' then
+  begin
+    lsStr := GetNextToken(AIndex, ATokens);
+
+    if lsStr <> '' then
     begin
-      lsStr := GetNextToken(AIndex, ATokens);
+      Result := lsStr;
 
-      if lsStr <> '' then
+      loXMLlist := NIL;
+      if FileExists(lsStr) then
+      begin
+        loXMLlist := tXMLlist.Create;
+
+        loXMLlist.XMLFileName := lsStr;
+        loXMLlist.Retrieve;
+
+        lsStr := GetNextToken(AIndex, ATokens);
+        if lsStr <> '' then
         begin
-          result := lsStr;
-
-          loXMLlist := NIL;
-          if FileExists(lsStr) then
-            begin
-              loXMLlist := tXMLlist.Create;
-
-              loXMLlist.XMLFileName := lsStr;
-              loXMLlist.Retrieve;
-
-              lsStr := GetNextToken(AIndex, ATokens);
-              if lsStr <> '' then
-                begin
-                  if TNovusStringUtils.IsNumberStr(LsStr) then
-                    begin
-                      Result := loXMLlist.GetNameByIndex(StrToInt(LsStr));
-                    end
-                  else
-                    FOutput.Log('Incorrect syntax: Index is not a number ');
-
-                end
-              else
-                 FOutput.Log('Incorrect syntax: Index is blank.');
-
-              if Assigned(loXMLlist) then loXMLlist.Free;
-
-            end
+          if TNovusStringUtils.IsNumberStr(lsStr) then
+          begin
+            Result := loXMLlist.GetNameByIndex(StrToint(lsStr));
+          end
           else
-            begin
-              FOutput.LogError('Error: List filname cannot be found.');
-
-            end;
+            FOutput.Log('Incorrect syntax: Index is not a number ');
 
         end
+        else
+          FOutput.Log('Incorrect syntax: Index is blank.');
+
+        if Assigned(loXMLlist) then
+          loXMLlist.Free;
+
+      end
       else
-         FOutput.Log('Incorrect syntax: List is blank.');
+      begin
+        FOutput.LogError('Error: List filname cannot be found.');
+
+      end;
+
     end
-     else
-       begin
-         FOutput.Log('Incorrect syntax: lack "("');
+    else
+      FOutput.Log('Incorrect syntax: List is blank.');
+  end
+  else
+  begin
+    FOutput.Log('Incorrect syntax: lack "("');
 
-       end;
-
+  end;
 
   if GetNextToken(AIndex, ATokens) <> ')' then
-     FOutput.Log('Incorrect syntax: lack ")"');
+    FOutput.Log('Incorrect syntax: lack ")"');
 end;
 
-function TInterpreter.XMLListCount(ATokens: tTokenProcessor; Var AIndex: Integer): string;
+function TInterpreter.XMLlistCount(ATokens: tTokenProcessor;
+  Var AIndex: Integer): string;
 Var
   lConnectionItem: tConnectionItem;
   lsStr: String;
@@ -537,48 +532,46 @@ begin
   Result := '0';
 
   If GetNextToken(AIndex, ATokens) = '(' then
+  begin
+    lsStr := GetNextToken(AIndex, ATokens);
+
+    if lsStr <> '' then
     begin
-      lsStr := GetNextToken(AIndex, ATokens);
+      Result := lsStr;
 
-      if lsStr <> '' then
-        begin
-          result := lsStr;
+      loXMLlist := NIL;
+      if FileExists(lsStr) then
+      begin
+        loXMLlist := tXMLlist.Create;
 
-          loXMLlist := NIL;
-          if FileExists(lsStr) then
-            begin
-              loXMLlist := tXMLlist.Create;
+        loXMLlist.XMLFileName := lsStr;
+        loXMLlist.Retrieve;
 
-              loXMLlist.XMLFileName := lsStr;
-              loXMLlist.Retrieve;
+        Result := IntToStr(loXMLlist.GetCount);
 
-              Result := IntToStr(loXMLlist.GetCount);
+        if Assigned(loXMLlist) then
+          loXMLlist.Free;
 
-              if Assigned(loXMLlist) then loXMLlist.Free;
-
-            end
-          else
-            begin
-              FOutput.LogError('Error: List filname cannot be found.');
-
-            end;
-
-        end
+      end
       else
-         FOutput.Log('Incorrect syntax: List is blank.');
-    end
-     else
-       begin
-         FOutput.Log('Incorrect syntax: lack "("');
+      begin
+        FOutput.LogError('Error: List filname cannot be found.');
 
-       end;
+      end;
+
+    end
+    else
+      FOutput.Log('Incorrect syntax: List is blank.');
+  end
+  else
+  begin
+    FOutput.Log('Incorrect syntax: lack "("');
+
+  end;
 end;
 
-
-
-
-
-function TInterpreter.TableFunctions(ATokens: tTokenProcessor; Var AIndex: Integer; ACommandIndex: Integer): string;
+function TInterpreter.TableFunctions(ATokens: tTokenProcessor;
+  Var AIndex: Integer; ACommandIndex: Integer): string;
 Var
   lConnectionItem: tConnectionItem;
   FFieldDesc: tFieldDesc;
@@ -591,163 +584,236 @@ begin
   Result := '';
 
   If GetNextToken(AIndex, ATokens) = '(' then
+  begin
+    FConnectionName := GetNextToken(AIndex, ATokens);
+
+    lConnectionItem := (foProjectItem as TProjectItem)
+      .oProject.oProjectConfig.oConnections.FindConnectionName(FConnectionName);
+    if Assigned(lConnectionItem) then
     begin
-      FConnectionName := GetNextToken(AIndex, ATokens);
+      case ACommandIndex of
+        0:
+          Result := IntToStr(lConnectionItem.TableCount);
+        1:
+          begin
+            LStr := GetNextToken(AIndex, ATokens);
 
-      lConnectionItem := (foProjectItem as TProjectItem).oProject.oProjectConfig.oConnections.FindConnectionName(FConnectionName);
-      if Assigned(lConnectionItem) then
-        begin
-          case ACommandIndex of
-            0: Result := IntToStr(lConnectionItem.TableCount);
-            1: begin
-                 LStr := GetNextToken(AIndex, ATokens);
+            if TNovusStringUtils.IsNumberStr(LStr) then
+            begin
+              FTableIndex := StrToint(LStr);
 
-                 if TNovusStringUtils.IsNumberStr(LStr) then
-                    begin
-                       FTableIndex := StrToint(LStr);
+              If lConnectionItem.TableCount > 0 then
+              begin
+                Result := lConnectionItem.JustTableNamebyIndex(FTableIndex);
+              end
+              else
+              begin
+                FOutput.LogError('Error: Tablename cannot be found.');
+              end;
+            end
+            else
+            begin
+              FOutput.Log('Incorrect syntax: Index is not a number ');
 
-                       If lConnectionItem.TableCount > 0 then
-                         begin
-                           Result := lConnectionItem.JustTableNamebyIndex(FTableIndex);
-                         end
-                       else
-                         begin
-                           FOutput.LogError('Error: Tablename cannot be found.');
-                         end;
-                      end
-                   else
-                     begin
-                       FOutput.Log('Incorrect syntax: Index is not a number ');
-
-                     end;
-               end;
+            end;
           end;
-        end
-      else
-         begin
-            FOutput.LogError('Error: Connectioname cannot be found "'+ FConnectionName + '"');
-          end;
-       end
-     else
-       begin
-         FOutput.Log('Incorrect syntax: lack "("');
+      end;
+    end
+    else
+    begin
+      FOutput.LogError('Error: Connectioname cannot be found "' +
+        FConnectionName + '"');
+    end;
+  end
+  else
+  begin
+    FOutput.Log('Incorrect syntax: lack "("');
 
-       end;
+  end;
 end;
 
+function TInterpreter.plugintag(aTokens: tTokenProcessor; Var aIndex: Integer): string;
+var
+  fTagParser: TTagParser;
+  lsToken1, lsToken2: String;
+begin
+   Result := '';
 
-function TInterpreter.GetNextTag(ATokens: tTokenProcessor; Var AIndex: Integer;Var ASkipPos: INteger;ASubCommand: Boolean = False;ASubVariable:Boolean = False): String;
+   aTokens.TokenIndex := aIndex;
+
+   lsToken1 := aTokens.GetNextToken;
+   lsToken2 := aTokens.GetNextToken;
+
+   if oRuntime.oPlugins.IsTagExists(lsToken1, lsToken2) then
+     begin
+       Result := oRuntime.oPlugins.GetTag(lsToken1, lsToken2,
+            (FoCodeGeneratorItem as tCodeGeneratorItem) , aIndex - 1);
+     end;
+
+  aIndex := aTokens.TokenIndex -1;
+
+
+
+
+    (*
+    fTagParser := TTagParser.ParseTag(foProjectItem, foCodeGenerator,
+      aBlock.lines.value,  oOutput);
+
+    if fTagParser.Execute then
+      begin
+        if fTagParser.IsAnyDeleteLine then ;
+      end;
+
+
+
+  finally
+    fTagParser.Free;
+  end;
+  *)
+
+
+end;
+
+function TInterpreter.GetNextTag(aTokens: tTokenProcessor; Var aIndex: Integer;
+  Var ASkipPOs: Integer; ASubCommand: Boolean = False;
+  ASubVariable: Boolean = False): String;
 Var
   lsNextToken: string;
   fTagType: TTagType;
 begin
   Result := '';
   if ASubCommand then
-     Result := ATokens[AIndex];
+    Result := ATokens[AIndex];
   try
     lsNextToken := ATokens[AIndex];
 
-    fTagType := TTagParser.ParseTagType(foProjectItem, foCodeGenerator, lsNextToken, fOutput, true);
+    fTagType := TTagParser.ParseTagType(foProjectItem, FoCodeGenerator,
+      lsNextToken, FOutput, true);
 
-    // internal functions needs be move into Plugins
-    if (CommandSyntaxIndex(lsNextToken ) <> 0) then
+    if fTagType = ttplugintag then
       begin
-        case CommandSyntaxIndex(lsNextToken ) of
-          1: Result := FieldFunctions(ATokens,AIndex, 0);
-          2: Result := FieldFunctions(ATokens,AIndex, 1);
-          3: Result := Functions(ATokens,AIndex, 0);
-          4: Result := Functions(ATokens,AIndex, 1);
-          5: Result := Functions(ATokens,AIndex, 2);
-          6: result := Functions(ATokens,AIndex, 3);
-          7: result := Functions(ATokens,AIndex, 4);
-          8: Result := LoopFunctions(ATokens,AIndex, 0, ASkipPos);
-          9: Result := LoopFunctions(ATokens,AIndex, 1, ASkipPos);
-          10: Result := FieldFunctions(ATokens,AIndex, 2);
-          11: Result := Functions(ATokens,AIndex, 5);
-          12: result := procedures(ATokens,AIndex, 0);
-          13: Result := TableFunctions(ATokens,AIndex, 0);
-          14: Result := TableFunctions(ATokens,AIndex, 1);
-          15: result := FieldAsSQL(ATokens,AIndex);
-          16: result := Delimiter(ATokens,AIndex);
-          17, 18: result := Reservelist(ATokens,AIndex, 0);
-          19: result := XMLlistIndex(ATokens,AIndex);
-          20: result := XMLlistCount(ATokens,AIndex);
-          21: result := XMLlistName(ATokens,AIndex);
-          22: result := procedures(ATokens,AIndex, 1);
-          23: result := Reservelist(ATokens,AIndex, 1);
-          24: Result := FieldFunctions(ATokens,AIndex, 3);
-          25: Result := FieldFunctions(ATokens,AIndex, 0);
-        end;
+        result := plugintag(ATokens, AIndex);
+
+
+      end
+    else
+    if (CommandSyntaxIndex(lsNextToken) <> 0) then
+    begin
+      case CommandSyntaxIndex(lsNextToken) of
+        1:
+          Result := FieldFunctions(ATokens, AIndex, 0);
+        2:
+          Result := FieldFunctions(ATokens, AIndex, 1);
+        3:
+          Result := Functions(ATokens, AIndex, 0);
+        4:
+          Result := Functions(ATokens, AIndex, 1);
+        5:
+          Result := Functions(ATokens, AIndex, 2);
+        6:
+          Result := Functions(ATokens, AIndex, 3);
+        7:
+          Result := Functions(ATokens, AIndex, 4);
+        8:
+          Result := LoopFunctions(ATokens, AIndex, 0, ASkipPOs);
+        9:
+          Result := LoopFunctions(ATokens, AIndex, 1, ASkipPOs);
+        10:
+          Result := FieldFunctions(ATokens, AIndex, 2);
+        11:
+          Result := Functions(ATokens, AIndex, 5);
+        12:
+          Result := Procedures(ATokens, AIndex, 0);
+        13:
+          Result := TableFunctions(ATokens, AIndex, 0);
+        14:
+          Result := TableFunctions(ATokens, AIndex, 1);
+        15:
+          Result := FieldAsSQL(ATokens, AIndex);
+        16:
+          Result := Delimiter(ATokens, AIndex);
+        17, 18:
+          Result := Reservelist(ATokens, AIndex, 0);
+        19:
+          Result := XMLlistIndex(ATokens, AIndex);
+        20:
+          Result := XMLlistCount(ATokens, AIndex);
+        21:
+          Result := XMLListName(ATokens, AIndex);
+        22:
+          Result := Procedures(ATokens, AIndex, 1);
+        23:
+          Result := Reservelist(ATokens, AIndex, 1);
+        24:
+          Result := FieldFunctions(ATokens, AIndex, 3);
+        25:
+          Result := FieldFunctions(ATokens, AIndex, 0);
       end;
+    end;
 
     if Not ASubCommand then
-      begin
-        if Pos('$$', ATokens[AIndex]) = 1  then
-          result := tTokenParser.ParseToken(Self, ATokens[AIndex], (foProjectItem as TProjectItem) (*TCodeGenerator(FoCodeGenerator).oProjectItem*), TCodeGenerator(FoCodeGenerator).oVariables, fOutput, ATokens,AIndex, TCodeGenerator(FoCodeGenerator).oProject)
-        else
-        if Pos('$', ATokens[AIndex]) = 1  then
-          Result := ParseVariable(ATokens, AIndex)
-      end;
+    begin
+      if Pos('$$', ATokens[AIndex]) = 1 then
+        Result := tTokenParser.ParseToken(Self, ATokens[AIndex],
+          (foProjectItem as TProjectItem), TCodeGenerator(FoCodeGenerator)
+          .oVariables, FOutput, ATokens, AIndex,
+          TCodeGenerator(FoCodeGenerator).oProject)
+      else if Pos('$', ATokens[AIndex]) = 1 then
+        Result := ParseVariable(ATokens, AIndex)
+    end;
   Except
     FOutput.InternalError;
   end;
 end;
 
-function TInterpreter.LoopFunctions(ATokens: tTokenProcessor; Var AIndex: Integer; ACommandIndex: Integer; Var ASkipPos: Integer): string;
+function TInterpreter.LoopFunctions(ATokens: tTokenProcessor;
+  Var AIndex: Integer; ACommandIndex: Integer; Var ASkipPOs: Integer): string;
 Var
   lbNegitiveFlag: Boolean;
-  liPos,
-  liLineNoPos: Integer;
-  liStartPos1, liEndPos1,
-  liStartPos2, liEndPos2: Integer;
-  LStartLoop,
-  FLoop: tLoop;
+  liPos, liLineNoPos: Integer;
+  liStartPos1, liEndPos1, liStartPos2, liEndPos2: Integer;
+  LStartLoop, FLoop: TLoop;
   liLastSourceNo, I, X, Y, Z, A: Integer;
-  LCodeGeneratorItem3,
-  LCodeGeneratorItem2,
-  LCodeGeneratorItem1: tCodeGeneratorItem;
+  LCodeGeneratorItem3, LCodeGeneratorItem2, LCodeGeneratorItem1
+    : tCodeGeneratorItem;
   LTemplateTag1, LTemplateTag2: TTemplateTag;
   LTemplate: TNovusTemplate;
-  liSkipPos,
-  liTagIndex: Integer;
+  liSkipPos, liTagIndex: Integer;
   LCodeGenerator: TCodeGenerator;
   LsValue: String;
   LiValue: Integer;
-  liLineCount: INteger;
+  liLineCount: Integer;
   lsTagValue: String;
-  liStartTagIndex,
-  liEndTagIndex,
-  liTagIndexCounter,
-  liLastEndSourceLineNo,
-  liLastNextSourceLineNo,
-  liNextSourceLineNo1,
-  liNextSourceLineNo2,
-  liStartSourceLineNo,
-  liSourceLineCount,
-  liEndSourceLineNo: Integer;
+  liStartTagIndex, liEndTagIndex, liTagIndexCounter, liLastEndSourceLineNo,
+    liLastNextSourceLineNo, liNextSourceLineNo1, liNextSourceLineNo2,
+    liStartSourceLineNo, liSourceLineCount, liEndSourceLineNo: Integer;
 
-  function GetCodeGeneratorItemBySourceLineNo(ASourceLineNo: Integer; Var APos: Integer): tCodeGeneratorItem;
+  function GetCodeGeneratorItemBySourceLineNo(ASourceLineNo: Integer;
+    Var APos: Integer): tCodeGeneratorItem;
   Var
-    z: integer;
+    Z: Integer;
     LCodeGeneratorItem: tCodeGeneratorItem;
   begin
     Result := NIL;
 
-    for z := APos to tCodeGenerator(FoCodeGenerator).oCodeGeneratorList.Count - 1 do
+    for Z := APos to TCodeGenerator(FoCodeGenerator)
+      .oCodeGeneratorList.Count - 1 do
+    begin
+      LCodeGeneratorItem := tCodeGeneratorItem(TCodeGenerator(FoCodeGenerator)
+        .oCodeGeneratorList.Items[Z]);
+
+      if LCodeGeneratorItem.oTemplateTag.SourceLineNo = ASourceLineNo then
       begin
-        LCodeGeneratorItem := tCodeGeneratorItem(tCodeGenerator(FoCodeGenerator).oCodeGeneratorList.Items[z]);
+        Result := LCodeGeneratorItem;
 
-        if LCodeGeneratorItem.oTemplateTag.SourceLineNo = ASourceLineNo then
-          begin
-            Result := LCodeGeneratorItem;
+        APos := Z + 1;
 
-            APos := z + 1;
-
-            Break;
-          end;
+        Break;
       end;
+    end;
 
-    if Z > aPos then aPos := z;
+    if Z > APos then
+      APos := Z;
 
   end;
 
@@ -755,75 +821,85 @@ begin
   Result := '';
 
   case ACommandIndex of
-   0: begin
+    0:
+      begin
         If GetNextToken(AIndex, ATokens) = '(' then
+        begin
+          LsValue := GetNextToken(AIndex, ATokens);
+
+          if TNovusStringUtils.IsNumberStr(LsValue) then
           begin
-            LsValue := GetNextToken(AIndex, ATokens);
+            if GetNextToken(AIndex, ATokens) = ')' then
+            begin
+              Inc(fiLoopCounter, 1);
 
-            if TNovusStringUtils.IsNumberStr(LsValue) then
-              begin
-                if GetNextToken(AIndex, ATokens) = ')' then
-                  begin
-                    Inc(fiLoopCounter, 1);
+              FLoop := TLoop.Create;
 
-                    FLoop := tLoop.Create;
+              FLoop.LoopType := ltrepeat;
+              FLoop.LoopPos := lpStart;
+              FLoop.ID := fiLoopCounter;
+              FLoop.CodeGeneratorItem := FoCodeGeneratorItem;
 
-                    FLoop.LoopType := ltrepeat;
-                    FLoop.LoopPos := lpStart;
-                    FLoop.ID := fiLoopCounter;
-                    FLoop.CodeGeneratorItem := FoCodeGeneratorItem;
+              FLoop.NegitiveFlag := (StrToint(LsValue) < 0);
 
-                    FLoop.NegitiveFlag := (StrToInt(LsValue) < 0);
+              FLoop.Value := 0;
+              If StrToint(LsValue) > 0 then
+                FLoop.Value := StrToint(LsValue);
 
-                    FLoop.Value := 0;
-                    If StrToInt(LsValue) > 0 then
-                      FLoop.Value := StrToInt(LsValue);
+              fLoopList.Add(FLoop);
 
-                    fLoopList.Add(FLoop);
+              liStartPos1 := (FoCodeGeneratorItem As tCodeGeneratorItem)
+                .oTemplateTag.TagIndex;
 
-                    liStartPos1 := (FoCodeGeneratorItem As tCodeGeneratorItem).oTemplateTag.TagIndex;
+              Inc(liStartPos1, 1);
 
-                    Inc(liStartPos1, 1);
+              liEndPos1 := FindEndRepeatIndexPos(liStartPos1);
 
-                    liEndPos1 := FindEndRepeatIndexPos(liStartPos1);
-
-                    ASkipPos := LiEndPos1;
-                  end
-                else
-                  FOutput.Log('Incorrect syntax: lack ")"');
-
-              end
+              ASkipPOs := liEndPos1;
+            end
             else
-              FOutput.Log('Incorrect syntax: Index is not a number ');
+              FOutput.Log('Incorrect syntax: lack ")"');
 
           end
+          else
+            FOutput.Log('Incorrect syntax: Index is not a number ');
+
+        end
         else
           FOutput.Log('Incorrect syntax: lack "("');
       end;
-   1: begin
-        ASkipPos := 0;
+    1:
+      begin
+        ASkipPOs := 0;
 
         LStartLoop := FindLoop(ltrepeat, fiLoopCounter);
 
         LiValue := LStartLoop.Value;
         lbNegitiveFlag := LStartLoop.NegitiveFlag;
 
-        liStartPos1 := (LStartLoop.CodeGeneratorItem As tCodeGeneratorItem).oTemplateTag.TagIndex;
+        liStartPos1 := (LStartLoop.CodeGeneratorItem As tCodeGeneratorItem)
+          .oTemplateTag.TagIndex;
         Inc(liStartPos1, 1);
 
-        liStartSourceLineNo := (LStartLoop.CodeGeneratorItem As tCodeGeneratorItem).oTemplateTag.SourceLineNo;
+        liStartSourceLineNo :=
+          (LStartLoop.CodeGeneratorItem As tCodeGeneratorItem)
+          .oTemplateTag.SourceLineNo;
 
-        liEndPos1 := (FoCodeGeneratorItem As tCodeGeneratorItem).oTemplateTag.TagIndex;
+        liEndPos1 := (FoCodeGeneratorItem As tCodeGeneratorItem)
+          .oTemplateTag.TagIndex;
         Dec(liEndPos1, 1);
 
-        liEndSourceLineNo := (FoCodeGeneratorItem As tCodeGeneratorItem).oTemplateTag.SourceLineNo;
+        liEndSourceLineNo := (FoCodeGeneratorItem As tCodeGeneratorItem)
+          .oTemplateTag.SourceLineNo;
         Dec(liEndSourceLineNo, 1);
 
         for I := liStartPos1 to liEndPos1 do
-          begin
-            LCodeGeneratorItem1 := tCodeGeneratorItem(tCodeGenerator(FoCodeGenerator).oCodeGeneratorList.Items[i]);
-            LCodeGeneratorItem1.LoopId := fiLoopCounter;
-          end;
+        begin
+          LCodeGeneratorItem1 :=
+            tCodeGeneratorItem(TCodeGenerator(FoCodeGenerator)
+            .oCodeGeneratorList.Items[I]);
+          LCodeGeneratorItem1.LoopId := fiLoopCounter;
+        end;
 
         LCodeGenerator := (FoCodeGenerator As TCodeGenerator);
 
@@ -840,60 +916,67 @@ begin
         Repeat
           liPos := 0;
 
-          While(liPos < tCodeGenerator(FoCodeGenerator).oCodeGeneratorList.Count) do
+          While (liPos < TCodeGenerator(FoCodeGenerator)
+            .oCodeGeneratorList.Count) do
+          begin
+            LCodeGeneratorItem1 := GetCodeGeneratorItemBySourceLineNo
+              ((liLastNextSourceLineNo + I) + 1, liPos);
+
+            if Assigned(LCodeGeneratorItem1) then
             begin
-              LCodeGeneratorItem1 := GetCodeGeneratorItemBySourceLineNo((liLastNextSourceLineNo + i) + 1, liPos);
+              LTemplateTag1 := LCodeGeneratorItem1.oTemplateTag;
 
-              if Assigned(LCodeGeneratorItem1) then
+              liTagIndex := LTemplateTag1.TagIndex;
+
+              LCodeGenerator.RunPropertyVariables(liTagIndex, liTagIndex);
+
+              LCodeGenerator.RunInterpreter(liTagIndex, liTagIndex);
+
+              If LCodeGeneratorItem1.TagType = ttInterpreter then;
+              begin
+                If IsEndRepeat(LCodeGeneratorItem1) then
                 begin
-                  LTemplateTag1 := LCodeGeneratorItem1.oTemplateTag;
+                  FLoop := FindLoop(ltrepeat, fiLoopCounter);
 
-                  liTagIndex := LTemplateTag1.TagIndex;
+                  liLastEndSourceLineNo := liEndSourceLineNo + 1;
+                  liSourceLineCount :=
+                    (liEndSourceLineNo - liStartSourceLineNo);
 
-                  LCodeGenerator.RunPropertyVariables(liTagIndex ,liTagIndex );
-
-                  LCodeGenerator.RunInterpreter(liTagIndex ,liTagIndex );
-
-                  If LCodeGeneratorItem1.TagType = ttInterpreter then ;
-                    begin
-                      If IsEndRepeat(LCodeGeneratorItem1) then
-                        begin
-                          FLoop := FindLoop(ltrepeat, fiLoopCounter);
-
-                          liLastEndSourceLineNo := liEndSourceLineNo + 1;
-                          liSourceLineCount := (liEndSourceLineNo - liStartSourceLineNo);
-
-                          Break;
-                        end;
-                    end;
+                  Break;
                 end;
+              end;
             end;
+          end;
 
-          Inc(i);
-          if I > (liLastEndSourceLineNo -1) then Break;
-        until false;
+          Inc(I);
+          if I > (liLastEndSourceLineNo - 1) then
+            Break;
+        until False;
 
         if LiValue = 0 then
+        begin
+          If lbNegitiveFlag then
           begin
-            If lbNegitiveFlag then
-              begin
-                For a := 0 to liLastEndSourceLineNo do
-                  begin
-                    LTemplate.OutputDoc.strings[liStartSourceLineNo + a] := '';
-                  end;
-               end;
-
-            Exit;
+            For A := 0 to liLastEndSourceLineNo do
+            begin
+              LTemplate.OutputDoc.strings[liStartSourceLineNo + A] := '';
+            end;
           end;
+
+          Exit;
+        end;
 
         if Not Assigned(FLoop) then
-          begin
-            liLastEndSourceLineNo := liEndSourceLineNo;
+        begin
+          liLastEndSourceLineNo := liEndSourceLineNo;
 
-            if ((FindEndRepeatIndexPos(liStartPos1) + liStartPos1) < (liEndSourceLineNo - liStartSourceLineNo)) then
-              liSourceLineCount := (liEndSourceLineNo - liStartSourceLineNo) -((FindEndRepeatIndexPos(liStartPos1) + liStartPos1) + 1)
-            else liSourceLineCount := (liEndSourceLineNo - liStartSourceLineNo)-1;
-          end;
+          if ((FindEndRepeatIndexPos(liStartPos1) + liStartPos1) <
+            (liEndSourceLineNo - liStartSourceLineNo)) then
+            liSourceLineCount := (liEndSourceLineNo - liStartSourceLineNo) -
+              ((FindEndRepeatIndexPos(liStartPos1) + liStartPos1) + 1)
+          else
+            liSourceLineCount := (liEndSourceLineNo - liStartSourceLineNo) - 1;
+        end;
 
         liLineNoPos := 0;
         Y := 0;
@@ -901,425 +984,442 @@ begin
           liStartTagIndex := 0;
           liEndTagIndex := 0;
 
-          for i := 0 to liSourceLineCount do
+          for I := 0 to liSourceLineCount do
+          begin
+            liNextSourceLineNo1 := liLastEndSourceLineNo + liLineNoPos;
+
+            LTemplate.InsertLineNo(liNextSourceLineNo1,
+              LTemplate.TemplateDoc.strings[liStartSourceLineNo + I]);
+
+            liPos := 0;
+
+            While (liPos < TCodeGenerator(FoCodeGenerator)
+              .oCodeGeneratorList.Count) do
             begin
-              liNextSourceLineNo1 := liLastEndSourceLineNo + liLineNoPos;
-
-              LTemplate.InsertLineNo(liNextSourceLineNo1, LTemplate.TemplateDoc.Strings[liStartSourceLineNo + i]);
-
-              liPos := 0;
-
-              While(liPos < tCodeGenerator(FoCodeGenerator).oCodeGeneratorList.Count) do
-                begin
-                  LCodeGeneratorItem1 := GetCodeGeneratorItemBySourceLineNo((liStartSourceLineNo + i) + 1, liPos);
-                  if Assigned(LCodeGeneratorItem1) then
-                    begin
-                      LTemplateTag1 := LCodeGeneratorItem1.oTemplateTag;
-
-                      LTemplateTag2 := tTemplatetag.Create(NIL);
-
-                      LTemplateTag2.SourceLineNo := liNextSourceLineNo1+1;
-
-                      LTemplateTag2.SourcePos := LTemplateTag1.SourcePos;
-
-                      LTemplateTag2.TagName := LTemplateTag1.TagName;
-                      LTemplateTag2.RawTag := LTemplateTag1.RawTag;
-
-                      LTemplateTag2.RawTagEx :=  LTemplateTag1.RawTagEx;
-
-                      LTemplateTag2.TagValue := '';
-
-                      liTagIndex := LTemplate.AddTemplateTag(LTemplateTag2);
-
-                      LCodeGeneratorItem2 := LCodeGenerator.AddTag(LTemplateTag2);
-
-                      if liStartTagIndex = 0 then
-                        liStartTagIndex := liTagIndex;
-                      LiEndTagIndex := liTagIndex;
-
-                      If ((IsEndRepeat(LCodeGeneratorItem2)= False) and (IsRepeat(LCodeGeneratorItem2)= False)) then
-                        begin
-                          LCodeGenerator.RunPropertyVariables(liTagIndex ,liTagIndex );
-                          LCodeGenerator.RunInterpreter(liTagIndex ,liTagIndex );
-                        end;
-                    end;
-                end;
-
-              Inc(liLineNoPos);
-            end;
-             (*
-            if Not Assigned(FLoop) then
+              LCodeGeneratorItem1 := GetCodeGeneratorItemBySourceLineNo
+                ((liStartSourceLineNo + I) + 1, liPos);
+              if Assigned(LCodeGeneratorItem1) then
               begin
-                liTagIndexCounter := liStartTagIndex ;
-                for Z := 0 to (LiEndTagIndex - liStartTagIndex)  do
-                  begin
-                    LCodeGenerator.RunPropertyVariables(liTagIndexCounter ,liTagIndexCounter);
-                    LCodeGenerator.RunInterpreter(liTagIndexCounter ,liTagIndexCounter );
+                LTemplateTag1 := LCodeGeneratorItem1.oTemplateTag;
 
-                    Inc(liTagIndexCounter);
-                  end;
+                LTemplateTag2 := TTemplateTag.Create(NIL);
+
+                LTemplateTag2.SourceLineNo := liNextSourceLineNo1 + 1;
+
+                LTemplateTag2.SourcePos := LTemplateTag1.SourcePos;
+
+                LTemplateTag2.TagName := LTemplateTag1.TagName;
+                LTemplateTag2.RawTag := LTemplateTag1.RawTag;
+
+                LTemplateTag2.RawTagEx := LTemplateTag1.RawTagEx;
+
+                LTemplateTag2.TagValue := '';
+
+                liTagIndex := LTemplate.AddTemplateTag(LTemplateTag2);
+
+                LCodeGeneratorItem2 := LCodeGenerator.AddTag(LTemplateTag2);
+
+                if liStartTagIndex = 0 then
+                  liStartTagIndex := liTagIndex;
+                liEndTagIndex := liTagIndex;
+
+                If ((IsEndRepeat(LCodeGeneratorItem2) = False) and
+                  (IsRepeat(LCodeGeneratorItem2) = False)) then
+                begin
+                  LCodeGenerator.RunPropertyVariables(liTagIndex, liTagIndex);
+                  LCodeGenerator.RunInterpreter(liTagIndex, liTagIndex);
+                end;
               end;
-              *)
-            Inc(Y);
+            end;
 
-            if Y = LiValue then Break;
-        until false;
+            Inc(liLineNoPos);
+          end;
+          (*
+            if Not Assigned(FLoop) then
+            begin
+            liTagIndexCounter := liStartTagIndex ;
+            for Z := 0 to (LiEndTagIndex - liStartTagIndex)  do
+            begin
+            LCodeGenerator.RunPropertyVariables(liTagIndexCounter ,liTagIndexCounter);
+            LCodeGenerator.RunInterpreter(liTagIndexCounter ,liTagIndexCounter );
 
+            Inc(liTagIndexCounter);
+            end;
+            end;
+          *)
+          Inc(Y);
+
+          if Y = LiValue then
+            Break;
+        until False;
 
       end;
   end;
 end;
 
-
-function TInterpreter.FindLoop(ALoopType:TLoopType; ALoopID: Integer): TLoop;
+function TInterpreter.FindLoop(ALoopType: TLoopType; ALoopID: Integer): TLoop;
 Var
   I: Integer;
-  FLoop: tLoop;
+  FLoop: TLoop;
 begin
   Result := NIL;
 
   for I := 0 to fLoopList.Count - 1 do
-    begin
-      FLoop := TLoop(FLoopList.Items[i]);
+  begin
+    FLoop := TLoop(fLoopList.Items[I]);
 
-      if (FLoop.LoopType = ALoopType) and (FLoop.ID = ALoopID) then
-        begin
-          Result := FLoop;
-          break;
-        end;
+    if (FLoop.LoopType = ALoopType) and (FLoop.ID = ALoopID) then
+    begin
+      Result := FLoop;
+      Break;
     end;
+  end;
 end;
 
-function TInterpreter.ParseVariable(ATokens: tTokenProcessor; Var AIndex: Integer;ASubCommand: Boolean = False): String;
+function TInterpreter.ParseVariable(ATokens: tTokenProcessor;
+  Var AIndex: Integer; ASubCommand: Boolean = False): String;
 Var
-  FVariable1,
-  FVariable2: tVariable;
-  lsVariableName1,
-  lsVariableName2: String;
+  FVariable1, FVariable2: TVariable;
+  lsVariableName1, lsVariableName2: String;
   I, X: Integer;
-  lsValue: String;
+  LsValue: String;
   LStr: STring;
-  LiSkipPos: Integer;
+  liSkipPos: Integer;
   FOut: Boolean;
 
   function GetToken: String;
-   begin
-     Result := '';
+  begin
+    Result := '';
 
-     Inc(AIndex);
+    Inc(AIndex);
 
-     if (AIndex <= ATokens.Count - 1)  then
-       Result := GetNextTag(ATokens, AIndex, liSkipPos, True);
-   end;
+    if (AIndex <= ATokens.Count - 1) then
+      Result := GetNextTag(ATokens, AIndex, liSkipPos, true);
+  end;
+
 begin
   Result := '';
   FOut := False;
 
-  lsVariableName1  := TVariables.CleanVariableName(ATokens[AIndex]);
+  lsVariableName1 := TVariables.CleanVariableName(ATokens[AIndex]);
 
-  if ATokens[0] = '=' then FOut := True;
+  if ATokens[0] = '=' then
+    FOut := true;
 
   If GetToken = '=' then
+  begin
+    I := VariableExistsIndex(lsVariableName1);
+
+    if I = -1 then
+    begin
+      LsValue := GetToken;
+
+      LsValue := tTokenParser.ParseToken(Self, LsValue,
+        (foProjectItem as TProjectItem), TCodeGenerator(FoCodeGenerator)
+        .oVariables, FOutput, ATokens, AIndex, TCodeGenerator(FoCodeGenerator)
+        .oProject);
+
+      If TNovusStringUtils.IsNumberStr(LsValue) then
+      begin
+        if Pos('.', LsValue) > 0 then
+          AddVariable(lsVariableName1, TNovusStringUtils.Str2Float(LsValue))
+        else
+          AddVariable(lsVariableName1, TNovusStringUtils.Str2Int(LsValue));
+      end
+      else
+        AddVariable(lsVariableName1, LsValue);
+
+    end
+    else
+    begin
+      LsValue := GetToken;
+
+      X := -1;
+      if Pos('$', LsValue) = 1 then
+      begin
+        lsVariableName2 := TVariables.CleanVariableName(LsValue);
+
+        X := VariableExistsIndex(lsVariableName2);
+      end;
+
+      FVariable1 := GetVariableByIndex(I);
+
+      if X <> -1 then
+      begin
+        FVariable2 := GetVariableByIndex(X);
+        FVariable1.Value := FVariable2.Value;
+      end
+      else
+      begin
+        If TNovusStringUtils.IsNumberStr(LsValue) then
+        begin
+          if Pos('.', LsValue) > 0 then
+            FVariable1.Value := TNovusStringUtils.Str2Float(LsValue)
+          else
+            FVariable1.Value := TNovusStringUtils.Str2Int(LsValue);
+        end
+        else If TNovusStringUtils.IsAlphaStr(LsValue) then
+        begin
+          FVariable1.Value := LsValue;
+
+        end;
+      end;
+
+      LStr := GetToken;
+
+      If LStr = '-' then
+      begin
+        LsValue := GetToken;
+
+        If TNovusStringUtils.IsNumberStr(LsValue) then
+          FVariable1.Value := FVariable1.Value -
+            TNovusStringUtils.Str2Int(LsValue)
+        else
+          FOutput.Log('Incorrect syntax: Is not a number');
+      end
+      else If LStr = '+' then
+      begin
+        LsValue := GetToken;
+
+        If TNovusStringUtils.IsNumberStr(LsValue) then
+          FVariable1.Value := FVariable1.Value +
+            TNovusStringUtils.Str2Int(LsValue)
+        else
+          FOutput.Log('Incorrect syntax: Is not a number');
+      end;
+    end;
+  end
+  else
+  begin
+    If FOut = true then
     begin
       I := VariableExistsIndex(lsVariableName1);
-
-      if I = -1 then
-        begin
-          lsValue := GetToken;
-
-          lsValue := tTokenParser.ParseToken(Self, lsValue, (foProjectItem as TProjectItem),TCodeGenerator(FoCodeGenerator).oVariables, fOutput, ATokens,AIndex, TCodeGenerator(FoCodeGenerator).oProject);
-
-          If TNovusStringUtils.IsNumberStr(lsValue) then
-            begin
-              if Pos('.', lsValue) > 0 then
-                AddVariable(lsVariableName1,TNovusStringUtils.Str2Float(lsValue))
-              else
-                AddVariable(lsVariableName1,TNovusStringUtils.Str2Int(lsValue));
-            end
-          else
-            AddVariable(lsVariableName1, lsValue);
-
-        end
+      if I <> -1 then
+      begin
+        FVariable1 := GetVariableByIndex(I);
+        Result := FVariable1.Value;
+      end
       else
-        begin
-          lsValue := GetToken;
+      begin
+        FOutput.Log('Syntax error: "' + lsVariableName1 + '" not defined');
+        FOutput.Failed := true;
+      end;
 
-          X := -1;
-          if Pos('$', lsValue) = 1 then
-            begin
-              lsVariableName2  := TVariables.CleanVariableName(lsValue);
-
-              X := VariableExistsIndex(lsVariableName2);
-            end;
-
-          FVariable1 := GetVariableByIndex(I);
-
-          if X <> -1 then
-            begin
-              FVariable2 := GetVariableByIndex(X);
-              FVariable1.Value := FVariable2.Value;
-            end
-          else
-            begin
-              If TNovusStringUtils.IsNumberStr(lsValue) then
-                begin
-                  if Pos('.', lsValue) > 0 then
-                    FVariable1.Value := TNovusStringUtils.Str2Float(lsValue)
-                  else
-                    FVariable1.Value := TNovusStringUtils.Str2Int(lsValue);
-                end
-              else
-              If TNovusStringUtils.IsAlphaStr(lsValue) then
-                begin
-                  FVariable1.Value := lsValue;
-
-                end;
-            end;
-
-           LStr := GetToken;
-
-           If LStr = '-' then
-            begin
-              lsValue := GetToken;
-
-              If TNovusStringUtils.IsNumberStr(lsValue) then
-                FVariable1.Value := FVariable1.Value - TNovusStringUtils.Str2Int(lsValue)
-              else
-                FOutput.Log('Incorrect syntax: Is not a number');
-            end
-          else
-          If LStr = '+' then
-            begin
-              lsValue := GetToken;
-
-              If TNovusStringUtils.IsNumberStr(lsValue) then
-                FVariable1.Value := FVariable1.Value + TNovusStringUtils.Str2Int(lsValue)
-              else
-                FOutput.Log('Incorrect syntax: Is not a number');
-            end;
-        end;
     end
-  else
-    begin
-      If FOut = true then
-        begin
-          I := VariableExistsIndex(lsVariableName1);
-          if I <> -1 then
-            begin
-              FVariable1 := GetVariableByIndex(I);
-              Result := FVariable1.Value;
-            end
-          else
-            begin
-              FOutput.Log('Syntax error: "' + lsVariableName1 + '" not defined');
-              FOutput.Failed := true;
-            end;
-
-        end
-      else
-        FOutput.Log('Incorrect syntax: lack "="');
-    end;
+    else
+      FOutput.Log('Incorrect syntax: lack "="');
+  end;
 end;
 
-procedure TInterpreter.AddVariable(AVariableName: String;AValue: Variant);
+procedure TInterpreter.AddVariable(AVariableName: String; AValue: Variant);
 begin
-  (FoCodeGenerator As TCodeGenerator).oVariables.AddVariable(AVariableName,AValue);
+  (FoCodeGenerator As TCodeGenerator).oVariables.AddVariable
+    (AVariableName, AValue);
 end;
 
-function TInterpreter.Execute(ACodeGeneratorItem: tObject; Var ASkipPos: Integer) : String;
+function TInterpreter.Execute(ACodeGeneratorItem: TObject;
+  Var ASkipPOs: Integer): String;
 Var
   FIndex: Integer;
-  Fout: Boolean;
+  FOut: Boolean;
   fsScript: string;
-  lbIsFailedCompiled: boolean;
+  lbIsFailedCompiled: Boolean;
 begin
   Result := '';
 
-  Fout := False;
+  FOut := False;
 
   FTokens := tCodeGeneratorItem(ACodeGeneratorItem).oTokens;
 
   FoCodeGeneratorItem := ACodeGeneratorItem;
 
   FIndex := 0;
-  if FTokens.Strings[0] = '=' then
-    begin
-      Fout := True;
-      FIndex := 1;
-    end;
+  if FTokens.strings[0] = '=' then
+  begin
+    FOut := true;
+    FIndex := 1;
+  end;
 
-  if Fout = True then
-    begin
-      Result := GetNextTag(FTokens, FIndex, ASkipPos)
-    end
+  if FOut = true then
+  begin
+    Result := GetNextTag(FTokens, FIndex, ASkipPOs)
+  end
   else
-    begin
-      Result := '';
-      GetNextTag(FTokens, FIndex, ASkipPos);
-    end;
+  begin
+    Result := '';
+    GetNextTag(FTokens, FIndex, ASkipPOs);
+  end;
 end;
 
-function TInterpreter.LanguageFunctions(AFunction: string; ADataType: String): String;
+function TInterpreter.LanguageFunctions(AFunction: string;
+  ADataType: String): String;
 begin
-//  Result := (foProjectItem as TProjectItem).oCodeGenerator.oLanguage.ReadXML(Afunction, ADataType);
+  // Result := (foProjectItem as TProjectItem).oCodeGenerator.oLanguage.ReadXML(Afunction, ADataType);
 end;
 
-function TInterpreter.CommandSyntaxIndex(ACommand: String): integer;
+function TInterpreter.CommandSyntaxIndex(aCommand: String): Integer;
 Var
   I: Integer;
 begin
   Result := -1;
 
   For I := 1 to Length(csCommamdSyntax) do
+  begin
+    if Uppercase(csCommamdSyntax[I]) = Uppercase(aCommand) then
     begin
-     if Uppercase(csCommamdSyntax[i]) = Uppercase(ACommand) then
-       begin
-         Result := I;
+      Result := I;
 
-         break;
-       end;
+      Break;
     end;
+  end;
 end;
 
-
-
-
-
-
-function TInterpreter.CommandSyntaxIndexByTokens(ATokens: tTokenProcessor): Integer;
+function TInterpreter.CommandSyntaxIndexByTokens
+  (ATokens: tTokenProcessor): Integer;
 Var
-  I,X: Integer;
+  I, X: Integer;
   lEParser: TExpressionParser;
   lTokens: tStringList;
 begin
   Result := -1;
 
   For I := 1 to Length(csCommamdSyntax) do
-    begin
-      Try
+  begin
+    Try
       lEParser := TExpressionParser.Create;
       lTokens := tStringList.Create;
 
-      lEParser.Expr := csCommamdSyntax[i];
+      lEParser.Expr := csCommamdSyntax[I];
 
       lEParser.ListTokens(lTokens);
 
-      for x := 0 to ATokens.Count - 1 do
-       begin
-         if uppercase(lTokens[0]) = Uppercase(ATokens[x]) then
-           begin
-             Result := i;
+      for X := 0 to ATokens.Count - 1 do
+      begin
+        if Uppercase(lTokens[0]) = Uppercase(ATokens[X]) then
+        begin
+          Result := I;
 
-             Exit;
-           end;
-       end;
-      Finally
-        if assigned(lEParser) then
-          lEParser.Free;
+          Exit;
+        end;
+      end;
+    Finally
+      if Assigned(lEParser) then
+        lEParser.Free;
 
-        if Assigned(lTokens) then
-          lTokens.Free;
-      End;
-    end;
+      if Assigned(lTokens) then
+        lTokens.Free;
+    End;
+  end;
 end;
 
-function TInterpreter.Functions(ATokens: tTokenProcessor; Var AIndex: Integer; ACommandIndex: Integer): String;
+function TInterpreter.Functions(ATokens: tTokenProcessor; Var AIndex: Integer;
+  ACommandIndex: Integer): String;
 Var
   LStr: String;
 begin
   Result := '';
 
   if GetNextToken(AIndex, ATokens) = '(' then
-    begin
-      LStr := GetNextToken(AIndex, ATokens);
+  begin
+    LStr := GetNextToken(AIndex, ATokens);
 
-      if GetNextToken(AIndex, ATokens) = ')' then
-        begin
-          case ACommandIndex of
-            0: Result := Lowercase(LStr);
-            1: Result := Uppercase(LStr);
-            2: Result := TNovusStringUtils.UpLowerA(LStr, True);
-            3: Result := FieldTypeToDataType(LStr);
-            4: Result := ClearDataType(LStr);
-            5: Result := IntToStr(Pred(StrToInt(LStr)));
-          end;
-        end
-      else
-        begin
-          FOutput.Log('Incorrect syntax: lack ")"');
-        end;
-    end
-  else
+    if GetNextToken(AIndex, ATokens) = ')' then
     begin
-      FOutput.Log('Incorrect syntax: lack "("');
+      case ACommandIndex of
+        0:
+          Result := Lowercase(LStr);
+        1:
+          Result := Uppercase(LStr);
+        2:
+          Result := TNovusStringUtils.UpLowerA(LStr, true);
+        3:
+          Result := FieldTypeToDataType(LStr);
+        4:
+          Result := ClearDataType(LStr);
+        5:
+          Result := IntToStr(Pred(StrToint(LStr)));
+      end;
+    end
+    else
+    begin
+      FOutput.Log('Incorrect syntax: lack ")"');
     end;
+  end
+  else
+  begin
+    FOutput.Log('Incorrect syntax: lack "("');
+  end;
 end;
 
-function TInterpreter.Procedures(ATokens: tTokenProcessor; Var AIndex: Integer; ACommandIndex: Integer): String;
+function TInterpreter.Procedures(ATokens: tTokenProcessor; Var AIndex: Integer;
+  ACommandIndex: Integer): String;
 Var
   LStr: String;
 begin
   Result := '';
 
   case ACommandIndex of
-    0: Result := cBlankLine;
-    1: result := TGuidExUtils.NewGuidString;
+    0:
+      Result := cBlankLine;
+    1:
+      Result := TGuidExUtils.NewGuidString;
   end;
 end;
 
 function TInterpreter.FieldTypeToDataType(AFieldType: String): String;
 begin
-   //Result := (foProjectItem as tProjectItem).oCodeGenerator.oLanguage.ReadXML('FieldTypeToDataType', AFieldType);
+  // Result := (foProjectItem as tProjectItem).oCodeGenerator.oLanguage.ReadXML('FieldTypeToDataType', AFieldType);
 end;
 
 function TInterpreter.ClearDataType(ADataType: String): String;
 begin
-  //Result := (foProjectItem as tProjectItem).oCodeGenerator.oLanguage.ReadXML('ClearDataType', ADataType);
+  // Result := (foProjectItem as tProjectItem).oCodeGenerator.oLanguage.ReadXML('ClearDataType', ADataType);
 end;
 
-function TInterpreter.GetNextToken(Var AIndex: Integer; ATokens: tTokenProcessor): String;
+function TInterpreter.GetNextToken(Var AIndex: Integer;
+  ATokens: tTokenProcessor): String;
 Var
   I: Integer;
-  LVariable: tVariable;
-  LiSkipPos: Integer;
+  LVariable: TVariable;
+  liSkipPos: Integer;
 begin
   Result := '';
 
   Inc(AIndex);
 
-  Result := GetNextTag(ATokens, AIndex, LiSkipPos, True);
+  Result := GetNextTag(ATokens, AIndex, liSkipPos, true);
 
-  if Pos('$', Result) = 1  then
+  if Pos('$', Result) = 1 then
+  begin
+    I := VariableExistsIndex(TVariables.CleanVariableName(Result));
+    if I <> -1 then
     begin
-      I := VariableExistsIndex(TVariables.CleanVariableName(Result));
-      if I <> -1 then
-        begin
-          LVariable := GetVariablebyIndex(i);
+      LVariable := GetVariableByIndex(I);
 
-          Result := LVariable.AsString;
-        end
-      else
-        FOutput.Log('Syntax Error: variable '+ result + ' cannot be found.');
+      Result := LVariable.AsString;
+    end
+    else
+      FOutput.Log('Syntax Error: variable ' + Result + ' cannot be found.');
 
-    end ;
- end;
-
+  end;
+end;
 
 function TInterpreter.VariableExistsIndex(AVariableName: String): Integer;
 begin
-  Result := (FoCodeGenerator As TCodeGenerator).oVariables.VariableExistsIndex(AVariableName)
+  Result := (FoCodeGenerator As TCodeGenerator).oVariables.VariableExistsIndex
+    (AVariableName)
 end;
 
 function TInterpreter.GetVariableByIndex(AIndex: Integer): TVariable;
 begin
-  Result := (FoCodeGenerator As TCodeGenerator).oVariables.GetVariableByIndex(AIndex)
+  Result := (FoCodeGenerator As TCodeGenerator)
+    .oVariables.GetVariableByIndex(AIndex)
 end;
 
-
-function TInterpreter.FindEndRepeatIndexPos(AIndex: INteger): INteger;
+function TInterpreter.FindEndRepeatIndexPos(AIndex: Integer): Integer;
 Var
   I: Integer;
-  LCodeGeneratorItem: TCodeGeneratorItem;
+  LCodeGeneratorItem: tCodeGeneratorItem;
   LCodeGeneratorList: tNovusList;
   LTemplateTag: TTemplateTag;
   iCount: Integer;
@@ -1329,46 +1429,46 @@ begin
   LCodeGeneratorList := (FoCodeGenerator As TCodeGenerator).oCodeGeneratorList;
 
   iCount := 0;
-  for I := AIndex to LCodeGeneratorList.Count -1 do
+  for I := AIndex to LCodeGeneratorList.Count - 1 do
+  begin
+    LCodeGeneratorItem := tCodeGeneratorItem(LCodeGeneratorList.Items[I]);
+
+    if LCodeGeneratorItem.TagType = ttInterpreter then
     begin
-      LCodeGeneratorItem := TCodeGeneratorItem(LCodeGeneratorList.Items[i]);
+      LTemplateTag := LCodeGeneratorItem.oTemplateTag;
 
-      if LCodeGeneratorItem.tagType = ttInterpreter then
-         begin
-           LTemplateTag := LCodeGeneratorItem.oTemplateTag;
+      if Pos(csCommamdSyntax[8], LTemplateTag.TagName) = 1 then
+      begin
+        Inc(iCount);
+      end
+      else if (LTemplateTag.TagName = csCommamdSyntax[9]) and (iCount = 0) then
+      begin
+        Result := I;
 
-           if Pos(csCommamdSyntax[8], LTemplateTag.TagName) = 1  then
-             begin
-               inc(iCount);
-             end
-           else
-           if (LTemplateTag.TagName = csCommamdSyntax[9]) and (iCount = 0) then
-             begin
-               Result := I;
-
-               Exit;
-             end
-           else
-           if (LTemplateTag.TagName = csCommamdSyntax[9]) and (iCount > 0) then
-             begin
-               Dec(iCount);
-             end;
-         end;
+        Exit;
+      end
+      else if (LTemplateTag.TagName = csCommamdSyntax[9]) and (iCount > 0) then
+      begin
+        Dec(iCount);
+      end;
     end;
+  end;
 end;
-
 
 function TInterpreter.IsEndRepeat(ACodeGeneratorItem: TObject): Boolean;
 begin
-  Result := (CommandSyntaxIndex(tCodeGeneratorItem(ACodeGeneratorItem).oTokens[0]) = 9);
+  Result := (CommandSyntaxIndex(tCodeGeneratorItem(ACodeGeneratorItem)
+    .oTokens[0]) = 9);
 end;
 
 function TInterpreter.IsRepeat(ACodeGeneratorItem: TObject): Boolean;
 begin
-  Result := (CommandSyntaxIndex(tCodeGeneratorItem(ACodeGeneratorItem).oTokens[0]) = 8);
+  Result := (CommandSyntaxIndex(tCodeGeneratorItem(ACodeGeneratorItem)
+    .oTokens[0]) = 8);
 end;
 
-function TInterpreter.FieldAsSQL(ATokens: tTokenProcessor; Var AIndex: Integer): string;
+function TInterpreter.FieldAsSQL(ATokens: tTokenProcessor;
+  Var AIndex: Integer): string;
 Var
   lConnectionItem: tConnectionItem;
   FFieldDesc: tFieldDesc;
@@ -1382,73 +1482,74 @@ begin
   Result := '';
 
   If GetNextToken(AIndex, ATokens) = '(' then
+  begin
+    FConnectionName := GetNextToken(AIndex, ATokens);
+
+    lConnectionItem := (foProjectItem as TProjectItem)
+      .oProject.oProjectConfig.oConnections.FindConnectionName(FConnectionName);
+    if Assigned(lConnectionItem) then
     begin
-      FConnectionName := GetNextToken(AIndex, ATokens);
+      FTableName := GetNextToken(AIndex, ATokens);
 
-      lConnectionItem := (foProjectItem as tProjectItem).oProject.oProjectConfig.oConnections.FindConnectionName(FConnectionName);
-      if Assigned(lConnectionItem) then
+      If lConnectionItem.TableExists(FTableName) then
+      begin
+        LStr := GetNextToken(AIndex, ATokens);
+
+        FFieldDesc := lConnectionItem.FieldByName(FTableName, LStr);
+
+        if Assigned(FFieldDesc) then
         begin
-          FTableName := GetNextToken(AIndex, ATokens);
-
-          If lConnectionItem.TableExists(FTableName) then
-            begin
-              LStr := GetNextToken(AIndex, ATokens);
-
-              FFieldDesc := lConnectionItem.FieldByName(FTableName, LStr);
-
-              if Assigned(FFieldDesc) then
-                begin
-                  if GetNextToken(AIndex, ATokens) = ')' then
-                    begin
-                      FFieldType := lConnectionItem.oDBSchema.GetFieldType(FFieldDesc, lConnectionItem.AuxDriver);
-
-                      if FFieldType.SQLFormat = '' then
-                        Result := FFieldDesc.FieldName + ' ' + FFieldType.SqlType
-                      else
-                        Result := FFieldDesc.FieldName + ' ' + Format(FFieldType.SqlFormat, [FFieldDesc.Column_Length]);
-
-                      FFieldType.Free;
-                      FFieldDesc.Free;
-
-                      Exit;
-                    end
-                  else
-                    begin
-                      FOutput.LogError('Incorrect syntax: lack ")"');
-
-                    end;
-                end
-                  else
-                    begin
-                      FOutput.LogError('Error: Field cannot be found.');
-                    end;
-            end
-          else
-            begin
-              FOutput.LogError('Error: Table cannot be found "'+ FTableName+ '"');
-
-            end;
-
-          end
-        else
+          if GetNextToken(AIndex, ATokens) = ')' then
           begin
-            FOutput.LogError('Error: Connectioname cannot be found "'+ FConnectionName + '"');
+            FFieldType := lConnectionItem.oDBSchema.GetFieldType(FFieldDesc,
+              lConnectionItem.AuxDriver);
+
+            if FFieldType.SQLFormat = '' then
+              Result := FFieldDesc.FieldName + ' ' + FFieldType.SqlType
+            else
+              Result := FFieldDesc.FieldName + ' ' +
+                Format(FFieldType.SQLFormat, [FFieldDesc.Column_Length]);
+
+            FFieldType.Free;
+            FFieldDesc.Free;
+
+            Exit;
+          end
+          else
+          begin
+            FOutput.LogError('Incorrect syntax: lack ")"');
 
           end;
         end
-     else
-       begin
-         FOutput.LogError('Incorrect syntax: lack "("');
+        else
+        begin
+          FOutput.LogError('Error: Field cannot be found.');
+        end;
+      end
+      else
+      begin
+        FOutput.LogError('Error: Table cannot be found "' + FTableName + '"');
 
-       end;
+      end;
+
+    end
+    else
+    begin
+      FOutput.LogError('Error: Connectioname cannot be found "' +
+        FConnectionName + '"');
+
+    end;
+  end
+  else
+  begin
+    FOutput.LogError('Incorrect syntax: lack "("');
+
+  end;
 end;
 
 function TInterpreter.ParseCommand(aCommand: string): String;
 begin
   Result := aCommand;
 end;
-
-
-
 
 end.

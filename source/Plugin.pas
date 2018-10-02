@@ -535,6 +535,9 @@ end;
 
 function TDataProcessorPlugin.LoadDBSchemaFile: Boolean;
 begin
+  Result := True;
+  if Trim(DBSchemaFile) = '' then  Exit;
+  
   result := false;
   foDBSchema.XMLFileName := oConfig.rootpath + 'plugins\' + DBSchemaFile;
   result := foDBSchema.Retrieve;

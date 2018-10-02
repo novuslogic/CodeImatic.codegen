@@ -28,8 +28,8 @@ type
      function GetFirstTokenProcessorItem: tTokenProcessorItem;
      function GetNextToken(aIgnoreNextToken: Boolean = false): string; overload;
      function GetNextToken(aTokenIndex: Integer): string; overload;
-    // function GetNextTokenProcessorItem : tTokenProcessorItem;
      function IsNextTokenEquals: boolean;
+     function IsNextTokenOpenBracket: boolean;
 
      function EOF: Boolean;
 
@@ -99,7 +99,12 @@ end;
 
 function tTokenProcessor.IsNextTokenEquals: boolean;
 begin
- Result := GetNextToken = '=';
+  Result := GetNextToken = '=';
+end;
+
+function tTokenProcessor.IsNextTokenOpenBracket: Boolean;
+begin
+  Result := GetNextToken = '(';
 end;
 
 end.

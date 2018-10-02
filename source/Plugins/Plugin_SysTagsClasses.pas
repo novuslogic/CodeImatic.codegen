@@ -36,6 +36,14 @@ type
     function Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String; override;
   end;
 
+  TSysTag_Lower = class(TSysTag)
+  private
+  protected
+    function GetTagName: String; override;
+  public
+    function Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String; override;
+  end;
+
   TSysTag_FilePathToURL = class(TSysTag)
   private
   protected
@@ -215,6 +223,18 @@ end;
 function TSysTag_Version.Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
 begin
   result := oRuntime.GetVersion(1);
+end;
+
+function TSysTag_Lower.GetTagName: String;
+begin
+  Result := 'LOWER';
+end;
+
+function TSysTag_Lower.Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
+var
+  LFunctionsParser: tFunctionsParser;
+begin
+  result := '';
 end;
 
 function TSysTag_FilePathToURL.GetTagName: String;
