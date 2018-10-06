@@ -87,8 +87,10 @@ Type
 
     function Functions(ATokens: tTokenProcessor; Var AIndex: Integer;
       ACommandIndex: Integer): String;
-    function Procedures(ATokens: tTokenProcessor; Var AIndex: Integer;
-      ACommandIndex: Integer): String;
+
+
+    //function Procedures(ATokens: tTokenProcessor; Var AIndex: Integer;
+    //  ACommandIndex: Integer): String;
 
     function FieldTypeToDataType(AFieldType: String): String;
     function ClearDataType(ADataType: String): String;
@@ -647,29 +649,10 @@ begin
    if oRuntime.oPlugins.IsTagExists(lsToken1, lsToken2) then
      begin
        Result := oRuntime.oPlugins.GetTag(lsToken1, lsToken2,
-            (FoCodeGeneratorItem as tCodeGeneratorItem) , aIndex - 1);
+            (FoCodeGeneratorItem as tCodeGeneratorItem) , aTokens.TokenIndex);
      end;
 
-  aIndex := aTokens.TokenIndex -1;
-
-
-
-
-    (*
-    fTagParser := TTagParser.ParseTag(foProjectItem, foCodeGenerator,
-      aBlock.lines.value,  oOutput);
-
-    if fTagParser.Execute then
-      begin
-        if fTagParser.IsAnyDeleteLine then ;
-      end;
-
-
-
-  finally
-    fTagParser.Free;
-  end;
-  *)
+  aIndex := aTokens.TokenIndex ;
 
 
 end;
@@ -722,8 +705,8 @@ begin
           Result := FieldFunctions(ATokens, AIndex, 2);
         11:
           Result := Functions(ATokens, AIndex, 5);
-        12:
-          Result := Procedures(ATokens, AIndex, 0);
+        //12:
+        //  Result := Procedures(ATokens, AIndex, 0);
         13:
           Result := TableFunctions(ATokens, AIndex, 0);
         14:
@@ -740,8 +723,8 @@ begin
           Result := XMLlistCount(ATokens, AIndex);
         21:
           Result := XMLListName(ATokens, AIndex);
-        22:
-          Result := Procedures(ATokens, AIndex, 1);
+       // 22:
+       //   Result := Procedures(ATokens, AIndex, 1);
         23:
           Result := Reservelist(ATokens, AIndex, 1);
         24:
@@ -1326,10 +1309,10 @@ begin
     if GetNextToken(AIndex, ATokens) = ')' then
     begin
       case ACommandIndex of
-        0:
-          Result := Lowercase(LStr);
-        1:
-          Result := Uppercase(LStr);
+     //   0:
+      //    Result := Lowercase(LStr);
+       // 1:
+       //   Result := Uppercase(LStr);
         2:
           Result := TNovusStringUtils.UpLowerA(LStr, true);
         3:
@@ -1351,6 +1334,7 @@ begin
   end;
 end;
 
+(*
 function TInterpreter.Procedures(ATokens: tTokenProcessor; Var AIndex: Integer;
   ACommandIndex: Integer): String;
 Var
@@ -1365,6 +1349,8 @@ begin
       Result := TGuidExUtils.NewGuidString;
   end;
 end;
+*)
+
 
 function TInterpreter.FieldTypeToDataType(AFieldType: String): String;
 begin

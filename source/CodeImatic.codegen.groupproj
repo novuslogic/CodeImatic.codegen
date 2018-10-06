@@ -9,9 +9,6 @@
         <Projects Include="CodeImatic.codegen.core.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="Plugins\SysTags.dproj">
-            <Dependencies/>
-        </Projects>
         <Projects Include="Plugins\WebServer.dproj">
             <Dependencies/>
         </Projects>
@@ -24,7 +21,16 @@
         <Projects Include="Plugins\CodeDocsProcessor.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="Plugins\SysTags.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Plugins\DBTags.dproj">
+            <Dependencies/>
+        </Projects>
         <Projects Include="Plugins\SQLDir.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Plugins\JSONTags.dproj">
             <Dependencies/>
         </Projects>
     </ItemGroup>
@@ -52,15 +58,6 @@
     </Target>
     <Target Name="CodeImatic_codegen_core:Make">
         <MSBuild Projects="CodeImatic.codegen.core.dproj" Targets="Make"/>
-    </Target>
-    <Target Name="SysTags">
-        <MSBuild Projects="Plugins\SysTags.dproj"/>
-    </Target>
-    <Target Name="SysTags:Clean">
-        <MSBuild Projects="Plugins\SysTags.dproj" Targets="Clean"/>
-    </Target>
-    <Target Name="SysTags:Make">
-        <MSBuild Projects="Plugins\SysTags.dproj" Targets="Make"/>
     </Target>
     <Target Name="WebServer">
         <MSBuild Projects="Plugins\WebServer.dproj"/>
@@ -98,6 +95,24 @@
     <Target Name="CodeDocsProcessor:Make">
         <MSBuild Projects="Plugins\CodeDocsProcessor.dproj" Targets="Make"/>
     </Target>
+    <Target Name="SysTags">
+        <MSBuild Projects="Plugins\SysTags.dproj"/>
+    </Target>
+    <Target Name="SysTags:Clean">
+        <MSBuild Projects="Plugins\SysTags.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="SysTags:Make">
+        <MSBuild Projects="Plugins\SysTags.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="DBTags">
+        <MSBuild Projects="Plugins\DBTags.dproj"/>
+    </Target>
+    <Target Name="DBTags:Clean">
+        <MSBuild Projects="Plugins\DBTags.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="DBTags:Make">
+        <MSBuild Projects="Plugins\DBTags.dproj" Targets="Make"/>
+    </Target>
     <Target Name="SQLDir">
         <MSBuild Projects="Plugins\SQLDir.dproj"/>
     </Target>
@@ -107,14 +122,23 @@
     <Target Name="SQLDir:Make">
         <MSBuild Projects="Plugins\SQLDir.dproj" Targets="Make"/>
     </Target>
+    <Target Name="JSONTags">
+        <MSBuild Projects="Plugins\JSONTags.dproj"/>
+    </Target>
+    <Target Name="JSONTags:Clean">
+        <MSBuild Projects="Plugins\JSONTags.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="JSONTags:Make">
+        <MSBuild Projects="Plugins\JSONTags.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="CodeImatic_codegen;CodeImatic_codegen_core;SysTags;WebServer;WebProcessor;SystemExt;CodeDocsProcessor;SQLDir"/>
+        <CallTarget Targets="CodeImatic_codegen;CodeImatic_codegen_core;WebServer;WebProcessor;SystemExt;CodeDocsProcessor;SysTags;DBTags;SQLDir;JSONTags"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="CodeImatic_codegen:Clean;CodeImatic_codegen_core:Clean;SysTags:Clean;WebServer:Clean;WebProcessor:Clean;SystemExt:Clean;CodeDocsProcessor:Clean;SQLDir:Clean"/>
+        <CallTarget Targets="CodeImatic_codegen:Clean;CodeImatic_codegen_core:Clean;WebServer:Clean;WebProcessor:Clean;SystemExt:Clean;CodeDocsProcessor:Clean;SysTags:Clean;DBTags:Clean;SQLDir:Clean;JSONTags:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="CodeImatic_codegen:Make;CodeImatic_codegen_core:Make;SysTags:Make;WebServer:Make;WebProcessor:Make;SystemExt:Make;CodeDocsProcessor:Make;SQLDir:Make"/>
+        <CallTarget Targets="CodeImatic_codegen:Make;CodeImatic_codegen_core:Make;WebServer:Make;WebProcessor:Make;SystemExt:Make;CodeDocsProcessor:Make;SysTags:Make;DBTags:Make;SQLDir:Make;JSONTags:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

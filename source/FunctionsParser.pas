@@ -2,7 +2,7 @@ unit FunctionsParser;
 
 interface
 
-Uses TokenParser;
+Uses TokenParser, TagParser, TagType;
 
 Type
    TOnExecuteFunction = procedure(var aToken:string) of object;
@@ -21,12 +21,14 @@ implementation
 function TFunctionsParser.Execute: String;
 Var
   LsToken: String;
+  fTagType: TTagType;
 begin
   Result := '';
 
   if GetNextToken = '(' then
     begin
-      LsToken := GetNextToken;
+      LsToken := GetNextToken(true);
+
 
       if GetNextToken = ')' then
         begin

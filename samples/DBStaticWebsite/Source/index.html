@@ -1,4 +1,4 @@
-<%$title=lower(sys.newguid)%>
+<%$title=sys.uplower("TITLE")%>
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -8,8 +8,8 @@
   <body>
    <h1>EMPLOYEE</h1> 
      EMPLOYEE.COUNTRY: 
+     <%sys.blankline%>
      
-     <%sys.newguid%>
   
      FieldName: <%=fieldnamebyindex("EMPLOYEE","COUNTRY", 1)%>
 

@@ -24,7 +24,8 @@ type
     class function ParseToken(aObject: Tobject; aToken: String;
       aProjectItem: tProjectItem; aVariables: TVariables; aOutput: TOutput;
       ATokens: tTokenProcessor; Var aTokenIndex: Integer;
-      aProject: TProject): String;
+      aProject: TProject;
+      aextendedParseToken: boolean = false): String;
     class function ParseSimpleToken(aToken: string; aOutput: TOutput)
       : tTokenProcessor;
     class function ParseExpressionToken(aObject: Tobject; aToken: String;
@@ -33,7 +34,8 @@ type
     class function ParseExpressionToken(aToken: string; aOutput: TOutput)
       : tTokenProcessor; overload;
 
-    function GetNextToken: String;
+    function GetNextToken(aExtendParseToken: boolean = false): String;
+    function GetCloseBraket: boolean;
 
     property oCodeGeneratorItem: TCodeGeneratorItem read foCodeGeneratorItem;
 
@@ -303,9 +305,93 @@ begin
         ' cannot be found.');
     end;
   end;
+  if aextendedParseToken then
+    begin
+      lTagType := TTagParser.ParseTagType(aProjectItem, NIL, ATokens,
+        aOutput, aTokenIndex);
+
+      case lTagType of
+        ttProperty:
+          Result := aProjectItem.oProperties.GetProperty(fsToken);
+        ttPropertyEx:
+          begin
+            if aObject is tInterpreter then
+            begin
+              lsToken2 := tInterpreter(aObject).GetNextToken(aTokenIndex,
+                ATokens);
+
+            end;
+
+            if lsToken2 <> '' then
+            begin
+              Result := aProjectItem.oProperties.GetProperty(lsToken2);
+            end;
+          end;
+        ttprojectitem:
+          begin
+            Result := aProjectItem.GetProperty(lsToken2, aProject);
+
+          end;
+        ttplugintag:
+          begin
+            if aObject Is TCodeGeneratorItem then
+              begin
+                ATokens.TokenIndex := aTokenIndex;
+
+                lsToken1 := ATokens.GetNextToken;
+                lsToken2 := ATokens.GetNextToken;
+
+                aTokenIndex := ATokens.TokenIndex  - 1;
+
+
+               end
+            else
+            if aObject is tInterpreter then
+            begin
+              lsToken2 := tInterpreter(aObject).GetNextToken(aTokenIndex,
+                ATokens);
+              if Assigned(tInterpreter(aObject).oCodeGeneratorItem) then
+                loCodeGeneratorItem :=
+                  TCodeGeneratorItem(tInterpreter(aObject).oCodeGeneratorItem);
+            end;
+
+            if oRuntime.oPlugins.IsTagExists(lsToken1, lsToken2) then
+            begin
+              Result := oRuntime.oPlugins.GetTag(lsToken1, lsToken2,
+                loCodeGeneratorItem, aTokenIndex);
+            end;
+          end;
+        ttVariableCmdLine:
+          begin
+            lsToken2 := ATokens.GetNextToken(True);
+
+            aTokenIndex := ATokens.TokenIndex;
+
+            lVariable := oConfig.oVariablesCmdLine.GetVariableByName(lsToken2);
+
+            if Assigned(lVariable) then
+              Result := lVariable.Value;
+
+          end;
+
+        ttConfigProperties:
+          begin
+            lsToken2 := ATokens.GetNextToken(ATokens.TokenIndex + 1);
+
+            aTokenIndex := ATokens.TokenIndex;
+
+            if Assigned(aProject) then
+              Result := aProject.oProjectConfig.Getproperties(lsToken2);
+          end;
+
+
+      end;
+
+    end;
+
 end;
 
-function tTokenParser.GetNextToken: String;
+function tTokenParser.GetNextToken(aExtendParseToken: boolean): String;
 Var
   lsToken: string;
   liTokenIndex: Integer;
@@ -316,12 +402,31 @@ begin
   Result := tTokenParser.ParseToken(foCodeGeneratorItem, lsToken,
     (foCodeGeneratorItem.oProjectItem as tProjectItem),
     (foCodeGeneratorItem.oVariables as TVariables), oOutput,
-    foCodeGeneratorItem.oTokens, liTokenIndex, foCodeGeneratorItem.oProject);
+    foCodeGeneratorItem.oTokens, liTokenIndex, foCodeGeneratorItem.oProject,
+    aExtendParseToken);
 
   Inc(liTokenIndex);
 
   foCodeGeneratorItem.TokenIndex := liTokenIndex;
 end;
+
+
+function tTokenParser.GetCloseBraket: boolean;
+var
+  lsNextToken: string;
+begin
+  Result := False;
+
+  While(lsNextToken <> ')') do
+    begin
+      lsNextToken := GetNextToken;
+      if lsNextToken = '' then break;
+    end;
+
+  if lsNextToken = ')' then Result := true;
+
+end;
+
 
 function tTokenParser.GetTokenIndex: Integer;
 begin
