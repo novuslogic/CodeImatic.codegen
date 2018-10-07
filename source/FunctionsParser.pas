@@ -5,13 +5,13 @@ interface
 Uses TokenParser, TagParser, TagType;
 
 Type
-   TOnExecuteFunction = procedure(var aToken:string) of object;
+   TOnExecute = procedure(var aToken:string) of object;
 
    TFunctionsParser = class(tTokenParser)
    private
    protected
    public
-     OnExecuteFunction: TOnExecuteFunction;
+     OnExecute: TOnExecute;
      function Execute: String;
    end;
 
@@ -32,8 +32,8 @@ begin
 
       if GetNextToken = ')' then
         begin
-          if Assigned(OnExecuteFunction) then
-            OnExecuteFunction(LsToken);
+          if Assigned(OnExecute) then
+            OnExecute(LsToken);
 
           Result := LsToken;
         end

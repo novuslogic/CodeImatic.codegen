@@ -199,7 +199,7 @@ begin
 
       LFunctionsParser.TokenIndex := aTokenIndex;
 
-      LFunctionsParser.OnExecuteFunction := OnExecute;
+      LFunctionsParser.OnExecute := OnExecute;
 
       Result := LFunctionsParser.Execute;
     Finally

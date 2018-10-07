@@ -5,7 +5,7 @@ interface
 uses Classes,Plugin, NovusPlugin, NovusVersionUtils, Project,
     Output, SysUtils, System.Generics.Defaults,  runtime, Config,
     APIBase, NovusGUIDEx, CodeGeneratorItem, FunctionsParser, ProjectItem,
-    Variables, NovusFileUtils, CodeGenerator;
+    Variables, NovusFileUtils, CodeGenerator, FieldFunctionParser;
 
 
 type
@@ -189,30 +189,34 @@ begin
   Result := 'FIELDCOUNT';
 end;
 
+procedure TDBTag_FieldCount.OnExecute(var aToken: String);
+begin
+   oOutput.Log(self.Classname);
+
+
+  //aToken := IntToStr(lConnectionItem.FieldCount(FTableName));
+end;
+
+
 function TDBTag_FieldCount.Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
 var
-  LFunctionsParser: tFunctionsParser;
+  LFieldFunctionParser: tFieldFunctionParser;
 begin
   Try
     Try
-      LFunctionsParser:= tFunctionsParser.Create(aCodeGeneratorItem, foOutput);
+      LFieldFunctionParser:= tFieldFunctionParser.Create(aCodeGeneratorItem, foOutput);
 
-      LFunctionsParser.TokenIndex := aTokenIndex;
+      LFieldFunctionParser.TokenIndex := aTokenIndex;
 
-      LFunctionsParser.OnExecuteFunction := OnExecute;
+      LFieldFunctionParser.OnExecute := OnExecute;
 
-      Result := LFunctionsParser.Execute;
+      Result := LFieldFunctionParser.Execute;
     Finally
-      LFunctionsParser.Free;
+      LFieldFunctionParser.Free;
     End;
   Except
     oOutput.InternalError;
   End;
-end;
-
-procedure TDBTag_FieldCount.OnExecute(var aToken: String);
-begin
-  aToken :='';
 end;
 
 
