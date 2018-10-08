@@ -5,7 +5,7 @@ interface
 Uses TokenParser, TagParser, TagType, DataProcessor, ProjectItem;
 
 Type
-   TOnExecute = procedure(var aToken: String) of object;
+   TOnExecute = procedure(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string) of object;
 
    TFieldFunctionParser = class(tTokenParser)
    private
@@ -28,7 +28,7 @@ Var
   FFieldDesc: tFieldDesc;
 
   FConnectionName: String;
-  FTableName: String;
+  FsTableName: String;
   FFieldIndex: Integer;
   LStr: String;
   FFieldType: tFieldType;
@@ -46,16 +46,16 @@ begin
     begin
       if foConnectionItem.Connected then
       begin
-        FTableName := GetNextToken;
+        FsTableName := GetNextToken;
 
-        If foConnectionItem.TableExists(FTableName) then
+        If foConnectionItem.TableExists(FsTableName) then
         begin
           if Assigned(OnExecute) then
-            OnExecute(result);
+            OnExecute(result, foConnectionItem , FsTableName);
         end
         else
         begin
-          oOutput.LogError('Error: Table cannot be found "' + FTableName + '"');
+          oOutput.LogError('Error: Table cannot be found "' + FsTableName + '"');
         end;
 
       end

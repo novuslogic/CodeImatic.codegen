@@ -5,7 +5,7 @@ interface
 uses Classes,Plugin, NovusPlugin, NovusVersionUtils, Project,
     Output, SysUtils, System.Generics.Defaults,  runtime, Config,
     APIBase, NovusGUIDEx, CodeGeneratorItem, FunctionsParser, ProjectItem,
-    Variables, NovusFileUtils, CodeGenerator, FieldFunctionParser;
+    Variables, NovusFileUtils, CodeGenerator, FieldFunctionParser, DataProcessor;
 
 
 type
@@ -32,7 +32,7 @@ type
   private
   protected
     function GetTagName: String; override;
-    procedure OnExecute(var aToken: String);
+    procedure OnExecute(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string);
   public
     function Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String; override;
   end;
@@ -132,7 +132,7 @@ begin
   liIndex := IsTagExists(aTagName);
   if liIndex = -1 then
    begin
-     oOutput.LogError('Cannot find sys.' + aTagname);
+     oOutput.LogError('Cannot find db.' + aTagname);
 
      Exit;
    end;
@@ -189,12 +189,9 @@ begin
   Result := 'FIELDCOUNT';
 end;
 
-procedure TDBTag_FieldCount.OnExecute(var aToken: String);
+procedure TDBTag_FieldCount.OnExecute(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string);
 begin
-   oOutput.Log(self.Classname);
-
-
-  //aToken := IntToStr(lConnectionItem.FieldCount(FTableName));
+  aToken := IntToStr(aConnectionItem.FieldCount(aTableName));
 end;
 
 
