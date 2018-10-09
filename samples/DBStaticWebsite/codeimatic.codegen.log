@@ -1,20 +1,18 @@
-8/10/2018 22:11-Logging started
-8/10/2018 22:11-CodeImatic.codegen - © Copyright Novuslogic Software 2011 - 2018 All Rights Reserved
-8/10/2018 22:11-Version: 
-8/10/2018 22:11-Project: DBStaticWebsite.zcproject
-8/10/2018 22:11-Project Config: D:\Projects\CodeImatic.codegen\samples\DBStaticWebsite\DBStaticWebsite.zcconfig
-8/10/2018 22:11-Loading plugins
-8/10/2018 22:11-Loaded: Sys
-8/10/2018 22:11-Loaded: DB
-8/10/2018 22:11-Loaded: JSON
-8/10/2018 22:11-Loaded: SystemExt
-8/10/2018 22:11-Loaded: WebProcessor
-8/10/2018 22:11-Loaded: WebServer
-8/10/2018 22:11-Loaded: CodeDocsProcessor
-8/10/2018 22:11-Loaded: SQLDIR
-8/10/2018 22:11-Project Item: index.html
-8/10/2018 22:11-Source : D:\Projects\CodeImatic.codegen\samples\DBStaticWebsite\Source\INDEX.HTML
-8/10/2018 22:11-Output: D:\Projects\CodeImatic.codegen\samples\DBStaticWebsite\Site\index.html
-8/10/2018 22:11-Build started 8/10/2018 22:11
-8/10/2018 22:13-Build succeeded 8/10/2018 22:13
-8/10/2018 22:13-Logging finished
+9/10/2018 23:26-Logging started
+9/10/2018 23:26-CodeImatic.codegen - © Copyright Novuslogic Software 2011 - 2018 All Rights Reserved
+9/10/2018 23:26-Version: 
+9/10/2018 23:26-Project: DBStaticWebsite.zcproject
+9/10/2018 23:26-Project Config: D:\Projects\CodeImatic.codegen\samples\DBStaticWebsite\DBStaticWebsite.zcconfig
+9/10/2018 23:26-Loading plugins
+9/10/2018 23:26-Loaded: Sys
+9/10/2018 23:26-Loaded: DB
+9/10/2018 23:26-Loaded: JSON
+9/10/2018 23:26-Loaded: SystemExt
+9/10/2018 23:26-Loaded: WebProcessor
+9/10/2018 23:26-Loaded: WebServer
+9/10/2018 23:26-Loaded: CodeDocsProcessor
+9/10/2018 23:26-Loaded: SQLDIR
+9/10/2018 23:26-Project Item: index.html
+9/10/2018 23:26-Source : D:\Projects\CodeImatic.codegen\samples\DBStaticWebsite\Source\INDEX.HTML
+9/10/2018 23:26-Output: D:\Projects\CodeImatic.codegen\samples\DBStaticWebsite\Site\index.html
+9/10/2018 23:26-Build started

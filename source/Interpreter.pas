@@ -1313,8 +1313,8 @@ begin
       //    Result := Lowercase(LStr);
        // 1:
        //   Result := Uppercase(LStr);
-        2:
-          Result := TNovusStringUtils.UpLowerA(LStr, true);
+       // 2:
+        //  Result := TNovusStringUtils.UpLowerA(LStr, true);
         3:
           Result := FieldTypeToDataType(LStr);
         4:

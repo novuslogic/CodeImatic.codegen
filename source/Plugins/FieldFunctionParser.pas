@@ -2,10 +2,10 @@ unit FieldFunctionParser;
 
 interface
 
-Uses TokenParser, TagParser, TagType, DataProcessor, ProjectItem;
+Uses TokenParser, TagParser, TagType, DataProcessor, ProjectItem, TokenProcessor;
 
 Type
-   TOnExecute = procedure(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string) of object;
+   TOnExecute = procedure(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string; aTokenParser: tTokenParser) of object;
 
    TFieldFunctionParser = class(tTokenParser)
    private
@@ -51,7 +51,7 @@ begin
         If foConnectionItem.TableExists(FsTableName) then
         begin
           if Assigned(OnExecute) then
-            OnExecute(result, foConnectionItem , FsTableName);
+            OnExecute(result, foConnectionItem , FsTableName, Self);
         end
         else
         begin

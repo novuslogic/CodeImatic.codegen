@@ -3,8 +3,8 @@ unit Plugin_DBTagsClasses;
 interface
 
 uses Classes,Plugin, NovusPlugin, NovusVersionUtils, Project,
-    Output, SysUtils, System.Generics.Defaults,  runtime, Config,
-    APIBase, NovusGUIDEx, CodeGeneratorItem, FunctionsParser, ProjectItem,
+    Output, SysUtils, System.Generics.Defaults,  runtime, Config, NovusStringUtils,
+    APIBase, NovusGUIDEx, CodeGeneratorItem, FunctionsParser, ProjectItem, TokenParser,
     Variables, NovusFileUtils, CodeGenerator, FieldFunctionParser, DataProcessor;
 
 
@@ -32,11 +32,20 @@ type
   private
   protected
     function GetTagName: String; override;
-    procedure OnExecute(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string);
+    procedure OnExecute(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string; aTokenParser: tTokenParser);
   public
     function Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String; override;
   end;
 
+
+  TDBTag_FieldNameByIndex = class(TDBTag)
+  private
+  protected
+    function GetTagName: String; override;
+    procedure OnExecute(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string; aTokenParser: tTokenParser);
+  public
+    function Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String; override;
+  end;
 
   tDBTags = array of TDBTag;
 
@@ -80,7 +89,7 @@ constructor tPlugin_DBTagsBase.Create(aOutput: tOutput; aPluginName: String; aPr
 begin
   Inherited Create(aOutput,aPluginName, aProject, aConfigPlugin);
 
-  FDBTags:= tDBTags.Create(TDBTag_FieldCount.Create(aOutput)) ;
+  FDBTags:= tDBTags.Create(TDBTag_FieldCount.Create(aOutput), TDBTag_FieldNameByIndex.Create(aOutput)) ;
 end;
 
 
@@ -136,7 +145,7 @@ begin
 
      Exit;
    end;
-  
+
   Result := FDBTags[liIndex].Execute(aCodeGeneratorItem, aTokenIndex);
 end;
 
@@ -146,7 +155,7 @@ Var
 begin
   Result := -1;
   if aTagName = '' then Exit;
-   
+
   for I := 0 to Length(FDBTags) -1 do
    begin
      if Uppercase(Trim(aTagName)) = Uppercase(Trim(FDBTags[i].TagName)) then
@@ -171,6 +180,7 @@ begin
   foOutput:= aOutput;
 end;
 
+
 function TDBTag.GetTagName: String;
 begin
   Result := '';
@@ -182,20 +192,79 @@ begin
 end;
 
 
-
-
+//  TDBTag_FieldCount
 function TDBTag_FieldCount.GetTagName: String;
 begin
   Result := 'FIELDCOUNT';
 end;
 
-procedure TDBTag_FieldCount.OnExecute(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string);
+procedure TDBTag_FieldCount.OnExecute(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string; aTokenParser: tTokenParser);
 begin
   aToken := IntToStr(aConnectionItem.FieldCount(aTableName));
 end;
 
 
 function TDBTag_FieldCount.Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
+var
+  LFieldFunctionParser: tFieldFunctionParser;
+begin
+
+  Try
+    Try
+      LFieldFunctionParser:= tFieldFunctionParser.Create(aCodeGeneratorItem, foOutput);
+
+      LFieldFunctionParser.TokenIndex := aTokenIndex;
+
+      LFieldFunctionParser.OnExecute := OnExecute;
+
+      Result := LFieldFunctionParser.Execute;
+    Finally
+      LFieldFunctionParser.Free;
+    End;
+  Except
+    oOutput.InternalError;
+  End;
+end;
+
+//  TDBTag_FieldNameByIndex
+function TDBTag_FieldNameByIndex.GetTagName: String;
+begin
+  Result := 'FIELDNAMEBYINDEX';
+end;
+
+procedure TDBTag_FieldNameByIndex.OnExecute(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string;aTokenParser: tTokenParser);
+Var
+  lsToken: String;
+  liFieldIndex: Integer;
+  lFieldDesc: tFieldDesc;
+begin
+   lsToken := aTokenParser.GetNextToken;
+
+  if TNovusStringUtils.IsNumberStr(lsToken) then
+  begin
+    liFieldIndex := StrToint(lsToken);
+
+    lFieldDesc := aConnectionItem.FieldByIndex(aTableName, liFieldIndex);
+
+    if Assigned(lFieldDesc) then
+    begin
+      if aTokenParser.GetNextToken = ')' then
+        aToken := lFieldDesc.FieldName;
+
+    end
+    else
+      foOutput.Log('Incorrect syntax: lack ")"');
+  end
+  else
+    foOutput.LogError('Error: Field cannot be found.');
+
+  if Assigned(lFieldDesc) then
+     lFieldDesc.Free;
+
+end;
+
+
+function TDBTag_FieldNameByIndex.Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
 var
   LFieldFunctionParser: tFieldFunctionParser;
 begin
@@ -217,6 +286,7 @@ begin
 end;
 
 
+
 exports
   GetPluginObject name func_GetPluginObject;
 
@@ -229,5 +299,3 @@ finalization
   FreeAndNIL(_Plugin_DBTags);
 
 end.
-
-
