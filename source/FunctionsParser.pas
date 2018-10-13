@@ -25,12 +25,35 @@ Var
 begin
   Result := '';
 
-  if GetNextToken = '(' then
+  if ParseNextToken = '(' then
     begin
-      LsToken := GetNextToken(true);
+      LsToken := ParseNextToken;
+      if Assigned(OnExecute) then
+        OnExecute(LsToken);
 
+      if ParseNextToken = ')' then
+        begin
+          Result := LsToken;
+          Exit;
+        end
+      else
+        begin
+          oOutput.LogError('Incorrect syntax: lack ")"');
+        end;
+    end
+  else
+    begin
+      oOutput.LogError('Incorrect syntax: lack "("');
+    end;
 
-      if GetNextToken = ')' then
+  (*
+  Result := '';
+
+  if ParseNextToken = '(' then
+    begin
+      LsToken := ParseNextToken;
+
+      if ParseNextToken = ')' then
         begin
           if Assigned(OnExecute) then
             OnExecute(LsToken);
@@ -46,7 +69,7 @@ begin
     begin
       oOutput.LogError('Incorrect syntax: lack "("');
     end;
-
+   *)
 end;
 
 

@@ -17,6 +17,7 @@ type
   private
     function GetTokenIndex: Integer;
     procedure SetTokenIndex(Value: Integer);
+    function GetEOF: Boolean;
   public
     constructor Create(aCodeGeneratorItem: TCodeGeneratorItem;
       aOutput: TOutput); overload;
@@ -34,8 +35,8 @@ type
     class function ParseExpressionToken(aToken: string; aOutput: TOutput)
       : tTokenProcessor; overload;
 
-    function GetNextToken(aExtendParseToken: boolean = false): String;
-    function GetCloseBraket: boolean;
+    function ParseNextToken: String;
+
 
     property oCodeGeneratorItem: TCodeGeneratorItem read foCodeGeneratorItem;
 
@@ -46,6 +47,8 @@ type
     property oVariables: TVariables read foVariables;
 
     property TokenIndex: Integer read GetTokenIndex write SetTokenIndex;
+
+    property EOF: Boolean read GetEOF;
   end;
 
 implementation
@@ -391,7 +394,7 @@ begin
 
 end;
 
-function tTokenParser.GetNextToken(aExtendParseToken: boolean): String;
+function tTokenParser.ParseNextToken: String;
 Var
   lsToken: string;
   liTokenIndex: Integer;
@@ -403,27 +406,15 @@ begin
     (foCodeGeneratorItem.oProjectItem as tProjectItem),
     (foCodeGeneratorItem.oVariables as TVariables), oOutput,
     foCodeGeneratorItem.oTokens, liTokenIndex, foCodeGeneratorItem.oProject,
-    aExtendParseToken);
+    true);
 
   Inc(liTokenIndex);
 
   foCodeGeneratorItem.TokenIndex := liTokenIndex;
-end;
 
+  if foCodeGeneratorItem.oTokens.EOF then
+    foCodeGeneratorItem.TokenIndex := foCodeGeneratorItem.oTokens.Count -1;
 
-function tTokenParser.GetCloseBraket: boolean;
-var
-  lsNextToken: string;
-begin
-  Result := False;
-
-  While(lsNextToken <> ')') do
-    begin
-      lsNextToken := GetNextToken;
-      if lsNextToken = '' then break;
-    end;
-
-  if lsNextToken = ')' then Result := true;
 
 end;
 
@@ -436,6 +427,11 @@ end;
 procedure tTokenParser.SetTokenIndex(Value: Integer);
 begin
   foCodeGeneratorItem.TokenIndex := Value;
+end;
+
+function tTokenParser.GetEOF: Boolean;
+begin
+  Result := foCodeGeneratorItem.oTokens.EOF;
 end;
 
 end.

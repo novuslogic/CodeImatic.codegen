@@ -36,9 +36,9 @@ Var
 begin
   Result := '';
 
-  If GetNextToken = '(' then
+  If  ParseNextToken = '(' then
   begin
-    FConnectionName := GetNextToken;
+    FConnectionName := ParseNextToken;
 
     foConnectionItem := oCodeGeneratorItem.oProject.oProjectConfig.oConnections.FindConnectionName(FConnectionName);
 
@@ -46,7 +46,7 @@ begin
     begin
       if foConnectionItem.Connected then
       begin
-        FsTableName := GetNextToken;
+        FsTableName := ParseNextToken;
 
         If foConnectionItem.TableExists(FsTableName) then
         begin

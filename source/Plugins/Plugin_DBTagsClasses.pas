@@ -47,6 +47,15 @@ type
     function Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String; override;
   end;
 
+  TDBTag_FieldTypeByIndex = class(TDBTag)
+  private
+  protected
+    function GetTagName: String; override;
+    procedure OnExecute(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string; aTokenParser: tTokenParser);
+  public
+    function Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String; override;
+  end;
+
   tDBTags = array of TDBTag;
 
   tPlugin_DBTagsBase = class(TTagsPlugin)
@@ -238,7 +247,72 @@ Var
   liFieldIndex: Integer;
   lFieldDesc: tFieldDesc;
 begin
-   lsToken := aTokenParser.GetNextToken;
+   lsToken := aTokenParser.ParseNextToken;
+
+  if TNovusStringUtils.IsNumberStr(lsToken) then
+  begin
+    liFieldIndex := StrToint(lsToken);
+
+    lFieldDesc := aConnectionItem.FieldByIndex(aTableName, liFieldIndex);
+
+    if Assigned(lFieldDesc) then
+    begin
+      if aTokenParser.ParseNextToken = ')' then
+        begin
+          aToken := lFieldDesc.FieldName;
+
+
+        end;
+
+    end
+    else
+      foOutput.Log('Incorrect syntax: lack ")"');
+  end
+  else
+    foOutput.LogError('Error: Field cannot be found.');
+
+  if Assigned(lFieldDesc) then
+     lFieldDesc.Free;
+
+end;
+
+
+function TDBTag_FieldNameByIndex.Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
+var
+  LFieldFunctionParser: tFieldFunctionParser;
+begin
+  Try
+    Try
+      LFieldFunctionParser:= tFieldFunctionParser.Create(aCodeGeneratorItem, foOutput);
+
+      LFieldFunctionParser.TokenIndex := aTokenIndex;
+
+      LFieldFunctionParser.OnExecute := OnExecute;
+
+      Result := LFieldFunctionParser.Execute;
+    Finally
+      LFieldFunctionParser.Free;
+    End;
+  Except
+    oOutput.InternalError;
+  End;
+end;
+
+
+//  TDBTag_FieldTypeByIndex
+function TDBTag_FieldTypeByIndex.GetTagName: String;
+begin
+  Result := 'FIELDTYPEBYINDEX';
+end;
+
+procedure TDBTag_FieldTypeByIndex.OnExecute(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string;aTokenParser: tTokenParser);
+Var
+  lsToken: String;
+  liFieldIndex: Integer;
+  lFieldDesc: tFieldDesc;
+begin
+ (*
+  lsToken := aTokenParser.GetNextToken;
 
   if TNovusStringUtils.IsNumberStr(lsToken) then
   begin
@@ -260,11 +334,11 @@ begin
 
   if Assigned(lFieldDesc) then
      lFieldDesc.Free;
-
+  *)
 end;
 
 
-function TDBTag_FieldNameByIndex.Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
+function TDBTag_FieldTypeByIndex.Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
 var
   LFieldFunctionParser: tFieldFunctionParser;
 begin
