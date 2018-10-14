@@ -196,12 +196,13 @@ begin
     lsToken1 := TVariables.CleanVariableName
       (Uppercase(aTokens.Strings[aTokenIndex]));
 
-      (*
 
-      This need to be fixed for second token need new system
-    if (aTokens.Count > 1) and (aTokenIndex <= aTokens.Count - 1) then
-      lsToken2 := TVariables.CleanVariableName
-        (Uppercase(aTokens.Strings[aTokenIndex + 1]));*)
+    if (aTokenIndex < aTokens.Count - 1) then
+      begin
+        if (aTokens.Count > 1) and (aTokenIndex <= aTokens.Count - 1) then
+           lsToken2 := TVariables.CleanVariableName
+            (Uppercase(aTokens.Strings[aTokenIndex + 1]));
+      end
   end
   else
   begin
