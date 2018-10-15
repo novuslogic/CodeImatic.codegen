@@ -50,8 +50,18 @@ begin
 
         If foConnectionItem.TableExists(FsTableName) then
         begin
+          LsToken := '';
           if Assigned(OnExecute) then
-            OnExecute(result, foConnectionItem , FsTableName, Self);
+            OnExecute(LsToken, foConnectionItem , FsTableName, Self);
+
+
+            if ParseNextToken = ')' then
+            begin
+              Result := LsToken;
+              Exit;
+            end
+          else
+            oOutput.LogError('Incorrect syntax: lack ")"');
         end
         else
         begin

@@ -98,7 +98,7 @@ constructor tPlugin_DBTagsBase.Create(aOutput: tOutput; aPluginName: String; aPr
 begin
   Inherited Create(aOutput,aPluginName, aProject, aConfigPlugin);
 
-  FDBTags:= tDBTags.Create(TDBTag_FieldCount.Create(aOutput), TDBTag_FieldNameByIndex.Create(aOutput)) ;
+  FDBTags:= tDBTags.Create(TDBTag_FieldCount.Create(aOutput), TDBTag_FieldNameByIndex.Create(aOutput), TDBTag_FieldTypeByIndex.Create(aOutput)) ;
 end;
 
 
@@ -247,7 +247,7 @@ Var
   liFieldIndex: Integer;
   lFieldDesc: tFieldDesc;
 begin
-   lsToken := aTokenParser.ParseNextToken;
+  lsToken := aTokenParser.ParseNextToken;
 
   if TNovusStringUtils.IsNumberStr(lsToken) then
   begin
@@ -307,12 +307,13 @@ end;
 
 procedure TDBTag_FieldTypeByIndex.OnExecute(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string;aTokenParser: tTokenParser);
 Var
+  FFieldType: tFieldType;
+  FFieldDesc: tFieldDesc;
   lsToken: String;
   liFieldIndex: Integer;
   lFieldDesc: tFieldDesc;
 begin
- (*
-  lsToken := aTokenParser.GetNextToken;
+  lsToken := aTokenParser.ParseNextToken;
 
   if TNovusStringUtils.IsNumberStr(lsToken) then
   begin
@@ -322,8 +323,26 @@ begin
 
     if Assigned(lFieldDesc) then
     begin
-      if aTokenParser.GetNextToken = ')' then
-        aToken := lFieldDesc.FieldName;
+      if aTokenParser.ParseNextToken = ')' then
+        begin
+          Try
+            FFieldType := aConnectionItem.oDBSchema.GetFieldType
+                                (lFieldDesc, aConnectionItem.AuxDriver);
+
+
+
+            if FFieldType.SQLFormat = '' then
+              aToken := FFieldType.SqlType
+            else
+              aToken := Format(FFieldType.SQLFormat, [lFieldDesc.Column_Length]);
+
+
+           Finally
+             FFieldType.Free;
+           End;
+
+
+        end;
 
     end
     else
@@ -334,7 +353,29 @@ begin
 
   if Assigned(lFieldDesc) then
      lFieldDesc.Free;
-  *)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 end;
 
 

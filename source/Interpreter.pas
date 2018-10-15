@@ -54,7 +54,7 @@ Type
     FoCodeGeneratorItem: TObject;
     foProjectItem: TObject;
   private
-    function ParseCommand(aCommand: string): string;
+    //function ParseCommand(aCommand: string): string;
 
     function plugintag(aTokens: tTokenProcessor; Var aIndex: Integer): string;
     function IsRepeat(ACodeGeneratorItem: TObject): Boolean;
@@ -1533,9 +1533,11 @@ begin
   end;
 end;
 
+(*
 function TInterpreter.ParseCommand(aCommand: string): String;
 begin
   Result := aCommand;
 end;
+*)
 
 end.

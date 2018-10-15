@@ -253,7 +253,7 @@ begin
       result := ttProperty
     else if Assigned(oRuntime.oPlugins) and
       (oRuntime.oPlugins.IsTagExists(lsToken,
-      lsToken2 (* FTokenProcessor.GetNextToken *) ) or
+      lsToken2 ) or
       oRuntime.oPlugins.IsPluginNameExists(lsToken)) then
       result := ttplugintag
     else if Assigned(aCodeGenerator) and

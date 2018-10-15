@@ -37,39 +37,13 @@ begin
           Exit;
         end
       else
-        begin
-          oOutput.LogError('Incorrect syntax: lack ")"');
-        end;
+        oOutput.LogError('Incorrect syntax: lack ")"');
+
     end
   else
     begin
       oOutput.LogError('Incorrect syntax: lack "("');
     end;
-
-  (*
-  Result := '';
-
-  if ParseNextToken = '(' then
-    begin
-      LsToken := ParseNextToken;
-
-      if ParseNextToken = ')' then
-        begin
-          if Assigned(OnExecute) then
-            OnExecute(LsToken);
-
-          Result := LsToken;
-        end
-      else
-        begin
-          oOutput.LogError('Incorrect syntax: lack ")"');
-        end;
-    end
-  else
-    begin
-      oOutput.LogError('Incorrect syntax: lack "("');
-    end;
-   *)
 end;
 
 
