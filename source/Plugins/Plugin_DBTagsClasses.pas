@@ -5,7 +5,8 @@ interface
 uses Classes,Plugin, NovusPlugin, NovusVersionUtils, Project,
     Output, SysUtils, System.Generics.Defaults,  runtime, Config, NovusStringUtils,
     APIBase, NovusGUIDEx, CodeGeneratorItem, FunctionsParser, ProjectItem, TokenParser,
-    Variables, NovusFileUtils, CodeGenerator, FieldFunctionParser, DataProcessor;
+    Variables, NovusFileUtils, CodeGenerator, FieldFunctionParser, DataProcessor,
+    TableFunctionParser;
 
 
 type
@@ -39,6 +40,15 @@ type
 
 
   TDBTag_FieldNameByIndex = class(TDBTag)
+  private
+  protected
+    function GetTagName: String; override;
+    procedure OnExecute(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string; aTokenParser: tTokenParser);
+  public
+    function Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String; override;
+  end;
+
+  TDBTag_TableCount = class(TDBTag)
   private
   protected
     function GetTagName: String; override;
@@ -98,7 +108,7 @@ constructor tPlugin_DBTagsBase.Create(aOutput: tOutput; aPluginName: String; aPr
 begin
   Inherited Create(aOutput,aPluginName, aProject, aConfigPlugin);
 
-  FDBTags:= tDBTags.Create(TDBTag_FieldCount.Create(aOutput), TDBTag_FieldNameByIndex.Create(aOutput), TDBTag_FieldTypeByIndex.Create(aOutput)) ;
+  FDBTags:= tDBTags.Create(TDBTag_FieldCount.Create(aOutput), TDBTag_FieldNameByIndex.Create(aOutput), TDBTag_FieldTypeByIndex.Create(aOutput), TDBTag_TableCount.Create(aOutput)) ;
 end;
 
 
@@ -298,6 +308,46 @@ begin
   End;
 end;
 
+// TDBTag_TableCount
+function TDBTag_TableCount.GetTagName: String;
+begin
+  Result := 'TABLECOUNT';
+end;
+
+procedure TDBTag_TableCount.OnExecute(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string;aTokenParser: tTokenParser);
+Var
+  FFieldType: tFieldType;
+  FFieldDesc: tFieldDesc;
+  lsToken: String;
+  liFieldIndex: Integer;
+  lFieldDesc: tFieldDesc;
+begin
+  aToken := IntToStr(aConnectionItem.TableCount);
+end;
+
+
+function TDBTag_TableCount.Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
+var
+  LTableFunctionParser: tTableFunctionParser;
+begin
+  Try
+    Try
+      LTableFunctionParser:= tTableFunctionParser.Create(aCodeGeneratorItem, foOutput);
+
+      LTableFunctionParser.TokenIndex := aTokenIndex;
+
+      LTableFunctionParser.OnExecute := OnExecute;
+
+      Result := LTableFunctionParser.Execute;
+    Finally
+      LTableFunctionParser.Free;
+    End;
+  Except
+    oOutput.InternalError;
+  End;
+end;
+
+
 
 //  TDBTag_FieldTypeByIndex
 function TDBTag_FieldTypeByIndex.GetTagName: String;
@@ -353,29 +403,6 @@ begin
 
   if Assigned(lFieldDesc) then
      lFieldDesc.Free;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 end;
 
 
@@ -399,6 +426,8 @@ begin
     oOutput.InternalError;
   End;
 end;
+
+
 
 
 

@@ -8,7 +8,8 @@ uses
   System.SysUtils,
   System.Classes,
   Plugin_DBTagsClasses in 'Plugin_DBTagsClasses.pas',
-  FieldFunctionParser in 'FieldFunctionParser.pas';
+  FieldFunctionParser in 'FieldFunctionParser.pas',
+  TableFunctionParser in 'TableFunctionParser.pas';
 
 {$R *.res}
 

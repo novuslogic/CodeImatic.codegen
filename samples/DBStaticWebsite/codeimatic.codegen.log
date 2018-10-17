@@ -1,20 +1,20 @@
-15/10/2018 23:33-Logging started
-15/10/2018 23:33-CodeImatic.codegen - © Copyright Novuslogic Software 2011 - 2018 All Rights Reserved
-15/10/2018 23:33-Version: 
-15/10/2018 23:33-Project: DBStaticWebsite.zcproject
-15/10/2018 23:33-Project Config: D:\Projects\CodeImatic.codegen\samples\DBStaticWebsite\DBStaticWebsite.zcconfig
-15/10/2018 23:33-Loading plugins
-15/10/2018 23:33-Loaded: Sys
-15/10/2018 23:33-Loaded: DB
-15/10/2018 23:33-Loaded: JSON
-15/10/2018 23:33-Loaded: SystemExt
-15/10/2018 23:33-Loaded: WebProcessor
-15/10/2018 23:33-Loaded: WebServer
-15/10/2018 23:33-Loaded: CodeDocsProcessor
-15/10/2018 23:33-Loaded: SQLDIR
-15/10/2018 23:33-Project Item: index.html
-15/10/2018 23:33-Source : D:\Projects\CodeImatic.codegen\samples\DBStaticWebsite\Source\INDEX.HTML
-15/10/2018 23:33-Output: D:\Projects\CodeImatic.codegen\samples\DBStaticWebsite\Site\index.html
-15/10/2018 23:33-Build started 15/10/2018 23:33
-15/10/2018 23:33-Build succeeded 15/10/2018 23:33
-15/10/2018 23:33-Logging finished
+17/10/2018 21:29-Logging started
+17/10/2018 21:29-CodeImatic.codegen - © Copyright Novuslogic Software 2011 - 2018 All Rights Reserved
+17/10/2018 21:29-Version: 
+17/10/2018 21:29-Project: DBStaticWebsite.zcproject
+17/10/2018 21:29-Project Config: D:\Projects\CodeImatic.codegen\samples\DBStaticWebsite\DBStaticWebsite.zcconfig
+17/10/2018 21:29-Loading plugins
+17/10/2018 21:29-Loaded: Sys
+17/10/2018 21:29-Loaded: DB
+17/10/2018 21:29-Loaded: JSON
+17/10/2018 21:29-Loaded: SystemExt
+17/10/2018 21:29-Loaded: WebProcessor
+17/10/2018 21:29-Loaded: WebServer
+17/10/2018 21:29-Loaded: CodeDocsProcessor
+17/10/2018 21:29-Loaded: SQLDIR
+17/10/2018 21:29-Project Item: index.html
+17/10/2018 21:29-Source : D:\Projects\CodeImatic.codegen\samples\DBStaticWebsite\Source\INDEX.HTML
+17/10/2018 21:29-Output: D:\Projects\CodeImatic.codegen\samples\DBStaticWebsite\Site\index.html
+17/10/2018 21:29-Build started 17/10/2018 21:29
+17/10/2018 21:30-Build succeeded 17/10/2018 21:30
+17/10/2018 21:30-Logging finished

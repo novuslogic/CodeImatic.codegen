@@ -92,8 +92,8 @@ Type
     //function Procedures(ATokens: tTokenProcessor; Var AIndex: Integer;
     //  ACommandIndex: Integer): String;
 
-    function FieldTypeToDataType(AFieldType: String): String;
-    function ClearDataType(ADataType: String): String;
+    //function FieldTypeToDataType(AFieldType: String): String;
+    //function ClearDataType(ADataType: String): String;
 
     function VariableExistsIndex(AVariableName: String): Integer;
     function GetVariableByIndex(AIndex: Integer): TVariable;
@@ -1315,10 +1315,10 @@ begin
        //   Result := Uppercase(LStr);
        // 2:
         //  Result := TNovusStringUtils.UpLowerA(LStr, true);
-        3:
-          Result := FieldTypeToDataType(LStr);
-        4:
-          Result := ClearDataType(LStr);
+       // 3:
+        //  Result := FieldTypeToDataType(LStr);
+       // 4:
+        //  Result := ClearDataType(LStr);
         5:
           Result := IntToStr(Pred(StrToint(LStr)));
       end;
@@ -1351,17 +1351,19 @@ begin
 end;
 *)
 
-
+(*
 function TInterpreter.FieldTypeToDataType(AFieldType: String): String;
 begin
   // Result := (foProjectItem as tProjectItem).oCodeGenerator.oLanguage.ReadXML('FieldTypeToDataType', AFieldType);
 end;
+*)
 
+(*
 function TInterpreter.ClearDataType(ADataType: String): String;
 begin
   // Result := (foProjectItem as tProjectItem).oCodeGenerator.oLanguage.ReadXML('ClearDataType', ADataType);
 end;
-
+*)
 function TInterpreter.GetNextToken(Var AIndex: Integer;
   ATokens: tTokenProcessor): String;
 Var

@@ -1,4 +1,4 @@
-unit FieldFunctionParser;
+unit TableFunctionParser;
 
 interface
 
@@ -7,7 +7,7 @@ Uses TokenParser, TagParser, TagType, DataProcessor, ProjectItem, TokenProcessor
 Type
    TOnExecute = procedure(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string; aTokenParser: tTokenParser) of object;
 
-   TFieldFunctionParser = class(tTokenParser)
+   TTableFunctionParser = class(tTokenParser)
    private
    protected
      foConnectionItem: tConnectionItem;
@@ -22,7 +22,7 @@ Type
 
 implementation
 
-function TFieldFunctionParser.Execute: string;
+function TTableFunctionParser.Execute: string;
 Var
   FFieldDesc: tFieldDesc;
   FConnectionName: String;
@@ -44,28 +44,17 @@ begin
     begin
       if foConnectionItem.Connected then
       begin
-        FsTableName := ParseNextToken;
-
-        If foConnectionItem.TableExists(FsTableName) then
-        begin
-          LsToken := '';
-          if Assigned(OnExecute) then
+        if Assigned(OnExecute) then
             OnExecute(LsToken, foConnectionItem , FsTableName, Self);
 
-            if ParseNextToken = ')' then
-            begin
-              Result := LsToken;
-              Exit;
-            end
-          else
-            oOutput.LogError('Incorrect syntax: lack ")"');
-        end
+        if ParseNextToken = ')' then
+          begin
+            Result := LsToken;
+            Exit;
+          end
         else
-        begin
-          oOutput.LogError('Error: Table cannot be found "' + FsTableName + '"');
-        end;
-
-      end
+          oOutput.LogError('Incorrect syntax: lack ")"');
+         end
       else
       begin
         oOutput.LogError('Error: Connectioname "' + FConnectionName +
