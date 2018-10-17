@@ -57,6 +57,15 @@ type
     function Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String; override;
   end;
 
+  TDBTag_Tablenamebyindex = class(TDBTag)
+  private
+  protected
+    function GetTagName: String; override;
+    procedure OnExecute(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string; aTokenParser: tTokenParser);
+  public
+    function Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String; override;
+  end;
+
   TDBTag_FieldTypeByIndex = class(TDBTag)
   private
   protected
@@ -108,7 +117,11 @@ constructor tPlugin_DBTagsBase.Create(aOutput: tOutput; aPluginName: String; aPr
 begin
   Inherited Create(aOutput,aPluginName, aProject, aConfigPlugin);
 
-  FDBTags:= tDBTags.Create(TDBTag_FieldCount.Create(aOutput), TDBTag_FieldNameByIndex.Create(aOutput), TDBTag_FieldTypeByIndex.Create(aOutput), TDBTag_TableCount.Create(aOutput)) ;
+  FDBTags:= tDBTags.Create(TDBTag_FieldCount.Create(aOutput),
+        TDBTag_FieldNameByIndex.Create(aOutput),
+        TDBTag_FieldTypeByIndex.Create(aOutput),
+        TDBTag_TableCount.Create(aOutput),
+        TDBTag_Tablenamebyindex.Create(aOutput)) ;
 end;
 
 
@@ -348,6 +361,54 @@ begin
 end;
 
 
+// TDBTag_Tablenamebyindex
+function TDBTag_Tablenamebyindex.GetTagName: String;
+begin
+  Result := 'TABLENAMEBYINDEX';
+end;
+
+procedure TDBTag_Tablenamebyindex.OnExecute(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string;aTokenParser: tTokenParser);
+Var
+  lsToken: String;
+  liTableIndex: Integer;
+begin
+  lsToken := aTokenParser.ParseNextToken;
+
+  if TNovusStringUtils.IsNumberStr(lsToken) then
+     begin
+       liTableIndex := StrToint(lsToken);
+
+       if aConnectionItem.TableCount > 0 then
+         aToken := aConnectionItem.JustTableNamebyIndex(liTableIndex)
+       else
+         foOutput.LogError('Error: Tablename cannot be found.');
+
+     end
+       else
+         foOutput.Log('Incorrect syntax: Index is not a number ');
+end;
+
+
+function TDBTag_Tablenamebyindex.Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
+var
+  LTableFunctionParser: tTableFunctionParser;
+begin
+  Try
+    Try
+      LTableFunctionParser:= tTableFunctionParser.Create(aCodeGeneratorItem, foOutput);
+
+      LTableFunctionParser.TokenIndex := aTokenIndex;
+
+      LTableFunctionParser.OnExecute := OnExecute;
+
+      Result := LTableFunctionParser.Execute;
+    Finally
+      LTableFunctionParser.Free;
+    End;
+  Except
+    oOutput.InternalError;
+  End;
+end;
 
 //  TDBTag_FieldTypeByIndex
 function TDBTag_FieldTypeByIndex.GetTagName: String;
