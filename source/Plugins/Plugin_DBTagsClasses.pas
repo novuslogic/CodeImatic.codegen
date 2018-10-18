@@ -38,6 +38,14 @@ type
     function Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String; override;
   end;
 
+  TDBTag_FieldAsSQL = class(TDBTag)
+  private
+  protected
+    function GetTagName: String; override;
+    procedure OnExecute(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string; aTokenParser: tTokenParser);
+  public
+    function Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String; override;
+  end;
 
   TDBTag_FieldNameByIndex = class(TDBTag)
   private
@@ -121,7 +129,8 @@ begin
         TDBTag_FieldNameByIndex.Create(aOutput),
         TDBTag_FieldTypeByIndex.Create(aOutput),
         TDBTag_TableCount.Create(aOutput),
-        TDBTag_Tablenamebyindex.Create(aOutput)) ;
+        TDBTag_Tablenamebyindex.Create(aOutput),
+        TDBTag_FieldAsSQL.Create(aOutput)) ;
 end;
 
 
@@ -359,6 +368,89 @@ begin
     oOutput.InternalError;
   End;
 end;
+
+// TDBTag_FieldAsSQL
+function TDBTag_FieldAsSQL.GetTagName: String;
+begin
+  Result := 'FIELDASSQL';
+end;
+
+procedure TDBTag_FieldAsSQL.OnExecute(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string;aTokenParser: tTokenParser);
+Var
+  lsToken: String;
+  liTableIndex: Integer;
+  FFieldIndex: Integer;
+  FFieldType: tFieldType;
+  FFieldDesc: tFieldDesc;
+begin
+   lsToken := aTokenParser.ParseNextToken;
+
+   FFieldDesc := aConnectionItem.FieldByName(aTableName, lsToken);
+
+   if Assigned(FFieldDesc) then
+      begin
+        FFieldType := aConnectionItem.oDBSchema.GetFieldType(FFieldDesc,
+            aConnectionItem.AuxDriver);
+
+          if FFieldType.SQLFormat = '' then
+            aToken := FFieldDesc.FieldName + ' ' + FFieldType.SqlType
+          else
+            aToken := FFieldDesc.FieldName + ' ' +
+              Format(FFieldType.SQLFormat, [FFieldDesc.Column_Length]);
+
+        FFieldType.Free;
+        FFieldDesc.Free;
+
+
+      end
+        else
+          FoOutput.LogError('Error: Field cannot be found.');
+
+
+
+
+
+
+  (*
+  lsToken := aTokenParser.ParseNextToken;
+
+  if TNovusStringUtils.IsNumberStr(lsToken) then
+     begin
+       liTableIndex := StrToint(lsToken);
+
+       if aConnectionItem.TableCount > 0 then
+         aToken := aConnectionItem.JustTableNamebyIndex(liTableIndex)
+       else
+         foOutput.LogError('Error: Tablename cannot be found.');
+
+     end
+       else
+         foOutput.Log('Incorrect syntax: Index is not a number ');
+         *)
+end;
+
+
+function TDBTag_FieldAsSQL.Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
+var
+  LFieldFunctionParser: tFieldFunctionParser;
+begin
+  Try
+    Try
+      LFieldFunctionParser:= tFieldFunctionParser.Create(aCodeGeneratorItem, foOutput);
+
+      LFieldFunctionParser.TokenIndex := aTokenIndex;
+
+      LFieldFunctionParser.OnExecute := OnExecute;
+
+      Result := LFieldFunctionParser.Execute;
+    Finally
+      LFieldFunctionParser.Free;
+    End;
+  Except
+    oOutput.InternalError;
+  End;
+end;
+
 
 
 // TDBTag_Tablenamebyindex

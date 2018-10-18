@@ -67,8 +67,8 @@ Type
       ASubVariable: Boolean = False): String;
     procedure AddVariable(AVariableName: String; AValue: Variant);
 
-    function FieldFunctions(ATokens: tTokenProcessor; Var AIndex: Integer;
-      ACommandIndex: Integer): string;
+    //function FieldFunctions(ATokens: tTokenProcessor; Var AIndex: Integer;
+    //  ACommandIndex: Integer): string;
     function FieldAsSQL(ATokens: tTokenProcessor; Var AIndex: Integer): string;
     function Delimiter(ATokens: tTokenProcessor; Var AIndex: Integer): string;
     function Reservelist(ATokens: tTokenProcessor; Var AIndex: Integer;
@@ -79,8 +79,10 @@ Type
     function XMLlistCount(ATokens: tTokenProcessor;
       Var AIndex: Integer): string;
 
+      (*
     function TableFunctions(ATokens: tTokenProcessor; Var AIndex: Integer;
       ACommandIndex: Integer): string;
+      *)
 
     function ParseVariable(ATokens: tTokenProcessor; Var AIndex: Integer;
       ASubCommand: Boolean = False): String;
@@ -155,6 +157,7 @@ begin
   inherited;
 end;
 
+(*
 function TInterpreter.FieldFunctions(ATokens: tTokenProcessor;
   Var AIndex: Integer; ACommandIndex: Integer): string;
 Var
@@ -285,7 +288,7 @@ begin
 
   end;
 end;
-
+*)
 function TInterpreter.Delimiter(ATokens: tTokenProcessor;
   Var AIndex: Integer): string;
 Var
@@ -572,6 +575,7 @@ begin
   end;
 end;
 
+(*
 function TInterpreter.TableFunctions(ATokens: tTokenProcessor;
   Var AIndex: Integer; ACommandIndex: Integer): string;
 Var
@@ -633,6 +637,7 @@ begin
 
   end;
 end;
+*)
 
 function TInterpreter.plugintag(aTokens: tTokenProcessor; Var aIndex: Integer): string;
 var
@@ -683,10 +688,10 @@ begin
     if (CommandSyntaxIndex(lsNextToken) <> 0) then
     begin
       case CommandSyntaxIndex(lsNextToken) of
-        1:
-          Result := FieldFunctions(ATokens, AIndex, 0);
-        2:
-          Result := FieldFunctions(ATokens, AIndex, 1);
+        //1:
+        //  Result := FieldFunctions(ATokens, AIndex, 0);
+       // 2:
+        //  Result := FieldFunctions(ATokens, AIndex, 1);
         3:
           Result := Functions(ATokens, AIndex, 0);
         4:
@@ -701,16 +706,16 @@ begin
           Result := LoopFunctions(ATokens, AIndex, 0, ASkipPOs);
         9:
           Result := LoopFunctions(ATokens, AIndex, 1, ASkipPOs);
-        10:
-          Result := FieldFunctions(ATokens, AIndex, 2);
+       // 10:
+       //   Result := FieldFunctions(ATokens, AIndex, 2);
         11:
           Result := Functions(ATokens, AIndex, 5);
         //12:
         //  Result := Procedures(ATokens, AIndex, 0);
-        13:
-          Result := TableFunctions(ATokens, AIndex, 0);
-        14:
-          Result := TableFunctions(ATokens, AIndex, 1);
+        //13:
+         // Result := TableFunctions(ATokens, AIndex, 0);
+        //14:
+        //  Result := TableFunctions(ATokens, AIndex, 1);
         15:
           Result := FieldAsSQL(ATokens, AIndex);
         16:
@@ -727,10 +732,10 @@ begin
        //   Result := Procedures(ATokens, AIndex, 1);
         23:
           Result := Reservelist(ATokens, AIndex, 1);
-        24:
-          Result := FieldFunctions(ATokens, AIndex, 3);
+      //  24:
+      //    Result := FieldFunctions(ATokens, AIndex, 3);
         25:
-          Result := FieldFunctions(ATokens, AIndex, 0);
+         // Result := FieldFunctions(ATokens, AIndex, 0);
       end;
     end;
 
