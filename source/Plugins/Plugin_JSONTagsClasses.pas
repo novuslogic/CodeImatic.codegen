@@ -5,7 +5,7 @@ interface
 uses Classes,Plugin, NovusPlugin, NovusVersionUtils, Project,
     Output, SysUtils, System.Generics.Defaults,  runtime, Config,
     APIBase, NovusGUIDEx, CodeGeneratorItem, FunctionsParser, ProjectItem,
-    Variables, NovusFileUtils, CodeGenerator;
+    Variables, NovusFileUtils, CodeGenerator, JSONFunctionParser, TokenParser;
 
 
 type
@@ -28,11 +28,11 @@ type
        read foOutput;
   end;
 
-  TJSONTag_FieldCount = class(TJSONTag)
+  TJSONTag_JSONCount = class(TJSONTag)
   private
   protected
     function GetTagName: String; override;
-    procedure OnExecute(var aToken: String);
+    procedure OnExecute(var aToken: String; aTokenParser: tTokenParser; aJSONFilename: String);
   public
     function Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String; override;
   end;
@@ -80,7 +80,7 @@ constructor tPlugin_JSONTagsBase.Create(aOutput: tOutput; aPluginName: String; a
 begin
   Inherited Create(aOutput,aPluginName, aProject, aConfigPlugin);
 
-  FJSONTags:= tJSONTags.Create(TJSONTag_FieldCount.Create(aOutput)) ;
+  FJSONTags:= tJSONTags.Create(TJSONTag_JSONCount.Create(aOutput)) ;
 end;
 
 
@@ -184,33 +184,33 @@ end;
 
 
 
-function TJSONTag_FieldCount.GetTagName: String;
+function TJSONTag_JSONCount.GetTagName: String;
 begin
-  Result := 'FIELDCOUNT';
+  Result := 'JSONCOUNT';
 end;
 
-function TJSONTag_FieldCount.Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
+function TJSONTag_JSONCount.Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
 var
-  LFunctionsParser: tFunctionsParser;
+  LJSONFunctionParser: tJSONFunctionParser;
 begin
   Try
     Try
-      LFunctionsParser:= tFunctionsParser.Create(aCodeGeneratorItem, foOutput);
+      LJSONFunctionParser:= tJSONFunctionParser.Create(aCodeGeneratorItem, foOutput);
 
-      LFunctionsParser.TokenIndex := aTokenIndex;
+      LJSONFunctionParser.TokenIndex := aTokenIndex;
 
-      LFunctionsParser.OnExecute := OnExecute;
+      LJSONFunctionParser.OnExecute := OnExecute;
 
-      Result := LFunctionsParser.Execute;
+      Result := LJSONFunctionParser.Execute;
     Finally
-      LFunctionsParser.Free;
+      LJSONFunctionParser.Free;
     End;
   Except
     oOutput.InternalError;
   End;
 end;
 
-procedure TJSONTag_FieldCount.OnExecute(var aToken: String);
+procedure TJSONTag_JSONCount.OnExecute(var aToken: String; aTokenParser: tTokenParser; aJSONFilename: String);
 begin
   aToken :='';
 end;

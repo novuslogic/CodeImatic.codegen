@@ -405,28 +405,6 @@ begin
       end
         else
           FoOutput.LogError('Error: Field cannot be found.');
-
-
-
-
-
-
-  (*
-  lsToken := aTokenParser.ParseNextToken;
-
-  if TNovusStringUtils.IsNumberStr(lsToken) then
-     begin
-       liTableIndex := StrToint(lsToken);
-
-       if aConnectionItem.TableCount > 0 then
-         aToken := aConnectionItem.JustTableNamebyIndex(liTableIndex)
-       else
-         foOutput.LogError('Error: Tablename cannot be found.');
-
-     end
-       else
-         foOutput.Log('Incorrect syntax: Index is not a number ');
-         *)
 end;
 
 

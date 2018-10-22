@@ -362,9 +362,7 @@ begin
             begin
               Result := oRuntime.oPlugins.GetTag(lsToken1, lsToken2,
                 loCodeGeneratorItem, aTokenIndex);
-
-              aTokenIndex := aTokenIndex - 1;
-            end;
+           end;
           end;
         ttVariableCmdLine:
           begin

@@ -69,7 +69,7 @@ Type
 
     //function FieldFunctions(ATokens: tTokenProcessor; Var AIndex: Integer;
     //  ACommandIndex: Integer): string;
-    function FieldAsSQL(ATokens: tTokenProcessor; Var AIndex: Integer): string;
+   // function FieldAsSQL(ATokens: tTokenProcessor; Var AIndex: Integer): string;
     function Delimiter(ATokens: tTokenProcessor; Var AIndex: Integer): string;
     function Reservelist(ATokens: tTokenProcessor; Var AIndex: Integer;
       ACommandIndex: Integer): string;
@@ -716,8 +716,8 @@ begin
          // Result := TableFunctions(ATokens, AIndex, 0);
         //14:
         //  Result := TableFunctions(ATokens, AIndex, 1);
-        15:
-          Result := FieldAsSQL(ATokens, AIndex);
+       // 15:
+      //    Result := FieldAsSQL(ATokens, AIndex);
         16:
           Result := Delimiter(ATokens, AIndex);
         17, 18:
@@ -1460,6 +1460,7 @@ begin
     .oTokens[0]) = 8);
 end;
 
+(*
 function TInterpreter.FieldAsSQL(ATokens: tTokenProcessor;
   Var AIndex: Integer): string;
 Var
@@ -1539,7 +1540,7 @@ begin
 
   end;
 end;
-
+*)
 (*
 function TInterpreter.ParseCommand(aCommand: string): String;
 begin
