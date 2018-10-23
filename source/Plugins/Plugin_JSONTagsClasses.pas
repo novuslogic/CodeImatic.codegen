@@ -5,7 +5,8 @@ interface
 uses Classes,Plugin, NovusPlugin, NovusVersionUtils, Project,
     Output, SysUtils, System.Generics.Defaults,  runtime, Config,
     APIBase, NovusGUIDEx, CodeGeneratorItem, FunctionsParser, ProjectItem,
-    Variables, NovusFileUtils, CodeGenerator, JSONFunctionParser, TokenParser;
+    Variables, NovusFileUtils, CodeGenerator, JSONFunctionParser, TokenParser,
+    NovusJSONUtils;
 
 
 type
@@ -28,7 +29,7 @@ type
        read foOutput;
   end;
 
-  TJSONTag_JSONCount = class(TJSONTag)
+  TJSONTag_LoadJSON = class(TJSONTag)
   private
   protected
     function GetTagName: String; override;
@@ -80,7 +81,7 @@ constructor tPlugin_JSONTagsBase.Create(aOutput: tOutput; aPluginName: String; a
 begin
   Inherited Create(aOutput,aPluginName, aProject, aConfigPlugin);
 
-  FJSONTags:= tJSONTags.Create(TJSONTag_JSONCount.Create(aOutput)) ;
+  FJSONTags:= tJSONTags.Create(TJSONTag_LoadJSON.Create(aOutput)) ;
 end;
 
 
@@ -182,14 +183,12 @@ begin
 end;
 
 
-
-
-function TJSONTag_JSONCount.GetTagName: String;
+function TJSONTag_LoadJSON.GetTagName: String;
 begin
-  Result := 'JSONCOUNT';
+  Result := 'LOADJSON';
 end;
 
-function TJSONTag_JSONCount.Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
+function TJSONTag_LoadJSON.Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
 var
   LJSONFunctionParser: tJSONFunctionParser;
 begin
@@ -210,7 +209,7 @@ begin
   End;
 end;
 
-procedure TJSONTag_JSONCount.OnExecute(var aToken: String; aTokenParser: tTokenParser; aJSONFilename: String);
+procedure TJSONTag_LoadJSON.OnExecute(var aToken: String; aTokenParser: tTokenParser; aJSONFilename: String);
 begin
   aToken :='';
 end;
