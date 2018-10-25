@@ -138,7 +138,7 @@ begin
      Exit;
    end;
   
-  Result := FJSONTags[liIndex].Execute(aCodeGeneratorItem, aTokenIndex);
+  Result := FJSONTags[liIndex].Execute(aTagName,aCodeGeneratorItem, aTokenIndex);
 end;
 
 function tPlugin_JSONTagsBase.IsTagExists(aTagName: String): Integer;

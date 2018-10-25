@@ -34,6 +34,9 @@ Var
 begin
   Result := '';
 
+  if fsTagName = oCodeGeneratorItem.oTokens.Strings[TokenIndex] then
+     foCodeGeneratorItem.TokenIndex := foCodeGeneratorItem.TokenIndex + 1;
+
   If  ParseNextToken = '(' then
   begin
     FConnectionName := ParseNextToken;

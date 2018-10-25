@@ -10,6 +10,7 @@ type
 
   tTokenParser = class(Tobject)
   protected
+    fsTagName: String;
     foCodeGeneratorItem: TCodeGeneratorItem;
     foOutput: TOutput;
     foProjectItem: tProjectItem;
@@ -20,7 +21,7 @@ type
     function GetEOF: Boolean;
   public
     constructor Create(aCodeGeneratorItem: TCodeGeneratorItem;
-      aOutput: TOutput); overload;
+      aOutput: TOutput; aTagName: String =''); overload;
 
     class function ParseToken(aObject: Tobject; aToken: String;
       aProjectItem: tProjectItem; aVariables: TVariables; aOutput: TOutput;
@@ -152,8 +153,10 @@ begin
 end;
 
 constructor tTokenParser.Create(aCodeGeneratorItem: TCodeGeneratorItem;
-  aOutput: TOutput);
+  aOutput: TOutput; aTagName: String ='');
 begin
+  fsTagName := aTagName;
+
   foCodeGeneratorItem := aCodeGeneratorItem;
   foOutput := aOutput;
 

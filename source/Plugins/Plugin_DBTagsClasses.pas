@@ -20,7 +20,7 @@ type
   public
      constructor Create(aOutput: tOutput);
 
-     function Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String; virtual;
+     function Execute(aTagName: string; aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String; virtual;
 
      property TagName: String
        read GetTagName;
@@ -35,7 +35,7 @@ type
     function GetTagName: String; override;
     procedure OnExecute(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string; aTokenParser: tTokenParser);
   public
-    function Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String; override;
+    function Execute(aTagName: string;aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String; override;
   end;
 
   TDBTag_FieldAsSQL = class(TDBTag)
@@ -44,7 +44,7 @@ type
     function GetTagName: String; override;
     procedure OnExecute(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string; aTokenParser: tTokenParser);
   public
-    function Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String; override;
+    function Execute(aTagName: string;aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String; override;
   end;
 
   TDBTag_FieldNameByIndex = class(TDBTag)
@@ -53,7 +53,7 @@ type
     function GetTagName: String; override;
     procedure OnExecute(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string; aTokenParser: tTokenParser);
   public
-    function Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String; override;
+    function Execute(aTagName: string;aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String; override;
   end;
 
   TDBTag_TableCount = class(TDBTag)
@@ -62,7 +62,7 @@ type
     function GetTagName: String; override;
     procedure OnExecute(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string; aTokenParser: tTokenParser);
   public
-    function Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String; override;
+    function Execute(aTagName: string;aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String; override;
   end;
 
   TDBTag_Tablenamebyindex = class(TDBTag)
@@ -71,7 +71,7 @@ type
     function GetTagName: String; override;
     procedure OnExecute(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string; aTokenParser: tTokenParser);
   public
-    function Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String; override;
+    function Execute(aTagName: string;aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String; override;
   end;
 
   TDBTag_FieldTypeByIndex = class(TDBTag)
@@ -80,7 +80,7 @@ type
     function GetTagName: String; override;
     procedure OnExecute(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string; aTokenParser: tTokenParser);
   public
-    function Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String; override;
+    function Execute(aTagName: string;aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String; override;
   end;
 
   tDBTags = array of TDBTag;
@@ -187,7 +187,7 @@ begin
      Exit;
    end;
 
-  Result := FDBTags[liIndex].Execute(aCodeGeneratorItem, aTokenIndex);
+  Result := FDBTags[liIndex].Execute(aTagName, aCodeGeneratorItem, aTokenIndex);
 end;
 
 function tPlugin_DBTagsBase.IsTagExists(aTagName: String): Integer;
@@ -227,7 +227,7 @@ begin
   Result := '';
 end;
 
-function TDBTag.Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
+function TDBTag.Execute(aTagName: string;aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
 begin
   Result := '';
 end;
@@ -245,14 +245,14 @@ begin
 end;
 
 
-function TDBTag_FieldCount.Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
+function TDBTag_FieldCount.Execute(aTagName: string;aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
 var
   LFieldFunctionParser: tFieldFunctionParser;
 begin
 
   Try
     Try
-      LFieldFunctionParser:= tFieldFunctionParser.Create(aCodeGeneratorItem, foOutput);
+      LFieldFunctionParser:= tFieldFunctionParser.Create(aCodeGeneratorItem, foOutput, aTagName);
 
       LFieldFunctionParser.TokenIndex := aTokenIndex;
 
@@ -309,13 +309,13 @@ begin
 end;
 
 
-function TDBTag_FieldNameByIndex.Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
+function TDBTag_FieldNameByIndex.Execute(aTagName: String;aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
 var
   LFieldFunctionParser: tFieldFunctionParser;
 begin
   Try
     Try
-      LFieldFunctionParser:= tFieldFunctionParser.Create(aCodeGeneratorItem, foOutput);
+      LFieldFunctionParser:= tFieldFunctionParser.Create(aCodeGeneratorItem, foOutput, aTagName);
 
       LFieldFunctionParser.TokenIndex := aTokenIndex;
 
@@ -348,13 +348,13 @@ begin
 end;
 
 
-function TDBTag_TableCount.Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
+function TDBTag_TableCount.Execute(aTagName: string;aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
 var
   LTableFunctionParser: tTableFunctionParser;
 begin
   Try
     Try
-      LTableFunctionParser:= tTableFunctionParser.Create(aCodeGeneratorItem, foOutput);
+      LTableFunctionParser:= tTableFunctionParser.Create(aCodeGeneratorItem, foOutput, aTagName);
 
       LTableFunctionParser.TokenIndex := aTokenIndex;
 
@@ -408,13 +408,13 @@ begin
 end;
 
 
-function TDBTag_FieldAsSQL.Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
+function TDBTag_FieldAsSQL.Execute(aTagName: string;aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
 var
   LFieldFunctionParser: tFieldFunctionParser;
 begin
   Try
     Try
-      LFieldFunctionParser:= tFieldFunctionParser.Create(aCodeGeneratorItem, foOutput);
+      LFieldFunctionParser:= tFieldFunctionParser.Create(aCodeGeneratorItem, foOutput, aTagName);
 
       LFieldFunctionParser.TokenIndex := aTokenIndex;
 
@@ -459,13 +459,13 @@ begin
 end;
 
 
-function TDBTag_Tablenamebyindex.Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
+function TDBTag_Tablenamebyindex.Execute(aTagName: string;aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
 var
   LTableFunctionParser: tTableFunctionParser;
 begin
   Try
     Try
-      LTableFunctionParser:= tTableFunctionParser.Create(aCodeGeneratorItem, foOutput);
+      LTableFunctionParser:= tTableFunctionParser.Create(aCodeGeneratorItem, foOutput, aTagName);
 
       LTableFunctionParser.TokenIndex := aTokenIndex;
 
@@ -537,13 +537,13 @@ begin
 end;
 
 
-function TDBTag_FieldTypeByIndex.Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
+function TDBTag_FieldTypeByIndex.Execute(aTagName: string;aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
 var
   LFieldFunctionParser: tFieldFunctionParser;
 begin
   Try
     Try
-      LFieldFunctionParser:= tFieldFunctionParser.Create(aCodeGeneratorItem, foOutput);
+      LFieldFunctionParser:= tFieldFunctionParser.Create(aCodeGeneratorItem, foOutput, ATagName);
 
       LFieldFunctionParser.TokenIndex := aTokenIndex;
 
