@@ -680,7 +680,7 @@ begin
 
     if fTagType = ttplugintag then
       begin
-        result := plugintag(ATokens, AIndex);
+        result := Plugintag(ATokens, AIndex);
 
 
       end
@@ -746,7 +746,8 @@ begin
           (foProjectItem as TProjectItem), TCodeGenerator(FoCodeGenerator)
           .oVariables, FOutput, ATokens, AIndex,
           TCodeGenerator(FoCodeGenerator).oProject)
-      else if Pos('$', ATokens[AIndex]) = 1 then
+      else
+      if Pos('$', ATokens[AIndex]) = 1 then
         Result := ParseVariable(ATokens, AIndex)
     end;
   Except

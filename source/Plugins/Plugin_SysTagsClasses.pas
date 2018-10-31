@@ -265,19 +265,19 @@ end;
 function TSysTag_Upper.Execute(aTagName: String;
   aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
 var
-  LFunctionsParser: tFunctionsParser;
+  LFunctionParser: tFunctionParser;
 begin
   Try
     Try
-      LFunctionsParser := tFunctionsParser.Create(aCodeGeneratorItem, foOutput);
+      LFunctionParser := tFunctionParser.Create(aCodeGeneratorItem, foOutput);
 
-      LFunctionsParser.TokenIndex := aTokenIndex;
+      LFunctionParser.TokenIndex := aTokenIndex;
 
-      LFunctionsParser.OnExecute := OnExecute;
+      LFunctionParser.OnExecute := OnExecute;
 
-      Result := LFunctionsParser.Execute;
+      Result := LFunctionParser.Execute;
     Finally
-      LFunctionsParser.Free;
+      LFunctionParser.Free;
     End;
   Except
     oOutput.InternalError;
@@ -297,20 +297,20 @@ end;
 function TSysTag_Uplower.Execute(aTagName: string;
   aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
 var
-  LFunctionsParser: tFunctionsParser;
+  LFunctionParser: tFunctionParser;
 begin
   Try
     Try
-      LFunctionsParser := tFunctionsParser.Create(aCodeGeneratorItem, foOutput,
+      LFunctionParser := tFunctionParser.Create(aCodeGeneratorItem, foOutput,
         aTagName);
 
-      LFunctionsParser.TokenIndex := aTokenIndex;
+      LFunctionParser.TokenIndex := aTokenIndex;
 
-      LFunctionsParser.OnExecute := OnExecute;
+      LFunctionParser.OnExecute := OnExecute;
 
-      Result := LFunctionsParser.Execute;
+      Result := LFunctionParser.Execute;
     Finally
-      LFunctionsParser.Free;
+      LFunctionParser.Free;
     End;
   Except
     oOutput.InternalError;
@@ -341,20 +341,20 @@ end;
 function TSysTag_Lower.Execute(aTagName: string;
   aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
 var
-  LFunctionsParser: tFunctionsParser;
+  LFunctionParser: tFunctionParser;
 begin
   Try
     Try
-      LFunctionsParser := tFunctionsParser.Create(aCodeGeneratorItem, foOutput,
+      LFunctionParser := tFunctionParser.Create(aCodeGeneratorItem, foOutput,
         aTagName);
 
-      LFunctionsParser.TokenIndex := aTokenIndex;
+      LFunctionParser.TokenIndex := aTokenIndex;
 
-      LFunctionsParser.OnExecute := OnExecute;
+      LFunctionParser.OnExecute := OnExecute;
 
-      Result := LFunctionsParser.Execute;
+      Result := LFunctionParser.Execute;
     Finally
-      LFunctionsParser.Free;
+      LFunctionParser.Free;
     End;
   Except
     oOutput.InternalError;
@@ -374,20 +374,20 @@ end;
 function TSysTag_FilePathToURL.Execute(aTagName: string;
   aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
 var
-  LFunctionsParser: tFunctionsParser;
+  LFunctionParser: tFunctionParser;
 begin
   Try
     Try
-      LFunctionsParser := tFunctionsParser.Create(aCodeGeneratorItem, foOutput,
+      LFunctionParser := tFunctionParser.Create(aCodeGeneratorItem, foOutput,
         aTagName);
 
-      LFunctionsParser.TokenIndex := aTokenIndex;
+      LFunctionParser.TokenIndex := aTokenIndex;
 
-      LFunctionsParser.OnExecute := OnExecute;
+      LFunctionParser.OnExecute := OnExecute;
 
-      Result := LFunctionsParser.Execute;
+      Result := LFunctionParser.Execute;
     Finally
-      LFunctionsParser.Free;
+      LFunctionParser.Free;
     End;
   Except
     oOutput.InternalError;

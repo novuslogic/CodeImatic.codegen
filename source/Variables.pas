@@ -2,24 +2,33 @@ unit Variables;
 
 interface
 
-Uses Variants, NovusList, SysUtils, Output;
+Uses Variants, NovusList, SysUtils, Output, NovusGUIDEx;
 
 Type
   TVariable = class(TObject)
   protected
-       fsVariableName: String;
+     fsVariableName: String;
      FValue: Variant;
+     FObject: tObject;
   private
   public
+    constructor Create; virtual;
+    destructor Destroy; override;
+
     property VariableName: String
       read fsVariableName
       write fsVariableName;
+
+    property oObject: Tobject
+      read fObject
+      write fObject;
 
     property Value: Variant
       read FValue
       Write FValue;
 
     function AsString: String;
+    function IsObject: Boolean;
   end;
 
   TVariables = class(TObject)
@@ -30,10 +39,13 @@ Type
     constructor Create; virtual;
     destructor Destroy; override;
 
+    function AddVariableObject(aObject: Tobject; aObjectTypeName: String = ''): String;
     procedure AddVariable(AVariableName: String;AValue: Variant);
     function VariableExistsIndex(AVariableName: String): Integer;
     function GetVariableByIndex(AIndex: Integer): TVariable;
     function GetVariableByName(aVariableName: String): TVariable;
+
+
     class function CleanVariableName(AVariableName: String): String;
 
   end;
@@ -55,6 +67,27 @@ begin
   fVariableList.Free;
 
   inherited;
+end;
+
+
+function TVariables.AddVariableObject(aObject: Tobject; aObjectTypeName: string): String;
+Var
+  FVariable: TVariable;
+begin
+  FVariable := TVariable.Create;
+
+  FVariable.VariableName := '@@' + TGuidExUtils.NewGuidNoBracketsString + '.' + aObjectTypeName;
+
+  if aObjectTypeName = '' then
+    FVariable.Value := 'TObject'
+  else
+    FVariable.Value := aObjectTypeName;
+
+  FVariable.oObject := aObject;
+
+  FVariableList.Add(FVariable);
+
+  Result := FVariable.VariableName;
 end;
 
 
@@ -125,10 +158,32 @@ end;
 
 
 //  TVariable
+constructor TVariable.Create;
+begin
+  inherited Create;
+
+  FObject := NIL;
+end;
+
+destructor TVariable.Destroy;
+begin
+  if Assigned(fObject) then FObject.Free;
+  
+  inherited;
+end;
+
 function TVariable.AsString: String;
 begin
   Result := VartoStr(FValue);
 end;
+
+function TVariable.IsObject: Boolean;
+begin
+  Result := False;
+  if Assigned(fObject) then Result := True;
+end;
+
+
 
 
 end.

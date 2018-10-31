@@ -6,7 +6,7 @@ uses Classes,Plugin, NovusPlugin, NovusVersionUtils, Project,
     Output, SysUtils, System.Generics.Defaults,  runtime, Config,
     APIBase, NovusGUIDEx, CodeGeneratorItem, FunctionsParser, ProjectItem,
     Variables, NovusFileUtils, CodeGenerator, JSONFunctionParser, TokenParser,
-    NovusJSONUtils;
+    NovusJSONUtils, System.IOUtils, System.JSON;
 
 
 type
@@ -27,6 +27,10 @@ type
 
      property oOutput: tOutput
        read foOutput;
+
+     property oVariables: TVariables
+        read foVariables
+        write foVariables;
   end;
 
   TJSONTag_LoadJSON = class(TJSONTag)
@@ -37,6 +41,16 @@ type
   public
     function Execute(aTagName: string;aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String; override;
   end;
+
+  TJSONTag_JSONQuery = class(TJSONTag)
+  private
+  protected
+    function GetTagName: String; override;
+    procedure OnExecute(var aToken: String; aTokenParser: tTokenParser);
+  public
+    function Execute(aTagName: string;aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String; override;
+  end;
+
 
 
   tJSONTags = array of TJSONTag;
@@ -81,7 +95,7 @@ constructor tPlugin_JSONTagsBase.Create(aOutput: tOutput; aPluginName: String; a
 begin
   Inherited Create(aOutput,aPluginName, aProject, aConfigPlugin);
 
-  FJSONTags:= tJSONTags.Create(TJSONTag_LoadJSON.Create(aOutput)) ;
+  FJSONTags:= tJSONTags.Create(TJSONTag_LoadJSON.Create(aOutput), TJSONTag_JSONQuery.Create(aOutput)) ;
 end;
 
 
@@ -138,7 +152,7 @@ begin
      Exit;
    end;
   
-  Result := FJSONTags[liIndex].Execute(aCodeGeneratorItem, aTokenIndex);
+  Result := FJSONTags[liIndex].Execute(aTagName,aCodeGeneratorItem, aTokenIndex);
 end;
 
 function tPlugin_JSONTagsBase.IsTagExists(aTagName: String): Integer;
@@ -177,7 +191,7 @@ begin
   Result := '';
 end;
 
-function TJSONTag.Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
+function TJSONTag.Execute(aTagName: String;aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
 begin
   Result := '';
 end;
@@ -188,12 +202,14 @@ begin
   Result := 'LOADJSON';
 end;
 
-function TJSONTag_LoadJSON.Execute(aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
+function TJSONTag_LoadJSON.Execute(aTagName: String; aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
 var
   LJSONFunctionParser: tJSONFunctionParser;
 begin
   Try
     Try
+      self.oVariables := TVariables(aCodeGeneratorItem.oVariables);
+
       LJSONFunctionParser:= tJSONFunctionParser.Create(aCodeGeneratorItem, foOutput, aTagName);
 
       LJSONFunctionParser.TokenIndex := aTokenIndex;
@@ -210,8 +226,97 @@ begin
 end;
 
 procedure TJSONTag_LoadJSON.OnExecute(var aToken: String; aTokenParser: tTokenParser; aJSONFilename: String);
+Var
+  FJSONValue: TJSONValue;
 begin
   aToken :='';
+
+  Try
+    FJSONValue :=  TJSONObject.ParseJSONValue(TEncoding.ASCII.GetBytes(TFile.ReadAllText(aJSONFilename)), 0);
+  Except
+    oOutput.LogError('JSONFilename cannot read ['+ aJSONFilename+']');
+  End;
+
+  aToken := Self.oVariables.AddVariableObject(FJSONValue, TJSONTag.Classname);
+end;
+
+
+// TJSONTag_JSONQuery
+
+function TJSONTag_JSONQuery.GetTagName: String;
+begin
+  Result := 'JSONQUERY';
+end;
+
+function TJSONTag_JSONQuery.Execute(aTagName: String; aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
+var
+  LFunctionAParser: tFunctionAParser;
+begin
+  Try
+    Try
+      self.oVariables := TVariables(aCodeGeneratorItem.oVariables);
+
+      LFunctionAParser := tFunctionAParser.Create(aCodeGeneratorItem, foOutput, aTagName);
+
+      LFunctionAParser.TokenIndex := aTokenIndex;
+
+      LFunctionAParser.OnExecute := OnExecute;
+
+      Result := LFunctionAParser.Execute;
+    Finally
+      LFunctionAParser.Free;
+    End;
+  Except
+    oOutput.InternalError;
+  End;
+end;
+
+procedure TJSONTag_JSONQuery.OnExecute(var aToken: String; aTokenParser: tTokenParser);
+Var
+  FJSONValueRoot: TJSONValue;
+  FJSONValue: TJSONValue;
+  FVariable: TVariable;
+  lsElement: string;
+begin
+  FVariable := Self.oVariables.GetVariableByName(aToken);
+  if Not Assigned(FVariable) then
+    begin
+      Self.foOutput.LogError(TJSONTag.ClassName + ' Object Variable cannot be found.');
+      exit;
+    end
+  else
+  if Not FVariable.IsObject then
+    begin
+      Self.foOutput.LogError('[' + aToken + '] not an Object Variable.');
+      exit;
+    end
+  else
+  if FVariable.Value <> TJSONTag.ClassName then
+    begin
+      Self.foOutput.LogError('[' + aToken + '] not ' + TJSONTag.ClassName + ' Object Variable.');
+      exit;
+    end;
+
+  FJSONValueRoot := TJSONValue(FVariable.oObject);
+
+  lsElement:= aTokenParser.ParseNextToken;
+  if trim(lsElement)  = '' then
+    begin
+      foOutput.LogError('Element cannot be blank.');
+
+      exit;
+    end;
+
+  FJSONValue := FJSONValueRoot.GetValue<TJSONValue>(lsElement) ;
+  if not Assigned(FJSONValue) then
+    begin
+      foOutput.LogError('Element [' + lsElement + '] cannot be found.');
+
+
+      Exit;
+    end;
+
+  aToken := Self.oVariables.AddVariableObject(FJSONValue, TJSONTag.Classname);
 end;
 
 

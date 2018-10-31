@@ -104,6 +104,9 @@
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
+        <Debugger_HostApplication>D:\Projects\CodeImatic.codegen\build\CodeImatic.codegen.exe</Debugger_HostApplication>
+        <Debugger_RunParams>-project Generator.zcproject -projectconfig Generator.zcconfig</Debugger_RunParams>
+        <Debugger_CWD>D:\Projects\DelphiAWSSDK\Code-generation\Generator</Debugger_CWD>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -124,6 +127,7 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="Plugin_JSONTagsClasses.pas"/>
+        <DCCReference Include="JSONFunctionParser.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -197,7 +201,7 @@
                     </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\build\plugins\SysTags.dll" Configuration="Debug" Class="ProjectOutput"/>
-                <DeployFile LocalName="D:\build\plugins\JSONTags.dll" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="..\..\build\plugins\JSONTags.dll" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win64">
                         <RemoteName>JSONTags.dll</RemoteName>
                         <Overwrite>true</Overwrite>

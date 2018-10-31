@@ -6,8 +6,9 @@ Uses TokenParser, TagParser, TagType;
 
 Type
    TOnExecute = procedure(var aToken:string) of object;
+   TOnExecuteA = procedure(var aToken: String; aTokenParser: tTokenParser) of object;
 
-   TFunctionsParser = class(tTokenParser)
+   TFunctionParser = class(tTokenParser)
    private
    protected
    public
@@ -15,10 +16,18 @@ Type
      function Execute: String;
    end;
 
+   TFunctionAParser = class(tTokenParser)
+   private
+   protected
+   public
+     OnExecute: TOnExecuteA;
+     function Execute: String;
+   end;
+
 implementation
 
 
-function TFunctionsParser.Execute: String;
+function TFunctionParser.Execute: String;
 Var
   LsToken: String;
   fTagType: TTagType;
@@ -48,6 +57,38 @@ begin
       oOutput.LogError('Incorrect syntax: lack "("');
     end;
 end;
+
+function TFunctionAParser.Execute: String;
+Var
+  LsToken: String;
+  fTagType: TTagType;
+begin
+  Result := '';
+
+  if fsTagName = oCodeGeneratorItem.oTokens.Strings[TokenIndex] then
+     foCodeGeneratorItem.TokenIndex := foCodeGeneratorItem.TokenIndex + 1;
+
+  if ParseNextToken = '(' then
+    begin
+      LsToken := ParseNextToken;
+      if Assigned(OnExecute) then
+        OnExecute(LsToken, self);
+
+      if ParseNextToken = ')' then
+        begin
+          Result := LsToken;
+          Exit;
+        end
+      else
+        oOutput.LogError('Incorrect syntax: lack ")"');
+
+    end
+  else
+    begin
+      oOutput.LogError('Incorrect syntax: lack "("');
+    end;
+end;
+
 
 
 end.
