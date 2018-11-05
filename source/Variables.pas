@@ -33,7 +33,7 @@ Type
 
   TVariables = class(TObject)
   protected
-    fVariableList: tNovusList;
+    foVariableList: tNovusList;
   private
   public
     constructor Create; virtual;
@@ -45,8 +45,11 @@ Type
     function GetVariableByIndex(AIndex: Integer): TVariable;
     function GetVariableByName(aVariableName: String): TVariable;
 
-
     class function CleanVariableName(AVariableName: String): String;
+
+    property oVariableList: tNovusList
+      read foVariableList
+      write foVariableList;
 
   end;
 
@@ -59,12 +62,12 @@ constructor TVariables.Create;
 begin
   inherited Create;
 
-  fVariableList := tNovusList.Create(TVariable);
+  foVariableList := tNovusList.Create(TVariable);
 end;
 
 destructor TVariables.Destroy;
 begin
-  fVariableList.Free;
+  foVariableList.Free;
 
   inherited;
 end;
@@ -72,51 +75,51 @@ end;
 
 function TVariables.AddVariableObject(aObject: Tobject; aObjectTypeName: string): String;
 Var
-  FVariable: TVariable;
+  foVariable: TVariable;
 begin
-  FVariable := TVariable.Create;
+  foVariable := TVariable.Create;
 
-  FVariable.VariableName := '@@' + TGuidExUtils.NewGuidNoBracketsString + '.' + aObjectTypeName;
+  foVariable.VariableName := '@@' + TGuidExUtils.NewGuidNoBracketsString + '.' + aObjectTypeName;
 
   if aObjectTypeName = '' then
-    FVariable.Value := 'TObject'
+    foVariable.Value := 'TObject'
   else
-    FVariable.Value := aObjectTypeName;
+    foVariable.Value := aObjectTypeName;
 
-  FVariable.oObject := aObject;
+  foVariable.oObject := aObject;
 
-  FVariableList.Add(FVariable);
+  FoVariableList.Add(foVariable);
 
-  Result := FVariable.VariableName;
+  Result := foVariable.VariableName;
 end;
 
 
 procedure TVariables.AddVariable(AVariableName: String;AValue: Variant);
 Var
-  FVariable: TVariable;
+  foVariable: TVariable;
 begin
-  FVariable := TVariable.Create;
+  foVariable := TVariable.Create;
 
-  FVariable.VariableName := AVarIableName;
+  foVariable.VariableName := AVarIableName;
 
-  FVariable.Value := AValue;
+  foVariable.Value := AValue;
 
-  FVariableList.Add(FVariable);
+  FoVariableList.Add(foVariable);
 end;
 
 
 function TVariables.VariableExistsIndex(AVariableName: String): Integer;
 Var
   I: Integer;
-  FVariable: TVariable;
+  foVariable: TVariable;
 begin
   Result := -1;
 
-  for I := 0 to fVariableList.Count - 1 do
+  for I := 0 to foVariableList.Count - 1 do
     begin
-      FVariable := TVariable(fVariableList.Items[i]);
+      foVariable := TVariable(foVariableList.Items[i]);
 
-      if Uppercase(FVariable.VariableName) = Uppercase(AVariableName) then
+      if Uppercase(foVariable.VariableName) = Uppercase(AVariableName) then
         begin
           Result := i;
 
@@ -128,7 +131,7 @@ end;
 function TVariables.GetVariableByIndex(AIndex: Integer): TVariable;
 begin
   Try
-    Result := TVariable(fVariableList.Items[AIndex]);
+    Result := TVariable(foVariableList.Items[AIndex]);
   Except
     Result := NIL;
   End;
