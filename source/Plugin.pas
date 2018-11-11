@@ -4,7 +4,7 @@ interface
 
 uses classes, Output, NovusPlugin, Project, config, NovusTemplate, uPSRuntime,
   uPSCompiler, NovusList, SysUtils, JvSimpleXml, CodeGeneratorItem,
-  NovusShell, System.IoUtils, Loader, Template, DataProcessor, DB;
+  NovusShell, System.IoUtils, Loader, Template, DataProcessor, DB, TokenProcessor;
 
 type
   TPluginReturn = (PRFailed, PRPassed, PRIgnore);
@@ -55,7 +55,7 @@ type
   private
   protected
   public
-    function GetTag(aTagName: String; aCodeGeneratorItem: tCodeGeneratorItem; aTokenIndex: Integer): String; virtual;
+    function GetTag(aTagName: String; aTokens: tTokenProcessor; aProjectItem: tObject): String; virtual;
     function IsTagExists(aTagName: String): Integer; virtual;
   end;
 
@@ -231,7 +231,7 @@ begin
   Result := '';
 end;
 
-function TTagsPlugin.GetTag(aTagName: String; aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
+function TTagsPlugin.GetTag(aTagName: String; aTokens: tTokenProcessor; aProjectItem: tObject): String;
 begin
   Result := '';
 end;

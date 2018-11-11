@@ -6,7 +6,7 @@ uses Classes,Plugin, NovusPlugin, NovusVersionUtils, Project,
     Output, SysUtils, System.Generics.Defaults,  runtime, Config, NovusStringUtils,
     APIBase, NovusGUIDEx, CodeGeneratorItem, FunctionsParser, ProjectItem, TokenParser,
     Variables, NovusFileUtils, CodeGenerator, FieldFunctionParser, DataProcessor,
-    TableFunctionParser;
+    TableFunctionParser, TokenProcessor;
 
 
 type
@@ -20,7 +20,7 @@ type
   public
      constructor Create(aOutput: tOutput);
 
-     function Execute(aTagName: string; aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String; virtual;
+     function Execute(aProjectItem: tProjectItem;aTagName: string; aTokens: TTokenProcessor): String; virtual;
 
      property TagName: String
        read GetTagName;
@@ -35,7 +35,7 @@ type
     function GetTagName: String; override;
     procedure OnExecute(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string; aTokenParser: tTokenParser);
   public
-    function Execute(aTagName: string;aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String; override;
+    function Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: TTokenProcessor): String; override;
   end;
 
   TDBTag_FieldAsSQL = class(TDBTag)
@@ -44,7 +44,7 @@ type
     function GetTagName: String; override;
     procedure OnExecute(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string; aTokenParser: tTokenParser);
   public
-    function Execute(aTagName: string;aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String; override;
+    function Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: TTokenProcessor): String; override;
   end;
 
   TDBTag_FieldNameByIndex = class(TDBTag)
@@ -53,7 +53,7 @@ type
     function GetTagName: String; override;
     procedure OnExecute(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string; aTokenParser: tTokenParser);
   public
-    function Execute(aTagName: string;aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String; override;
+    function Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: TTokenProcessor): String; override;
   end;
 
   TDBTag_TableCount = class(TDBTag)
@@ -62,7 +62,7 @@ type
     function GetTagName: String; override;
     procedure OnExecute(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string; aTokenParser: tTokenParser);
   public
-    function Execute(aTagName: string;aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String; override;
+    function Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: TTokenProcessor): String; override;
   end;
 
   TDBTag_Tablenamebyindex = class(TDBTag)
@@ -71,7 +71,7 @@ type
     function GetTagName: String; override;
     procedure OnExecute(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string; aTokenParser: tTokenParser);
   public
-    function Execute(aTagName: string;aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String; override;
+    function Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: TTokenProcessor): String; override;
   end;
 
   TDBTag_FieldTypeByIndex = class(TDBTag)
@@ -80,7 +80,7 @@ type
     function GetTagName: String; override;
     procedure OnExecute(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string; aTokenParser: tTokenParser);
   public
-    function Execute(aTagName: string;aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String; override;
+    function Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: TTokenProcessor): String; override;
   end;
 
   tDBTags = array of TDBTag;
@@ -93,7 +93,7 @@ type
     constructor Create(aOutput: tOutput; aPluginName: String; aProject: TProject; aConfigPlugin: tConfigPlugin); override;
     destructor Destroy; override;
 
-    function GetTag(aTagName: String; aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String; override;
+    function GetTag(aTagName: String; aTokens: TTokenProcessor; aProjectItem: TObject): String; override;
     function IsTagExists(aTagName: String): Integer; override;
 
   end;
@@ -174,7 +174,7 @@ begin
 end;
 
 // tPlugin_DBTagsBase
-function tPlugin_DBTagsBase.GetTag(aTagName: String; aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
+function tPlugin_DBTagsBase.GetTag(aTagName: String; aTokens: TTokenProcessor; aProjectItem: TObject): String;
 Var
   liIndex: Integer;
 begin
@@ -187,7 +187,7 @@ begin
      Exit;
    end;
 
-  Result := FDBTags[liIndex].Execute(aTagName, aCodeGeneratorItem, aTokenIndex);
+  Result := FDBTags[liIndex].Execute((aProjectItem as tProjectItem), aTagName, aTokens);
 end;
 
 function tPlugin_DBTagsBase.IsTagExists(aTagName: String): Integer;
@@ -227,7 +227,7 @@ begin
   Result := '';
 end;
 
-function TDBTag.Execute(aTagName: string;aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
+function TDBTag.Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: TTokenProcessor): String;
 begin
   Result := '';
 end;
@@ -245,20 +245,18 @@ begin
 end;
 
 
-function TDBTag_FieldCount.Execute(aTagName: string;aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
+function TDBTag_FieldCount.Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: TTokenProcessor): String;
 var
   LFieldFunctionParser: tFieldFunctionParser;
 begin
 
   Try
     Try
-      LFieldFunctionParser:= tFieldFunctionParser.Create(aCodeGeneratorItem, foOutput, aTagName);
-
-      LFieldFunctionParser.TokenIndex := aTokenIndex;
+      LFieldFunctionParser:= tFieldFunctionParser.Create(aProjectItem, aTokens, foOutput, aTagName);
 
       LFieldFunctionParser.OnExecute := OnExecute;
 
-      Result := LFieldFunctionParser.Execute;
+      Result := LFieldFunctionParser.Execute(foProjectItem);
     Finally
       LFieldFunctionParser.Free;
     End;
@@ -309,19 +307,18 @@ begin
 end;
 
 
-function TDBTag_FieldNameByIndex.Execute(aTagName: String;aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
+function TDBTag_FieldNameByIndex.Execute(aProjectItem: tProjectItem;aTagName: String;aTokens: TTokenProcessor): String;
 var
   LFieldFunctionParser: tFieldFunctionParser;
 begin
   Try
     Try
-      LFieldFunctionParser:= tFieldFunctionParser.Create(aCodeGeneratorItem, foOutput, aTagName);
+      LFieldFunctionParser:= tFieldFunctionParser.Create(aProjectItem,aTokens, foOutput, aTagName);
 
-      LFieldFunctionParser.TokenIndex := aTokenIndex;
 
       LFieldFunctionParser.OnExecute := OnExecute;
 
-      Result := LFieldFunctionParser.Execute;
+      Result := LFieldFunctionParser.Execute(self.foProjectItem);
     Finally
       LFieldFunctionParser.Free;
     End;
@@ -348,19 +345,18 @@ begin
 end;
 
 
-function TDBTag_TableCount.Execute(aTagName: string;aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
+function TDBTag_TableCount.Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: TTokenProcessor): String;
 var
   LTableFunctionParser: tTableFunctionParser;
 begin
   Try
     Try
-      LTableFunctionParser:= tTableFunctionParser.Create(aCodeGeneratorItem, foOutput, aTagName);
+      LTableFunctionParser:= tTableFunctionParser.Create(aProjectItem,aTokens, foOutput, aTagName);
 
-      LTableFunctionParser.TokenIndex := aTokenIndex;
 
       LTableFunctionParser.OnExecute := OnExecute;
 
-      Result := LTableFunctionParser.Execute;
+      Result := LTableFunctionParser.Execute(foProjectItem);
     Finally
       LTableFunctionParser.Free;
     End;
@@ -408,19 +404,18 @@ begin
 end;
 
 
-function TDBTag_FieldAsSQL.Execute(aTagName: string;aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
+function TDBTag_FieldAsSQL.Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: TTokenProcessor): String;
 var
   LFieldFunctionParser: tFieldFunctionParser;
 begin
   Try
     Try
-      LFieldFunctionParser:= tFieldFunctionParser.Create(aCodeGeneratorItem, foOutput, aTagName);
+      LFieldFunctionParser:= tFieldFunctionParser.Create(aProjectItem,aTokens, foOutput, aTagName);
 
-      LFieldFunctionParser.TokenIndex := aTokenIndex;
 
       LFieldFunctionParser.OnExecute := OnExecute;
 
-      Result := LFieldFunctionParser.Execute;
+      Result := LFieldFunctionParser.Execute(foProjectItem);
     Finally
       LFieldFunctionParser.Free;
     End;
@@ -459,19 +454,18 @@ begin
 end;
 
 
-function TDBTag_Tablenamebyindex.Execute(aTagName: string;aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
+function TDBTag_Tablenamebyindex.Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: TTokenProcessor): String;
 var
   LTableFunctionParser: tTableFunctionParser;
 begin
   Try
     Try
-      LTableFunctionParser:= tTableFunctionParser.Create(aCodeGeneratorItem, foOutput, aTagName);
+      LTableFunctionParser:= tTableFunctionParser.Create(aProjectItem,aTokens, foOutput, aTagName);
 
-      LTableFunctionParser.TokenIndex := aTokenIndex;
 
       LTableFunctionParser.OnExecute := OnExecute;
 
-      Result := LTableFunctionParser.Execute;
+      Result := LTableFunctionParser.Execute(foProjectItem);
     Finally
       LTableFunctionParser.Free;
     End;
@@ -537,19 +531,17 @@ begin
 end;
 
 
-function TDBTag_FieldTypeByIndex.Execute(aTagName: string;aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
+function TDBTag_FieldTypeByIndex.Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: TTokenProcessor): String;
 var
   LFieldFunctionParser: tFieldFunctionParser;
 begin
   Try
     Try
-      LFieldFunctionParser:= tFieldFunctionParser.Create(aCodeGeneratorItem, foOutput, ATagName);
-
-      LFieldFunctionParser.TokenIndex := aTokenIndex;
+      LFieldFunctionParser:= tFieldFunctionParser.Create(aProjectItem, aTokens, foOutput, ATagName);
 
       LFieldFunctionParser.OnExecute := OnExecute;
 
-      Result := LFieldFunctionParser.Execute;
+      Result := LFieldFunctionParser.Execute(foProjectItem);
     Finally
       LFieldFunctionParser.Free;
     End;

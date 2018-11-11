@@ -36,6 +36,7 @@ type
      property TokenIndex: Integer
          read fiTokenIndex
          write fiTokenIndex;
+
    end;
 
 implementation
@@ -74,6 +75,8 @@ begin
   Result := Trim(Strings[fiTokenIndex]);
   Inc(fiTokenIndex);
 end;
+
+
 
 
 function tTokenProcessor.GetFirstTokenProcessorItem: tTokenProcessorItem;

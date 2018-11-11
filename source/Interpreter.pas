@@ -49,9 +49,9 @@ Type
     FoCodeGenerator: TObject;
     fiLoopCounter: Integer;
     fLoopList: tNovusList;
-    FTokens: tTokenProcessor;
+    FoTokens: tTokenProcessor;
     FOutput: TOutput;
-    FoCodeGeneratorItem: TObject;
+  //  FoCodeGeneratorItem: TObject;
     foProjectItem: TObject;
   private
     //function ParseCommand(aCommand: string): string;
@@ -113,12 +113,13 @@ Type
     function CommandSyntaxIndexByTokens(ATokens: tTokenProcessor): Integer;
     function CommandSyntaxIndex(aCommand: String): Integer;
 
-    function Execute(ACodeGeneratorItem: TObject;
-      Var ASkipPOs: Integer): String;
+    function Execute(aTokens: tTokenProcessor; Var ASkipPOs: Integer): String;
     function LanguageFunctions(AFunction: string; ADataType: String): String;
 
-    property oCodeGeneratorItem: TObject read FoCodeGeneratorItem
-      write FoCodeGeneratorItem;
+
+    property  oTokens: tTokenProcessor read foTokens write foTokens;
+    //property oCodeGeneratorItem: TObject read FoCodeGeneratorItem
+    //  write FoCodeGeneratorItem;
   End;
 
 implementation
@@ -575,69 +576,6 @@ begin
   end;
 end;
 
-(*
-function TInterpreter.TableFunctions(ATokens: tTokenProcessor;
-  Var AIndex: Integer; ACommandIndex: Integer): string;
-Var
-  lConnectionItem: tConnectionItem;
-  FFieldDesc: tFieldDesc;
-
-  FConnectionName: String;
-  FTableName: String;
-  FTableIndex: Integer;
-  LStr: String;
-begin
-  Result := '';
-
-  If GetNextToken(AIndex, ATokens) = '(' then
-  begin
-    FConnectionName := GetNextToken(AIndex, ATokens);
-
-    lConnectionItem := (foProjectItem as TProjectItem)
-      .oProject.oProjectConfig.oConnections.FindConnectionName(FConnectionName);
-    if Assigned(lConnectionItem) then
-    begin
-      case ACommandIndex of
-        0:
-          Result := IntToStr(lConnectionItem.TableCount);
-        1:
-          begin
-            LStr := GetNextToken(AIndex, ATokens);
-
-            if TNovusStringUtils.IsNumberStr(LStr) then
-            begin
-              FTableIndex := StrToint(LStr);
-
-              If lConnectionItem.TableCount > 0 then
-              begin
-                Result := lConnectionItem.JustTableNamebyIndex(FTableIndex);
-              end
-              else
-              begin
-                FOutput.LogError('Error: Tablename cannot be found.');
-              end;
-            end
-            else
-            begin
-              FOutput.Log('Incorrect syntax: Index is not a number ');
-
-            end;
-          end;
-      end;
-    end
-    else
-    begin
-      FOutput.LogError('Error: Connectioname cannot be found "' +
-        FConnectionName + '"');
-    end;
-  end
-  else
-  begin
-    FOutput.Log('Incorrect syntax: lack "("');
-
-  end;
-end;
-*)
 
 function TInterpreter.plugintag(aTokens: tTokenProcessor; Var aIndex: Integer): string;
 var
@@ -654,7 +592,7 @@ begin
    if oRuntime.oPlugins.IsTagExists(lsToken1, lsToken2) then
      begin
        Result := oRuntime.oPlugins.GetTag(lsToken1, lsToken2,
-            (FoCodeGeneratorItem as tCodeGeneratorItem) , aTokens.TokenIndex);
+            aTokens, tProjectItem(foProjectItem));
      end;
 
   aIndex := aTokens.TokenIndex ;
@@ -743,8 +681,8 @@ begin
     begin
       if Pos('$$', ATokens[AIndex]) = 1 then
         Result := tTokenParser.ParseToken(Self, ATokens[AIndex],
-          (foProjectItem as TProjectItem), TCodeGenerator(FoCodeGenerator)
-          .oVariables, FOutput, ATokens, AIndex,
+          (foProjectItem as TProjectItem), (*TCodeGenerator(FoCodeGenerator)
+          .oVariables, *)FOutput, ATokens, AIndex,
           TCodeGenerator(FoCodeGenerator).oProject)
       else
       if Pos('$', ATokens[AIndex]) = 1 then
@@ -827,7 +765,9 @@ begin
               FLoop.LoopType := ltrepeat;
               FLoop.LoopPos := lpStart;
               FLoop.ID := fiLoopCounter;
-              FLoop.CodeGeneratorItem := FoCodeGeneratorItem;
+
+            // Need to fix
+           //   FLoop.CodeGeneratorItem := FoCodeGeneratorItem;
 
               FLoop.NegitiveFlag := (StrToint(LsValue) < 0);
 
@@ -837,8 +777,10 @@ begin
 
               fLoopList.Add(FLoop);
 
-              liStartPos1 := (FoCodeGeneratorItem As tCodeGeneratorItem)
-                .oTemplateTag.TagIndex;
+
+              // Need To fix
+           //   liStartPos1 := (FoCodeGeneratorItem As tCodeGeneratorItem)
+           //     .oTemplateTag.TagIndex;
 
               Inc(liStartPos1, 1);
 
@@ -874,13 +816,15 @@ begin
           (LStartLoop.CodeGeneratorItem As tCodeGeneratorItem)
           .oTemplateTag.SourceLineNo;
 
-        liEndPos1 := (FoCodeGeneratorItem As tCodeGeneratorItem)
-          .oTemplateTag.TagIndex;
-        Dec(liEndPos1, 1);
 
-        liEndSourceLineNo := (FoCodeGeneratorItem As tCodeGeneratorItem)
-          .oTemplateTag.SourceLineNo;
-        Dec(liEndSourceLineNo, 1);
+          // Need to fix
+        //liEndPos1 := (FoCodeGeneratorItem As tCodeGeneratorItem)
+        //  .oTemplateTag.TagIndex;
+        //Dec(liEndPos1, 1);
+
+        //liEndSourceLineNo := (FoCodeGeneratorItem As tCodeGeneratorItem)
+        //  .oTemplateTag.SourceLineNo;
+        //Dec(liEndSourceLineNo, 1);
 
         for I := liStartPos1 to liEndPos1 do
         begin
@@ -1104,8 +1048,8 @@ begin
       LsValue := GetToken;
 
       LsValue := tTokenParser.ParseToken(Self, LsValue,
-        (foProjectItem as TProjectItem), TCodeGenerator(FoCodeGenerator)
-        .oVariables, FOutput, ATokens, AIndex, TCodeGenerator(FoCodeGenerator)
+        (foProjectItem as TProjectItem),(* TCodeGenerator(FoCodeGenerator)
+        .oVariables,*) FOutput, ATokens, AIndex, TCodeGenerator(FoCodeGenerator)
         .oProject);
 
       If TNovusStringUtils.IsNumberStr(LsValue) then
@@ -1202,11 +1146,11 @@ end;
 
 procedure TInterpreter.AddVariable(AVariableName: String; AValue: Variant);
 begin
-  (FoCodeGenerator As TCodeGenerator).oVariables.AddVariable
+  (foProjectItem as TProjectItem).oVariables.AddVariable
     (AVariableName, AValue);
 end;
 
-function TInterpreter.Execute(ACodeGeneratorItem: TObject;
+function TInterpreter.Execute(aTokens: tTokenProcessor;
   Var ASkipPOs: Integer): String;
 Var
   FIndex: Integer;
@@ -1218,12 +1162,12 @@ begin
 
   FOut := False;
 
-  FTokens := tCodeGeneratorItem(ACodeGeneratorItem).oTokens;
+  FoTokens := aTokens;
 
-  FoCodeGeneratorItem := ACodeGeneratorItem;
+  //FoCodeGeneratorItem := ACodeGeneratorItem;
 
   FIndex := 0;
-  if FTokens.strings[0] = '=' then
+  if FoTokens.strings[0] = '=' then
   begin
     FOut := true;
     FIndex := 1;
@@ -1231,12 +1175,12 @@ begin
 
   if FOut = true then
   begin
-    Result := GetNextTag(FTokens, FIndex, ASkipPOs)
+    Result := GetNextTag(FoTokens, FIndex, ASkipPOs)
   end
   else
   begin
     Result := '';
-    GetNextTag(FTokens, FIndex, ASkipPOs);
+    GetNextTag(FoTokens, FIndex, ASkipPOs);
   end;
 end;
 
@@ -1400,14 +1344,13 @@ end;
 
 function TInterpreter.VariableExistsIndex(AVariableName: String): Integer;
 begin
-  Result := (FoCodeGenerator As TCodeGenerator).oVariables.VariableExistsIndex
+  Result := (foProjectItem as TProjectItem).oVariables.VariableExistsIndex
     (AVariableName)
 end;
 
 function TInterpreter.GetVariableByIndex(AIndex: Integer): TVariable;
 begin
-  Result := (FoCodeGenerator As TCodeGenerator)
-    .oVariables.GetVariableByIndex(AIndex)
+  Result := (foProjectItem as TProjectItem).oVariables.GetVariableByIndex(AIndex);
 end;
 
 function TInterpreter.FindEndRepeatIndexPos(AIndex: Integer): Integer;

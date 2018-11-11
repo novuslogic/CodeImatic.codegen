@@ -18,12 +18,12 @@ type
     FoTokens: tTokenProcessor;
     LiLoopID: Integer;
     foProjectItem: TObject;
-    foVariables: Tobject;
+   // foVariables: Tobject;
   private
     function GetTokenIndex: Integer;
     procedure SetTokenIndex(Value: Integer);
   public
-    constructor Create(aProjectItem: TObject; aCodeGenerator: Tobject; aVariables: tObject; aProject: Tobject); virtual;
+    constructor Create(aProjectItem: TObject; aCodeGenerator: Tobject; (*aVariables: tObject;*) aProject: Tobject); virtual;
     destructor Destroy; override;
 
     function GetNextToken(aIgnoreNextToken: Boolean = false): String;
@@ -61,8 +61,8 @@ type
     property oProjectItem: TObject
       read foProjectItem;
 
-    property oVariables: Tobject
-      read foVariables;
+    //property oVariables: Tobject
+     // read foVariables;
   end;
 
 implementation
@@ -101,7 +101,7 @@ begin
 
   foProjectItem := aProjectItem;
 
-  foVariables := aVariables;
+  //foVariables := aVariables;
 
   foProject := TProject(aProject);
 

@@ -34,6 +34,7 @@ Type
   TVariables = class(TObject)
   protected
     foVariableList: tNovusList;
+    function GetCount: Integer;
   private
   public
     constructor Create; virtual;
@@ -51,6 +52,9 @@ Type
       read foVariableList
       write foVariableList;
 
+
+    property Count: Integer
+       read GetCount;
   end;
 
 
@@ -157,6 +161,11 @@ begin
     Result := Copy(AVariableName, 2, Length(AVariableName))
   else
     Result := Trim(AVariableName);
+end;
+
+function TVariables.GetCount: integer;
+begin
+  Result := foVariableList.Count;
 end;
 
 

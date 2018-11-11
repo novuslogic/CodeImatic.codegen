@@ -19,7 +19,7 @@ Type
     FScript: TStringList;
     foProcessorPlugin: TObject;
     foProject: tProject;
-    foVariables: tVariables;
+   // foVariables: tVariables;
     foOutput: tOutput;
     FLanguage: tLanguage;
     fsLanguage: String;
@@ -85,7 +85,7 @@ Type
 
     property oLanguage: tLanguage read FLanguage write FLanguage;
 
-    property oVariables: tVariables read foVariables write foVariables;
+   // property oVariables: tVariables read foVariables write foVariables;
 
     property oOutput: tOutput read foOutput write foOutput;
 
@@ -128,7 +128,7 @@ begin
 
   fsSourceFilename := aSourceFilename;
 
-  foVariables := tVariables.Create;
+  //foVariables := tVariables.Create;
 
   foOutput := AOutput;
 
@@ -150,7 +150,7 @@ begin
   if Assigned(Folayout) then
     Folayout.Free;
 
-  foVariables.Free;
+  //foVariables.Free;
 
   FLanguage.Free;
 
@@ -189,7 +189,7 @@ begin
   Result := NIL;
 
   lCodeGeneratorItem := TCodeGeneratorItem.Create(foProjectItem, Self,
-    foVariables, foProject);
+    (*foVariables, *) foProject);
 
   lCodeGeneratorItem.oTemplateTag := ATemplateTag;
 
@@ -229,7 +229,7 @@ begin
 
     if LCodeGeneratorItem1.tagtype = ttInterpreter then
     begin
-      lsTagValue := FoInterpreter.Execute(LCodeGeneratorItem1, LiSkipPos1);
+      lsTagValue := FoInterpreter.Execute(LCodeGeneratorItem1.oTokens, LiSkipPos1);
 
       LTemplateTag1 := LCodeGeneratorItem1.oTemplateTag;
 
@@ -676,7 +676,7 @@ begin
 
       fiIndex := 0;
       fsLanguage := tTokenParser.ParseToken(Self, FCodeGeneratorItem.oTokens[2],
-        (foProjectItem as TProjectItem), foVariables, foOutput, NIL, fiIndex,
+        (foProjectItem as TProjectItem), (*foVariables, *) foOutput, NIL, fiIndex,
         foProject);
 
       if FileExists(oConfig.Languagespath + fsLanguage + '.xml') then
@@ -728,7 +728,7 @@ begin
 
         FTokenProcessor := tTokenParser.ParseExpressionToken(Self,
           FoTemplateTag.RawTag, (foProjectItem as TProjectItem), foProject,
-          foVariables, foOutput);
+          (*foVariables,*) foOutput);
 
         case FCodeGeneratorItem.tagtype of
           ttlayout:
@@ -995,7 +995,7 @@ begin
       Try
         FTokenProcessor := tTokenParser.ParseExpressionToken(Self,
           FoTemplateTag.RawTag, (foProjectItem as TProjectItem), foProject,
-          foVariables, foOutput);
+          (*foVariables,*) foOutput);
 
         if Uppercase(FTokenProcessor.GetNextToken) = 'CODEBEHINE' then
         begin
@@ -1075,7 +1075,7 @@ begin
         if oRuntime.oPlugins.IsTagExists(lsToken1, lsToken2) then
         begin
           FoTemplateTag.TagValue := oRuntime.oPlugins.GetTag(lsToken1, lsToken2,
-            FCodeGeneratorItem, FCodeGeneratorItem.TokenIndex - 1);
+            FCodeGeneratorItem.oTokens, (*FCodeGeneratorItem.TokenIndex - 1,*) TProjectItem(foProjectItem));
         end;
       end
       else

@@ -5,7 +5,7 @@ interface
 uses Classes, Plugin, NovusPlugin, NovusVersionUtils, Project,
   Output, SysUtils, System.Generics.Defaults, runtime, Config,
   APIBase, NovusGUIDEx, CodeGeneratorItem, FunctionsParser, ProjectItem,
-  Variables, NovusFileUtils, CodeGenerator, NovusStringUtils;
+  Variables, NovusFileUtils, CodeGenerator, NovusStringUtils, TokenProcessor;
 
 type
   TSysTag = class
@@ -18,8 +18,7 @@ type
   public
     constructor Create(aOutput: tOutput);
 
-    function Execute(aTagName: String; aCodeGeneratorItem: TCodeGeneratorItem;
-      aTokenIndex: Integer): String; virtual;
+    function Execute(aProjectItem: tProjectItem;aTagName: String; aTokens: tTokenProcessor): String; virtual;
 
     property TagName: String read GetTagName;
 
@@ -32,8 +31,7 @@ type
     function GetTagName: String; override;
     procedure OnExecute(var aToken: String);
   public
-    function Execute(aTagName: String; aCodeGeneratorItem: TCodeGeneratorItem;
-      aTokenIndex: Integer): String; override;
+    function Execute(aProjectItem: tProjectItem;aTagName: String; aTokens: tTokenProcessor): String; override;
   end;
 
   TSysTag_Version = class(TSysTag)
@@ -41,8 +39,7 @@ type
   protected
     function GetTagName: String; override;
   public
-    function Execute(aTagName: String; aCodeGeneratorItem: TCodeGeneratorItem;
-      aTokenIndex: Integer): String; override;
+    function Execute(aProjectItem: tProjectItem;aTagName: String; aTokens: tTokenProcessor): String; override;
   end;
 
   TSysTag_Lower = class(TSysTag)
@@ -51,8 +48,7 @@ type
     function GetTagName: String; override;
     procedure OnExecute(var aToken: String);
   public
-    function Execute(aTagName: String; aCodeGeneratorItem: TCodeGeneratorItem;
-      aTokenIndex: Integer): String; override;
+    function Execute(aProjectItem: tProjectItem;aTagName: String; aTokens: tTokenProcessor): String; override;
   end;
 
   TSysTag_Upper = class(TSysTag)
@@ -61,8 +57,7 @@ type
     function GetTagName: String; override;
     procedure OnExecute(var aToken: String);
   public
-    function Execute(aTagName: String; aCodeGeneratorItem: TCodeGeneratorItem;
-      aTokenIndex: Integer): String; override;
+    function Execute(aProjectItem: tProjectItem;aTagName: String; aTokens: tTokenProcessor): String; override;
   end;
 
   TSysTag_FilePathToURL = class(TSysTag)
@@ -71,8 +66,7 @@ type
     function GetTagName: String; override;
     procedure OnExecute(var aToken: String);
   public
-    function Execute(aTagName: String; aCodeGeneratorItem: TCodeGeneratorItem;
-      aTokenIndex: Integer): String; override;
+    function Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: tTokenProcessor): String; override;
   end;
 
   TSysTag_newguid = class(TSysTag)
@@ -80,8 +74,7 @@ type
   protected
     function GetTagName: String; override;
   public
-    function Execute(aTagName: String; aCodeGeneratorItem: TCodeGeneratorItem;
-      aTokenIndex: Integer): String; override;
+    function Execute(aProjectItem: tProjectItem;aTagName: String; aTokens: tTokenProcessor): String; override;
   end;
 
   TSysTag_BlankLine = class(TSysTag)
@@ -89,8 +82,7 @@ type
   protected
     function GetTagName: String; override;
   public
-    function Execute(aTagName: String; aCodeGeneratorItem: TCodeGeneratorItem;
-      aTokenIndex: Integer): String; override;
+    function Execute(aProjectItem: tProjectItem;aTagName: String; aTokens: tTokenProcessor): String; override;
   end;
 
   TSysTag_NewguidNoBrackets = class(TSysTag)
@@ -98,8 +90,7 @@ type
   protected
     function GetTagName: String; override;
   public
-    function Execute(aTagName: String; aCodeGeneratorItem: TCodeGeneratorItem;
-      aTokenIndex: Integer): String; override;
+    function Execute(aProjectItem: tProjectItem;aTagName: String; aTokens: tTokenProcessor): String; override;
   end;
 
   tSysTags = array of TSysTag;
@@ -113,8 +104,7 @@ type
       aProject: TProject; aConfigPlugin: tConfigPlugin); override;
     destructor Destroy; override;
 
-    function GetTag(aTagName: String; aCodeGeneratorItem: TCodeGeneratorItem;
-      aTokenIndex: Integer): String; override;
+    function GetTag(aTagName: String; aTokens: tTokenProcessor; aProjectItem: tObject): String; override;
     function IsTagExists(aTagName: String): Integer; override;
 
   end;
@@ -197,7 +187,7 @@ end;
 
 // tPlugin_SysTagsBase
 function tPlugin_SysTagsBase.GetTag(aTagName: String;
-  aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
+  aTokens: tTokenProcessor;  aProjectItem: TObject): String;
 Var
   liIndex: Integer;
 begin
@@ -211,8 +201,7 @@ begin
     Exit;
   end;
 
-  Result := FSysTags[liIndex].Execute(aTagName, aCodeGeneratorItem,
-    aTokenIndex);
+  Result := FSysTags[liIndex].Execute((aProjectItem as tProjectItem), aTagName, aTokens);
 end;
 
 function tPlugin_SysTagsBase.IsTagExists(aTagName: String): Integer;
@@ -251,8 +240,7 @@ begin
   Result := '';
 end;
 
-function TSysTag.Execute(aTagName: String;
-  aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
+function TSysTag.Execute(aProjectItem: tProjectItem;aTagName: String;aTokens: tTokenProcessor): String;
 begin
   Result := '';
 end;
@@ -262,16 +250,15 @@ begin
   Result := 'UPPER';
 end;
 
-function TSysTag_Upper.Execute(aTagName: String;
-  aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
+function TSysTag_Upper.Execute(aProjectItem: tProjectItem;aTagName: String;aTokens: tTokenProcessor): String;
 var
   LFunctionParser: tFunctionParser;
 begin
   Try
     Try
-      LFunctionParser := tFunctionParser.Create(aCodeGeneratorItem, foOutput);
+      LFunctionParser := tFunctionParser.Create(aProjectItem, aTokens, foOutput);
 
-      LFunctionParser.TokenIndex := aTokenIndex;
+      //LFunctionParser.TokenIndex := aTokenIndex;
 
       LFunctionParser.OnExecute := OnExecute;
 
@@ -294,17 +281,15 @@ begin
   Result := 'UPLOWER';
 end;
 
-function TSysTag_Uplower.Execute(aTagName: string;
-  aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
+function TSysTag_Uplower.Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: tTokenProcessor): String;
 var
   LFunctionParser: tFunctionParser;
 begin
   Try
     Try
-      LFunctionParser := tFunctionParser.Create(aCodeGeneratorItem, foOutput,
+      LFunctionParser := tFunctionParser.Create(aProjectItem, aTokens, foOutput,
         aTagName);
 
-      LFunctionParser.TokenIndex := aTokenIndex;
 
       LFunctionParser.OnExecute := OnExecute;
 
@@ -327,8 +312,7 @@ begin
   Result := 'VERSION';
 end;
 
-function TSysTag_Version.Execute(aTagName: string;
-  aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
+function TSysTag_Version.Execute(aProjectItem: tProjectItem; aTagName: string;aTokens: tTokenProcessor): String;
 begin
   Result := oRuntime.GetVersion(1);
 end;
@@ -338,17 +322,16 @@ begin
   Result := 'LOWER';
 end;
 
-function TSysTag_Lower.Execute(aTagName: string;
-  aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
+function TSysTag_Lower.Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: tTokenProcessor): String;
 var
   LFunctionParser: tFunctionParser;
 begin
   Try
     Try
-      LFunctionParser := tFunctionParser.Create(aCodeGeneratorItem, foOutput,
+      LFunctionParser := tFunctionParser.Create(aProjectItem, aTokens, foOutput,
         aTagName);
 
-      LFunctionParser.TokenIndex := aTokenIndex;
+    //  LFunctionParser.TokenIndex := aTokenIndex;
 
       LFunctionParser.OnExecute := OnExecute;
 
@@ -371,17 +354,14 @@ begin
   Result := 'FILEPATHTOURL';
 end;
 
-function TSysTag_FilePathToURL.Execute(aTagName: string;
-  aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
+function TSysTag_FilePathToURL.Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: tTokenProcessor): String;
 var
   LFunctionParser: tFunctionParser;
 begin
   Try
     Try
-      LFunctionParser := tFunctionParser.Create(aCodeGeneratorItem, foOutput,
+      LFunctionParser := tFunctionParser.Create(aProjectItem,aTokens, foOutput,
         aTagName);
-
-      LFunctionParser.TokenIndex := aTokenIndex;
 
       LFunctionParser.OnExecute := OnExecute;
 
@@ -404,8 +384,7 @@ begin
   Result := 'NEWGUID';
 end;
 
-function TSysTag_newguid.Execute(aTagName: string;
-  aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
+function TSysTag_newguid.Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: tTokenProcessor): String;
 begin
   Result := TGuidExUtils.NewGuidString;
 end;
@@ -415,8 +394,7 @@ begin
   Result := 'BLANKLINE';
 end;
 
-function TSysTag_BlankLine.Execute(aTagName: string;
-  aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
+function TSysTag_BlankLine.Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: tTokenProcessor): String;
 begin
   Result := cBlankLine;
 end;
@@ -426,8 +404,7 @@ begin
   Result := 'NEWGUIDNOBRACKETS';
 end;
 
-function TSysTag_NewguidNoBrackets.Execute(aTagName: string;
-  aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
+function TSysTag_NewguidNoBrackets.Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: tTokenProcessor): String;
 begin
   Result := TGuidExUtils.NewGuidNoBracketsString;;
 end;

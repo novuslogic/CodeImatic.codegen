@@ -5,7 +5,7 @@ interface
 uses NovusPlugin, Config, Output, Classes, SysUtils, PluginsMapFactory, Plugin,
   Project, ProjectItem,
   NovusTemplate, ScriptEngine, uPSRuntime, uPSCompiler, NovusFileUtils,
-  CodeGeneratorItem, Loader, CodeGenerator, Template;
+  CodeGeneratorItem, Loader, CodeGenerator, Template, TokenProcessor;
 
 type
   TPlugins = class(TObject)
@@ -37,7 +37,7 @@ type
 
     function IsTagExists(aPluginName: String; aTagName: string): Boolean;
     function GetTag(aPluginName: String; aTagName: string;
-      aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
+      aTokens: tTokenProcessor; aProjectItem: tProjectItem): String;
 
     function PostProcessor(aProcessorItem: tProcessorItem;
       aProjectItem: tProjectItem;
@@ -407,7 +407,7 @@ begin
 end;
 
 function TPlugins.GetTag(aPluginName: String; aTagName: string;
-  aCodeGeneratorItem: TCodeGeneratorItem; aTokenIndex: Integer): String;
+  aTokens: tTokenProcessor; aProjectItem: tProjectItem): String;
 var
   loPlugin: TPlugin;
   I: Integer;
@@ -427,8 +427,8 @@ begin
       begin
         if TTagsPlugin(loPlugin).IsTagExists(aTagName) <> -1 then
         begin
-          Result := TTagsPlugin(loPlugin).GetTag(aTagName, aCodeGeneratorItem,
-            aTokenIndex);
+          Result := TTagsPlugin(loPlugin).GetTag(aTagName, aTokens,
+                aProjectItem);
 
           break;
         end;

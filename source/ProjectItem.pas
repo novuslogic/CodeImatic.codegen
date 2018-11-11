@@ -5,7 +5,7 @@ interface
 Uses NovusBO, JvSimpleXml, Project, SysUtils, NovusSimpleXML,
   ProjectConfigParser,
   Properties, NovusTemplate, CodeGenerator, Output, Template,
-  NovusFileUtils,  //DBSchema,
+  NovusFileUtils,  Variables,
   NovusList, System.RegularExpressions, NovusUtilities, plugin, Loader;
 
 type
@@ -114,6 +114,7 @@ type
   TProjectItem = class(tobject)
   protected
   private
+    foVariables : tVariables;
     fProjectItemType: TProjectItemType;
     foSourceFiles: tSourceFiles;
     foProject: tProject;
@@ -176,6 +177,8 @@ type
 
     property oProject: tProject read foProject write foProject;
 
+    property oVariables : tVariables read foVariables write foVariables;
+
   end;
 
 implementation
@@ -199,6 +202,8 @@ begin
   fNodeProjectItem := aNodeProjectItem;
 
   foSourceFiles := tSourceFiles.Create(foProject, Self, foOutput);
+
+  foVariables := tVariables.Create;
 end;
 
 destructor TProjectItem.Destroy;
@@ -212,6 +217,8 @@ begin
   //FreeandNil(foDBSchema);
 
   // FreeandNil(foCodeGenerator);
+
+  foVariables.Free;
 
   inherited;
 end;

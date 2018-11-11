@@ -11,7 +11,7 @@ type
   tTokenParser = class(Tobject)
   protected
     fsTagName: String;
-    foCodeGeneratorItem: TCodeGeneratorItem;
+    foTokens: tTokenProcessor;
     foOutput: TOutput;
     foProjectItem: tProjectItem;
     foVariables: TVariables;
@@ -20,18 +20,18 @@ type
     procedure SetTokenIndex(Value: Integer);
     function GetEOF: Boolean;
   public
-    constructor Create(aCodeGeneratorItem: TCodeGeneratorItem;
+    constructor Create(aProjectItem: tProjectItem;aTokens: tTokenProcessor;
       aOutput: TOutput; aTagName: String =''); overload;
 
     class function ParseToken(aObject: Tobject; aToken: String;
-      aProjectItem: tProjectItem; aVariables: TVariables; aOutput: TOutput;
+      aProjectItem: tProjectItem; aOutput: TOutput;
       ATokens: tTokenProcessor; Var aTokenIndex: Integer;
       aProject: TProject;
       aUseInterpreter : boolean = false): String;
     class function ParseSimpleToken(aToken: string; aOutput: TOutput)
       : tTokenProcessor;
     class function ParseExpressionToken(aObject: Tobject; aToken: String;
-      aProjectItem: tProjectItem; aProject: TProject; aVariables: TVariables;
+      aProjectItem: tProjectItem; aProject: TProject; (*aVariables: TVariables; *)
       aOutput: TOutput): tTokenProcessor; overload;
     class function ParseExpressionToken(aToken: string; aOutput: TOutput)
       : tTokenProcessor; overload;
@@ -39,7 +39,9 @@ type
     function ParseNextToken: String;
 
 
-    property oCodeGeneratorItem: TCodeGeneratorItem read foCodeGeneratorItem;
+    //property oCodeGeneratorItem: TCodeGeneratorItem read foCodeGeneratorItem;
+
+    property oTokens: tTokenProcessor read foTokens write foTokens;
 
     property oOutput: TOutput read foOutput;
 
@@ -91,7 +93,7 @@ end;
 
 class function tTokenParser.ParseExpressionToken(aObject: Tobject;
   aToken: String; aProjectItem: tProjectItem; aProject: TProject;
-  aVariables: TVariables; aOutput: TOutput): tTokenProcessor;
+  (*aVariables: TVariables;*) aOutput: TOutput): tTokenProcessor;
 Var
   lEParser: tExpressionParser;
   I: Integer;
@@ -116,7 +118,7 @@ begin
     begin
       FiIndex := 0;
       Result.Strings[I] := ParseToken(aObject, Result.Strings[I], aProjectItem,
-        aVariables, aOutput, NIL, FiIndex, aProject);
+        (*aVariables,*) aOutput, NIL, FiIndex, aProject);
     end;
   Except
     aOutput.InternalError;
@@ -152,15 +154,16 @@ begin
   End;
 end;
 
-constructor tTokenParser.Create(aCodeGeneratorItem: TCodeGeneratorItem;
+constructor tTokenParser.Create(aProjectItem: tProjectItem;aTokens: tTokenProcessor;
   aOutput: TOutput; aTagName: String ='');
 begin
   fsTagName := aTagName;
+  foProjectItem:= aProjectItem;
 
-  foCodeGeneratorItem := aCodeGeneratorItem;
+  foTokens := aTokens;
   foOutput := aOutput;
 
-  foCodeGeneratorItem.TokenIndex := 0;
+  //foCodeGeneratorItem.TokenIndex := 0;
 end;
 
 class function tTokenParser.ParseToken;
@@ -173,11 +176,11 @@ var
   loVarable: tVariable;
   lsToken1, lsToken2: string;
   lVariable: tVariable;
-  loCodeGeneratorItem: TCodeGeneratorItem;
+  loTokens: TTokenProcessor;
 begin
   Result := aToken;
 
-  loCodeGeneratorItem := NIL;
+  loTokens := NIL;
 
   If Copy(aToken, 1, 2) = '$$' then
   begin
@@ -249,17 +252,17 @@ begin
           begin
             lsToken2 := tInterpreter(aObject).GetNextToken(aTokenIndex,
               ATokens);
-            if Assigned(tInterpreter(aObject).oCodeGeneratorItem) then
-              loCodeGeneratorItem :=
-                TCodeGeneratorItem(tInterpreter(aObject).oCodeGeneratorItem);
+            if Assigned(tInterpreter(aObject).oTokens) then
+              loTokens :=
+                TTokenProcessor(tInterpreter(aObject).oTokens);
           end
           else
-          if aObject is TCodeGeneratorItem then loCodeGeneratorItem := (aObject as TCodeGeneratorItem);
+          if aObject is tTokenProcessor then loTokens := (aObject as tTokenProcessor);
 
           if oRuntime.oPlugins.IsTagExists(lsToken1, lsToken2) then
           begin
             Result := oRuntime.oPlugins.GetTag(lsToken1, lsToken2,
-              loCodeGeneratorItem, aTokenIndex);
+              loTokens, (*aTokenIndex,*) aProjectItem);
           end;
         end;
       ttVariableCmdLine:
@@ -296,9 +299,9 @@ begin
   else If Copy(aToken, 1, 1) = '$' then
   begin
     lsValue := TVariables.CleanVariableName(aToken);
-    if Assigned(aVariables) then
+    if Assigned(aProjectItem.oVariables) then
     begin
-      loVarable := aVariables.GetVariableByName(lsValue);
+      loVarable := aProjectItem.oVariables.GetVariableByName(lsValue);
       if Not Assigned(loVarable) then
       begin
         aOutput.LogError('Syntax Error: variable ' + lsValue +
@@ -342,13 +345,13 @@ begin
           end;
         ttplugintag:
           begin
-            if aObject Is TCodeGeneratorItem then
+            if aObject Is TTokenProcessor then
               begin
                 lsToken1 := aToken;
                 ATokens.TokenIndex := aTokenIndex + 1;
                 lsToken2 := ATokens.GetNextToken;
                 aTokenIndex := ATokens.TokenIndex;
-                loCodeGeneratorItem := TCodeGeneratorItem(aObject);
+                loTokens := TTokenProcessor(aObject);
 
               end
             else
@@ -356,15 +359,15 @@ begin
             begin
               lsToken2 := tInterpreter(aObject).GetNextToken(aTokenIndex,
                 ATokens);
-              if Assigned(tInterpreter(aObject).oCodeGeneratorItem) then
-                loCodeGeneratorItem :=
-                  TCodeGeneratorItem(tInterpreter(aObject).oCodeGeneratorItem);
+              if Assigned(tInterpreter(aObject).oTokens) then
+                loTokens :=
+                  TTokenProcessor(tInterpreter(aObject).oTokens);
             end;
 
             if oRuntime.oPlugins.IsTagExists(lsToken1, lsToken2) then
             begin
               Result := oRuntime.oPlugins.GetTag(lsToken1, lsToken2,
-                loCodeGeneratorItem, aTokenIndex);
+                loTokens, (*aTokenIndex,*) aProjectItem);
 
               aTokenIndex := aTokenIndex - 1;
             end;
@@ -404,21 +407,21 @@ Var
   lsToken: string;
   liTokenIndex: Integer;
 begin
-  lsToken := foCodeGeneratorItem.GetNextToken(True);
-  liTokenIndex := foCodeGeneratorItem.TokenIndex;
+  lsToken := foTokens.GetNextToken(True);
+  liTokenIndex := foTokens.TokenIndex;
 
-  Result := tTokenParser.ParseToken(foCodeGeneratorItem, lsToken,
-    (foCodeGeneratorItem.oProjectItem as tProjectItem),
-    (foCodeGeneratorItem.oVariables as TVariables), oOutput,
-    foCodeGeneratorItem.oTokens, liTokenIndex, foCodeGeneratorItem.oProject,
+  Result := tTokenParser.ParseToken(foTokens, lsToken,
+    (foProjectItem as tProjectItem),
+     oOutput,
+    foTokens, liTokenIndex, (foProjectItem as tProjectItem).oProject,
     true);
 
   Inc(liTokenIndex);
 
-  foCodeGeneratorItem.TokenIndex := liTokenIndex;
+  foTokens.TokenIndex := liTokenIndex;
 
-  if foCodeGeneratorItem.oTokens.EOF then
-    foCodeGeneratorItem.TokenIndex := foCodeGeneratorItem.oTokens.Count -1;
+  if foTokens.EOF then
+    foTokens.TokenIndex := foTokens.Count -1;
 
 
 end;
@@ -426,17 +429,17 @@ end;
 
 function tTokenParser.GetTokenIndex: Integer;
 begin
-  Result := foCodeGeneratorItem.TokenIndex;
+  Result := foTokens.TokenIndex;
 end;
 
 procedure tTokenParser.SetTokenIndex(Value: Integer);
 begin
-  foCodeGeneratorItem.TokenIndex := Value;
+  foTokens.TokenIndex := Value;
 end;
 
 function tTokenParser.GetEOF: Boolean;
 begin
-  Result := foCodeGeneratorItem.oTokens.EOF;
+  Result := foTokens.EOF;
 end;
 
 end.

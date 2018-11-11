@@ -13,7 +13,7 @@ Type
      foConnectionItem: tConnectionItem;
    public
      OnExecute: TOnExecute;
-     function Execute: String;
+     function Execute(aProjectItem: TProjectItem): String;
 
      property oConnectionItem: tConnectionItem
        read foConnectionItem
@@ -22,7 +22,7 @@ Type
 
 implementation
 
-function TTableFunctionParser.Execute: string;
+function TTableFunctionParser.Execute(aProjectItem: TProjectItem): string;
 Var
   FFieldDesc: tFieldDesc;
   FConnectionName: String;
@@ -34,14 +34,14 @@ Var
 begin
   Result := '';
 
-  if fsTagName = oCodeGeneratorItem.oTokens.Strings[TokenIndex] then
-     foCodeGeneratorItem.TokenIndex := foCodeGeneratorItem.TokenIndex + 1;
+  if fsTagName = oTokens.Strings[TokenIndex] then
+     oTokens.TokenIndex := oTokens.TokenIndex + 1;
 
   If  ParseNextToken = '(' then
   begin
     FConnectionName := ParseNextToken;
 
-    foConnectionItem := oCodeGeneratorItem.oProject.oProjectConfig.oConnections.FindConnectionName(FConnectionName);
+    foConnectionItem := aProjectItem.oProject.oProjectConfig.oConnections.FindConnectionName(FConnectionName);
 
     if Assigned(foConnectionItem) then
     begin
