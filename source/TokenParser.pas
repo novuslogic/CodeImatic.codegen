@@ -369,7 +369,8 @@ begin
               Result := oRuntime.oPlugins.GetTag(lsToken1, lsToken2,
                 loTokens, (*aTokenIndex,*) aProjectItem);
 
-              aTokenIndex := aTokenIndex - 1;
+              //aTokenIndex := aTokenIndex - 1;
+              aTokenIndex :=  ATokens.TokenIndex;
             end;
           end;
         ttVariableCmdLine:

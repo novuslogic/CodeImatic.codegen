@@ -358,7 +358,6 @@ begin
 
       LFunctionAParser := tFunctionAParser.Create(aProjectItem, aTokens, foOutput, aTagName);
 
-
       LFunctionAParser.OnExecute := OnExecute;
 
       Result := LFunctionAParser.Execute;
