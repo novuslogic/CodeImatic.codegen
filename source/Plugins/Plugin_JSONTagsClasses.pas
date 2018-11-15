@@ -6,7 +6,7 @@ uses Classes, Plugin, NovusPlugin, NovusVersionUtils, Project,
   Output, SysUtils, System.Generics.Defaults, runtime, Config,
   APIBase, NovusGUIDEx, CodeGeneratorItem, FunctionsParser, ProjectItem,
   Variables, NovusFileUtils, CodeGenerator, JSONFunctionParser, TokenParser,
-  NovusJSONUtils, System.IOUtils, System.JSON, TokenProcessor;
+  NovusJSONUtils, System.IOUtils, System.JSON, TokenProcessor, NovusStringUtils;
 
 type
   TJSONTag = class
@@ -43,6 +43,16 @@ type
   end;
 
   TJSONTag_JSONQuery = class(TJSONTag)
+  private
+  protected
+    function GetTagName: String; override;
+    procedure OnExecute(var aToken: String; aTokenParser: tTokenParser);
+  public
+    function Execute(aProjectItem: tProjectItem; aTagName: string;
+      aTokens: tTokenProcessor): String; override;
+  end;
+
+  TJSONTag_JSONGetArray = class(TJSONTag)
   private
   protected
     function GetTagName: String; override;
@@ -121,7 +131,8 @@ begin
 
   FJSONTags := tJSONTags.Create(TJSONTag_LoadJSON.Create(aOutput),
     TJSONTag_JSONQuery.Create(aOutput), TJSONTag_ToJSON.Create(aOutput),
-    TJSONTag_ToJSONValue.Create(aOutput));
+    TJSONTag_ToJSONValue.Create(aOutput),
+    TJSONTag_JSONGetArray.Create(aOutput));
 end;
 
 destructor tPlugin_JSONTagsBase.Destroy;
@@ -404,9 +415,9 @@ begin
   if not Assigned(FVariable) then
     Exit;
 
-  FJSONValueRoot := TJSONValue(FVariable.oObject);
 
-  aToken := FJSONValueRoot.ToJSON;
+   aToken := TJSONValue(FVariable.oObject).ToJSON;
+
 end;
 
 // TJSONTag_ToJSONValue
@@ -454,6 +465,85 @@ begin
 
   aToken := FJSONValueRoot.Value;
 end;
+
+// TJSONTag_JSONGetArray
+function TJSONTag_JSONGetArray.GetTagName: String;
+begin
+  Result := 'JSONGETARRAY';
+end;
+
+function TJSONTag_JSONGetArray.Execute(aProjectItem: tProjectItem;
+  aTagName: String; aTokens: tTokenProcessor): String;
+var
+  LFunctionAParser: tFunctionAParser;
+begin
+  Try
+    Try
+      Self.oVariables := tProjectItem(aProjectItem).oVariables;
+
+      LFunctionAParser := tFunctionAParser.Create(aProjectItem, aTokens,
+        foOutput, aTagName);
+
+      LFunctionAParser.OnExecute := OnExecute;
+
+      Result := LFunctionAParser.Execute;
+    Finally
+      LFunctionAParser.Free;
+    End;
+  Except
+    oOutput.InternalError;
+  End;
+end;
+
+procedure TJSONTag_JSONGetArray.OnExecute(var aToken: String;
+  aTokenParser: tTokenParser);
+Var
+  FJSONArray: TJSONArray;
+  FVariable: TVariable;
+  lsElement: string;
+  liIndex: Integer;
+  FJSONValue: TJSONValue;
+begin
+  FVariable := GetJSONObjectVariable(aToken);
+  if not Assigned(FVariable) then
+    Exit;
+
+  FJSONArray := TJSONArray(FVariable.oObject);
+
+  lsElement := aTokenParser.ParseNextToken;
+  if Trim(lsElement) = '' then
+  begin
+    foOutput.LogError('Incorrect syntax: Element Index cannot be blank.');
+
+    Exit;
+  end;
+
+  if not TNovusStringUtils.IsNumberStr(lsElement) then
+    begin
+      foOutput.Log('Incorrect syntax: Element Index is not a numeric.');
+
+      Exit;
+    end;
+
+  liIndex := TNovusStringUtils.Str2Int(lsElement);
+  if liIndex < 0 then
+    begin
+      foOutput.Log('Incorrect syntax: Element Index less than zero.');
+
+      Exit;
+    end;
+
+  if liIndex > (FJSONArray.Size - 1) then
+    begin
+      foOutput.Log('Incorrect syntax: Element Index greater than JSON Array size.');
+
+      Exit;
+    end;
+
+  FJSONValue :=  TJSONValue(FJSONArray.Get(liIndex));
+  aToken := Self.oVariables.AddVariableObject(FJSONValue, TJSONTag.ClassName);
+end;
+
 
 exports GetPluginObject name func_GetPluginObject;
 
