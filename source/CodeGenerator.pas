@@ -128,8 +128,6 @@ begin
 
   fsSourceFilename := aSourceFilename;
 
-  //foVariables := tVariables.Create;
-
   foOutput := AOutput;
 
   FoTemplate := aTemplate;
@@ -227,9 +225,11 @@ begin
 
     LCodeGeneratorItem1 := TCodeGeneratorItem(FCodeGeneratorList.Items[I]);
 
-    if LCodeGeneratorItem1.tagtype = ttInterpreter then
+    if (LCodeGeneratorItem1.tagtype = ttInterpreter) or
+       (LCodeGeneratorItem1.tagtype = ttRepeat) or
+       (LCodeGeneratorItem1.tagtype = ttEndRepeat) then
     begin
-      lsTagValue := FoInterpreter.Execute(LCodeGeneratorItem1.oTokens, LiSkipPos1);
+      lsTagValue := FoInterpreter.Execute(LCodeGeneratorItem1,  LiSkipPos1);
 
       LTemplateTag1 := LCodeGeneratorItem1.oTemplateTag;
 
@@ -450,7 +450,9 @@ begin
   begin
     lCodeGeneratorItem := TCodeGeneratorItem(FCodeGeneratorList.Items[I]);
 
-    if lCodeGeneratorItem.tagtype = ttInterpreter then
+    if (lCodeGeneratorItem.tagtype = ttInterpreter) or
+       (lCodeGeneratorItem.tagtype = ttRepeat) or
+       (lCodeGeneratorItem.tagtype = ttEndRepeat) then
     begin
       LTemplateTag := lCodeGeneratorItem.oTemplateTag;
 
@@ -499,7 +501,9 @@ begin
         begin
           lCodeGeneratorItem := TCodeGeneratorItem(FCodeGeneratorList.Items[X]);
 
-          if lCodeGeneratorItem.tagtype = ttInterpreter then
+          if (lCodeGeneratorItem.tagtype = ttInterpreter) or
+             (lCodeGeneratorItem.tagtype = ttRepeat) or
+             (lCodeGeneratorItem.tagtype = ttEndRepeat) then
           begin
             LTemplateTag := lCodeGeneratorItem.oTemplateTag;
 

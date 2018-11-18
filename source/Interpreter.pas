@@ -4,7 +4,8 @@ interface
 
 Uses
   Classes, ExpressionParser, SysUtils, DB, NovusStringUtils, Output,
-  NovusList, Variants, Variables, XMLList, NovusGUIDEx, TokenProcessor;
+  NovusList, Variants, Variables, XMLList, NovusGUIDEx, TokenProcessor, TagType,
+  CodeGeneratorItem;
 
 const
   csCommamdSyntax: array [1 .. 25] of String = ('fieldnamebyindex',
@@ -51,12 +52,12 @@ Type
     fLoopList: tNovusList;
     FoTokens: tTokenProcessor;
     FOutput: TOutput;
-  //  FoCodeGeneratorItem: TObject;
+    FoCodeGeneratorItem: TCodeGeneratorItem;
     foProjectItem: TObject;
   private
     //function ParseCommand(aCommand: string): string;
 
-    function plugintag(aTokens: tTokenProcessor; Var aIndex: Integer): string;
+    function DoPluginTag(aTokens: tTokenProcessor; Var aIndex: Integer): string;
     function IsRepeat(ACodeGeneratorItem: TObject): Boolean;
     function IsEndRepeat(ACodeGeneratorItem: TObject): Boolean;
     function FindEndRepeatIndexPos(AIndex: Integer): Integer;
@@ -79,11 +80,6 @@ Type
     function XMLlistCount(ATokens: tTokenProcessor;
       Var AIndex: Integer): string;
 
-      (*
-    function TableFunctions(ATokens: tTokenProcessor; Var AIndex: Integer;
-      ACommandIndex: Integer): string;
-      *)
-
     function ParseVariable(ATokens: tTokenProcessor; Var AIndex: Integer;
       ASubCommand: Boolean = False): String;
 
@@ -91,17 +87,11 @@ Type
       ACommandIndex: Integer): String;
 
 
-    //function Procedures(ATokens: tTokenProcessor; Var AIndex: Integer;
-    //  ACommandIndex: Integer): String;
-
-    //function FieldTypeToDataType(AFieldType: String): String;
-    //function ClearDataType(ADataType: String): String;
-
     function VariableExistsIndex(AVariableName: String): Integer;
     function GetVariableByIndex(AIndex: Integer): TVariable;
 
-    function LoopFunctions(ATokens: tTokenProcessor; Var AIndex: Integer;
-      ACommandIndex: Integer; Var ASkipPOs: Integer): string;
+    function DoRepeat(ATokens: tTokenProcessor; Var AIndex: Integer;
+      aTagType: TTagType; Var ASkipPOs: Integer): string;
   public
     constructor Create(ACodeGenerator: TObject; AOutput: TOutput;
       aProjectItem: TObject); virtual;
@@ -110,10 +100,10 @@ Type
     function GetNextToken(Var AIndex: Integer;
       ATokens: tTokenProcessor): String;
 
-    function CommandSyntaxIndexByTokens(ATokens: tTokenProcessor): Integer;
+    function DoTagTypeInterpreter(ATokens: tTokenProcessor): TTagType;
     function CommandSyntaxIndex(aCommand: String): Integer;
 
-    function Execute(aTokens: tTokenProcessor; Var ASkipPOs: Integer): String;
+    function Execute(aCodeGeneratorItem: tCodeGeneratorItem; Var ASkipPos: Integer): String;
     function LanguageFunctions(AFunction: string; ADataType: String): String;
 
 
@@ -132,9 +122,7 @@ Uses
   runtime,
   ProjectItem,
   TokenParser,
-  TagParser,
-  TagType,
-  CodeGeneratorItem;
+  TagParser;
 
 constructor TInterpreter.Create;
 begin
@@ -158,138 +146,6 @@ begin
   inherited;
 end;
 
-(*
-function TInterpreter.FieldFunctions(ATokens: tTokenProcessor;
-  Var AIndex: Integer; ACommandIndex: Integer): string;
-Var
-  lConnectionItem: tConnectionItem;
-  FFieldDesc: tFieldDesc;
-
-  FConnectionName: String;
-  FTableName: String;
-  FFieldIndex: Integer;
-  LStr: String;
-  FFieldType: tFieldType;
-begin
-  Result := '';
-
-  If GetNextToken(AIndex, ATokens) = '(' then
-  begin
-    FConnectionName := GetNextToken(AIndex, ATokens);
-
-    lConnectionItem := (foProjectItem as TProjectItem)
-      .oProject.oProjectConfig.oConnections.FindConnectionName(FConnectionName);
-
-    if Assigned(lConnectionItem) then
-    begin
-      if lConnectionItem.Connected then
-      begin
-        FTableName := GetNextToken(AIndex, ATokens);
-
-        If lConnectionItem.TableExists(FTableName) then
-        begin
-          if ((ACommandIndex = 0) or (ACommandIndex = 1)) then
-          begin
-            LStr := GetNextToken(AIndex, ATokens);
-
-            if TNovusStringUtils.IsNumberStr(LStr) then
-            begin
-              FFieldIndex := StrToint(LStr);
-
-              FFieldDesc := lConnectionItem.FieldByIndex(FTableName,
-                FFieldIndex);
-
-              if Assigned(FFieldDesc) then
-              begin
-                if GetNextToken(AIndex, ATokens) = ')' then
-                begin
-                  case ACommandIndex of
-                    0:
-                      Result := FFieldDesc.FieldName;
-                    1:
-                      begin
-                        // this need to be fixed
-                        // fFieldType := (foProjectItem as TProjectItem).oDBSchema.GetFieldType(FFieldDesc, lConnectionItem.AuxDriver);
-                        FFieldType := lConnectionItem.oDBSchema.GetFieldType
-                          (FFieldDesc, lConnectionItem.AuxDriver);
-
-                        FFieldType.Free;
-                      end;
-                  end;
-
-                  FFieldDesc.Free;
-
-                  Exit;
-                end
-                else
-                  FOutput.Log('Incorrect syntax: lack ")"');
-              end
-              else
-              begin
-                FOutput.LogError('Error: Field cannot be found.');
-              end;
-            end
-            else
-            begin
-              FOutput.Log('Incorrect syntax: Index is not a number ');
-
-            end;
-          end
-          else
-          begin
-            case ACommandIndex of
-              2:
-                Result := IntToStr(lConnectionItem.FieldCount(FTableName));
-
-              3:
-                begin
-                  LStr := GetNextToken(AIndex, ATokens);
-
-                  FFieldDesc := lConnectionItem.FieldByName(FTableName, LStr);
-
-                  if Assigned(FFieldDesc) then
-                  begin
-                    if GetNextToken(AIndex, ATokens) = ')' then
-                      Result := FFieldDesc.FieldName;
-
-                    FFieldDesc.Free;
-
-                    Exit;
-                  end
-                  else
-                  begin
-                    FOutput.LogError('Error: Field cannot be found.');
-
-                  end;
-                end;
-            end;
-          end;
-        end
-        else
-        begin
-          FOutput.LogError('Error: Table cannot be found "' + FTableName + '"');
-        end;
-
-      end
-      else
-      begin
-        FOutput.LogError('Error: Connectioname "' + FConnectionName +
-          '" connected.');
-      end;
-    end
-    else
-    begin
-      FOutput.LogError('Error: Connectioname cannot be found "' +
-        FConnectionName + '"');
-    end;
-  end
-  else
-  begin
-    FOutput.Log('Incorrect syntax: lack "("');
-
-  end;
-end;
-*)
 function TInterpreter.Delimiter(ATokens: tTokenProcessor;
   Var AIndex: Integer): string;
 Var
@@ -577,7 +433,7 @@ begin
 end;
 
 
-function TInterpreter.plugintag(aTokens: tTokenProcessor; Var aIndex: Integer): string;
+function TInterpreter.DoPluginTag(aTokens: tTokenProcessor; Var aIndex: Integer): string;
 var
   fTagParser: TTagParser;
   lsToken1, lsToken2: String;
@@ -596,8 +452,6 @@ begin
      end;
 
   aIndex := aTokens.TokenIndex ;
-
-
 end;
 
 function TInterpreter.GetNextTag(aTokens: tTokenProcessor; Var aIndex: Integer;
@@ -616,13 +470,17 @@ begin
     fTagType := TTagParser.ParseTagType(foProjectItem, FoCodeGenerator,
       lsNextToken, FOutput, true);
 
+
     if fTagType = ttplugintag then
       begin
-        result := Plugintag(ATokens, AIndex);
-
-
+        result := DoPluginTag(ATokens, AIndex);
       end
     else
+    if fTagType = ttrepeat then
+       Result := DoRepeat(ATokens, AIndex, ttRepeat, ASkipPos)
+    else
+    if fTagType = ttendrepeat then
+       Result := DoRepeat(ATokens, AIndex, ttEndRepeat, ASkipPos);
     if (CommandSyntaxIndex(lsNextToken) <> 0) then
     begin
       case CommandSyntaxIndex(lsNextToken) of
@@ -640,10 +498,10 @@ begin
           Result := Functions(ATokens, AIndex, 3);
         7:
           Result := Functions(ATokens, AIndex, 4);
-        8:
-          Result := LoopFunctions(ATokens, AIndex, 0, ASkipPOs);
-        9:
-          Result := LoopFunctions(ATokens, AIndex, 1, ASkipPOs);
+       // 8:
+        //  Result := Repeat(ATokens, AIndex, 0, ASkipPOs);
+       // 9:
+       //   Result := Repeat(ATokens, AIndex, 1, ASkipPOs);
        // 10:
        //   Result := FieldFunctions(ATokens, AIndex, 2);
         11:
@@ -693,8 +551,8 @@ begin
   end;
 end;
 
-function TInterpreter.LoopFunctions(ATokens: tTokenProcessor;
-  Var AIndex: Integer; ACommandIndex: Integer; Var ASkipPOs: Integer): string;
+function TInterpreter.DoRepeat(ATokens: tTokenProcessor;
+  Var AIndex: Integer; aTagType: TTagType; Var ASkipPOs: Integer): string;
 Var
   lbNegitiveFlag: Boolean;
   liPos, liLineNoPos: Integer;
@@ -747,8 +605,8 @@ Var
 begin
   Result := '';
 
-  case ACommandIndex of
-    0:
+  case aTagType of
+    ttRepeat:
       begin
         If GetNextToken(AIndex, ATokens) = '(' then
         begin
@@ -766,8 +624,8 @@ begin
               FLoop.LoopPos := lpStart;
               FLoop.ID := fiLoopCounter;
 
-            // Need to fix
-           //   FLoop.CodeGeneratorItem := FoCodeGeneratorItem;
+
+              FLoop.CodeGeneratorItem := FoCodeGeneratorItem;
 
               FLoop.NegitiveFlag := (StrToint(LsValue) < 0);
 
@@ -777,10 +635,7 @@ begin
 
               fLoopList.Add(FLoop);
 
-
-              // Need To fix
-           //   liStartPos1 := (FoCodeGeneratorItem As tCodeGeneratorItem)
-           //     .oTemplateTag.TagIndex;
+               liStartPos1 := FoCodeGeneratorItem.oTemplateTag.TagIndex;
 
               Inc(liStartPos1, 1);
 
@@ -799,7 +654,7 @@ begin
         else
           FOutput.Log('Incorrect syntax: lack "("');
       end;
-    1:
+    ttEndRepeat:
       begin
         ASkipPOs := 0;
 
@@ -817,14 +672,13 @@ begin
           .oTemplateTag.SourceLineNo;
 
 
-          // Need to fix
-        //liEndPos1 := (FoCodeGeneratorItem As tCodeGeneratorItem)
-        //  .oTemplateTag.TagIndex;
-        //Dec(liEndPos1, 1);
+         liEndPos1 := (FoCodeGeneratorItem As tCodeGeneratorItem)
+           .oTemplateTag.TagIndex;
+         Dec(liEndPos1, 1);
 
-        //liEndSourceLineNo := (FoCodeGeneratorItem As tCodeGeneratorItem)
-        //  .oTemplateTag.SourceLineNo;
-        //Dec(liEndSourceLineNo, 1);
+        liEndSourceLineNo := (FoCodeGeneratorItem As tCodeGeneratorItem)
+          .oTemplateTag.SourceLineNo;
+        Dec(liEndSourceLineNo, 1);
 
         for I := liStartPos1 to liEndPos1 do
         begin
@@ -865,7 +719,9 @@ begin
 
               LCodeGenerator.RunInterpreter(liTagIndex, liTagIndex);
 
-              If LCodeGeneratorItem1.TagType = ttInterpreter then;
+              If (LCodeGeneratorItem1.TagType = ttInterpreter) or
+                 (LCodeGeneratorItem1.TagType = ttRepeat) or
+                 (LCodeGeneratorItem1.TagType = ttEndRepeat) then
               begin
                 If IsEndRepeat(LCodeGeneratorItem1) then
                 begin
@@ -1150,8 +1006,7 @@ begin
     (AVariableName, AValue);
 end;
 
-function TInterpreter.Execute(aTokens: tTokenProcessor;
-  Var ASkipPOs: Integer): String;
+function TInterpreter.Execute(aCodeGeneratorItem: tCodeGeneratorItem; Var ASkipPos: Integer): String;
 Var
   FIndex: Integer;
   FOut: Boolean;
@@ -1162,9 +1017,9 @@ begin
 
   FOut := False;
 
-  FoTokens := aTokens;
+  FoCodeGeneratorItem := ACodeGeneratorItem;
+  FoTokens := FoCodeGeneratorItem.oTokens;
 
-  //FoCodeGeneratorItem := ACodeGeneratorItem;
 
   FIndex := 0;
   if FoTokens.strings[0] = '=' then
@@ -1207,43 +1062,13 @@ begin
   end;
 end;
 
-function TInterpreter.CommandSyntaxIndexByTokens
-  (ATokens: tTokenProcessor): Integer;
-Var
-  I, X: Integer;
-  lEParser: TExpressionParser;
-  lTokens: tStringList;
+
+function TInterpreter.DoTagTypeInterpreter
+  (ATokens: tTokenProcessor): TTagType;
 begin
-  Result := -1;
-
-  For I := 1 to Length(csCommamdSyntax) do
-  begin
-    Try
-      lEParser := TExpressionParser.Create;
-      lTokens := tStringList.Create;
-
-      lEParser.Expr := csCommamdSyntax[I];
-
-      lEParser.ListTokens(lTokens);
-
-      for X := 0 to ATokens.Count - 1 do
-      begin
-        if Uppercase(lTokens[0]) = Uppercase(ATokens[X]) then
-        begin
-          Result := I;
-
-          Exit;
-        end;
-      end;
-    Finally
-      if Assigned(lEParser) then
-        lEParser.Free;
-
-      if Assigned(lTokens) then
-        lTokens.Free;
-    End;
-  end;
+  Result := ttUnknown;
 end;
+
 
 function TInterpreter.Functions(ATokens: tTokenProcessor; Var AIndex: Integer;
   ACommandIndex: Integer): String;
@@ -1391,6 +1216,7 @@ begin
     end;
   end;
 end;
+
 
 function TInterpreter.IsEndRepeat(ACodeGeneratorItem: TObject): Boolean;
 begin

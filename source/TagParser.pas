@@ -23,7 +23,7 @@ Type
 
     destructor Destroy; override;
 
-    function IsAnyDeleteLine: Boolean;
+    //function IsAnyDeleteLine: Boolean;
 
     function Execute: Boolean;
 
@@ -73,6 +73,7 @@ begin
   inherited;
 end;
 
+{
 function TtagParser.IsAnyDeleteLine: Boolean;
 var
   loTokenProcessorItem: tTokenProcessorItem;
@@ -89,6 +90,7 @@ begin
     end;
   *)
 end;
+}
 
 function TTagParser.Execute: Boolean;
 var
@@ -176,6 +178,8 @@ begin
 
 end;
 
+
+
 function TTagParser.InternalParseTag(aProjectItem: Tobject;
   aCodeGenerator: Tobject; aToken: string; aTokens: tTokenProcessor;
   aOutput: tOutput; aTokenIndex: Integer; aIsTokens: Boolean): TTagType;
@@ -242,7 +246,11 @@ begin
     else if Uppercase(lsToken1) = 'CODEBEHINE' then
       result := ttCodebehine
     else if Uppercase(lsToken1) = 'CODE' then
-      result := ttCode
+      result := ttCODE
+    else if Uppercase(lsToken1) = 'REPEAT' then
+      result := ttRepeat
+     else if Uppercase(lsToken1) = 'ENDREPEAT' then
+      result := ttEndRepeat
     else if ((lsToken = '<') and (aTokenIndex = 0)) then
       result := ttOpenToken
     else if ((lsToken = '>') and (EOF = true)) then

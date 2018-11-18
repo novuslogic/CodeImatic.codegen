@@ -49,7 +49,7 @@ begin
 
     if fTagParser.Execute then
       begin
-        if fTagParser.IsAnyDeleteLine then ;
+       // if fTagParser.IsAnyDeleteLine then ;
       end;
 
 

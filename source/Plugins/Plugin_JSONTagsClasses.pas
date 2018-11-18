@@ -52,7 +52,27 @@ type
       aTokens: tTokenProcessor): String; override;
   end;
 
+  TJSONTag_JSONPairValue = class(TJSONTag)
+  private
+  protected
+    function GetTagName: String; override;
+    procedure OnExecute(var aToken: String; aTokenParser: tTokenParser);
+  public
+    function Execute(aProjectItem: tProjectItem; aTagName: string;
+      aTokens: tTokenProcessor): String; override;
+  end;
+
   TJSONTag_JSONGetArray = class(TJSONTag)
+  private
+  protected
+    function GetTagName: String; override;
+    procedure OnExecute(var aToken: String; aTokenParser: tTokenParser);
+  public
+    function Execute(aProjectItem: tProjectItem; aTagName: string;
+      aTokens: tTokenProcessor): String; override;
+  end;
+
+  TJSONTag_JSONArraySize = class(TJSONTag)
   private
   protected
     function GetTagName: String; override;
@@ -132,7 +152,9 @@ begin
   FJSONTags := tJSONTags.Create(TJSONTag_LoadJSON.Create(aOutput),
     TJSONTag_JSONQuery.Create(aOutput), TJSONTag_ToJSON.Create(aOutput),
     TJSONTag_ToJSONValue.Create(aOutput),
-    TJSONTag_JSONGetArray.Create(aOutput));
+    TJSONTag_JSONGetArray.Create(aOutput),
+    TJSONTag_JSONArraySize.Create(aOutput),
+    TJSONTag_JSONPairValue.Create(aOutput));
 end;
 
 destructor tPlugin_JSONTagsBase.Destroy;
@@ -543,6 +565,103 @@ begin
   FJSONValue :=  TJSONValue(FJSONArray.Get(liIndex));
   aToken := Self.oVariables.AddVariableObject(FJSONValue, TJSONTag.ClassName);
 end;
+
+// TJSONTag_JSONPairValue
+function TJSONTag_JSONPairValue.GetTagName: String;
+begin
+  Result := 'JSONPairValue';
+end;
+
+function TJSONTag_JSONPairValue.Execute(aProjectItem: tProjectItem;
+  aTagName: String; aTokens: tTokenProcessor): String;
+var
+  LFunctionAParser: tFunctionAParser;
+begin
+  Try
+    Try
+      Self.oVariables := tProjectItem(aProjectItem).oVariables;
+
+      LFunctionAParser := tFunctionAParser.Create(aProjectItem, aTokens,
+        foOutput, aTagName);
+
+      LFunctionAParser.OnExecute := OnExecute;
+
+      Result := LFunctionAParser.Execute;
+    Finally
+      LFunctionAParser.Free;
+    End;
+  Except
+    oOutput.InternalError;
+  End;
+end;
+
+procedure TJSONTag_JSONPairValue.OnExecute(var aToken: String;
+  aTokenParser: tTokenParser);
+Var
+  FJSONArray: TJSONArray;
+  FVariable: TVariable;
+  lsElement: string;
+  liIndex: Integer;
+  FJSONValue: TJSONValue;
+  FJSONPair: TJSONPair;
+begin
+  FVariable := GetJSONObjectVariable(aToken);
+  if not Assigned(FVariable) then
+    Exit;
+
+  FJSONPair:= TJSONPair(FVariable.oObject);
+
+  aToken := FJSONPair.JsonString.Value;
+end;
+
+
+// TJSONTag_JSONArraySize
+function TJSONTag_JSONArraySize.GetTagName: String;
+begin
+  Result := 'JSONArraySize';
+end;
+
+function TJSONTag_JSONArraySize.Execute(aProjectItem: tProjectItem;
+  aTagName: String; aTokens: tTokenProcessor): String;
+var
+  LFunctionAParser: tFunctionAParser;
+begin
+  Try
+    Try
+      Self.oVariables := tProjectItem(aProjectItem).oVariables;
+
+      LFunctionAParser := tFunctionAParser.Create(aProjectItem, aTokens,
+        foOutput, aTagName);
+
+      LFunctionAParser.OnExecute := OnExecute;
+
+      Result := LFunctionAParser.Execute;
+    Finally
+      LFunctionAParser.Free;
+    End;
+  Except
+    oOutput.InternalError;
+  End;
+end;
+
+procedure TJSONTag_JSONArraySize.OnExecute(var aToken: String;
+  aTokenParser: tTokenParser);
+Var
+  FJSONArray: TJSONArray;
+  FVariable: TVariable;
+  lsElement: string;
+  liIndex: Integer;
+  FJSONValue: TJSONValue;
+begin
+  FVariable := GetJSONObjectVariable(aToken);
+  if not Assigned(FVariable) then
+    Exit;
+
+  FJSONArray := TJSONArray(FVariable.oObject);
+
+  aToken := IntToStr(FJSONArray.Size);
+end;
+
 
 
 exports GetPluginObject name func_GetPluginObject;
