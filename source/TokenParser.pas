@@ -28,6 +28,7 @@ type
       ATokens: tTokenProcessor; Var aTokenIndex: Integer;
       aProject: TProject;
       aUseInterpreter : boolean = false): String;
+
     class function ParseSimpleToken(aToken: string; aOutput: TOutput)
       : tTokenProcessor;
     class function ParseExpressionToken(aObject: Tobject; aToken: String;
@@ -423,8 +424,6 @@ begin
 
   if foTokens.EOF then
     foTokens.TokenIndex := foTokens.Count -1;
-
-
 end;
 
 

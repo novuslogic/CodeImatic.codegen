@@ -5,7 +5,7 @@ interface
 Uses
   Classes, ExpressionParser, SysUtils, DB, NovusStringUtils, Output,
   NovusList, Variants, Variables, XMLList, NovusGUIDEx, TokenProcessor, TagType,
-  CodeGeneratorItem;
+  CodeGeneratorItem, TokenParser, ProjectItem;
 
 const
   csCommamdSyntax: array [1 .. 25] of String = ('fieldnamebyindex',
@@ -45,18 +45,16 @@ Type
 
   End;
 
-  TInterpreter = Class(TObject)
+  TInterpreter = Class(tTokenParser)
   protected
     FoCodeGenerator: TObject;
     fiLoopCounter: Integer;
     fLoopList: tNovusList;
-    FoTokens: tTokenProcessor;
-    FOutput: TOutput;
+   // FoTokens: tTokenProcessor;
+ //   foOutput: TOutput;
     FoCodeGeneratorItem: TCodeGeneratorItem;
-    foProjectItem: TObject;
+   // foProjectItem: TObject;
   private
-    //function ParseCommand(aCommand: string): string;
-
     function DoPluginTag(aTokens: tTokenProcessor; Var aIndex: Integer): string;
     function IsRepeat(ACodeGeneratorItem: TObject): Boolean;
     function IsEndRepeat(ACodeGeneratorItem: TObject): Boolean;
@@ -93,8 +91,9 @@ Type
     function DoRepeat(ATokens: tTokenProcessor; Var AIndex: Integer;
       aTagType: TTagType; Var ASkipPOs: Integer): string;
   public
-    constructor Create(ACodeGenerator: TObject; AOutput: TOutput;
-      aProjectItem: TObject); virtual;
+     constructor Create(aCodeGenerator: TObject; aOutput: TOutput;
+        aProjectItem: TProjectItem); overload;
+
     destructor Destroy; override;
 
     function GetNextToken(Var AIndex: Integer;
@@ -120,11 +119,12 @@ Uses
   Reservelist,
   DataProcessor,
   runtime,
-  ProjectItem,
-  TokenParser,
+ // ProjectItem,
+ // TokenParser,
   TagParser;
 
-constructor TInterpreter.Create;
+constructor TInterpreter.Create(ACodeGenerator: TObject; aOutput: TOutput;
+        aProjectItem: TProjectItem);
 begin
   inherited Create;
 
@@ -134,7 +134,7 @@ begin
 
   fLoopList := tNovusList.Create(TLoop);
 
-  FOutput := AOutput;
+  FoOutput := AOutput;
 
   fiLoopCounter := 0;
 end;
@@ -182,22 +182,22 @@ begin
               Result := '';
           end
           else
-            FOutput.Log('Incorrect syntax: lack ")"');
+            foOutput.Log('Incorrect syntax: lack ")"');
         end
         else
-          FOutput.Log('Incorrect syntax: delimiter length is not a number ');
+          foOutput.Log('Incorrect syntax: delimiter length is not a number ');
 
       end
       else
-        FOutput.Log('Incorrect syntax: delimiter counter is not a number ');
+        foOutput.Log('Incorrect syntax: delimiter counter is not a number ');
 
     end
     else
-      FOutput.Log('Incorrect syntax: delimiter is blank.');
+      foOutput.Log('Incorrect syntax: delimiter is blank.');
   end
   else
   begin
-    FOutput.Log('Incorrect syntax: lack "("');
+    foOutput.Log('Incorrect syntax: lack "("');
 
   end;
 end;
@@ -247,7 +247,7 @@ begin
   end
   else
   begin
-    FOutput.Log('Incorrect syntax: lack "("');
+    foOutput.Log('Incorrect syntax: lack "("');
 
   end;
 end;
@@ -287,11 +287,11 @@ begin
             Result := loXMLlist.GetValueByIndex(StrToint(lsStr));
           end
           else
-            FOutput.Log('Incorrect syntax: Index is not a number ');
+            foOutput.Log('Incorrect syntax: Index is not a number ');
 
         end
         else
-          FOutput.Log('Incorrect syntax: Index is blank.');
+          foOutput.Log('Incorrect syntax: Index is blank.');
 
         if Assigned(loXMLlist) then
           loXMLlist.Free;
@@ -299,22 +299,22 @@ begin
       end
       else
       begin
-        FOutput.LogError('Error: List filname cannot be found.');
+        foOutput.LogError('Error: List filname cannot be found.');
 
       end;
 
     end
     else
-      FOutput.Log('Incorrect syntax: List is blank.');
+      foOutput.Log('Incorrect syntax: List is blank.');
   end
   else
   begin
-    FOutput.Log('Incorrect syntax: lack "("');
+    foOutput.Log('Incorrect syntax: lack "("');
 
   end;
 
   if GetNextToken(AIndex, ATokens) <> ')' then
-    FOutput.Log('Incorrect syntax: lack ")"');
+    foOutput.Log('Incorrect syntax: lack ")"');
 end;
 
 function TInterpreter.XMLListName(ATokens: tTokenProcessor;
@@ -352,11 +352,11 @@ begin
             Result := loXMLlist.GetNameByIndex(StrToint(lsStr));
           end
           else
-            FOutput.Log('Incorrect syntax: Index is not a number ');
+            foOutput.Log('Incorrect syntax: Index is not a number ');
 
         end
         else
-          FOutput.Log('Incorrect syntax: Index is blank.');
+          foOutput.Log('Incorrect syntax: Index is blank.');
 
         if Assigned(loXMLlist) then
           loXMLlist.Free;
@@ -364,22 +364,22 @@ begin
       end
       else
       begin
-        FOutput.LogError('Error: List filname cannot be found.');
+        foOutput.LogError('Error: List filname cannot be found.');
 
       end;
 
     end
     else
-      FOutput.Log('Incorrect syntax: List is blank.');
+      foOutput.Log('Incorrect syntax: List is blank.');
   end
   else
   begin
-    FOutput.Log('Incorrect syntax: lack "("');
+    foOutput.Log('Incorrect syntax: lack "("');
 
   end;
 
   if GetNextToken(AIndex, ATokens) <> ')' then
-    FOutput.Log('Incorrect syntax: lack ")"');
+    foOutput.Log('Incorrect syntax: lack ")"');
 end;
 
 function TInterpreter.XMLlistCount(ATokens: tTokenProcessor;
@@ -417,17 +417,17 @@ begin
       end
       else
       begin
-        FOutput.LogError('Error: List filname cannot be found.');
+        foOutput.LogError('Error: List filname cannot be found.');
 
       end;
 
     end
     else
-      FOutput.Log('Incorrect syntax: List is blank.');
+      foOutput.Log('Incorrect syntax: List is blank.');
   end
   else
   begin
-    FOutput.Log('Incorrect syntax: lack "("');
+    foOutput.Log('Incorrect syntax: lack "("');
 
   end;
 end;
@@ -468,7 +468,7 @@ begin
     lsNextToken := ATokens[AIndex];
 
     fTagType := TTagParser.ParseTagType(foProjectItem, FoCodeGenerator,
-      lsNextToken, FOutput, true);
+      lsNextToken, foOutput, true);
 
 
     if fTagType = ttplugintag then
@@ -540,14 +540,14 @@ begin
       if Pos('$$', ATokens[AIndex]) = 1 then
         Result := tTokenParser.ParseToken(Self, ATokens[AIndex],
           (foProjectItem as TProjectItem), (*TCodeGenerator(FoCodeGenerator)
-          .oVariables, *)FOutput, ATokens, AIndex,
+          .oVariables, *)foOutput, ATokens, AIndex,
           TCodeGenerator(FoCodeGenerator).oProject)
       else
       if Pos('$', ATokens[AIndex]) = 1 then
         Result := ParseVariable(ATokens, AIndex)
     end;
   Except
-    FOutput.InternalError;
+    foOutput.InternalError;
   end;
 end;
 
@@ -644,15 +644,15 @@ begin
               ASkipPOs := liEndPos1;
             end
             else
-              FOutput.Log('Incorrect syntax: lack ")"');
+              foOutput.Log('Incorrect syntax: lack ")"');
 
           end
           else
-            FOutput.Log('Incorrect syntax: Index is not a number ');
+            foOutput.Log('Incorrect syntax: Index is not a number ');
 
         end
         else
-          FOutput.Log('Incorrect syntax: lack "("');
+          foOutput.Log('Incorrect syntax: lack "("');
       end;
     ttEndRepeat:
       begin
@@ -905,7 +905,7 @@ begin
 
       LsValue := tTokenParser.ParseToken(Self, LsValue,
         (foProjectItem as TProjectItem),(* TCodeGenerator(FoCodeGenerator)
-        .oVariables,*) FOutput, ATokens, AIndex, TCodeGenerator(FoCodeGenerator)
+        .oVariables,*) foOutput, ATokens, AIndex, TCodeGenerator(FoCodeGenerator)
         .oProject);
 
       If TNovusStringUtils.IsNumberStr(LsValue) then
@@ -964,7 +964,7 @@ begin
           FVariable1.Value := FVariable1.Value -
             TNovusStringUtils.Str2Int(LsValue)
         else
-          FOutput.Log('Incorrect syntax: Is not a number');
+          foOutput.Log('Incorrect syntax: Is not a number');
       end
       else If LStr = '+' then
       begin
@@ -974,7 +974,7 @@ begin
           FVariable1.Value := FVariable1.Value +
             TNovusStringUtils.Str2Int(LsValue)
         else
-          FOutput.Log('Incorrect syntax: Is not a number');
+          foOutput.Log('Incorrect syntax: Is not a number');
       end;
     end;
   end
@@ -990,13 +990,13 @@ begin
       end
       else
       begin
-        FOutput.Log('Syntax error: "' + lsVariableName1 + '" not defined');
-        FOutput.Failed := true;
+        foOutput.Log('Syntax error: "' + lsVariableName1 + '" not defined');
+        foOutput.Failed := true;
       end;
 
     end
     else
-      FOutput.Log('Incorrect syntax: lack "="');
+      foOutput.Log('Incorrect syntax: lack "="');
   end;
 end;
 
@@ -1100,12 +1100,12 @@ begin
     end
     else
     begin
-      FOutput.Log('Incorrect syntax: lack ")"');
+      foOutput.Log('Incorrect syntax: lack ")"');
     end;
   end
   else
   begin
-    FOutput.Log('Incorrect syntax: lack "("');
+    foOutput.Log('Incorrect syntax: lack "("');
   end;
 end;
 
@@ -1162,7 +1162,7 @@ begin
       Result := LVariable.AsString;
     end
     else
-      FOutput.Log('Syntax Error: variable ' + Result + ' cannot be found.');
+      foOutput.Log('Syntax Error: variable ' + Result + ' cannot be found.');
 
   end;
 end;
@@ -1281,32 +1281,32 @@ begin
           end
           else
           begin
-            FOutput.LogError('Incorrect syntax: lack ")"');
+            foOutput.LogError('Incorrect syntax: lack ")"');
 
           end;
         end
         else
         begin
-          FOutput.LogError('Error: Field cannot be found.');
+          foOutput.LogError('Error: Field cannot be found.');
         end;
       end
       else
       begin
-        FOutput.LogError('Error: Table cannot be found "' + FTableName + '"');
+        foOutput.LogError('Error: Table cannot be found "' + FTableName + '"');
 
       end;
 
     end
     else
     begin
-      FOutput.LogError('Error: Connectioname cannot be found "' +
+      foOutput.LogError('Error: Connectioname cannot be found "' +
         FConnectionName + '"');
 
     end;
   end
   else
   begin
-    FOutput.LogError('Incorrect syntax: lack "("');
+    foOutput.LogError('Incorrect syntax: lack "("');
 
   end;
 end;

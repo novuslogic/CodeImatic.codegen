@@ -6,7 +6,7 @@ Uses Classes, NovusTemplate, NovusList, ExpressionParser, SysUtils,
   Config, NovusStringUtils, Interpreter, Language, Project,
   Output, Variables, NovusUtilities, CodeGeneratorItem, tagtype,
   NovusBO, NovusFileUtils, Template, ScriptEngine, System.IOUtils, Plugin,
-  TokenProcessor, Loader;
+  {TokenProcessor,} Loader, ProjectItem;
 
 Const
   cDeleteLine = '{%DELETELINE%}';
@@ -24,7 +24,7 @@ Type
     FLanguage: tLanguage;
     fsLanguage: String;
     FoInterpreter: tInterpreter;
-    foProjectItem: TObject;
+    foProjectItem: TProjectItem;
     FoTemplate: TTemplate;
     FCodeGeneratorList: TNovusList;
     Folayout: TObject;
@@ -61,8 +61,8 @@ Type
     function LocalWorkingdirectory: String;
   public
     constructor Create(aTemplate: TTemplate; AOutput: tOutput;
-      aProject: tProject; aProjectItem: TObject; aProcessorPlugin: TObject;
-      aInputFilename: string; aSourceFilename: String); virtual;
+      aProject: tProject; aProjectItem: TProjectItem; aProcessorPlugin: TObject;
+      aInputFilename: string; aSourceFilename: String); //virtual;
 
     destructor Destroy; override;
 
@@ -109,7 +109,7 @@ Type
 
 implementation
 
-uses runtime, TokenParser, ProjectItemLoader, ProjectItem, Processor,
+uses runtime, TokenProcessor, TokenParser, ProjectItemLoader, {ProjectItem,} Processor,
   TagParser, Plugins;
 
 constructor TCodeGenerator.Create;
