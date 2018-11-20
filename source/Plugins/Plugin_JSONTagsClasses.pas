@@ -657,7 +657,7 @@ begin
 
   FJSONArray := TJSONArray(FVariable.oObject);
 
-  aToken := IntToStr(FJSONArray.Size);
+  aToken := IntToStr(FJSONArray.Size-1);
 end;
 
 
