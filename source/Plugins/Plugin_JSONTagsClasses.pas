@@ -437,9 +437,7 @@ begin
   if not Assigned(FVariable) then
     Exit;
 
-
    aToken := TJSONValue(FVariable.oObject).ToJSON;
-
 end;
 
 // TJSONTag_ToJSONValue

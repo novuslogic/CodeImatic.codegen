@@ -69,6 +69,15 @@ type
     function Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: tTokenProcessor): String; override;
   end;
 
+  TSysTag_Pred = class(TSysTag)
+  private
+  protected
+    function GetTagName: String; override;
+    procedure OnExecute(var aToken: String);
+  public
+    function Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: tTokenProcessor): String; override;
+  end;
+
   TSysTag_newguid = class(TSysTag)
   private
   protected
@@ -142,7 +151,8 @@ begin
   FSysTags := tSysTags.Create(TSysTag_Version.Create(aOutput),
     TSysTag_newguid.Create(aOutput), TSysTag_NewguidNoBrackets.Create(aOutput),
     TSysTag_FilePathToURL.Create(aOutput), TSysTag_Lower.Create(aOutput),
-    TSysTag_Upper.Create(aOutput), TSysTag_Uplower.Create(aOutput));
+    TSysTag_Upper.Create(aOutput), TSysTag_Uplower.Create(aOutput),
+    TSysTag_Pred.Create(aOutput));
 end;
 
 destructor tPlugin_SysTagsBase.Destroy;
@@ -408,6 +418,39 @@ function TSysTag_NewguidNoBrackets.Execute(aProjectItem: tProjectItem;aTagName: 
 begin
   Result := TGuidExUtils.NewGuidNoBracketsString;;
 end;
+
+
+
+function TSysTag_Pred.GetTagName: String;
+begin
+  Result := 'PRED';
+end;
+
+function TSysTag_Pred.Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: tTokenProcessor): String;
+var
+  LFunctionParser: tFunctionParser;
+begin
+  Try
+    Try
+      LFunctionParser := tFunctionParser.Create(aProjectItem,aTokens, foOutput,
+        aTagName);
+
+      LFunctionParser.OnExecute := OnExecute;
+
+      Result := LFunctionParser.Execute;
+    Finally
+      LFunctionParser.Free;
+    End;
+  Except
+    oOutput.InternalError;
+  End;
+end;
+
+procedure TSysTag_Pred.OnExecute(var aToken: String);
+begin
+  aToken := IntToStr(Pred(StrToint(aToken)));
+end;
+
 
 exports GetPluginObject name func_GetPluginObject;
 

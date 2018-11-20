@@ -66,9 +66,6 @@ Type
       ASubVariable: Boolean = False): String;
     procedure AddVariable(AVariableName: String; AValue: Variant);
 
-    //function FieldFunctions(ATokens: tTokenProcessor; Var AIndex: Integer;
-    //  ACommandIndex: Integer): string;
-   // function FieldAsSQL(ATokens: tTokenProcessor; Var AIndex: Integer): string;
     function Delimiter(ATokens: tTokenProcessor; Var AIndex: Integer): string;
     function Reservelist(ATokens: tTokenProcessor; Var AIndex: Integer;
       ACommandIndex: Integer): string;
@@ -481,6 +478,8 @@ begin
     else
     if fTagType = ttendrepeat then
        Result := DoRepeat(ATokens, AIndex, ttEndRepeat, ASkipPos);
+
+
     if (CommandSyntaxIndex(lsNextToken) <> 0) then
     begin
       case CommandSyntaxIndex(lsNextToken) of
@@ -546,6 +545,7 @@ begin
       if Pos('$', ATokens[AIndex]) = 1 then
         Result := ParseVariable(ATokens, AIndex)
     end;
+
   Except
     foOutput.InternalError;
   end;
@@ -1109,36 +1109,6 @@ begin
   end;
 end;
 
-(*
-function TInterpreter.Procedures(ATokens: tTokenProcessor; Var AIndex: Integer;
-  ACommandIndex: Integer): String;
-Var
-  LStr: String;
-begin
-  Result := '';
-
-  case ACommandIndex of
-    0:
-      Result := cBlankLine;
-    1:
-      Result := TGuidExUtils.NewGuidString;
-  end;
-end;
-*)
-
-(*
-function TInterpreter.FieldTypeToDataType(AFieldType: String): String;
-begin
-  // Result := (foProjectItem as tProjectItem).oCodeGenerator.oLanguage.ReadXML('FieldTypeToDataType', AFieldType);
-end;
-*)
-
-(*
-function TInterpreter.ClearDataType(ADataType: String): String;
-begin
-  // Result := (foProjectItem as tProjectItem).oCodeGenerator.oLanguage.ReadXML('ClearDataType', ADataType);
-end;
-*)
 function TInterpreter.GetNextToken(Var AIndex: Integer;
   ATokens: tTokenProcessor): String;
 Var
@@ -1149,6 +1119,9 @@ begin
   Result := '';
 
   Inc(AIndex);
+
+  if AIndex = ATokens.Count then
+    AIndex := ATokens.Count - 1;
 
   Result := GetNextTag(ATokens, AIndex, liSkipPos, true);
 
@@ -1230,92 +1203,5 @@ begin
     .oTokens[0]) = 8);
 end;
 
-(*
-function TInterpreter.FieldAsSQL(ATokens: tTokenProcessor;
-  Var AIndex: Integer): string;
-Var
-  lConnectionItem: tConnectionItem;
-  FFieldDesc: tFieldDesc;
-
-  FConnectionName: String;
-  FTableName: String;
-  FFieldIndex: Integer;
-  LStr: String;
-  FFieldType: tFieldType;
-begin
-  Result := '';
-
-  If GetNextToken(AIndex, ATokens) = '(' then
-  begin
-    FConnectionName := GetNextToken(AIndex, ATokens);
-
-    lConnectionItem := (foProjectItem as TProjectItem)
-      .oProject.oProjectConfig.oConnections.FindConnectionName(FConnectionName);
-    if Assigned(lConnectionItem) then
-    begin
-      FTableName := GetNextToken(AIndex, ATokens);
-
-      If lConnectionItem.TableExists(FTableName) then
-      begin
-        LStr := GetNextToken(AIndex, ATokens);
-
-        FFieldDesc := lConnectionItem.FieldByName(FTableName, LStr);
-
-        if Assigned(FFieldDesc) then
-        begin
-          if GetNextToken(AIndex, ATokens) = ')' then
-          begin
-            FFieldType := lConnectionItem.oDBSchema.GetFieldType(FFieldDesc,
-              lConnectionItem.AuxDriver);
-
-            if FFieldType.SQLFormat = '' then
-              Result := FFieldDesc.FieldName + ' ' + FFieldType.SqlType
-            else
-              Result := FFieldDesc.FieldName + ' ' +
-                Format(FFieldType.SQLFormat, [FFieldDesc.Column_Length]);
-
-            FFieldType.Free;
-            FFieldDesc.Free;
-
-            Exit;
-          end
-          else
-          begin
-            foOutput.LogError('Incorrect syntax: lack ")"');
-
-          end;
-        end
-        else
-        begin
-          foOutput.LogError('Error: Field cannot be found.');
-        end;
-      end
-      else
-      begin
-        foOutput.LogError('Error: Table cannot be found "' + FTableName + '"');
-
-      end;
-
-    end
-    else
-    begin
-      foOutput.LogError('Error: Connectioname cannot be found "' +
-        FConnectionName + '"');
-
-    end;
-  end
-  else
-  begin
-    foOutput.LogError('Incorrect syntax: lack "("');
-
-  end;
-end;
-*)
-(*
-function TInterpreter.ParseCommand(aCommand: string): String;
-begin
-  Result := aCommand;
-end;
-*)
 
 end.
