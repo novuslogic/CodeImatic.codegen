@@ -78,10 +78,6 @@ Type
     function ParseVariable(ATokens: tTokenProcessor; Var AIndex: Integer;
       ASubCommand: Boolean = False): String;
 
-    function Functions(ATokens: tTokenProcessor; Var AIndex: Integer;
-      ACommandIndex: Integer): String;
-
-
     function VariableExistsIndex(AVariableName: String): Integer;
     function GetVariableByIndex(AIndex: Integer): TVariable;
 
@@ -487,24 +483,24 @@ begin
         //  Result := FieldFunctions(ATokens, AIndex, 0);
        // 2:
         //  Result := FieldFunctions(ATokens, AIndex, 1);
-        3:
-          Result := Functions(ATokens, AIndex, 0);
-        4:
-          Result := Functions(ATokens, AIndex, 1);
-        5:
-          Result := Functions(ATokens, AIndex, 2);
-        6:
-          Result := Functions(ATokens, AIndex, 3);
-        7:
-          Result := Functions(ATokens, AIndex, 4);
+        //3:
+        //  Result := Functions(ATokens, AIndex, 0);
+       // 4:
+        //  Result := Functions(ATokens, AIndex, 1);
+        //5:
+        //  Result := Functions(ATokens, AIndex, 2);
+       // 6:
+       //   Result := Functions(ATokens, AIndex, 3);
+       // 7:
+       //   Result := Functions(ATokens, AIndex, 4);
        // 8:
         //  Result := Repeat(ATokens, AIndex, 0, ASkipPOs);
        // 9:
        //   Result := Repeat(ATokens, AIndex, 1, ASkipPOs);
        // 10:
        //   Result := FieldFunctions(ATokens, AIndex, 2);
-        11:
-          Result := Functions(ATokens, AIndex, 5);
+       // 11:
+        //  Result := Functions(ATokens, AIndex, 5);
         //12:
         //  Result := Procedures(ATokens, AIndex, 0);
         //13:
@@ -624,7 +620,6 @@ begin
               FLoop.LoopPos := lpStart;
               FLoop.ID := fiLoopCounter;
 
-
               FLoop.CodeGeneratorItem := FoCodeGeneratorItem;
 
               FLoop.NegitiveFlag := (StrToint(LsValue) < 0);
@@ -635,11 +630,13 @@ begin
 
               fLoopList.Add(FLoop);
 
-               liStartPos1 := FoCodeGeneratorItem.oTemplateTag.TagIndex;
+              liStartPos1 := FoCodeGeneratorItem.oTemplateTag.TagIndex;
 
               Inc(liStartPos1, 1);
 
               liEndPos1 := FindEndRepeatIndexPos(liStartPos1);
+
+              FoCodeGeneratorItem.oTemplateTag.TagValue := cDeleteLine;
 
               ASkipPOs := liEndPos1;
             end
@@ -1069,45 +1066,6 @@ begin
   Result := ttUnknown;
 end;
 
-
-function TInterpreter.Functions(ATokens: tTokenProcessor; Var AIndex: Integer;
-  ACommandIndex: Integer): String;
-Var
-  LStr: String;
-begin
-  Result := '';
-
-  if GetNextToken(AIndex, ATokens) = '(' then
-  begin
-    LStr := GetNextToken(AIndex, ATokens);
-
-    if GetNextToken(AIndex, ATokens) = ')' then
-    begin
-      case ACommandIndex of
-     //   0:
-      //    Result := Lowercase(LStr);
-       // 1:
-       //   Result := Uppercase(LStr);
-       // 2:
-        //  Result := TNovusStringUtils.UpLowerA(LStr, true);
-       // 3:
-        //  Result := FieldTypeToDataType(LStr);
-       // 4:
-        //  Result := ClearDataType(LStr);
-        5:
-          Result := IntToStr(Pred(StrToint(LStr)));
-      end;
-    end
-    else
-    begin
-      foOutput.Log('Incorrect syntax: lack ")"');
-    end;
-  end
-  else
-  begin
-    foOutput.Log('Incorrect syntax: lack "("');
-  end;
-end;
 
 function TInterpreter.GetNextToken(Var AIndex: Integer;
   ATokens: tTokenProcessor): String;

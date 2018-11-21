@@ -507,8 +507,13 @@ begin
           begin
             LTemplateTag := lCodeGeneratorItem.oTemplateTag;
 
-            if LTemplateTag.SourceLineNo = I then
-              LTemplateTag.TagValue := cDeleteLine;
+            if (lCodeGeneratorItem.tagtype = ttInterpreter) then
+              begin
+               if LTemplateTag.SourceLineNo = I then
+                 LTemplateTag.TagValue := cDeleteLine;
+              end
+            else LTemplateTag.TagValue := cDeleteLine;
+
           end;
         end;
       end;

@@ -607,9 +607,13 @@ begin
   if not Assigned(FVariable) then
     Exit;
 
-  FJSONPair:= TJSONPair(FVariable.oObject);
+  Try
+    FJSONPair:= TJSONPair(FVariable.oObject);
 
-  aToken := FJSONPair.JsonString.Value;
+    aToken := FJSONPair.JsonString.Value;
+  Except
+    aToken := '';
+  End;
 end;
 
 
