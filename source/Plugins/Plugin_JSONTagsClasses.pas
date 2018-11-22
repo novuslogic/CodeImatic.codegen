@@ -385,7 +385,16 @@ begin
     Exit;
   end;
 
-  FJSONValue := FJSONValueRoot.GetValue<TJSONValue>(lsElement);
+
+  Try
+    FJSONValue := FJSONValueRoot.GetValue<TJSONValue>(lsElement);
+  Except
+    On EJSONException do
+      begin
+        FJSONValue := NIL;
+      end;
+  End;
+
   if not Assigned(FJSONValue) then
   begin
     foOutput.LogError('Element [' + lsElement + '] cannot be found.');

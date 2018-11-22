@@ -937,18 +937,26 @@ begin
       end
       else
       begin
-        If TNovusStringUtils.IsNumberStr(LsValue) then
+        if FVariable1.IsObject then
+          begin
+            //foOutput.Log(lsValue);
+
+          end
+       else
+       If TNovusStringUtils.IsNumberStr(LsValue) then
         begin
           if Pos('.', LsValue) > 0 then
             FVariable1.Value := TNovusStringUtils.Str2Float(LsValue)
           else
             FVariable1.Value := TNovusStringUtils.Str2Int(LsValue);
         end
-        else If TNovusStringUtils.IsAlphaStr(LsValue) then
-        begin
+        else
           FVariable1.Value := LsValue;
-
-        end;
+        //else If TNovusStringUtils.IsAlphaStr(LsValue) then
+        //begin
+        //  FVariable1.Value := LsValue;
+        ///
+        //end;
       end;
 
       LStr := GetToken;
