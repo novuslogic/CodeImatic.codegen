@@ -66,7 +66,7 @@ Type
       ASubVariable: Boolean = False): String;
     procedure AddVariable(AVariableName: String; AValue: Variant);
 
-    function Delimiter(ATokens: tTokenProcessor; Var AIndex: Integer): string;
+    //function Delimiter(ATokens: tTokenProcessor; Var AIndex: Integer): string;
     function Reservelist(ATokens: tTokenProcessor; Var AIndex: Integer;
       ACommandIndex: Integer): string;
     function XMLlistIndex(ATokens: tTokenProcessor;
@@ -134,6 +134,7 @@ begin
   inherited;
 end;
 
+(*
 function TInterpreter.Delimiter(ATokens: tTokenProcessor;
   Var AIndex: Integer): string;
 Var
@@ -189,6 +190,7 @@ begin
 
   end;
 end;
+*)
 
 function TInterpreter.Reservelist(ATokens: tTokenProcessor; Var AIndex: Integer;
   ACommandIndex: Integer): string;
