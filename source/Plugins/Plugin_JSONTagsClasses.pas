@@ -370,39 +370,92 @@ Var
   FJSONValue: TJSONValue;
   FVariable: TVariable;
   lsElement: string;
+
+
+type
+  tJsonValueType = (jsArray, jsObject, jsPair, jsUnknown);
+
+  function GetJsonValueType(JSONValue: TJSONValue): tJsonValueType;
+  begin
+    Result := jsUnknown;
+
+    if JSONValue.classname = 'TJSONPair' then
+      result := jsPair
+    else
+    if JSONValue is TJSONArray then
+     Result := jsArray
+    else
+    if JSONValue is TJSONObject then
+      Result := jsObject;
+  end;
+
+var
+  fJsonValueType: tJsonValueType;
 begin
   FVariable := GetJSONObjectVariable(aToken);
   if not Assigned(FVariable) then
     Exit;
 
-  FJSONValueRoot := TJSONValue(FVariable.oObject);
+  if Not FVariable.IsNullorEmpty then
+    begin
+      FJSONValueRoot := TJSONValue(FVariable.oObject);
 
-  lsElement := aTokenParser.ParseNextToken;
-  if Trim(lsElement) = '' then
-  begin
-    foOutput.LogError('Element cannot be blank.');
-
-    Exit;
-  end;
-
-
-  Try
-    FJSONValue := FJSONValueRoot.GetValue<TJSONValue>(lsElement);
-  Except
-    On EJSONException do
+      lsElement := aTokenParser.ParseNextToken;
+      if Trim(lsElement) = '' then
       begin
-        FJSONValue := NIL;
+        foOutput.LogError('Element cannot be blank.');
+
+        Exit;
       end;
-  End;
+      FJSONValue := NIL;
 
-  if not Assigned(FJSONValue) then
-  begin
-    foOutput.LogError('Element [' + lsElement + '] cannot be found.');
+      fJsonValueType := GetJsonValueType(FJSONValueRoot);
 
-    Exit;
-  end;
+      case fJsonValueType of
+        jsPair:
+          begin
+            Try
+              FJSONValueRoot := TJSONPair(FVariable.oObject).JsonValue;
+              FJSONValueRoot.TryGetValue<TJSONValue>(lsElement, FJSONValue);
 
-  aToken := Self.oVariables.AddVariableObject(FJSONValue, TJSONTag.ClassName);
+            Except
+              On EJSONException do
+              begin
+                FJSONValue := NIL;
+              end;
+            End;
+
+          end;
+        jsArray: ;
+        jsObject:
+          begin
+            Try
+              //FJSONValue := FJSONValueRoot.GetValue<TJSONValue>(lsElement);
+              FJSONValueRoot.TryGetValue<TJSONValue>(lsElement, FJSONValue);
+
+            Except
+              On EJSONException do
+              begin
+                FJSONValue := NIL;
+              end;
+            End;
+
+          end;
+
+      end;
+
+      (*
+      if not Assigned(FJSONValue) then
+      begin
+        //foOutput.LogError('Element [' + lsElement + '] cannot be found. JOSN Error: ' + FJSONValueRoot.ToJSON);
+        aToken := 'NULL';
+
+        Exit;
+      end;
+       *)
+
+      aToken := Self.oVariables.AddVariableObject(FJSONValue, TJSONTag.ClassName);
+    end;
 end;
 
 // TJSONTag_ToJSON
@@ -569,7 +622,7 @@ begin
       Exit;
     end;
 
-  FJSONValue :=  TJSONValue(FJSONArray.Get(liIndex));
+  FJSONValue :=  TJSONArray(FJSONArray.Get(liIndex));
   aToken := Self.oVariables.AddVariableObject(FJSONValue, TJSONTag.ClassName);
 end;
 

@@ -98,11 +98,8 @@ Type
     function Execute(aCodeGeneratorItem: tCodeGeneratorItem; Var ASkipPos: Integer): String;
     function LanguageFunctions(AFunction: string; ADataType: String): String;
 
-
     property  oTokens: tTokenProcessor read foTokens write foTokens;
-    //property oCodeGeneratorItem: TObject read FoCodeGeneratorItem
-    //  write FoCodeGeneratorItem;
-  End;
+ End;
 
 implementation
 
@@ -112,8 +109,6 @@ Uses
   Reservelist,
   DataProcessor,
   runtime,
- // ProjectItem,
- // TokenParser,
   TagParser;
 
 constructor TInterpreter.Create(ACodeGenerator: TObject; aOutput: TOutput;
@@ -479,36 +474,7 @@ begin
     if (CommandSyntaxIndex(lsNextToken) <> 0) then
     begin
       case CommandSyntaxIndex(lsNextToken) of
-        //1:
-        //  Result := FieldFunctions(ATokens, AIndex, 0);
-       // 2:
-        //  Result := FieldFunctions(ATokens, AIndex, 1);
-        //3:
-        //  Result := Functions(ATokens, AIndex, 0);
-       // 4:
-        //  Result := Functions(ATokens, AIndex, 1);
-        //5:
-        //  Result := Functions(ATokens, AIndex, 2);
-       // 6:
-       //   Result := Functions(ATokens, AIndex, 3);
-       // 7:
-       //   Result := Functions(ATokens, AIndex, 4);
-       // 8:
-        //  Result := Repeat(ATokens, AIndex, 0, ASkipPOs);
-       // 9:
-       //   Result := Repeat(ATokens, AIndex, 1, ASkipPOs);
-       // 10:
-       //   Result := FieldFunctions(ATokens, AIndex, 2);
-       // 11:
-        //  Result := Functions(ATokens, AIndex, 5);
-        //12:
-        //  Result := Procedures(ATokens, AIndex, 0);
-        //13:
-         // Result := TableFunctions(ATokens, AIndex, 0);
-        //14:
-        //  Result := TableFunctions(ATokens, AIndex, 1);
-       // 15:
-      //    Result := FieldAsSQL(ATokens, AIndex);
+
         16:
           Result := Delimiter(ATokens, AIndex);
         17, 18:
@@ -519,14 +485,13 @@ begin
           Result := XMLlistCount(ATokens, AIndex);
         21:
           Result := XMLListName(ATokens, AIndex);
-       // 22:
-       //   Result := Procedures(ATokens, AIndex, 1);
+
         23:
           Result := Reservelist(ATokens, AIndex, 1);
-      //  24:
-      //    Result := FieldFunctions(ATokens, AIndex, 3);
-        25:
-         // Result := FieldFunctions(ATokens, AIndex, 0);
+
+
+
+
       end;
     end;
 

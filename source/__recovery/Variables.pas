@@ -207,7 +207,10 @@ begin
   Result := False;
 
   if IsObject then
-    if Not Assigned(fObject) then Result := True;
+    begin
+      if Not Assigned(fObject) then Result := True;
+    end
+  else if VarIsNull(FValue) then Result := True;
 end;
 
 
