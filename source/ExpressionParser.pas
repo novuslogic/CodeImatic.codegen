@@ -26,7 +26,7 @@ type
   end;
 
   //Type of the token
-  TTokenType=(ttDelimiter, ttNumber, ttQuote, ttString, ttFinished);
+  TTokenType=(ttDelimiter, ttNumber, ttQuote, ttString, ttFinished, ttBlank);
 
   //Main parser class
   TExpressionParser = class(Tobject)
@@ -99,7 +99,6 @@ end;
 function TExpressionParser.GetExpr: String;
 begin
   Result := FExpr;
-//  System.Delete(Result, Length(Result)-1, 1);
 end;
 
 function TExpressionParser.Get_Result: Boolean;
@@ -149,11 +148,18 @@ begin
     exit;
   end;
   //Delimiters
-  if Pos(FExpr[FExprID], '+-/*=()<>')<>0 then
+  if Pos(FExpr[FExprID], '+-/*=()<>!')<>0 then
   begin
     FToken := FExpr[FExprID];
     Inc(FExprID);
 
+    if (FExpr[FExprID]<>EndSymbol) and //(Pos(FExpr[FExprID-1], '<>')<>0) and
+       (Pos(FExpr[FExprID], '!=')<>0) then
+    begin
+      FToken := FToken+FExpr[FExprID];
+      Inc(FExprID);
+    end
+    else
     if (FExpr[FExprID]<>EndSymbol) and (Pos(FExpr[FExprID-1], '<>')<>0) and
        (Pos(FExpr[FExprID], '=>')<>0) then
     begin
@@ -168,6 +174,15 @@ begin
   begin
     Inc(FExprID);
     FToken := '';
+    if (FExpr[FExprID]<>EndSymbol) and //(Pos(FExpr[FExprID-1], '<>')<>0) and
+       (Pos(FExpr[FExprID], '""')<>0) then
+    begin
+      FToken := '""';
+      FTokenType := ttBlank;
+      Inc(FExprID);
+      Exit;
+    end;
+
     while (not IsQuote(FExpr[FExprID])) and (FExpr[FExprID]<>EndSymbol) do
     begin
       FToken := FToken+FExpr[FExprID];
@@ -207,7 +222,9 @@ begin
 
       Inc(FExprID);
 
-      if FExpr[FExprID] = '.' then break;
+      if ((FExpr[FExprID] = '.') or
+         (FExpr[FExprID] = '!'))
+       then break;
     end;
     FTokenType := ttString;
     exit;
@@ -258,7 +275,7 @@ var
 begin
   Level3(Res);
   if (FToken='>') or (FToken='<') or
-     (FToken='<=') or (FToken='>=') or (FToken='=') then
+     (FToken='<=') or (FToken='>=') or (FToken='=') or (FToken='!=') then
   begin
     Op := FToken;
     Get_Token;
@@ -367,7 +384,16 @@ begin
     if Res^.Value=Res2^.Value then
       Res^.Value := STrue
     else Res^.Value := SFalse;
-  end else if Op='>' then
+  end
+  else
+  if Op='!=' then
+  begin
+    if Res^.Value=Res2^.Value then
+      Res^.Value := STrue
+    else Res^.Value := SFalse;
+  end
+  else
+  if Op='>' then
   begin
     if StrToFloat(Res^.Value)>StrToFloat(Res2^.Value) then
       Res^.Value := STrue

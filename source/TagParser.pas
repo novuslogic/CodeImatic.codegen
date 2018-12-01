@@ -249,8 +249,12 @@ begin
       result := ttCODE
     else if Uppercase(lsToken1) = 'REPEAT' then
       result := ttRepeat
-     else if Uppercase(lsToken1) = 'ENDREPEAT' then
+    else if Uppercase(lsToken1) = 'ENDREPEAT' then
       result := ttEndRepeat
+    else if Uppercase(lsToken1) = 'IF' then
+      result := ttIf
+    else if Uppercase(lsToken1) = 'ENDIF' then
+      result := ttEndIf
     else if ((lsToken = '<') and (aTokenIndex = 0)) then
       result := ttOpenToken
     else if ((lsToken = '>') and (EOF = true)) then

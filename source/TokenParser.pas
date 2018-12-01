@@ -96,7 +96,7 @@ class function tTokenParser.ParseExpressionToken(aObject: Tobject;
   aToken: String; aProjectItem: tProjectItem; aProject: TProject;
   (*aVariables: TVariables;*) aOutput: TOutput): tTokenProcessor;
 Var
-  lEParser: tExpressionParser;
+  LExpressionParser: tExpressionParser;
   I: Integer;
   lsNewToken: string;
   FiIndex: Integer;
@@ -109,11 +109,11 @@ begin
   Try
     Result := tTokenProcessor.Create;
 
-    lEParser := tExpressionParser.Create;
+    LExpressionParser := tExpressionParser.Create;
 
-    lEParser.Expr := aToken;
+    LExpressionParser.Expr := aToken;
 
-    lEParser.ListTokens(Result);
+    LExpressionParser.ListTokens(Result);
 
     for I := 0 to Result.Count - 1 do
     begin
@@ -129,7 +129,7 @@ end;
 class function tTokenParser.ParseExpressionToken(aToken: string;
   aOutput: TOutput): tTokenProcessor;
 Var
-  lEParser: tExpressionParser;
+  LExpressionParser: tExpressionParser;
   I: Integer;
   lsNewToken: string;
   FiIndex: Integer;
@@ -144,11 +144,11 @@ begin
   Try
     Result := tTokenProcessor.Create;
 
-    lEParser := tExpressionParser.Create;
+    LExpressionParser := tExpressionParser.Create;
 
-    lEParser.Expr := aToken;
+    LExpressionParser.Expr := aToken;
 
-    lEParser.ListTokens(Result);
+    LExpressionParser.ListTokens(Result);
 
   Except
     aOutput.InternalError;
@@ -170,7 +170,7 @@ end;
 class function tTokenParser.ParseToken;
 var
   fsToken: String;
-  lEParser: tExpressionParser;
+  LExpressionParser: tExpressionParser;
   lTokens: tTokenProcessor;
   lTagType: tTagType;
   lsValue: String;
@@ -199,11 +199,11 @@ begin
       Try
         lTokens := tTokenProcessor.Create;
 
-        lEParser := tExpressionParser.Create;
+        LExpressionParser := tExpressionParser.Create;
 
-        lEParser.Expr := fsToken;
+        LExpressionParser.Expr := fsToken;
 
-        lEParser.ListTokens(lTokens);
+        LExpressionParser.ListTokens(lTokens);
 
         if lTokens.Count > 0 then
         begin
@@ -215,7 +215,7 @@ begin
       lTagType := TTagParser.ParseTagType(aProjectItem,
         (aObject as TCodeGenerator), lTokens, aOutput, 0);
       Finally
-        lEParser.Free;
+        LExpressionParser.Free;
         lTokens.Free;
       End;
 
