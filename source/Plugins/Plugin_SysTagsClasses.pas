@@ -23,9 +23,20 @@ type
     property TagName: String read GetTagName;
 
     property oOutput: tOutput read foOutput;
+
+    property oVariables: TVariables read foVariables write foVariables;
   end;
 
   TSysTag_Uplower = class(TSysTag)
+  private
+  protected
+    function GetTagName: String; override;
+    procedure OnExecute(var aToken: String);
+  public
+    function Execute(aProjectItem: tProjectItem;aTagName: String; aTokens: tTokenProcessor): String; override;
+  end;
+
+  TSysTag_IsVarEmpty = class(TSysTag)
   private
   protected
     function GetTagName: String; override;
@@ -152,7 +163,8 @@ begin
     TSysTag_newguid.Create(aOutput), TSysTag_NewguidNoBrackets.Create(aOutput),
     TSysTag_FilePathToURL.Create(aOutput), TSysTag_Lower.Create(aOutput),
     TSysTag_Upper.Create(aOutput), TSysTag_Uplower.Create(aOutput),
-    TSysTag_Pred.Create(aOutput));
+    TSysTag_Pred.Create(aOutput),
+    TSysTag_IsVarEmpty.Create(aOutput));
 end;
 
 destructor tPlugin_SysTagsBase.Destroy;
@@ -286,6 +298,7 @@ begin
   aToken := Uppercase(aToken);
 end;
 
+//TSysTag_Uplower
 function TSysTag_Uplower.GetTagName: String;
 begin
   Result := 'UPLOWER';
@@ -297,6 +310,8 @@ var
 begin
   Try
     Try
+      Self.oVariables := tProjectItem(aProjectItem).oVariables;
+
       LFunctionParser := tFunctionParser.Create(aProjectItem, aTokens, foOutput,
         aTagName);
 
@@ -317,6 +332,55 @@ begin
   aToken := TNovusStringUtils.UpLowerA(aToken, true);
 end;
 
+//TSysTag_IsVarEmpty
+
+function TSysTag_IsVarEmpty.GetTagName: String;
+begin
+  Result := 'IsVarEmpty';
+end;
+
+function TSysTag_IsVarEmpty.Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: tTokenProcessor): String;
+var
+  LFunctionParser: tFunctionParser;
+begin
+  Try
+    Try
+      Self.oVariables := tProjectItem(aProjectItem).oVariables;
+
+      LFunctionParser := tFunctionParser.Create(aProjectItem, aTokens, foOutput,
+        aTagName);
+
+      LFunctionParser.OnExecute := OnExecute;
+
+      Result := LFunctionParser.Execute;
+    Finally
+      LFunctionParser.Free;
+    End;
+  Except
+    oOutput.InternalError;
+  End;
+end;
+
+procedure TSysTag_IsVarEmpty.OnExecute(var aToken: String);
+var
+  liIndex: Integer;
+  loVariable: tVariable;
+begin
+  liIndex := oVariables.VariableExistsIndex(aToken);
+  if liIndex = -1 then
+    begin
+      foOutput.Log('Syntax error: "' + aToken + '" not defined');
+
+      aToken := 'FALSE';
+
+      Exit;
+    end;
+
+  aToken := 'FALSE';
+  loVariable := oVariables.GetVariableByIndex(liIndex);
+  if loVariable.IsVarEmpty then aToken := 'TRUE';
+end;
+
 function TSysTag_Version.GetTagName: String;
 begin
   Result := 'VERSION';
@@ -324,6 +388,8 @@ end;
 
 function TSysTag_Version.Execute(aProjectItem: tProjectItem; aTagName: string;aTokens: tTokenProcessor): String;
 begin
+  Self.oVariables := tProjectItem(aProjectItem).oVariables;
+
   Result := oRuntime.GetVersion(1);
 end;
 
@@ -338,6 +404,8 @@ var
 begin
   Try
     Try
+      Self.oVariables := tProjectItem(aProjectItem).oVariables;
+
       LFunctionParser := tFunctionParser.Create(aProjectItem, aTokens, foOutput,
         aTagName);
 
@@ -370,6 +438,8 @@ var
 begin
   Try
     Try
+      Self.oVariables := tProjectItem(aProjectItem).oVariables;
+
       LFunctionParser := tFunctionParser.Create(aProjectItem,aTokens, foOutput,
         aTagName);
 
@@ -396,6 +466,7 @@ end;
 
 function TSysTag_newguid.Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: tTokenProcessor): String;
 begin
+  Self.oVariables := tProjectItem(aProjectItem).oVariables;
   Result := TGuidExUtils.NewGuidString;
 end;
 

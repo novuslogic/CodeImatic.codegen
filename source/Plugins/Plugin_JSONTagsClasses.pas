@@ -31,6 +31,7 @@ type
     property oVariables: TVariables read foVariables write foVariables;
   end;
 
+
   TJSONTag_LoadJSON = class(TJSONTag)
   private
   protected
@@ -396,7 +397,7 @@ begin
   if not Assigned(FVariable) then
     Exit;
 
-  if Not FVariable.IsNullorEmpty then
+  if Not FVariable.IsVarEmpty then
     begin
       FJSONValueRoot := TJSONValue(FVariable.oObject);
 

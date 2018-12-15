@@ -147,8 +147,8 @@ begin
     FTokenType := ttFinished;
     exit;
   end;
-  //Delimiters
-  if Pos(FExpr[FExprID], '+-/*=()<>!')<>0 then
+  //Delimiters 1
+  if Pos(FExpr[FExprID], '+-/*=<>!')<>0 then
   begin
     FToken := FExpr[FExprID];
     Inc(FExprID);
@@ -166,6 +166,15 @@ begin
       FToken := FToken+FExpr[FExprID];
       Inc(FExprID);
     end;
+    FTokenType := ttDelimiter;
+    exit;
+  end;
+  //Delimiters 2
+  if Pos(FExpr[FExprID], '()')<>0 then
+  begin
+    FToken := FExpr[FExprID];
+    Inc(FExprID);
+
     FTokenType := ttDelimiter;
     exit;
   end;

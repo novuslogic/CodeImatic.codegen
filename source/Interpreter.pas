@@ -92,7 +92,12 @@ Type
 
     destructor Destroy; override;
 
+    function ParseToken(aToken: string; var aIndex: Integer; aTokens: tTokenProcessor; aSkipPos: integer) : String;
+
     function GetNextToken(Var AIndex: Integer;
+      ATokens: tTokenProcessor; aIgnoreTokenParser: Boolean = false;aSkipPos: integer = 0): String;
+
+    function GetNextTokenA(Var AIndex: Integer;
       ATokens: tTokenProcessor): String;
 
     //function DoTagTypeInterpreter(ATokens: tTokenProcessor): TTagType;
@@ -149,11 +154,11 @@ Var
 begin
   Result := '';
 
-  If GetNextToken(AIndex, ATokens) = '(' then
+  If GetNextTokenA(AIndex, ATokens) = '(' then
   begin
-    lsFilename := GetNextToken(AIndex, ATokens);
+    lsFilename := GetNextTokenA(AIndex, ATokens);
 
-    lsWord := GetNextToken(AIndex, ATokens);
+    lsWord := GetNextTokenA(AIndex, ATokens);
 
     If lsWord <> '' then
     begin
@@ -170,7 +175,7 @@ begin
 
         If ACommandIndex = 1 then
         begin
-          lsFormatOption := GetNextToken(AIndex, ATokens);
+          lsFormatOption := GetNextTokenA(AIndex, ATokens);
 
           Result := Format(Result, [lsFormatOption]);
         end;
@@ -199,9 +204,9 @@ Var
 begin
   Result := '';
 
-  If GetNextToken(AIndex, ATokens) = '(' then
+  If GetNextTokenA(AIndex, ATokens) = '(' then
   begin
-    lsStr := GetNextToken(AIndex, ATokens);
+    lsStr := GetNextTokenA(AIndex, ATokens);
 
     if lsStr <> '' then
     begin
@@ -215,7 +220,7 @@ begin
         loXMLlist.XMLFileName := lsStr;
         loXMLlist.Retrieve;
 
-        lsStr := GetNextToken(AIndex, ATokens);
+        lsStr := GetNextTokenA(AIndex, ATokens);
         if lsStr <> '' then
         begin
           if TNovusStringUtils.IsNumberStr(lsStr) then
@@ -249,7 +254,7 @@ begin
 
   end;
 
-  if GetNextToken(AIndex, ATokens) <> ')' then
+  if GetNextTokenA(AIndex, ATokens) <> ')' then
     foOutput.Log('Incorrect syntax: lack ")"');
 end;
 
@@ -264,9 +269,9 @@ Var
 begin
   Result := '';
 
-  If GetNextToken(AIndex, ATokens) = '(' then
+  If GetNextTokenA(AIndex, ATokens) = '(' then
   begin
-    lsStr := GetNextToken(AIndex, ATokens);
+    lsStr := GetNextTokenA(AIndex, ATokens);
 
     if lsStr <> '' then
     begin
@@ -280,7 +285,7 @@ begin
         loXMLlist.XMLFileName := lsStr;
         loXMLlist.Retrieve;
 
-        lsStr := GetNextToken(AIndex, ATokens);
+        lsStr := GetNextTokenA(AIndex, ATokens);
         if lsStr <> '' then
         begin
           if TNovusStringUtils.IsNumberStr(lsStr) then
@@ -314,7 +319,7 @@ begin
 
   end;
 
-  if GetNextToken(AIndex, ATokens) <> ')' then
+  if GetNextTokenA(AIndex, ATokens) <> ')' then
     foOutput.Log('Incorrect syntax: lack ")"');
 end;
 
@@ -329,9 +334,9 @@ Var
 begin
   Result := '0';
 
-  If GetNextToken(AIndex, ATokens) = '(' then
+  If GetNextTokenA(AIndex, ATokens) = '(' then
   begin
-    lsStr := GetNextToken(AIndex, ATokens);
+    lsStr := GetNextTokenA(AIndex, ATokens);
 
     if lsStr <> '' then
     begin
@@ -388,6 +393,71 @@ begin
      end;
 
   aIndex := aTokens.TokenIndex ;
+end;
+
+function TInterpreter.ParseToken(aToken: string; var aIndex: Integer; aTokens: tTokenProcessor; aSkipPos: integer) : String;
+var
+  fTagType: TTagType;
+begin
+   Try
+     Result := aToken;
+
+    fTagType := TTagParser.ParseTagType(foProjectItem, FoCodeGenerator,
+      aToken, foOutput, true);
+
+    if fTagType = ttplugintag then
+      begin
+        result := DoPluginTag(aTokens, AIndex);
+      end
+    else
+    if fTagType = ttrepeat then
+       Result := DoRepeat(ATokens, AIndex, ttRepeat, ASkipPos)
+    else
+    if fTagType = ttendrepeat then
+       Result := DoRepeat(ATokens, AIndex, ttEndRepeat, ASkipPos)
+    else
+    if fTagType = ttif then
+       Result := DoIF(ATokens, AIndex, ttif, ASkipPos)
+    else
+    if fTagType = ttendif then
+       Result := DoIf(ATokens, AIndex, ttEndif, ASkipPos);
+
+
+    if (CommandSyntaxIndex(aToken) <> 0) then
+    begin
+      case CommandSyntaxIndex(aToken) of
+
+       // 16:
+        //  Result := Delimiter(ATokens, AIndex);
+        17, 18:
+          Result := Reservelist(ATokens, AIndex, 0);
+        19:
+          Result := XMLlistIndex(ATokens, AIndex);
+        20:
+          Result := XMLlistCount(ATokens, AIndex);
+        21:
+          Result := XMLListName(ATokens, AIndex);
+
+        23:
+          Result := Reservelist(ATokens, AIndex, 1);
+
+      end;
+    end;
+
+
+    if Pos('$$', ATokens[AIndex]) = 1 then
+      Result := tTokenParser.ParseToken(Self, ATokens[AIndex],
+        (foProjectItem as TProjectItem),
+        foOutput, ATokens, AIndex,
+        TCodeGenerator(FoCodeGenerator).oProject)
+    else
+    if Pos('$', ATokens[AIndex]) = 1 then
+      Result := ParseVariable(ATokens, AIndex);
+
+
+  Except
+    foOutput.InternalError;
+  end;
 end;
 
 function TInterpreter.GetNextTag(aTokens: tTokenProcessor; Var aIndex: Integer;
@@ -523,13 +593,13 @@ begin
   case aTagType of
     ttRepeat:
       begin
-        If GetNextToken(AIndex, ATokens) = '(' then
+        If GetNextTokenA(AIndex, ATokens) = '(' then
         begin
-          LsValue := GetNextToken(AIndex, ATokens);
+          LsValue := GetNextTokenA(AIndex, ATokens);
 
           if TNovusStringUtils.IsNumberStr(LsValue) then
           begin
-            if GetNextToken(AIndex, ATokens) = ')' then
+            if GetNextTokenA(AIndex, ATokens) = ')' then
             begin
               Inc(fiLoopCounter, 1);
 
@@ -768,7 +838,10 @@ Var
   LTemplate: TNovusTemplate;
   liSkipPos, liTagIndex: Integer;
   LCodeGenerator: TCodeGenerator;
-  LsValue: String;
+  LsToken: String;
+  lsValue: String;
+  lxVariable: tVariable;
+  lyVariable: tVariable;
   LiValue: Integer;
   liLineCount: Integer;
   lsTagValue: String;
@@ -811,77 +884,81 @@ begin
   case aTagType of
     ttIf:
       begin
-       If GetNextToken(AIndex, ATokens) = '(' then
-        begin
-        (*
-           Try
-        lTokens := tTokenProcessor.Create;
-
-        LExpressionParser := tExpressionParser.Create;
-
-        LExpressionParser.Expr := FoCodeGeneratorItem.oTemplateTag.TagName;
-
-        LExpressionParser.ListTokens(lTokens);
-      Finally
-        LExpressionParser.Free;
-      End;
-       *)
-
-
-
-          LsValue := GetNextToken(AIndex, ATokens);
-
-          LsValue := GetNextToken(AIndex, ATokens);
-
-          LsValue := GetNextToken(AIndex, ATokens);
-
-
-
-          if TNovusStringUtils.IsNumberStr(LsValue) then
-          begin
-            if GetNextToken(AIndex, ATokens) = ')' then
+       If Uppercase(GetNextToken(AIndex, ATokens, true)) = 'IF' then
+         begin
+           If GetNextToken(AIndex, ATokens) = '(' then
             begin
-              Inc(fiLoopCounter, 1);
+              LsToken := GetNextToken(AIndex, ATokens);
+              while Not ATokens.EOF do
+                begin
 
-              FLoop := TLoop.Create;
 
-              FLoop.LoopType := ltrepeat;
-              FLoop.LoopPos := lpStart;
-              FLoop.ID := fiLoopCounter;
 
-              FLoop.CodeGeneratorItem := FoCodeGeneratorItem;
 
-              FLoop.NegitiveFlag := (StrToint(LsValue) < 0);
 
-              FLoop.Value := 0;
-              If StrToint(LsValue) > 0 then
-                FLoop.Value := StrToint(LsValue);
 
-              fLoopList.Add(FLoop);
 
-              liStartPos1 := FoCodeGeneratorItem.oTemplateTag.TagIndex;
+                  LsToken := GetNextToken(AIndex, ATokens);
 
-              Inc(liStartPos1, 1);
+                end;
 
-              liEndPos1 := FindEndRepeatIndexPos(liStartPos1);
+               if AIndex = ATokens.Count then
+                AIndex := ATokens.Count - 1;
 
-              FoCodeGeneratorItem.oTemplateTag.TagValue := cDeleteLine;
 
-              ASkipPOs := liEndPos1;
+
+
+              (*
+              if TNovusStringUtils.IsNumberStr(LsValue) then
+              begin
+                if GetNextTokenA(AIndex, ATokens) = ')' then
+                begin
+                  Inc(fiLoopCounter, 1);
+
+                  FLoop := TLoop.Create;
+
+                  FLoop.LoopType := ltrepeat;
+                  FLoop.LoopPos := lpStart;
+                  FLoop.ID := fiLoopCounter;
+
+                  FLoop.CodeGeneratorItem := FoCodeGeneratorItem;
+
+                  FLoop.NegitiveFlag := (StrToint(LsValue) < 0);
+
+                  FLoop.Value := 0;
+                  If StrToint(LsValue) > 0 then
+                    FLoop.Value := StrToint(LsValue);
+
+                  fLoopList.Add(FLoop);
+
+                  liStartPos1 := FoCodeGeneratorItem.oTemplateTag.TagIndex;
+
+                  Inc(liStartPos1, 1);
+
+                  liEndPos1 := FindEndRepeatIndexPos(liStartPos1);
+
+                  FoCodeGeneratorItem.oTemplateTag.TagValue := cDeleteLine;
+
+                  ASkipPOs := liEndPos1;
+                end
+                else
+                  foOutput.Log('Incorrect syntax: lack ")"');
+
+              end
+              else
+                foOutput.Log('Incorrect syntax: Index is not a number ');
+               *)
             end
             else
-              foOutput.Log('Incorrect syntax: lack ")"');
+              foOutput.Log('Incorrect syntax: lack "("');
 
-          end
-          else
-            foOutput.Log('Incorrect syntax: Index is not a number ');
-
-        end
-        else
-          foOutput.Log('Incorrect syntax: lack "("');
+         end
+         else
+           foOutput.Log('Incorrect syntax: lack "IF"');
       end;
     ttEndIf:
       begin
+        (*
         ASkipPOs := 0;
 
         LStartLoop := FindLoop(ltrepeat, fiLoopCounter);
@@ -945,11 +1022,7 @@ begin
 
               LCodeGenerator.RunInterpreter(liTagIndex, liTagIndex);
 
-              (*
-              If (LCodeGeneratorItem1.TagType = ttInterpreter) or
-                 (LCodeGeneratorItem1.TagType = ttRepeat) or
-                 (LCodeGeneratorItem1.TagType = ttEndRepeat) then
-                 *)
+
              if IsInterpreterTagType(LCodeGeneratorItem1.tagtype) then
               begin
                 If IsEndRepeat(LCodeGeneratorItem1) then
@@ -1289,6 +1362,32 @@ begin
 end;
 
 function TInterpreter.GetNextToken(Var AIndex: Integer;
+  ATokens: tTokenProcessor; aIgnoreTokenParser: Boolean = false;aSkipPos: integer = 0): String;
+Var
+  I: Integer;
+  LVariable: TVariable;
+  liSkipPos: Integer;
+  lsNextToken: String;
+begin
+  lsNextToken := ATokens.GetNextToken(aIndex);
+
+  if Not aIgnoreTokenParser then
+     Result := ParseToken(lsNextToken, aIndex, aTokens, aSkipPos)
+  else result := lsNextToken;
+
+  if result = oTokens.Strings[aIndex] then
+    Inc(AIndex);
+
+  //if AIndex = ATokens.Count then
+  //  AIndex := ATokens.Count - 1;
+
+  ATokens.TokenIndex := aIndex;
+end;
+
+
+
+
+function TInterpreter.GetNextTokenA(Var AIndex: Integer;
   ATokens: tTokenProcessor): String;
 Var
   I: Integer;

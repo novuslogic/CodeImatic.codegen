@@ -11,7 +11,7 @@ Type
      FValue: Variant;
      FObject: tObject;
   private
-    function GetIsNullorEmpty: boolean;
+    function GetIsVarEmpty: boolean;
     function GetIsObject: Boolean;
   public
     constructor Create; virtual;
@@ -34,8 +34,8 @@ Type
     property  IsObject: Boolean
       read GetIsObject;
 
-    property IsNullorEmpty: Boolean
-      read GetIsNullorEmpty;
+    property IsVarEmpty: Boolean
+      read GetIsVarEmpty;
   end;
 
   TVariables = class(TObject)
@@ -202,7 +202,7 @@ begin
   if Copy(fsVariableName, 1, 2) = '@@' then Result := true;
 end;
 
-function TVariable.GetIsNullorEmpty:Boolean;
+function TVariable.GetIsVarEmpty:Boolean;
 begin
   Result := False;
 
