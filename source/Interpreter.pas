@@ -5,7 +5,7 @@ interface
 Uses
   Classes, ExpressionParser, SysUtils, DB, NovusStringUtils, Output,
   NovusList, Variants, Variables, XMLList, NovusGUIDEx, TokenProcessor, TagType,
-  CodeGeneratorItem, TokenParser, ProjectItem;
+  CodeGeneratorItem, TokenParser, ProjectItem, StatementParser;
 
 const
   csCommamdSyntax: array [1 .. 25] of String = ('fieldnamebyindex',
@@ -16,23 +16,28 @@ const
     'fieldbyname', 'FieldByIndex');
 
 Type
-  TLoopType = (ltrepeat, ltendrepeat);
+  TNavigateType = (ltrepeat, ltendrepeat, ltif, ltendif);
 
-  TLoopPos = (lpStart, lpEnd);
+  TNavigatePos = (lpStart, lpEnd);
 
-  TLoop = Class(TObject)
+  TNavigate = Class(TObject)
   protected
-    FLoopType: TLoopType;
-    FLoopPos: TLoopPos;
+    fStatementParser: tStatementParser;
+    FLoopType: TNavigateType;
+    FLoopPos: TNavigatePos;
     fiID: Integer;
     FoCodeGeneratorItem: TObject;
     FiValue: Integer;
     FbNegitiveFlag: Boolean;
   private
   public
-    property LoopPos: TLoopPos read FLoopPos write FLoopPos;
+    constructor Create; overload;
+    destructor Destroy; override;
 
-    property LoopType: TLoopType read FLoopType write FLoopType;
+
+    property LoopPos: TNavigatePos read FLoopPos write FLoopPos;
+
+    property LoopType: TNavigateType read FLoopType write FLoopType;
 
     property ID: Integer read fiID write fiID;
 
@@ -43,23 +48,30 @@ Type
 
     property NegitiveFlag: Boolean read FbNegitiveFlag write FbNegitiveFlag;
 
+    property StatementParser: tStatementParser
+       read fStatementParser
+       write fStatementParser;
+
   End;
 
   TInterpreter = Class(tTokenParser)
   protected
     FoCodeGenerator: TObject;
     fiLoopCounter: Integer;
-    fLoopList: tNovusList;
-   // FoTokens: tTokenProcessor;
- //   foOutput: TOutput;
+    FNavigateList: tNovusList;
+
     FoCodeGeneratorItem: TCodeGeneratorItem;
-   // foProjectItem: TObject;
+
   private
     function DoPluginTag(aTokens: tTokenProcessor; Var aIndex: Integer): string;
-    function IsRepeat(ACodeGeneratorItem: TObject): Boolean;
-    function IsEndRepeat(ACodeGeneratorItem: TObject): Boolean;
-    function FindEndRepeatIndexPos(AIndex: Integer): Integer;
-    function FindLoop(ALoopType: TLoopType; ALoopID: Integer): TLoop;
+
+    function IsEndIf(aCodeGeneratorItem: TObject): Boolean;
+    function IsRepeat(aCodeGeneratorItem: TObject): Boolean;
+    function IsEndRepeat(aCodeGeneratorItem: TObject): Boolean;
+    function IsIf(aCodeGeneratorItem: TObject): Boolean;
+
+    function FindEndNavigateIndexPos(aIndex: Integer; aStartTagName,aEndTagName: string): Integer;
+    function FindNavigateID(ALoopType: TNavigateType; ALoopID: Integer): TNavigate;
 
     function GetNextTag(ATokens: tTokenProcessor; Var AIndex: Integer;
       Var ASkipPOs: Integer; ASubCommand: Boolean = False;
@@ -81,6 +93,9 @@ Type
     function VariableExistsIndex(AVariableName: String): Integer;
     function GetVariableByIndex(AIndex: Integer): TVariable;
 
+    function GetCodeGeneratorItemBySourceLineNo(ASourceLineNo: Integer;
+        Var APos: Integer): tCodeGeneratorItem;
+
     function DoRepeat(ATokens: tTokenProcessor; Var AIndex: Integer;
       aTagType: TTagType; Var ASkipPOs: Integer): string;
 
@@ -93,6 +108,8 @@ Type
     destructor Destroy; override;
 
     function ParseToken(aToken: string; var aIndex: Integer; aTokens: tTokenProcessor; aSkipPos: integer) : String;
+
+    procedure ResetToEnd(aTokens: tTokenProcessor; var aIndex: Integer);
 
     function GetNextToken(Var AIndex: Integer;
       ATokens: tTokenProcessor; aIgnoreTokenParser: Boolean = false;aSkipPos: integer = 0): String;
@@ -128,7 +145,7 @@ begin
 
   FoCodeGenerator := ACodeGenerator;
 
-  fLoopList := tNovusList.Create(TLoop);
+  FNavigateLIst := tNovusList.Create(TNavigate);
 
   FoOutput := AOutput;
 
@@ -137,7 +154,7 @@ end;
 
 destructor TInterpreter.Destroy;
 begin
-  fLoopList.Free;
+  FNavigateLIst.Free;
 
   inherited;
 end;
@@ -395,6 +412,13 @@ begin
   aIndex := aTokens.TokenIndex ;
 end;
 
+procedure TInterpreter.ResetToEnd(aTokens: tTokenProcessor; var aIndex: Integer);
+begin
+  if aIndex = ATokens.Count then
+    aIndex := ATokens.Count - 1;
+end;
+
+
 function TInterpreter.ParseToken(aToken: string; var aIndex: Integer; aTokens: tTokenProcessor; aSkipPos: integer) : String;
 var
   fTagType: TTagType;
@@ -542,7 +566,7 @@ Var
   lbNegitiveFlag: Boolean;
   liPos, liLineNoPos: Integer;
   liStartPos1, liEndPos1, liStartPos2, liEndPos2: Integer;
-  LStartLoop, FLoop: TLoop;
+  LStarTNavigate, FLoop: TNavigate;
   liLastSourceNo, I, X, Y, Z, A: Integer;
   LCodeGeneratorItem3, LCodeGeneratorItem2, LCodeGeneratorItem1
     : tCodeGeneratorItem;
@@ -603,7 +627,7 @@ begin
             begin
               Inc(fiLoopCounter, 1);
 
-              FLoop := TLoop.Create;
+              FLoop := TNavigate.Create;
 
               FLoop.LoopType := ltrepeat;
               FLoop.LoopPos := lpStart;
@@ -617,13 +641,13 @@ begin
               If StrToint(LsValue) > 0 then
                 FLoop.Value := StrToint(LsValue);
 
-              fLoopList.Add(FLoop);
+              FNavigateLIst.Add(FLoop);
 
               liStartPos1 := FoCodeGeneratorItem.oTemplateTag.TagIndex;
 
               Inc(liStartPos1, 1);
 
-              liEndPos1 := FindEndRepeatIndexPos(liStartPos1);
+              liEndPos1 := FindEndNavigateIndexPos(liStartPos1, 'repeat', 'endrepeat');
 
               FoCodeGeneratorItem.oTemplateTag.TagValue := cDeleteLine;
 
@@ -644,17 +668,17 @@ begin
       begin
         ASkipPOs := 0;
 
-        LStartLoop := FindLoop(ltrepeat, fiLoopCounter);
+        LStarTNavigate := FindNavigateID(ltrepeat, fiLoopCounter);
 
-        LiValue := LStartLoop.Value;
-        lbNegitiveFlag := LStartLoop.NegitiveFlag;
+        LiValue := LStarTNavigate.Value;
+        lbNegitiveFlag := LStarTNavigate.NegitiveFlag;
 
-        liStartPos1 := (LStartLoop.CodeGeneratorItem As tCodeGeneratorItem)
+        liStartPos1 := (LStarTNavigate.CodeGeneratorItem As tCodeGeneratorItem)
           .oTemplateTag.TagIndex;
         Inc(liStartPos1, 1);
 
         liStartSourceLineNo :=
-          (LStartLoop.CodeGeneratorItem As tCodeGeneratorItem)
+          (LStarTNavigate.CodeGeneratorItem As tCodeGeneratorItem)
           .oTemplateTag.SourceLineNo;
 
 
@@ -705,16 +729,12 @@ begin
 
               LCodeGenerator.RunInterpreter(liTagIndex, liTagIndex);
 
-              (*
-              If (LCodeGeneratorItem1.TagType = ttInterpreter) or
-                 (LCodeGeneratorItem1.TagType = ttRepeat) or
-                 (LCodeGeneratorItem1.TagType = ttEndRepeat) then
-                 *)
+            
              if IsInterpreterTagType(LCodeGeneratorItem1.tagtype) then
               begin
                 If IsEndRepeat(LCodeGeneratorItem1) then
                 begin
-                  FLoop := FindLoop(ltrepeat, fiLoopCounter);
+                  FLoop := FindNavigateID(ltrepeat, fiLoopCounter);
 
                   liLastEndSourceLineNo := liEndSourceLineNo + 1;
                   liSourceLineCount :=
@@ -748,10 +768,10 @@ begin
         begin
           liLastEndSourceLineNo := liEndSourceLineNo;
 
-          if ((FindEndRepeatIndexPos(liStartPos1) + liStartPos1) <
+          if ((FindEndNavigateIndexPos(liStartPos1, 'repeat', 'endrepeat') + liStartPos1) <
             (liEndSourceLineNo - liStartSourceLineNo)) then
             liSourceLineCount := (liEndSourceLineNo - liStartSourceLineNo) -
-              ((FindEndRepeatIndexPos(liStartPos1) + liStartPos1) + 1)
+              ((FindEndNavigateIndexPos(liStartPos1, 'repeat', 'endrepeat') + liStartPos1) + 1)
           else
             liSourceLineCount := (liEndSourceLineNo - liStartSourceLineNo) - 1;
         end;
@@ -822,15 +842,47 @@ begin
       end;
   end;
 end;
+
+function TInterpreter.GetCodeGeneratorItemBySourceLineNo(ASourceLineNo: Integer;
+    Var APos: Integer): tCodeGeneratorItem;
+Var
+  Z: Integer;
+  LCodeGeneratorItem: tCodeGeneratorItem;
+begin
+  Result := NIL;
+
+  for Z := APos to TCodeGenerator(FoCodeGenerator)
+    .oCodeGeneratorList.Count - 1 do
+  begin
+    LCodeGeneratorItem := tCodeGeneratorItem(TCodeGenerator(FoCodeGenerator)
+      .oCodeGeneratorList.Items[Z]);
+
+    if LCodeGeneratorItem.oTemplateTag.SourceLineNo = ASourceLineNo then
+    begin
+      Result := LCodeGeneratorItem;
+
+      APos := Z + 1;
+
+      Break;
+    end;
+  end;
+
+  if Z > APos then
+    APos := Z;
+
+end;
+
+
 function TInterpreter.DoIF(ATokens: tTokenProcessor;
   Var AIndex: Integer; aTagType: TTagType; Var ASkipPOs: Integer): string;
 Var
-  lTokens : tTokenProcessor;
+  lStatementParser: tStatementParser;
+  //lTokens : tTokenProcessor;
   LExpressionParser: tExpressionParser;
   lbNegitiveFlag: Boolean;
   liPos, liLineNoPos: Integer;
   liStartPos1, liEndPos1, liStartPos2, liEndPos2: Integer;
-  LStartLoop, FLoop: TLoop;
+  LStarTNavigate, FNavigate: TNavigate;
   liLastSourceNo, I, X, Y, Z, A: Integer;
   LCodeGeneratorItem3, LCodeGeneratorItem2, LCodeGeneratorItem1
     : tCodeGeneratorItem;
@@ -849,35 +901,6 @@ Var
     liLastNextSourceLineNo, liNextSourceLineNo1, liNextSourceLineNo2,
     liStartSourceLineNo, liSourceLineCount, liEndSourceLineNo: Integer;
 
-  function GetCodeGeneratorItemBySourceLineNo(ASourceLineNo: Integer;
-    Var APos: Integer): tCodeGeneratorItem;
-  Var
-    Z: Integer;
-    LCodeGeneratorItem: tCodeGeneratorItem;
-  begin
-    Result := NIL;
-
-    for Z := APos to TCodeGenerator(FoCodeGenerator)
-      .oCodeGeneratorList.Count - 1 do
-    begin
-      LCodeGeneratorItem := tCodeGeneratorItem(TCodeGenerator(FoCodeGenerator)
-        .oCodeGeneratorList.Items[Z]);
-
-      if LCodeGeneratorItem.oTemplateTag.SourceLineNo = ASourceLineNo then
-      begin
-        Result := LCodeGeneratorItem;
-
-        APos := Z + 1;
-
-        Break;
-      end;
-    end;
-
-    if Z > APos then
-      APos := Z;
-
-  end;
-
 begin
   Result := '';
 
@@ -887,67 +910,54 @@ begin
        If Uppercase(GetNextToken(AIndex, ATokens, true)) = 'IF' then
          begin
            If GetNextToken(AIndex, ATokens) = '(' then
-            begin
-              LsToken := GetNextToken(AIndex, ATokens);
-              while Not ATokens.EOF do
-                begin
+             begin
+               Try
+                 lStatementParser := tStatementParser.Create;
+
+                 LsToken := GetNextToken(AIndex, ATokens);
+                 if lsToken <> ')' then lStatementParser.Add(LsToken);
+                 while Not ATokens.EOF do
+                   begin
+                     LsToken := GetNextToken(AIndex, ATokens);
+                     if lsToken <> ')' then lStatementParser.Add(LsToken);
+                   end;
+
+                 ResetToEnd(ATokens,aIndex);
+
+                 if LsToken <> ')'    then
+                    begin
+                      foOutput.Log('Incorrect syntax: lack ")"');
+
+                      Exit;
+                     end;
 
 
+                 Inc(fiLoopCounter, 1);
 
+                 FNavigate := TNavigate.Create;
+                 FNavigate.LoopType := ltif;
+                 FNavigate.LoopPos := lpStart;
 
+                 FNavigate.ID := fiLoopCounter;
+                 FNavigate.CodeGeneratorItem := FoCodeGeneratorItem;
 
+                 liStartPos1 := FoCodeGeneratorItem.oTemplateTag.TagIndex;
 
+                 Inc(liStartPos1, 1);
 
-                  LsToken := GetNextToken(AIndex, ATokens);
+                 liEndPos1 := FindEndNavigateIndexPos(liStartPos1,'if', 'endif');
 
-                end;
+                 FoCodeGeneratorItem.oTemplateTag.TagValue := cDeleteLine;
 
-               if AIndex = ATokens.Count then
-                AIndex := ATokens.Count - 1;
+                 ASkipPos := liEndPos1;
 
+                 FNavigate.StatementParser := lStatementParser;
 
+                 FNavigateLIst.Add(FNavigate);
+               Finally
+                 //
+               End;
 
-
-              (*
-              if TNovusStringUtils.IsNumberStr(LsValue) then
-              begin
-                if GetNextTokenA(AIndex, ATokens) = ')' then
-                begin
-                  Inc(fiLoopCounter, 1);
-
-                  FLoop := TLoop.Create;
-
-                  FLoop.LoopType := ltrepeat;
-                  FLoop.LoopPos := lpStart;
-                  FLoop.ID := fiLoopCounter;
-
-                  FLoop.CodeGeneratorItem := FoCodeGeneratorItem;
-
-                  FLoop.NegitiveFlag := (StrToint(LsValue) < 0);
-
-                  FLoop.Value := 0;
-                  If StrToint(LsValue) > 0 then
-                    FLoop.Value := StrToint(LsValue);
-
-                  fLoopList.Add(FLoop);
-
-                  liStartPos1 := FoCodeGeneratorItem.oTemplateTag.TagIndex;
-
-                  Inc(liStartPos1, 1);
-
-                  liEndPos1 := FindEndRepeatIndexPos(liStartPos1);
-
-                  FoCodeGeneratorItem.oTemplateTag.TagValue := cDeleteLine;
-
-                  ASkipPOs := liEndPos1;
-                end
-                else
-                  foOutput.Log('Incorrect syntax: lack ")"');
-
-              end
-              else
-                foOutput.Log('Incorrect syntax: Index is not a number ');
-               *)
             end
             else
               foOutput.Log('Incorrect syntax: lack "("');
@@ -958,20 +968,114 @@ begin
       end;
     ttEndIf:
       begin
+        If Uppercase(GetNextToken(AIndex, ATokens, true)) = 'ENDIF' then
+         begin
+           ASkipPOs := 0;
+
+           LStarTNavigate := FindNavigateID(ltif, fiLoopCounter);
+
+           liStartPos1 := (LStarTNavigate.CodeGeneratorItem As tCodeGeneratorItem)
+             .oTemplateTag.TagIndex;
+
+           Inc(liStartPos1, 1);
+
+           liStartSourceLineNo :=
+             (LStarTNavigate.CodeGeneratorItem As tCodeGeneratorItem)
+             .oTemplateTag.SourceLineNo;
+
+
+           liEndPos1 := (FoCodeGeneratorItem As tCodeGeneratorItem)
+              .oTemplateTag.TagIndex;
+           Dec(liEndPos1, 1);
+
+           liEndSourceLineNo := (FoCodeGeneratorItem As tCodeGeneratorItem)
+             .oTemplateTag.SourceLineNo;
+           Dec(liEndSourceLineNo, 1);
+
+           for I := liStartPos1 to liEndPos1 do
+            begin
+              LCodeGeneratorItem1 :=
+                tCodeGeneratorItem(TCodeGenerator(FoCodeGenerator)
+                .oCodeGeneratorList.Items[I]);
+              LCodeGeneratorItem1.LoopId := fiLoopCounter;
+            end;
+
+            LCodeGenerator := (FoCodeGenerator As TCodeGenerator);
+
+        LTemplate := LCodeGenerator.oTemplate;
+
+        liLastNextSourceLineNo := liStartSourceLineNo;
+
+        FNavigate := NIL;
+
+        I := 0;
+
+        liLastEndSourceLineNo := (liEndSourceLineNo - liStartSourceLineNo);
+
+        Repeat
+          liPos := 0;
+
+          While (liPos < TCodeGenerator(FoCodeGenerator)
+            .oCodeGeneratorList.Count) do
+          begin
+            LCodeGeneratorItem1 := GetCodeGeneratorItemBySourceLineNo
+              ((liLastNextSourceLineNo + I) + 1, liPos);
+
+            if Assigned(LCodeGeneratorItem1) then
+            begin
+              LTemplateTag1 := LCodeGeneratorItem1.oTemplateTag;
+
+              liTagIndex := LTemplateTag1.TagIndex;
+
+              LCodeGenerator.RunPropertyVariables(liTagIndex, liTagIndex);
+
+              if LStarTNavigate.StatementParser.IsEqueal then
+                LCodeGenerator.RunInterpreter(liTagIndex, liTagIndex)
+              else
+                LCodeGeneratorItem2.oTemplateTag.TagValue := cDeleteLine;
+
+               If ((IsEndIf(LCodeGeneratorItem2) = False) and
+                  (IsIf(LCodeGeneratorItem2) = False)) then
+               begin
+                 If IsEndIf(LCodeGeneratorItem1) then
+                 begin
+                  FNavigate := FindNavigateID(ltif, fiLoopCounter);
+
+                  liLastEndSourceLineNo := liEndSourceLineNo + 1;
+                  liSourceLineCount :=
+                    (liEndSourceLineNo - liStartSourceLineNo);
+
+                  Break;
+                end;
+              end;
+            end;
+          end;
+
+          Inc(I);
+          if I > (liLastEndSourceLineNo - 1) then
+            Break;
+        until False;
+
+         ResetToEnd(ATokens,aIndex);
+
+         end
+          else
+           foOutput.Log('Incorrect syntax: lack "ENDIF"');
+
         (*
         ASkipPOs := 0;
 
-        LStartLoop := FindLoop(ltrepeat, fiLoopCounter);
+        LStarTNavigate := FindLoop(ltrepeat, fiLoopCounter);
 
-        LiValue := LStartLoop.Value;
-        lbNegitiveFlag := LStartLoop.NegitiveFlag;
+        LiValue := LStarTNavigate.Value;
+        lbNegitiveFlag := LStarTNavigate.NegitiveFlag;
 
-        liStartPos1 := (LStartLoop.CodeGeneratorItem As tCodeGeneratorItem)
+        liStartPos1 := (LStarTNavigate.CodeGeneratorItem As tCodeGeneratorItem)
           .oTemplateTag.TagIndex;
         Inc(liStartPos1, 1);
 
         liStartSourceLineNo :=
-          (LStartLoop.CodeGeneratorItem As tCodeGeneratorItem)
+          (LStarTNavigate.CodeGeneratorItem As tCodeGeneratorItem)
           .oTemplateTag.SourceLineNo;
 
 
@@ -1131,22 +1235,22 @@ begin
           if Y = LiValue then
             Break;
         until False;
-
+          *)
       end;
   end;
 end;
 
 
-function TInterpreter.FindLoop(ALoopType: TLoopType; ALoopID: Integer): TLoop;
+function TInterpreter.FindNavigateID(ALoopType: TNavigateType; ALoopID: Integer): TNavigate;
 Var
   I: Integer;
-  FLoop: TLoop;
+  FLoop: TNavigate;
 begin
   Result := NIL;
 
-  for I := 0 to fLoopList.Count - 1 do
+  for I := 0 to FNavigateLIst.Count - 1 do
   begin
-    FLoop := TLoop(fLoopList.Items[I]);
+    FLoop := TNavigate(FNavigateLIst.Items[I]);
 
     if (FLoop.LoopType = ALoopType) and (FLoop.ID = ALoopID) then
     begin
@@ -1429,7 +1533,7 @@ begin
   Result := (foProjectItem as TProjectItem).oVariables.GetVariableByIndex(AIndex);
 end;
 
-function TInterpreter.FindEndRepeatIndexPos(AIndex: Integer): Integer;
+function TInterpreter.FindEndNavigateIndexPos(AIndex: Integer; aStartTagName, aEndTagName: string): Integer;
 Var
   I: Integer;
   LCodeGeneratorItem: tCodeGeneratorItem;
@@ -1446,21 +1550,21 @@ begin
   begin
     LCodeGeneratorItem := tCodeGeneratorItem(LCodeGeneratorList.Items[I]);
 
-    if LCodeGeneratorItem.TagType = ttInterpreter then
+    if IsInterpreterTagType(LCodeGeneratorItem.TagType) then
     begin
       LTemplateTag := LCodeGeneratorItem.oTemplateTag;
 
-      if Pos(csCommamdSyntax[8], LTemplateTag.TagName) = 1 then
+      if Pos(Uppercase(aStartTagName), Uppercase(LTemplateTag.TagName)) = 1 then
       begin
         Inc(iCount);
       end
-      else if (LTemplateTag.TagName = csCommamdSyntax[9]) and (iCount = 0) then
+      else if (Uppercase(LTemplateTag.TagName) = Uppercase(aEndTagName)) and (iCount = 0) then
       begin
         Result := I;
 
         Exit;
       end
-      else if (LTemplateTag.TagName = csCommamdSyntax[9]) and (iCount > 0) then
+      else if (LTemplateTag.TagName = aEndTagName) and (iCount > 0) then
       begin
         Dec(iCount);
       end;
@@ -1471,15 +1575,38 @@ end;
 
 function TInterpreter.IsEndRepeat(ACodeGeneratorItem: TObject): Boolean;
 begin
-  Result := (CommandSyntaxIndex(tCodeGeneratorItem(ACodeGeneratorItem)
-    .oTokens[0]) = 9);
+  Result := (tCodeGeneratorItem(ACodeGeneratorItem).tagtype =  ttendrepeat);
+end;
+
+function TInterpreter.IsEndIf(ACodeGeneratorItem: TObject): Boolean;
+begin
+  Result := (tCodeGeneratorItem(ACodeGeneratorItem).tagtype =  ttendif);
+end;
+
+
+function TInterpreter.IsIf(ACodeGeneratorItem: TObject): Boolean;
+begin
+  Result := (tCodeGeneratorItem(ACodeGeneratorItem).tagtype =  ttif);
 end;
 
 function TInterpreter.IsRepeat(ACodeGeneratorItem: TObject): Boolean;
 begin
-  Result := (CommandSyntaxIndex(tCodeGeneratorItem(ACodeGeneratorItem)
-    .oTokens[0]) = 8);
+  Result := (tCodeGeneratorItem(ACodeGeneratorItem).tagtype =  ttRepeat);
 end;
 
+
+
+constructor TNavigate.Create;
+begin
+  inherited Create;
+end;
+
+destructor TNavigate.Destroy;
+begin
+  if Assigned(FStatementParser) then
+    FStatementParser.Free;
+
+  inherited;
+end;
 
 end.

@@ -395,6 +395,7 @@ var
 begin
   FVariable := GetJSONObjectVariable(aToken);
   if not Assigned(FVariable) then
+
     Exit;
 
   if Not FVariable.IsVarEmpty then
@@ -445,18 +446,10 @@ begin
 
       end;
 
-      (*
-      if not Assigned(FJSONValue) then
-      begin
-        //foOutput.LogError('Element [' + lsElement + '] cannot be found. JOSN Error: ' + FJSONValueRoot.ToJSON);
-        aToken := 'NULL';
-
-        Exit;
-      end;
-       *)
 
       aToken := Self.oVariables.AddVariableObject(FJSONValue, TJSONTag.ClassName);
-    end;
+    end
+
 end;
 
 // TJSONTag_ToJSON

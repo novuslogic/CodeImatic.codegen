@@ -70,6 +70,7 @@ contains
   RuntimeProjectItems in 'RuntimeProjectItems.pas',
   FunctionsParser in 'FunctionsParser.pas',
   TokenProcessor in 'TokenProcessor.pas',
-  Variables in 'Variables.pas';
+  Variables in 'Variables.pas',
+  StatementParser in 'StatementParser.pas';
 
 end.
