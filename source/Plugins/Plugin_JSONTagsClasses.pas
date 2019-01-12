@@ -93,6 +93,16 @@ type
       aTokens: tTokenProcessor): String; override;
   end;
 
+  TJSONTag_IsJSONEmpty = class(TJSONTag)
+  private
+  protected
+    function GetTagName: String; override;
+    procedure OnExecute(var aToken: String; aTokenParser: tTokenParser);
+  public
+    function Execute(aProjectItem: tProjectItem; aTagName: string;
+      aTokens: tTokenProcessor): String; override;
+  end;
+
   TJSONTag_ToJSONValue = class(TJSONTag)
   private
   protected
@@ -152,6 +162,7 @@ begin
 
   FJSONTags := tJSONTags.Create(TJSONTag_LoadJSON.Create(aOutput),
     TJSONTag_JSONQuery.Create(aOutput), TJSONTag_ToJSON.Create(aOutput),
+    TJSONTag_IsJSONEmpty.Create(aOutput),
     TJSONTag_ToJSONValue.Create(aOutput),
     TJSONTag_JSONGetArray.Create(aOutput),
     TJSONTag_JSONArraySize.Create(aOutput),
@@ -394,9 +405,8 @@ var
   fJsonValueType: tJsonValueType;
 begin
   FVariable := GetJSONObjectVariable(aToken);
-  if not Assigned(FVariable) then
+  if not Assigned(FVariable) then  Exit;
 
-    Exit;
 
   if Not FVariable.IsVarEmpty then
     begin
@@ -494,8 +504,63 @@ begin
     Exit;
 
   if Assigned(FVariable.oObject) then
-    aToken := TJSONValue(FVariable.oObject).ToJSON;
+    aToken := TJSONValue(FVariable.oObject).ToJSON
+  else
+    aToken := 'EMPTY';
 end;
+
+
+
+// TJSONTag_IsJSONEmpty
+function TJSONTag_IsJSONEmpty.GetTagName: String;
+begin
+  Result := 'IsJSONEmpty';
+end;
+
+function TJSONTag_IsJSONEmpty.Execute(aProjectItem: tProjectItem; aTagName: String;
+  aTokens: tTokenProcessor): String;
+var
+  LFunctionAParser: tFunctionAParser;
+begin
+  Try
+    Try
+      Self.oVariables := aProjectItem.oVariables;
+
+      LFunctionAParser := tFunctionAParser.Create(aProjectItem, aTokens,
+        foOutput, aTagName);
+
+      LFunctionAParser.OnExecute := OnExecute;
+
+      Result := LFunctionAParser.Execute;
+    Finally
+      LFunctionAParser.Free;
+    End;
+  Except
+    oOutput.InternalError;
+  End;
+end;
+
+procedure TJSONTag_IsJSONEmpty.OnExecute(var aToken: String;
+  aTokenParser: tTokenParser);
+Var
+  FJSONValueRoot: TJSONValue;
+  FJSONValue: TJSONValue;
+  FVariable: TVariable;
+  lsElement: string;
+begin
+  FVariable := GetJSONObjectVariable(aToken);
+  if not Assigned(FVariable) then
+    Exit;
+
+  if Assigned(FVariable.oObject) then
+   begin
+     aToken := 'true';
+     if Trim(TJSONValue(FVariable.oObject).ToJSON) = '' then  aToken := 'false';
+   end
+  else
+    aToken := 'false';
+end;
+
 
 // TJSONTag_ToJSONValue
 function TJSONTag_ToJSONValue.GetTagName: String;

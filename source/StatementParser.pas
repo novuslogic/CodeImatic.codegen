@@ -2,24 +2,37 @@ unit StatementParser;
 
 interface
 
-Uses TokenProcessor;
+Uses TokenProcessor, ExpressionParser;
 
 type
   tStatementParser = class(tTokenProcessor)
   protected
   private
   public
-
-    function IsEqueal: Boolean;
-
+    function IsEqual: Boolean;
   end;
 
 implementation
 
 
-function tStatementParser.IsEqueal: Boolean;
+function tStatementParser.IsEqual: Boolean;
+var
+  fExpressionParser: TExpressionParser;
 begin
-  Result := True;
+  Result := false;
+  Try
+  Try
+    fExpressionParser:= TExpressionParser.Create;
+
+    fExpressionParser.Expr := Self.Text;
+    Result := fExpressionParser.Execute;
+  Finally
+    fExpressionParser.Free;
+  End;
+  Except
+
+
+  End;
 end;
 
 end.

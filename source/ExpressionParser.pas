@@ -51,10 +51,11 @@ type
     procedure Level5(Res : PPRes);
     procedure Level6(Res : PPRes);
     procedure Primitive(Res : PPRes);
-    procedure LogOp(Op : String; Res, Res2 : PPRes);
+    procedure LogOp(aOp : String; aRes, aRes2 : PPRes);
     procedure LogConOp(Op : String; Res, Res2 : PPRes);
     procedure ArithOp(Op : Char; Res, Res2 : PPRes);
     procedure UnaryOp(Op : Char; Res : PPRes);
+    procedure PreparePRes(aRes: PPRes);
   protected
     //Method to be overridden by descendents to translate
     //a variable name (VName) into a value
@@ -65,7 +66,7 @@ type
     //Interface to enumerate expression tokens
     procedure ListTokens(Str : TStrings);
     //Entry point
-    function Get_Result : Boolean;
+    function Execute : Boolean;
   end;
 
 implementation
@@ -101,7 +102,7 @@ begin
   Result := FExpr;
 end;
 
-function TExpressionParser.Get_Result: Boolean;
+function TExpressionParser.Execute: Boolean;
 var
   PRes : TPRes;
 begin
@@ -117,6 +118,8 @@ begin
   Result := (PRes.Value=STrue);
 end;
 
+
+
 //Get next token
 procedure TExpressionParser.Get_Token;
 begin
@@ -125,11 +128,11 @@ begin
   while (FExpr[FExprID]=' ') and (FExprID<=FLExpr) do
      Inc(FExprID);
 
-  // comma's
+  // comma
   while (FExpr[FExprID]=',') and (FExprID<=FLExpr) do
      Inc(FExprID);
 
-  // Semi Comma'a
+  // Semi Comma
   while (FExpr[FExprID]=';') and (FExprID<=FLExpr) do
      Inc(FExprID);
 
@@ -385,43 +388,58 @@ begin
   end;
 end;
 
-procedure TExpressionParser.LogOp(Op: String; Res, Res2: PPRes);
+procedure TExpressionParser.PreparePRes(aRes: PPRes);
 begin
-  Res^.Res := trBool;
-  if Op='=' then
+  if (CompareText(aRes^.Value, 'false') >= 0) then
+    aRes^.Value := 'false'
+  else
+  if (CompareText(aRes^.Value, 'true') >= 0) then
+    aRes^.Value := 'true';
+
+end;
+
+
+procedure TExpressionParser.LogOp(aOp: String; aRes, aRes2: PPRes);
+begin
+  aRes^.Res := trBool;
+
+  PreparePRes(@aRes);
+  PreparePRes(@aRes2);
+
+  if aOp='=' then
   begin
-    if Res^.Value=Res2^.Value then
-      Res^.Value := STrue
-    else Res^.Value := SFalse;
+   if aRes^.Value=aRes2^.Value then
+      aRes^.Value := STrue
+    else aRes^.Value := SFalse;
   end
   else
-  if Op='!=' then
+  if aOp='!=' then
   begin
-    if Res^.Value=Res2^.Value then
-      Res^.Value := STrue
-    else Res^.Value := SFalse;
+    if aRes^.Value<>aRes2^.Value then
+      aRes^.Value := STrue
+    else aRes^.Value := SFalse;
   end
   else
-  if Op='>' then
+  if aOp='>' then
   begin
-    if StrToFloat(Res^.Value)>StrToFloat(Res2^.Value) then
-      Res^.Value := STrue
-    else Res^.Value := SFalse;
-  end else if Op='>=' then
+    if StrToFloat(aRes^.Value)>StrToFloat(aRes2^.Value) then
+      aRes^.Value := STrue
+    else aRes^.Value := SFalse;
+  end else if aOp='>=' then
   begin
-    if StrToFloat(Res^.Value)>=StrToFloat(Res2^.Value) then
-      Res^.Value := STrue
-    else Res^.Value := SFalse;
-  end else if Op='<' then
+    if StrToFloat(aRes^.Value)>=StrToFloat(aRes2^.Value) then
+      aRes^.Value := STrue
+    else aRes^.Value := SFalse;
+  end else if aOp='<' then
   begin
-    if StrToFloat(Res^.Value)<StrToFloat(Res2^.Value) then
-      Res^.Value := STrue
-    else Res^.Value := SFalse;
-  end else if Op='<=' then
+    if StrToFloat(aRes^.Value)<StrToFloat(aRes2^.Value) then
+      aRes^.Value := STrue
+    else aRes^.Value := SFalse;
+  end else if aOp='<=' then
   begin
-    if StrToFloat(Res^.Value)<=StrToFloat(Res2^.Value) then
-      Res^.Value := STrue
-    else Res^.Value := SFalse;
+    if StrToFloat(aRes^.Value)<=StrToFloat(aRes2^.Value) then
+      aRes^.Value := STrue
+    else aRes^.Value := SFalse;
   end;
 end;
 

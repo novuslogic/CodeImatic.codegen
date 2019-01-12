@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<ProjectSortOrder AutoSort="0" SortType="0">
+    <File Path="Plugins"/>
+    <File Path="Plugins\API"/>
+    <File Path="Plugins\API\APIBase.pas"/>
+    <File Path="CodeGenerator.pas"/>
+    <File Path="CodeGeneratorItem.pas"/>
+    <File Path="Config.pas"/>
+    <File Path="ConfigProperties.pas"/>
+    <File Path="DataProcessor.pas"/>
+    <File Path="ExpressionParser.pas"/>
+    <File Path="FunctionsParser.pas"/>
+    <File Path="Interpreter.pas"/>
+    <File Path="Loader.pas"/>
+    <File Path="Output.pas"/>
+    <File Path="Plugin.pas"/>
+    <File Path="Processor.pas"/>
+    <File Path="Project.pas"/>
+    <File Path="projectconfig.pas"/>
+    <File Path="ProjectconfigParser.pas"/>
+    <File Path="ProjectItem.pas"/>
+    <File Path="ProjectItemFolder.pas"/>
+    <File Path="ProjectItemLoader.pas"/>
+    <File Path="Properties.pas"/>
+    <File Path="Runtime.pas"/>
+    <File Path="RuntimeProjectItems.pas"/>
+    <File Path="ScriptEngine.pas"/>
+    <File Path="StatementParser.pas"/>
+    <File Path="TagParser.pas"/>
+    <File Path="TagType.pas"/>
+    <File Path="Template.pas"/>
+    <File Path="TokenParser.pas"/>
+    <File Path="TokenProcessor.pas"/>
+    <File Path="Variables.pas"/>
+    <File Path="VariablesCmdLine.pas"/>
+    <File Path="NovusCodeLibrary_Core.dcp"/>
+    <File Path="NovusCodeLibrary_Env.dcp"/>
+    <File Path="NovusCodeLibrary_Log.dcp"/>
+    <File Path="NovusCodeLibrary_Parser.dcp"/>
+    <File Path="NovusCodeLibrary_Plugin.dcp"/>
+    <File Path="NovusCodeLibrary_SQLDir.dcp"/>
+    <File Path="NovusCodeLibrary_XML.dcp"/>
+    <File Path="PascalScript_Core_D25.dcp"/>
+    <File Path="rtl.dcp"/>
+  </ProjectSortOrder>
+</BorlandProject>

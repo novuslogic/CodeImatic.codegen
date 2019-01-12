@@ -363,22 +363,42 @@ end;
 
 procedure TSysTag_IsVarEmpty.OnExecute(var aToken: String);
 var
-  liIndex: Integer;
-  loVariable: tVariable;
+  FVariable: tVariable;
+  FLinkedVariable: tVariable;
 begin
-  liIndex := oVariables.VariableExistsIndex(aToken);
-  if liIndex = -1 then
+  FVariable := oVariables.GetVariableByName(aToken);
+  if not Assigned(FVariable) then
     begin
-      foOutput.Log('Syntax error: "' + aToken + '" not defined');
+      foOutput.Log('Syntax error: "' + aToken + '" not variable not found.');
 
-      aToken := 'FALSE';
+      aToken := 'false';
 
       Exit;
     end;
 
-  aToken := 'FALSE';
-  loVariable := oVariables.GetVariableByIndex(liIndex);
-  if loVariable.IsVarEmpty then aToken := 'TRUE';
+  if FVariable.Islinked then
+    begin
+      FLinkedVariable := oVariables.GetVariableByName(FVariable.Value);
+      aToken := 'false';
+
+      if not Assigned(FLinkedVariable) then
+        begin
+          foOutput.Log('Syntax error: "' + FLinkedVariable.Value + '" linked variable not found.');
+
+          Exit;
+        end;
+
+      if FLinkedVariable.IsVarEmpty then aToken := 'true';
+
+      Exit;
+   end;
+
+  aToken := 'false';
+  if FVariable.IsVarEmpty then
+    begin
+      aToken := 'true';
+    end;
+
 end;
 
 function TSysTag_Version.GetTagName: String;

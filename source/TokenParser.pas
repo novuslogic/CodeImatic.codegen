@@ -48,7 +48,7 @@ type
 
     property oProjectItem: tProjectItem read foProjectItem;
 
-    property oVariables: TVariables read foVariables;
+    property oVariables: TVariables read foVariables write foVariables ;
 
     property TokenIndex: Integer read GetTokenIndex write SetTokenIndex;
 

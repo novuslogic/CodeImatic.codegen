@@ -12,6 +12,7 @@ Type
      FObject: tObject;
   private
     function GetIsVarEmpty: boolean;
+    function GetIsLinked: Boolean;
     function GetIsObject: Boolean;
   public
     constructor Create; virtual;
@@ -30,6 +31,9 @@ Type
       Write FValue;
 
     function AsString: String;
+
+    property  IsLinked: Boolean
+      read GetIsLinked;
 
     property  IsObject: Boolean
       read GetIsObject;
@@ -196,11 +200,18 @@ begin
   Result := VartoStr(FValue);
 end;
 
+function TVariable.GetIsLinked: Boolean;
+begin
+  Result := False;
+  if Copy(AsString, 1, 2) = '@@' then Result := true;
+end;
+
 function TVariable.GetIsObject: Boolean;
 begin
   Result := False;
   if Copy(fsVariableName, 1, 2) = '@@' then Result := true;
 end;
+
 
 function TVariable.GetIsVarEmpty:Boolean;
 begin
@@ -208,9 +219,10 @@ begin
 
   if IsObject then
     begin
-      if Not Assigned(fObject) then Result := True;
+      If Not Assigned(oObject) then Result := true;
     end
-  else if VarIsNull(FValue) then Result := True;
+  else
+    if VarIsNull(FValue) then Result := True;
 end;
 
 

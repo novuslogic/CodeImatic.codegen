@@ -141,9 +141,12 @@ constructor TInterpreter.Create(ACodeGenerator: TObject; aOutput: TOutput;
 begin
   inherited Create;
 
+
   foProjectItem := aProjectItem;
 
   FoCodeGenerator := ACodeGenerator;
+
+  oVariables := foProjectItem.oVariables;
 
   FNavigateLIst := tNovusList.Create(TNavigate);
 
@@ -909,10 +912,12 @@ begin
       begin
        If Uppercase(GetNextToken(AIndex, ATokens, true)) = 'IF' then
          begin
-           If GetNextToken(AIndex, ATokens) = '(' then
+           If GetNextToken(AIndex, ATokens, false) = '(' then
              begin
                Try
                  lStatementParser := tStatementParser.Create;
+
+                 foOutput.Log(Self.oVariables.GetVariableByName('JSONOperationOutput').AsString);
 
                  LsToken := GetNextToken(AIndex, ATokens);
                  if lsToken <> ')' then lStatementParser.Add(LsToken);
@@ -1029,10 +1034,10 @@ begin
 
               LCodeGenerator.RunPropertyVariables(liTagIndex, liTagIndex);
 
-              if LStarTNavigate.StatementParser.IsEqueal then
+              if LStarTNavigate.StatementParser.IsEqual then
                 LCodeGenerator.RunInterpreter(liTagIndex, liTagIndex)
               else
-                LCodeGeneratorItem2.oTemplateTag.TagValue := cDeleteLine;
+                LTemplateTag1.TagValue := cDeleteLine;
 
                If ((IsEndIf(LCodeGeneratorItem2) = False) and
                   (IsIf(LCodeGeneratorItem2) = False)) then
