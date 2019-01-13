@@ -224,11 +224,7 @@ begin
         Continue;
 
     LCodeGeneratorItem1 := TCodeGeneratorItem(FCodeGeneratorList.Items[I]);
-      (*
-    if (LCodeGeneratorItem1.tagtype = ttInterpreter) or
-       (LCodeGeneratorItem1.tagtype = ttRepeat) or
-       (LCodeGeneratorItem1.tagtype = ttEndRepeat) then
-       *)
+   
     if IsInterpreterTagType(LCodeGeneratorItem1.tagtype) then
     begin
       lsTagValue := FoInterpreter.Execute(LCodeGeneratorItem1,  LiSkipPos1);
@@ -503,9 +499,7 @@ begin
         begin
           lCodeGeneratorItem := TCodeGeneratorItem(FCodeGeneratorList.Items[X]);
 
-          if (lCodeGeneratorItem.tagtype = ttInterpreter) or
-             (lCodeGeneratorItem.tagtype = ttRepeat) or
-             (lCodeGeneratorItem.tagtype = ttEndRepeat) then
+          if IsInterpreterTagType(lCodeGeneratorItem.tagtype) then
           begin
             LTemplateTag := lCodeGeneratorItem.oTemplateTag;
 
