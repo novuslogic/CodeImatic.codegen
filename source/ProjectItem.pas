@@ -203,7 +203,7 @@ begin
 
   foSourceFiles := tSourceFiles.Create(foProject, Self, foOutput);
 
-  foVariables := tVariables.Create;
+  foVariables := tVariables.Create(foOutput);
 end;
 
 destructor TProjectItem.Destroy;

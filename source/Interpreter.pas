@@ -101,6 +101,9 @@ Type
 
     function DoIF(aTokens: tTokenProcessor; Var aIndex: Integer;
       aTagType: TTagType; Var ASkipPOs: Integer): string;
+
+    function DoLog(aTokens: tTokenProcessor; Var aIndex: Integer;
+      aTagType: TTagType; Var ASkipPOs: Integer): string;
   public
     constructor Create(aCodeGenerator: TObject; aOutput: TOutput;
       aProjectItem: TProjectItem); overload;
@@ -136,7 +139,8 @@ Uses
   Reservelist,
   DataProcessor,
   runtime,
-  TagParser;
+  TagParser,
+  FunctionsParser;
 
 constructor TInterpreter.Create(aCodeGenerator: TObject; aOutput: TOutput;
   aProjectItem: TProjectItem);
@@ -444,7 +448,9 @@ begin
     else if fTagType = ttif then
       Result := DoIF(aTokens, aIndex, ttif, ASkipPOs)
     else if fTagType = ttendif then
-      Result := DoIF(aTokens, aIndex, ttendif, ASkipPOs);
+      Result := DoIF(aTokens, aIndex, ttendif, ASkipPOs)
+    else if fTagType = ttLog then
+      Result := DoLog(aTokens, aIndex, fTagType, ASkipPOs);
 
     if (CommandSyntaxIndex(aToken) <> 0) then
     begin
@@ -506,7 +512,9 @@ begin
     else if fTagType = ttif then
       Result := DoIF(aTokens, aIndex, ttif, ASkipPOs)
     else if fTagType = ttendif then
-      Result := DoIF(aTokens, aIndex, ttendif, ASkipPOs);
+      Result := DoIF(aTokens, aIndex, ttendif, ASkipPOs)
+    else if fTagType = ttLog then
+      Result := DoLog(aTokens, aIndex, fTagType, ASkipPOs);
 
     if (CommandSyntaxIndex(lsNextToken) <> 0) then
     begin
@@ -857,6 +865,8 @@ begin
 
 end;
 
+
+
 function TInterpreter.DoIF(aTokens: tTokenProcessor; Var aIndex: Integer;
   aTagType: TTagType; Var ASkipPOs: Integer): string;
 Var
@@ -884,7 +894,7 @@ Var
   liStartTagIndex, liEndTagIndex, liTagIndexCounter, liLastEndSourceLineNo,
     liLastNextSourceLineNo, liNextSourceLineNo1, liNextSourceLineNo2,
     liStartSourceLineNo, liSourceLineCount, liEndSourceLineNo: Integer;
-
+  lbEqual: Boolean;
 begin
   Result := '';
 
@@ -896,7 +906,7 @@ begin
           If GetNextToken(aIndex, aTokens, False) = '(' then
           begin
             Try
-              lStatementParser := tStatementParser.Create;
+              lStatementParser := tStatementParser.Create(foOutput);
 
               LsToken := GetNextToken(aIndex, aTokens);
               if LsToken <> ')' then
@@ -974,7 +984,7 @@ begin
             .oTemplateTag.TagIndex;
           Dec(liEndPos1, 1);
 
-          //(FoCodeGeneratorItem As TCodeGeneratorItem).oTemplateTag.TagValue := 'AAA';
+
 
           liEndSourceLineNo := (FoCodeGeneratorItem As TCodeGeneratorItem)
             .oTemplateTag.SourceLineNo;
@@ -1015,12 +1025,18 @@ begin
 
                 liTagIndex := LTemplateTag1.TagIndex;
 
-                LCodeGenerator.RunPropertyVariables(liTagIndex, liTagIndex);
+                lbEqual := LStarTNavigate.StatementParser.IsEqual;
 
-                if LStarTNavigate.StatementParser.IsEqual then
-                  LCodeGenerator.RunInterpreter(liTagIndex, liTagIndex)
+                if lbEqual then
+                  begin
+                    LCodeGenerator.RunPropertyVariables(liTagIndex, liTagIndex);
+                    LCodeGenerator.RunInterpreter(liTagIndex, liTagIndex);
+                  end
                 else
-                  LTemplateTag1.TagValue := cDeleteLine;
+                  begin
+                     LTemplateTag1.TagValue := cDeleteLine;
+
+                  end;
 
                 If ((IsEndIf(LCodeGeneratorItem2) = False) and
                   (IsIf(LCodeGeneratorItem2) = False)) then
@@ -1050,6 +1066,47 @@ begin
         end
         else
           FoOutput.Log('Incorrect syntax: lack "ENDIF"');
+      end;
+  end;
+end;
+
+
+function TInterpreter.DoLog(aTokens: tTokenProcessor; Var aIndex: Integer;
+  aTagType: TTagType; Var ASkipPOs: Integer): string;
+Var
+  lsLog: String;
+begin
+  Result := '';
+
+  case aTagType of
+    ttlog:
+      begin
+        If Uppercase(GetNextToken(aIndex, aTokens, true)) = 'LOG' then
+        begin
+          If GetNextToken(aIndex, aTokens, False) = '(' then
+          begin
+            lsLog := GetNextToken(aIndex, aTokens, False);
+
+            if GetNextToken(aIndex, aTokens, False) = ')' then
+              begin
+                foOutput.Log(lsLog);
+
+                ResetToEnd(aTokens, aIndex);
+
+
+                exit;
+              end
+            else
+              ooutput.logerror('incorrect syntax: lack ")"');
+
+
+          end
+          else
+            FoOutput.Log('Incorrect syntax: lack "("');
+
+        end
+        else
+          FoOutput.Log('Incorrect syntax: lack "LOG"');
       end;
   end;
 end;

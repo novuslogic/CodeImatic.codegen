@@ -15,7 +15,7 @@ uses
   Reservelist in 'Reservelist.pas',
   XMLList in 'XMLList.pas',
   Plugins in 'Plugins.pas',
-  PluginsMapFactory in 'PluginsMapFactory.pas' {$R *.res};
+  PluginsMapFactory in 'PluginsMapFactory.pas' ;
 
 {$R *.res}
 

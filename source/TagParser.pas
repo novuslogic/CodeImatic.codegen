@@ -255,6 +255,8 @@ begin
       result := ttIf
     else if Uppercase(lsToken1) = 'ENDIF' then
       result := ttEndIf
+    else if Uppercase(lsToken1) = 'LOG' then
+      result := ttLog
     else if ((lsToken = '<') and (aTokenIndex = 0)) then
       result := ttOpenToken
     else if ((lsToken = '>') and (EOF = true)) then

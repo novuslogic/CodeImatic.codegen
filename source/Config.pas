@@ -118,7 +118,7 @@ constructor TConfig.Create;
 begin
   inherited Create;
 
-  fVariablesCmdLine:= tVariablesCmdLine.Create;
+  fVariablesCmdLine:= tVariablesCmdLine.Create(NIL);
 
   fConfigPluginList := tNovusList.Create(TConfigPlugin);
 end;

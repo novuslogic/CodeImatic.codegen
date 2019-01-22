@@ -2,7 +2,7 @@ unit TokenProcessor;
 
 interface
 
-Uses SysUtils, Classes, TagType;
+Uses SysUtils, Classes, TagType, Output;
 
 type
   tTokenProcessorItem = class(Tobject)
@@ -21,9 +21,12 @@ type
    tTokenProcessor = class(TStringList)
    private
      fiTokenIndex: Integer;
+     foOutput: tOutput;
    protected
    public
      constructor Create; overload;
+     constructor Create(aOutput: tOutput); overload;
+
      function GetFirstToken: string;
      function GetFirstTokenProcessorItem: tTokenProcessorItem;
      function GetNextToken(aIgnoreNextToken: Boolean = false): string; overload;
@@ -37,6 +40,10 @@ type
          read fiTokenIndex
          write fiTokenIndex;
 
+
+     property oOutput: tOutput
+       read foOutput
+       write foOutput;
    end;
 
 implementation
@@ -45,6 +52,13 @@ implementation
 constructor tTokenProcessor.Create;
 begin
   fiTokenIndex:= 0;
+end;
+
+constructor tTokenProcessor.Create(aOutput: tOutput);
+begin
+  fiTokenIndex:= 0;
+
+  foOutput := aOutput;
 end;
 
 function tTokenProcessor.EOF: Boolean;

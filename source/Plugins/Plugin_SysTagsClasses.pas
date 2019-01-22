@@ -332,8 +332,8 @@ begin
   aToken := TNovusStringUtils.UpLowerA(aToken, true);
 end;
 
-//TSysTag_IsVarEmpty
 
+//TSysTag_IsVarEmpty
 function TSysTag_IsVarEmpty.GetTagName: String;
 begin
   Result := 'IsVarEmpty';

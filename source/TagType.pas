@@ -6,7 +6,7 @@ Type
   TTagType = (ttProperty, ttConnection, ttInterpreter, ttLanguage, ttInclude,
     ttUnknown, ttplugintag, ttprojectitem, ttPropertyEx, ttConfigProperties,
     ttVariableCmdLine, ttlayout, ttRenderBodyTag, ttCodebehine,
-    ttOpenToken, ttCloseToken, ttrepeat, ttendrepeat, ttcode, ttif, ttendif);
+    ttOpenToken, ttCloseToken, ttrepeat, ttendrepeat, ttcode, ttif, ttendif, ttlog);
 
   function IsInterpreterTagType(aTagType: tTagType): Boolean;
 
@@ -16,7 +16,7 @@ implementation
 function IsInterpreterTagType(aTagType: tTagType): Boolean;
 begin
   Result := False;
-  if ATagType in [ttInterpreter, ttRepeat, ttEndRepeat, ttEndif, ttIf] then
+  if ATagType in [ttInterpreter, ttRepeat, ttEndRepeat, ttEndif, ttIf,ttLog] then
       Result := True;
 end;
 

@@ -23,8 +23,8 @@ begin
   Try
   Try
     fExpressionParser:= TExpressionParser.Create;
-
     fExpressionParser.Expr := Self.Text;
+
     Result := fExpressionParser.Execute;
   Finally
     fExpressionParser.Free;

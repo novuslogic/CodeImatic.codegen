@@ -44,11 +44,12 @@ Type
 
   TVariables = class(TObject)
   protected
+    foOutput: tOutput;
     foVariableList: tNovusList;
     function GetCount: Integer;
   private
   public
-    constructor Create; virtual;
+    constructor Create(aOutput: tOutput); virtual;
     destructor Destroy; override;
 
     function AddVariableObject(aObject: Tobject; aObjectTypeName: String = ''): String;
@@ -76,6 +77,7 @@ implementation
 constructor TVariables.Create;
 begin
   inherited Create;
+  foOutput := aOutput;
 
   foVariableList := tNovusList.Create(TVariable);
 end;
@@ -209,7 +211,8 @@ end;
 function TVariable.GetIsObject: Boolean;
 begin
   Result := False;
-  if Copy(fsVariableName, 1, 2) = '@@' then Result := true;
+  if Copy(fsVariableName, 1, 2) = '@@' then
+     Result := true;
 end;
 
 
@@ -219,7 +222,10 @@ begin
 
   if IsObject then
     begin
-      If Not Assigned(oObject) then Result := true;
+      If oObject = NIL then
+        begin
+          Result := true;
+        end;
     end
   else
     if VarIsNull(FValue) then Result := True;

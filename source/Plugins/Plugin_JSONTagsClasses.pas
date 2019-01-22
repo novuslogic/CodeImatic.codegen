@@ -277,10 +277,18 @@ Var
 begin
   Result := NIL;
 
+  if AToken= ''  then
+    begin
+      Self.foOutput.LogError(
+      'Blank Variable name.');
+
+      Exit;
+    end;
+
   FVariable := Self.oVariables.GetVariableByName(aToken);
   if Not Assigned(FVariable) then
   begin
-    Self.foOutput.LogError(TJSONTag.ClassName +
+    Self.foOutput.LogError(aToken +
       ' Object Variable cannot be found.');
     Exit;
   end
@@ -404,9 +412,9 @@ type
 var
   fJsonValueType: tJsonValueType;
 begin
+
   FVariable := GetJSONObjectVariable(aToken);
   if not Assigned(FVariable) then  Exit;
-
 
   if Not FVariable.IsVarEmpty then
     begin
@@ -456,8 +464,8 @@ begin
 
       end;
 
-
       aToken := Self.oVariables.AddVariableObject(FJSONValue, TJSONTag.ClassName);
+
     end
 
 end;
@@ -506,7 +514,7 @@ begin
   if Assigned(FVariable.oObject) then
     aToken := TJSONValue(FVariable.oObject).ToJSON
   else
-    aToken := 'EMPTY';
+    aToken := '';
 end;
 
 
