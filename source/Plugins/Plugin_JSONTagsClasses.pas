@@ -47,7 +47,7 @@ type
   private
   protected
     function GetTagName: String; override;
-    procedure OnExecute(var aToken: String; aTokenParser: tTokenParser);
+    procedure OnExecute(var aToken: String; aTokenParser: tTokenParser; aTokens: tTokenProcessor);
   public
     function Execute(aProjectItem: tProjectItem; aTagName: string;
       aTokens: tTokenProcessor): String; override;
@@ -57,7 +57,7 @@ type
   private
   protected
     function GetTagName: String; override;
-    procedure OnExecute(var aToken: String; aTokenParser: tTokenParser);
+    procedure OnExecute(var aToken: String; aTokenParser: tTokenParser; aTokens: tTokenProcessor);
   public
     function Execute(aProjectItem: tProjectItem; aTagName: string;
       aTokens: tTokenProcessor): String; override;
@@ -67,7 +67,7 @@ type
   private
   protected
     function GetTagName: String; override;
-    procedure OnExecute(var aToken: String; aTokenParser: tTokenParser);
+    procedure OnExecute(var aToken: String; aTokenParser: tTokenParser; aTokens: tTokenProcessor);
   public
     function Execute(aProjectItem: tProjectItem; aTagName: string;
       aTokens: tTokenProcessor): String; override;
@@ -77,7 +77,7 @@ type
   private
   protected
     function GetTagName: String; override;
-    procedure OnExecute(var aToken: String; aTokenParser: tTokenParser);
+    procedure OnExecute(var aToken: String; aTokenParser: tTokenParser; aTokens: tTokenProcessor);
   public
     function Execute(aProjectItem: tProjectItem; aTagName: string;
       aTokens: tTokenProcessor): String; override;
@@ -87,7 +87,7 @@ type
   private
   protected
     function GetTagName: String; override;
-    procedure OnExecute(var aToken: String; aTokenParser: tTokenParser);
+    procedure OnExecute(var aToken: String; aTokenParser: tTokenParser; aTokens: tTokenProcessor);
   public
     function Execute(aProjectItem: tProjectItem; aTagName: string;
       aTokens: tTokenProcessor): String; override;
@@ -97,7 +97,7 @@ type
   private
   protected
     function GetTagName: String; override;
-    procedure OnExecute(var aToken: String; aTokenParser: tTokenParser);
+    procedure OnExecute(var aToken: String; aTokenParser: tTokenParser; aTokens: tTokenProcessor);
   public
     function Execute(aProjectItem: tProjectItem; aTagName: string;
       aTokens: tTokenProcessor): String; override;
@@ -107,7 +107,7 @@ type
   private
   protected
     function GetTagName: String; override;
-    procedure OnExecute(var aToken: String; aTokenParser: tTokenParser);
+    procedure OnExecute(var aToken: String; aTokenParser: tTokenParser; aTokens: tTokenProcessor);
   public
     function Execute(aProjectItem: tProjectItem; aTagName: string;
       aTokens: tTokenProcessor): String; override;
@@ -286,6 +286,11 @@ begin
     end;
 
   FVariable := Self.oVariables.GetVariableByName(aToken);
+
+
+
+
+
   if Not Assigned(FVariable) then
   begin
     Self.foOutput.LogError(aToken +
@@ -384,13 +389,12 @@ begin
 end;
 
 procedure TJSONTag_JSONQuery.OnExecute(var aToken: String;
-  aTokenParser: tTokenParser);
+  aTokenParser: tTokenParser; aTokens: tTokenProcessor);
 Var
   FJSONValueRoot: TJSONValue;
   FJSONValue: TJSONValue;
   FVariable: TVariable;
   lsElement: string;
-
 
 type
   tJsonValueType = (jsArray, jsObject, jsPair, jsUnknown);
@@ -414,20 +418,25 @@ var
 begin
 
   FVariable := GetJSONObjectVariable(aToken);
-  if not Assigned(FVariable) then  Exit;
+  if not Assigned(FVariable) then
+     Exit;
+
+
+
+  FJSONValue := NIL;
 
   if Not FVariable.IsVarEmpty then
     begin
       FJSONValueRoot := TJSONValue(FVariable.oObject);
 
       lsElement := aTokenParser.ParseNextToken;
+
       if Trim(lsElement) = '' then
       begin
         foOutput.LogError('Element cannot be blank.');
 
         Exit;
       end;
-      FJSONValue := NIL;
 
       fJsonValueType := GetJsonValueType(FJSONValueRoot);
 
@@ -446,12 +455,16 @@ begin
             End;
 
           end;
-        jsArray: ;
+        jsArray: begin
+            foOutput.LogError('Not Supported.');
+
+        end;
         jsObject:
           begin
             Try
-              //FJSONValue := FJSONValueRoot.GetValue<TJSONValue>(lsElement);
               FJSONValueRoot.TryGetValue<TJSONValue>(lsElement, FJSONValue);
+
+
 
             Except
               On EJSONException do
@@ -464,9 +477,17 @@ begin
 
       end;
 
-      aToken := Self.oVariables.AddVariableObject(FJSONValue, TJSONTag.ClassName);
 
-    end
+
+      //if Assigned(F//if Not Assigned(FJSONValue) then foOutput.Log(FJSONValue.ToJSON + ' ' + FVariable.VariableName);
+
+
+      //aToken := Self.oVariables.AddVariableObject(FJSONValue, TJSONTag.ClassName);
+
+    end;
+
+
+    aToken := Self.oVariables.AddVariableObject(FJSONValue, TJSONTag.ClassName);
 
 end;
 
@@ -500,7 +521,7 @@ begin
 end;
 
 procedure TJSONTag_ToJSON.OnExecute(var aToken: String;
-  aTokenParser: tTokenParser);
+  aTokenParser: tTokenParser; aTokens: tTokenProcessor);
 Var
   FJSONValueRoot: TJSONValue;
   FJSONValue: TJSONValue;
@@ -512,7 +533,10 @@ begin
     Exit;
 
   if Assigned(FVariable.oObject) then
-    aToken := TJSONValue(FVariable.oObject).ToJSON
+    begin
+
+      aToken := TJSONValue(FVariable.oObject).ToJSON
+    end
   else
     aToken := '';
 end;
@@ -549,7 +573,7 @@ begin
 end;
 
 procedure TJSONTag_IsJSONEmpty.OnExecute(var aToken: String;
-  aTokenParser: tTokenParser);
+  aTokenParser: tTokenParser; aTokens: tTokenProcessor);
 Var
   FJSONValueRoot: TJSONValue;
   FJSONValue: TJSONValue;
@@ -600,7 +624,7 @@ begin
 end;
 
 procedure TJSONTag_ToJSONValue.OnExecute(var aToken: String;
-  aTokenParser: tTokenParser);
+  aTokenParser: tTokenParser; aTokens: tTokenProcessor);
 Var
   FJSONValueRoot: TJSONValue;
   FJSONValue: TJSONValue;
@@ -610,6 +634,8 @@ begin
   FVariable := GetJSONObjectVariable(aToken);
   if not Assigned(FVariable) then
     Exit;
+
+  if Not Assigned(FVariable.oObject) then Exit;
 
   FJSONValueRoot := TJSONValue(FVariable.oObject);
 
@@ -646,7 +672,7 @@ begin
 end;
 
 procedure TJSONTag_JSONGetArray.OnExecute(var aToken: String;
-  aTokenParser: tTokenParser);
+  aTokenParser: tTokenParser; aTokens: tTokenProcessor);
 Var
   FJSONArray: TJSONArray;
   FVariable: TVariable;
@@ -724,7 +750,7 @@ begin
 end;
 
 procedure TJSONTag_JSONPairValue.OnExecute(var aToken: String;
-  aTokenParser: tTokenParser);
+  aTokenParser: tTokenParser; aTokens: tTokenProcessor);
 Var
   FJSONArray: TJSONArray;
   FVariable: TVariable;
@@ -777,7 +803,7 @@ begin
 end;
 
 procedure TJSONTag_JSONArraySize.OnExecute(var aToken: String;
-  aTokenParser: tTokenParser);
+  aTokenParser: tTokenParser; aTokens: tTokenProcessor);
 Var
   FJSONArray: TJSONArray;
   FVariable: TVariable;

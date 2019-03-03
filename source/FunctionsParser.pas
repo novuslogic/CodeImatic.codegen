@@ -2,11 +2,11 @@ unit FunctionsParser;
 
 interface
 
-Uses TokenParser, TagParser, TagType;
+Uses TokenParser, TagParser, TagType, TokenProcessor, SysUtils;
 
 Type
    TOnExecute = procedure(var aToken:string) of object;
-   TOnExecuteA = procedure(var aToken: String; aTokenParser: tTokenParser) of object;
+   TOnExecuteA = procedure(var aToken: String; aTokenParser: tTokenParser; aTokens: tTokenProcessor) of object;
 
    TFunctionParser = class(tTokenParser)
    private
@@ -60,7 +60,7 @@ end;
 
 function TFunctionAParser.Execute: String;
 Var
-  LsToken: String;
+  LsToken, LsToken2: String;
   fTagType: TTagType;
 begin
   Result := '';
@@ -72,15 +72,18 @@ begin
     begin
       LsToken := ParseNextToken;
       if Assigned(OnExecute) then
-        OnExecute(LsToken, self);
+        OnExecute(LsToken, self, oTokens);
 
       if ParseNextToken = ')' then
         begin
           Result := LsToken;
+
           Exit;
         end
       else
-        oOutput.LogError('Incorrect syntax: lack ")"');
+        begin
+          oOutput.LogError('Incorrect syntax: lack ")"' );
+        end;
 
     end
   else

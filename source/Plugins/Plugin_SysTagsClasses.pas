@@ -388,7 +388,8 @@ begin
           Exit;
         end;
 
-      if FLinkedVariable.IsVarEmpty then aToken := 'true';
+      if FLinkedVariable.IsVarEmpty then
+         aToken := 'true';
 
       Exit;
    end;

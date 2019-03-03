@@ -37,7 +37,7 @@ type
     class function ParseExpressionToken(aToken: string; aOutput: TOutput)
       : tTokenProcessor; overload;
 
-    function ParseNextToken: String;
+    function ParseNextToken(aIgnoreEOF: boolean = false): String;
 
 
     //property oCodeGeneratorItem: TCodeGeneratorItem read foCodeGeneratorItem;
@@ -404,7 +404,7 @@ begin
 
 end;
 
-function tTokenParser.ParseNextToken: String;
+function tTokenParser.ParseNextToken(aIgnoreEOF: boolean = false): String;
 Var
   lsToken: string;
   liTokenIndex: Integer;
@@ -422,8 +422,11 @@ begin
 
   foTokens.TokenIndex := liTokenIndex;
 
-  if foTokens.EOF then
-    foTokens.TokenIndex := foTokens.Count -1;
+  if aIgnoreEOF = false then
+    begin
+     if foTokens.EOF then
+       foTokens.TokenIndex := foTokens.Count -1;
+    end;
 end;
 
 

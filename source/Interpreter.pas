@@ -30,6 +30,7 @@ Type
     FiValue: Integer;
     FbNegitiveFlag: Boolean;
   private
+
   public
     constructor Create; overload;
     destructor Destroy; override;
@@ -61,6 +62,8 @@ Type
     FoCodeGeneratorItem: TCodeGeneratorItem;
 
   private
+    function GetVariables: tVariables;
+
     function DoPluginTag(aTokens: tTokenProcessor; Var aIndex: Integer): string;
 
     function IsEndIf(aCodeGeneratorItem: TObject): Boolean;
@@ -90,8 +93,8 @@ Type
     function ParseVariable(aTokens: tTokenProcessor; Var aIndex: Integer;
       ASubCommand: Boolean = False): String;
 
-    function VariableExistsIndex(AVariableName: String): Integer;
-    function GetVariableByIndex(aIndex: Integer): TVariable;
+    //function VariableExistsIndex(AVariableName: String): Integer;
+    // function GetVariableByIndex(aIndex: Integer): TVariable;
 
     function GetCodeGeneratorItemBySourceLineNo(ASourceLineNo: Integer;
       Var APos: Integer): TCodeGeneratorItem;
@@ -104,6 +107,7 @@ Type
 
     function DoLog(aTokens: tTokenProcessor; Var aIndex: Integer;
       aTagType: TTagType; Var ASkipPOs: Integer): string;
+
   public
     constructor Create(aCodeGenerator: TObject; aOutput: TOutput;
       aProjectItem: TProjectItem); overload;
@@ -129,6 +133,9 @@ Type
     function LanguageFunctions(AFunction: string; ADataType: String): String;
 
     property oTokens: tTokenProcessor read foTokens write foTokens;
+
+    property oVariables: tVariables
+       read GetVariables;
   End;
 
 implementation
@@ -151,7 +158,7 @@ begin
 
   FoCodeGenerator := aCodeGenerator;
 
-  oVariables := foProjectItem.oVariables;
+  //oVariables := foProjectItem.oVariables;
 
   FNavigateList := tNovusList.Create(TNavigate);
 
@@ -450,7 +457,7 @@ begin
     else if fTagType = ttendif then
       Result := DoIF(aTokens, aIndex, ttendif, ASkipPOs)
     else if fTagType = ttLog then
-      Result := DoLog(aTokens, aIndex, fTagType, ASkipPOs);
+      Result := DoLog(aTokens, aIndex, fTagType, ASkipPos);
 
     if (CommandSyntaxIndex(aToken) <> 0) then
     begin
@@ -515,6 +522,7 @@ begin
       Result := DoIF(aTokens, aIndex, ttendif, ASkipPOs)
     else if fTagType = ttLog then
       Result := DoLog(aTokens, aIndex, fTagType, ASkipPOs);
+
 
     if (CommandSyntaxIndex(lsNextToken) <> 0) then
     begin
@@ -950,7 +958,7 @@ begin
 
               FNavigateList.Add(FNavigate);
             Finally
-              //
+              //ResetToEnd(aTokens, aIndex);
             End;
 
           end
@@ -1111,6 +1119,8 @@ begin
   end;
 end;
 
+
+
 function TInterpreter.FindNavigateID(ALoopType: TNavigateType; ALoopID: Integer)
   : TNavigate;
 Var
@@ -1136,7 +1146,7 @@ function TInterpreter.ParseVariable(aTokens: tTokenProcessor;
 Var
   FVariable1, FVariable2: TVariable;
   lsVariableName1, lsVariableName2: String;
-  I, X: Integer;
+  lVariableI, lVariableX: TVariable;
   LsValue: String;
   LStr: STring;
   liSkipPos: Integer;
@@ -1163,9 +1173,9 @@ begin
 
   If GetToken = '=' then
   begin
-    I := VariableExistsIndex(lsVariableName1);
+    lVariableI := oVariables.GetVariableByName(lsVariableName1);
 
-    if I = -1 then
+    if Not Assigned(lVariableI) then
     begin
       LsValue := GetToken;
 
@@ -1189,19 +1199,19 @@ begin
     begin
       LsValue := GetToken;
 
-      X := -1;
+      lVariableX := NIL;
       if Pos('$', LsValue) = 1 then
       begin
         lsVariableName2 := TVariables.CleanVariableName(LsValue);
 
-        X := VariableExistsIndex(lsVariableName2);
+        lVariableX := oVariables.GetVariableByName(lsVariableName2);
       end;
 
-      FVariable1 := GetVariableByIndex(I);
+      FVariable1 := lVariableI;
 
-      if X <> -1 then
+      if Assigned(lVariableX) then
       begin
-        FVariable2 := GetVariableByIndex(X);
+        FVariable2 := lVariableX;
         FVariable1.Value := FVariable2.Value;
       end
       else
@@ -1255,10 +1265,11 @@ begin
   begin
     If FOut = true then
     begin
-      I := VariableExistsIndex(lsVariableName1);
-      if I <> -1 then
+      //I := VariableExistsIndex(lsVariableName1);
+      lVariableI := oVariables.GetVariableByName(lsVariableName1);
+      if Assigned(lVariableI) then
       begin
-        FVariable1 := GetVariableByIndex(I);
+        FVariable1 := lVariableI;
         Result := FVariable1.Value;
       end
       else
@@ -1377,6 +1388,10 @@ begin
 
   if Pos('$', Result) = 1 then
   begin
+    LVariable := oVariables.GetVariableByName(TVariables.CleanVariableName(Result));
+    if Not Assigned(LVariable) then FoOutput.Log('Syntax Error: variable ' + Result + ' cannot be found.');
+
+    (*
     I := VariableExistsIndex(TVariables.CleanVariableName(Result));
     if I <> -1 then
     begin
@@ -1386,10 +1401,16 @@ begin
     end
     else
       FoOutput.Log('Syntax Error: variable ' + Result + ' cannot be found.');
-
+    *)
   end;
 end;
+function TInterpreter.GetVariables: tVariables;
+begin
+  Result := (foProjectItem as TProjectItem).oVariables;
+end;
 
+
+(*
 function TInterpreter.VariableExistsIndex(AVariableName: String): Integer;
 begin
   Result := (foProjectItem as TProjectItem).oVariables.VariableExistsIndex
@@ -1401,6 +1422,7 @@ begin
   Result := (foProjectItem as TProjectItem)
     .oVariables.GetVariableByIndex(aIndex);
 end;
+*)
 
 function TInterpreter.FindEndNavigateIndexPos(aIndex: Integer;
   aStartTagName, aEndTagName: string): Integer;

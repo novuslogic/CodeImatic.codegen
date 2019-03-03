@@ -54,9 +54,10 @@ Type
 
     function AddVariableObject(aObject: Tobject; aObjectTypeName: String = ''): String;
     procedure AddVariable(AVariableName: String;AValue: Variant);
-    function VariableExistsIndex(AVariableName: String): Integer;
-    function GetVariableByIndex(AIndex: Integer): TVariable;
+    //function VariableExistsIndex(AVariableName: String): Integer;
+   // function GetVariableByIndex(AIndex: Integer): TVariable;
     function GetVariableByName(aVariableName: String): TVariable;
+    function VariableExists(aVariableName: String): boolean;
 
     class function CleanVariableName(AVariableName: String): String;
 
@@ -105,7 +106,7 @@ begin
 
   foVariable.oObject := aObject;
 
-  FoVariableList.Add(foVariable);
+  FoVariableList.Add(foVariable.VariableName, foVariable);
 
   Result := foVariable.VariableName;
 end;
@@ -121,10 +122,11 @@ begin
 
   foVariable.Value := AValue;
 
-  FoVariableList.Add(foVariable);
+  FoVariableList.Add(AVariableName, foVariable);
 end;
 
 
+(*
 function TVariables.VariableExistsIndex(AVariableName: String): Integer;
 Var
   I: Integer;
@@ -144,7 +146,9 @@ begin
         end;
     end;
 end;
+*)
 
+(*
 function TVariables.GetVariableByIndex(AIndex: Integer): TVariable;
 begin
   Try
@@ -153,16 +157,30 @@ begin
     Result := NIL;
   End;
 end;
+*)
+
+
+function TVariables.VariableExists(aVariableName: String): boolean;
+begin
+  Result := (GetVariableByName(aVariableName) <> NIL);
+end;
 
 function TVariables.GetVariableByName(aVariableName: String): TVariable;
 Var
   liIndex: Integer;
+  FObject: tObject;
 begin
-  Result := NIL;
+  Result := Nil;
 
+  FObject := FoVariableList.FindItem(aVariableName);
+  if Not Assigned(FObject) then Exit;
+  Result := (FObject as TVariable);
+
+  (*
   liIndex := VariableExistsIndex(aVariableName);
   if LiIndex = -1 then Exit;
   Result :=  GetVariablebyIndex(LiIndex);
+  *)
 end;
 
 class function TVariables.CleanVariableName(AVariableName: String): String;
