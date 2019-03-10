@@ -74,6 +74,13 @@ begin
       if Assigned(OnExecute) then
         OnExecute(LsToken, self, oTokens);
 
+      if Trim(LsToken) = '' then
+        begin
+          oTokens.TokenIndex := oTokens.TokenIndex + 1;
+          if oTokens.EOF then
+            oTokens.TokenIndex := oTokens.Count -1;
+        end;
+
       if ParseNextToken = ')' then
         begin
           Result := LsToken;

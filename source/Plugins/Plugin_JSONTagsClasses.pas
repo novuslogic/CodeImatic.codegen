@@ -9,6 +9,8 @@ uses Classes, Plugin, NovusPlugin, NovusVersionUtils, Project,
   NovusJSONUtils, System.IOUtils, System.JSON, TokenProcessor, NovusStringUtils;
 
 type
+  tJsonValueType = (jsArray, jsObject, jsPair, jsUnknown);
+
   TJSONTag = class
   private
     foOutput: tOutput;
@@ -53,6 +55,7 @@ type
       aTokens: tTokenProcessor): String; override;
   end;
 
+
   TJSONTag_JSONPairValue = class(TJSONTag)
   private
   protected
@@ -84,6 +87,16 @@ type
   end;
 
   TJSONTag_ToJSON = class(TJSONTag)
+  private
+  protected
+    function GetTagName: String; override;
+    procedure OnExecute(var aToken: String; aTokenParser: tTokenParser; aTokens: tTokenProcessor);
+  public
+    function Execute(aProjectItem: tProjectItem; aTagName: string;
+      aTokens: tTokenProcessor): String; override;
+  end;
+
+  TJSONTag_JSONQueryValue = class(TJSONTag)
   private
   protected
     function GetTagName: String; override;
@@ -149,11 +162,26 @@ type
   end;
 
 function GetPluginObject: INovusPlugin; stdcall;
+function GetJsonValueType(JSONValue: TJSONValue): tJsonValueType;
 
 implementation
 
 var
   _Plugin_JSONTags: TPlugin_JSONTags = nil;
+
+function GetJsonValueType(JSONValue: TJSONValue): tJsonValueType;
+begin
+  Result := jsUnknown;
+
+  if JSONValue.classname = 'TJSONPair' then
+    result := jsPair
+  else
+  if JSONValue is TJSONArray then
+   Result := jsArray
+  else
+  if JSONValue is TJSONObject then
+    Result := jsObject;
+end;
 
 constructor tPlugin_JSONTagsBase.Create(aOutput: tOutput; aPluginName: String;
   aProject: TProject; aConfigPlugin: tConfigPlugin);
@@ -166,7 +194,8 @@ begin
     TJSONTag_ToJSONValue.Create(aOutput),
     TJSONTag_JSONGetArray.Create(aOutput),
     TJSONTag_JSONArraySize.Create(aOutput),
-    TJSONTag_JSONPairValue.Create(aOutput));
+    TJSONTag_JSONPairValue.Create(aOutput),
+    TJSONTag_JSONQueryValue.Create(aOutput));
 end;
 
 destructor tPlugin_JSONTagsBase.Destroy;
@@ -287,10 +316,6 @@ begin
 
   FVariable := Self.oVariables.GetVariableByName(aToken);
 
-
-
-
-
   if Not Assigned(FVariable) then
   begin
     Self.foOutput.LogError(aToken +
@@ -372,6 +397,27 @@ var
 begin
   Try
     Try
+      Self.oVariables := aProjectItem.oVariables;
+
+      LFunctionAParser := tFunctionAParser.Create(aProjectItem, aTokens,
+        foOutput, aTagName);
+
+      LFunctionAParser.OnExecute := OnExecute;
+
+      Result := LFunctionAParser.Execute;
+    Finally
+      LFunctionAParser.Free;
+    End;
+  Except
+    oOutput.InternalError;
+  End;
+
+
+
+
+  (*
+  Try
+    Try
       Self.oVariables := tProjectItem(aProjectItem).oVariables;
 
       LFunctionAParser := tFunctionAParser.Create(aProjectItem, aTokens,
@@ -386,6 +432,7 @@ begin
   Except
     oOutput.InternalError;
   End;
+  *)
 end;
 
 procedure TJSONTag_JSONQuery.OnExecute(var aToken: String;
@@ -395,25 +442,6 @@ Var
   FJSONValue: TJSONValue;
   FVariable: TVariable;
   lsElement: string;
-
-type
-  tJsonValueType = (jsArray, jsObject, jsPair, jsUnknown);
-
-  function GetJsonValueType(JSONValue: TJSONValue): tJsonValueType;
-  begin
-    Result := jsUnknown;
-
-    if JSONValue.classname = 'TJSONPair' then
-      result := jsPair
-    else
-    if JSONValue is TJSONArray then
-     Result := jsArray
-    else
-    if JSONValue is TJSONObject then
-      Result := jsObject;
-  end;
-
-var
   fJsonValueType: tJsonValueType;
 begin
 
@@ -819,6 +847,120 @@ begin
 
   aToken := IntToStr(FJSONArray.Size-1);
 end;
+
+
+
+// JSONQueryValue
+function TJSONTag_JSONQueryValue.GetTagName: String;
+begin
+  Result := 'JSONQueryValue';
+end;
+
+function TJSONTag_JSONQueryValue.Execute(aProjectItem: tProjectItem; aTagName: String;
+  aTokens: tTokenProcessor): String;
+var
+  LFunctionAParser: tFunctionAParser;
+begin
+  Try
+    Try
+      Self.oVariables := aProjectItem.oVariables;
+
+      LFunctionAParser := tFunctionAParser.Create(aProjectItem, aTokens,
+        foOutput, aTagName);
+
+      LFunctionAParser.OnExecute := OnExecute;
+
+      Result := LFunctionAParser.Execute;
+    Finally
+      LFunctionAParser.Free;
+    End;
+  Except
+    oOutput.InternalError;
+  End;
+end;
+
+procedure TJSONTag_JSONQueryValue.OnExecute(var aToken: String;
+  aTokenParser: tTokenParser; aTokens: tTokenProcessor);
+Var
+  FJSONValueRoot: TJSONValue;
+  FJSONValue: TJSONValue;
+  FVariable: TVariable;
+  lsElement: string;
+  fJsonValueType: tJsonValueType;
+begin
+  FVariable := GetJSONObjectVariable(aToken);
+  if not Assigned(FVariable) then
+    Exit;
+
+  if Assigned(FVariable.oObject) then
+    begin
+      if not FVariable.IsVarEmpty then
+        begin
+
+          lsElement := aTokenParser.ParseNextToken;
+
+          if (Trim(lsElement) = '') or (Trim(lsElement) = ')') then
+          begin
+            foOutput.LogError('Element cannot be blank or ")".');
+
+            aToken := '';
+
+            Exit;
+          end;
+
+        FJSONValueRoot := TJSONValue(FVariable.oObject);
+
+        fJsonValueType := GetJsonValueType(FJSONValueRoot);
+
+        case fJsonValueType of
+          jsPair:
+            begin
+              Try
+                FJSONValueRoot := TJSONPair(FVariable.oObject).JsonValue;
+                FJSONValueRoot.TryGetValue<TJSONValue>(lsElement, FJSONValue);
+
+              Except
+                On EJSONException do
+                begin
+                  FJSONValue := NIL;
+                end;
+              End;
+
+            end;
+          jsArray: begin
+              foOutput.LogError('Not Supported.');
+
+          end;
+          jsObject:
+            begin
+              Try
+                FJSONValueRoot.TryGetValue<TJSONValue>(lsElement, FJSONValue);
+
+
+
+              Except
+                On EJSONException do
+                begin
+                  FJSONValue := NIL;
+                end;
+              End;
+
+            end;
+
+           end;
+
+          aToken := '';
+          if Assigned(FJSONValue) then
+            aToken := FJSONValue.Value;
+        end
+          else
+             aToken := '';
+    end
+  else
+    aToken := '';
+  
+end;
+
 
 
 
