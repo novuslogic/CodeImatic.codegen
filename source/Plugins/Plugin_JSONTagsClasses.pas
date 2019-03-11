@@ -6,31 +6,17 @@ uses Classes, Plugin, NovusPlugin, NovusVersionUtils, Project,
   Output, SysUtils, System.Generics.Defaults, runtime, Config,
   APIBase, NovusGUIDEx, CodeGeneratorItem, FunctionsParser, ProjectItem,
   Variables, NovusFileUtils, CodeGenerator, JSONFunctionParser, TokenParser,
-  NovusJSONUtils, System.IOUtils, System.JSON, TokenProcessor, NovusStringUtils;
+  NovusJSONUtils, System.IOUtils, System.JSON, TokenProcessor, NovusStringUtils,
+  TagBasePlugin;
 
 type
   tJsonValueType = (jsArray, jsObject, jsPair, jsUnknown);
 
-  TJSONTag = class
+  TJSONTag = class(tTagBasePlugin)
   private
-    foOutput: tOutput;
-    foProjectItem: tProjectItem;
-    foVariables: TVariables;
   protected
-    function GetTagName: String; virtual;
   public
-    constructor Create(aOutput: tOutput);
-
     function GetJSONObjectVariable(aToken: string): TVariable;
-
-    function Execute(aProjectItem: tProjectItem; aTagName: string;
-      aTokens: tTokenProcessor): String; virtual;
-
-    property TagName: String read GetTagName;
-
-    property oOutput: tOutput read foOutput;
-
-    property oVariables: TVariables read foVariables write foVariables;
   end;
 
 
@@ -284,22 +270,6 @@ begin
   Result := _Plugin_JSONTags;
 end;
 
-constructor TJSONTag.Create(aOutput: tOutput);
-begin
-  foOutput := aOutput;
-end;
-
-function TJSONTag.GetTagName: String;
-begin
-  Result := '';
-end;
-
-function TJSONTag.Execute(aProjectItem: tProjectItem; aTagName: String;
-  aTokens: tTokenProcessor): String;
-begin
-  Result := '';
-end;
-
 function TJSONTag.GetJSONObjectVariable(aToken: string): TVariable;
 Var
   FVariable: TVariable;
@@ -308,7 +278,7 @@ begin
 
   if AToken= ''  then
     begin
-      Self.foOutput.LogError(
+      Self.oOutput.LogError(
       'Blank Variable name.');
 
       Exit;
@@ -318,18 +288,18 @@ begin
 
   if Not Assigned(FVariable) then
   begin
-    Self.foOutput.LogError(aToken +
+    Self.oOutput.LogError(aToken +
       ' Object Variable cannot be found.');
     Exit;
   end
   else if Not FVariable.IsObject then
   begin
-    Self.foOutput.LogError('[' + aToken + '] not an Object Variable.');
+    Self.oOutput.LogError('[' + aToken + '] not an Object Variable.');
     Exit;
   end
   else if FVariable.Value <> TJSONTag.ClassName then
   begin
-    Self.foOutput.LogError('[' + aToken + '] not ' + TJSONTag.ClassName +
+    Self.oOutput.LogError('[' + aToken + '] not ' + TJSONTag.ClassName +
       ' Object Variable.');
     Exit;
   end;
@@ -352,7 +322,7 @@ begin
       Self.oVariables := tProjectItem(aProjectItem).oVariables;
 
       LJSONFunctionParser := tJSONFunctionParser.Create(aProjectItem, aTokens,
-        foOutput, aTagName);
+        oOutput, aTagName);
 
       LJSONFunctionParser.OnExecute := OnExecute;
 
@@ -384,7 +354,6 @@ end;
 
 
 // TJSONTag_JSONQuery
-
 function TJSONTag_JSONQuery.GetTagName: String;
 begin
   Result := 'JSONQUERY';
@@ -400,7 +369,7 @@ begin
       Self.oVariables := aProjectItem.oVariables;
 
       LFunctionAParser := tFunctionAParser.Create(aProjectItem, aTokens,
-        foOutput, aTagName);
+        oOutput, aTagName);
 
       LFunctionAParser.OnExecute := OnExecute;
 
@@ -411,28 +380,6 @@ begin
   Except
     oOutput.InternalError;
   End;
-
-
-
-
-  (*
-  Try
-    Try
-      Self.oVariables := tProjectItem(aProjectItem).oVariables;
-
-      LFunctionAParser := tFunctionAParser.Create(aProjectItem, aTokens,
-        foOutput, aTagName);
-
-      LFunctionAParser.OnExecute := OnExecute;
-
-      Result := LFunctionAParser.Execute;
-    Finally
-      LFunctionAParser.Free;
-    End;
-  Except
-    oOutput.InternalError;
-  End;
-  *)
 end;
 
 procedure TJSONTag_JSONQuery.OnExecute(var aToken: String;
@@ -449,8 +396,6 @@ begin
   if not Assigned(FVariable) then
      Exit;
 
-
-
   FJSONValue := NIL;
 
   if Not FVariable.IsVarEmpty then
@@ -461,7 +406,7 @@ begin
 
       if Trim(lsElement) = '' then
       begin
-        foOutput.LogError('Element cannot be blank.');
+        oOutput.LogError('Element cannot be blank.');
 
         Exit;
       end;
@@ -484,7 +429,7 @@ begin
 
           end;
         jsArray: begin
-            foOutput.LogError('Not Supported.');
+            oOutput.LogError('JSON Array Not Supported.');
 
         end;
         jsObject:
@@ -507,7 +452,7 @@ begin
 
 
 
-      //if Assigned(F//if Not Assigned(FJSONValue) then foOutput.Log(FJSONValue.ToJSON + ' ' + FVariable.VariableName);
+      //if Assigned(F//if Not Assigned(FJSONValue) then oOutput.Log(FJSONValue.ToJSON + ' ' + FVariable.VariableName);
 
 
       //aToken := Self.oVariables.AddVariableObject(FJSONValue, TJSONTag.ClassName);
@@ -535,7 +480,7 @@ begin
       Self.oVariables := aProjectItem.oVariables;
 
       LFunctionAParser := tFunctionAParser.Create(aProjectItem, aTokens,
-        foOutput, aTagName);
+        oOutput, aTagName);
 
       LFunctionAParser.OnExecute := OnExecute;
 
@@ -587,7 +532,7 @@ begin
       Self.oVariables := aProjectItem.oVariables;
 
       LFunctionAParser := tFunctionAParser.Create(aProjectItem, aTokens,
-        foOutput, aTagName);
+        oOutput, aTagName);
 
       LFunctionAParser.OnExecute := OnExecute;
 
@@ -638,7 +583,7 @@ begin
       Self.oVariables := aProjectItem.oVariables;
 
       LFunctionAParser := tFunctionAParser.Create(aProjectItem, aTokens,
-        foOutput, aTagName);
+        oOutput, aTagName);
 
       LFunctionAParser.OnExecute := OnExecute;
 
@@ -686,7 +631,7 @@ begin
       Self.oVariables := tProjectItem(aProjectItem).oVariables;
 
       LFunctionAParser := tFunctionAParser.Create(aProjectItem, aTokens,
-        foOutput, aTagName);
+        oOutput, aTagName);
 
       LFunctionAParser.OnExecute := OnExecute;
 
@@ -717,14 +662,14 @@ begin
   lsElement := aTokenParser.ParseNextToken;
   if Trim(lsElement) = '' then
   begin
-    foOutput.LogError('Incorrect syntax: Element Index cannot be blank.');
+    oOutput.LogError('Incorrect syntax: Element Index cannot be blank.');
 
     Exit;
   end;
 
   if not TNovusStringUtils.IsNumberStr(lsElement) then
     begin
-      foOutput.Log('Incorrect syntax: Element Index is not a numeric.');
+      oOutput.Log('Incorrect syntax: Element Index is not a numeric.');
 
       Exit;
     end;
@@ -732,14 +677,14 @@ begin
   liIndex := TNovusStringUtils.Str2Int(lsElement);
   if liIndex < 0 then
     begin
-      foOutput.Log('Incorrect syntax: Element Index less than zero.');
+      oOutput.Log('Incorrect syntax: Element Index less than zero.');
 
       Exit;
     end;
 
   if liIndex > (FJSONArray.Size - 1) then
     begin
-      foOutput.Log('Incorrect syntax: Element Index greater than JSON Array size.');
+      oOutput.Log('Incorrect syntax: Element Index greater than JSON Array size.');
 
       Exit;
     end;
@@ -764,7 +709,7 @@ begin
       Self.oVariables := tProjectItem(aProjectItem).oVariables;
 
       LFunctionAParser := tFunctionAParser.Create(aProjectItem, aTokens,
-        foOutput, aTagName);
+        oOutput, aTagName);
 
       LFunctionAParser.OnExecute := OnExecute;
 
@@ -817,7 +762,7 @@ begin
       Self.oVariables := tProjectItem(aProjectItem).oVariables;
 
       LFunctionAParser := tFunctionAParser.Create(aProjectItem, aTokens,
-        foOutput, aTagName);
+        oOutput, aTagName);
 
       LFunctionAParser.OnExecute := OnExecute;
 
@@ -866,7 +811,7 @@ begin
       Self.oVariables := aProjectItem.oVariables;
 
       LFunctionAParser := tFunctionAParser.Create(aProjectItem, aTokens,
-        foOutput, aTagName);
+        oOutput, aTagName);
 
       LFunctionAParser.OnExecute := OnExecute;
 
@@ -901,7 +846,7 @@ begin
 
           if (Trim(lsElement) = '') or (Trim(lsElement) = ')') then
           begin
-            foOutput.LogError('Element cannot be blank or ")".');
+            oOutput.LogError('Element cannot be blank or ")".');
 
             aToken := '';
 
@@ -928,7 +873,7 @@ begin
 
             end;
           jsArray: begin
-              foOutput.LogError('Not Supported.');
+              oOutput.LogError('Not Supported.');
 
           end;
           jsObject:

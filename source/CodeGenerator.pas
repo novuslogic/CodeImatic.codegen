@@ -288,7 +288,7 @@ begin
 
     DoProperties;
 
-    DoPluginTags;
+   // DoPluginTags;
 
     RunPropertyVariables(0, (FCodeGeneratorList.Count - 1));
 
@@ -340,7 +340,7 @@ begin
 
     DoProperties;
 
-    DoPluginTags;
+    //DoPluginTags;
 
     RunPropertyVariables(0, (FCodeGeneratorList.Count - 1));
 

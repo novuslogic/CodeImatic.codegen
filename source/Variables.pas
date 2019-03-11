@@ -2,7 +2,7 @@ unit Variables;
 
 interface
 
-Uses Variants, NovusList, SysUtils, Output, NovusGUIDEx;
+Uses Variants, NovusList, SysUtils, Output, NovusGUIDEx, NovusStringUtils;
 
 Type
   TVariable = class(TObject)
@@ -14,6 +14,7 @@ Type
     function GetIsVarEmpty: boolean;
     function GetIsLinked: Boolean;
     function GetIsObject: Boolean;
+    function GetIsNumeric: Boolean;
   public
     constructor Create; virtual;
     destructor Destroy; override;
@@ -34,6 +35,9 @@ Type
 
     property  IsLinked: Boolean
       read GetIsLinked;
+
+    property IsNumeric: Boolean
+      read GetIsNumeric;
 
     property  IsObject: Boolean
       read GetIsObject;
@@ -172,15 +176,11 @@ Var
 begin
   Result := Nil;
 
+  aVariableName := CleanVariableName(aVariableName);
+
   FObject := FoVariableList.FindItem(aVariableName);
   if Not Assigned(FObject) then Exit;
   Result := (FObject as TVariable);
-
-  (*
-  liIndex := VariableExistsIndex(aVariableName);
-  if LiIndex = -1 then Exit;
-  Result :=  GetVariablebyIndex(LiIndex);
-  *)
 end;
 
 class function TVariables.CleanVariableName(AVariableName: String): String;
@@ -231,6 +231,13 @@ begin
   Result := False;
   if Copy(fsVariableName, 1, 2) = '@@' then
      Result := true;
+end;
+
+function TVariable.GetIsNumeric: Boolean;
+begin
+  Result := False;
+  if Not IsObject then
+    Result :=  TNovusStringUtils.IsNumberStr(AsString)
 end;
 
 

@@ -10,13 +10,17 @@ Type
 
   function IsInterpreterTagType(aTagType: tTagType): Boolean;
 
+
+
+
+
 implementation
 
 
 function IsInterpreterTagType(aTagType: tTagType): Boolean;
 begin
   Result := False;
-  if ATagType in [ttInterpreter, ttRepeat, ttEndRepeat, ttEndif, ttIf,ttLog] then
+  if ATagType in [ttInterpreter, ttRepeat, ttEndRepeat, ttEndif, ttIf,ttLog, ttplugintag ] then
       Result := True;
 end;
 

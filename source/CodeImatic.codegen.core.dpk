@@ -71,6 +71,7 @@ contains
   FunctionsParser in 'FunctionsParser.pas',
   TokenProcessor in 'TokenProcessor.pas',
   Variables in 'Variables.pas',
-  StatementParser in 'StatementParser.pas';
+  StatementParser in 'StatementParser.pas',
+  TagBasePlugin in 'TagBasePlugin.pas';
 
 end.

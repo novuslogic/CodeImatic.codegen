@@ -5,26 +5,14 @@ interface
 uses Classes, Plugin, NovusPlugin, NovusVersionUtils, Project,
   Output, SysUtils, System.Generics.Defaults, runtime, Config,
   APIBase, NovusGUIDEx, CodeGeneratorItem, FunctionsParser, ProjectItem,
-  Variables, NovusFileUtils, CodeGenerator, NovusStringUtils, TokenProcessor;
+  Variables, NovusFileUtils, CodeGenerator, NovusStringUtils, TokenProcessor,
+  TagBasePlugin;
 
 type
-  TSysTag = class
+  TSysTag = class(TTagBasePlugin)
   private
-    foOutput: tOutput;
-    foProjectItem: tProjectItem;
-    foVariables: TVariables;
   protected
-    function GetTagName: String; virtual;
   public
-    constructor Create(aOutput: tOutput);
-
-    function Execute(aProjectItem: tProjectItem;aTagName: String; aTokens: tTokenProcessor): String; virtual;
-
-    property TagName: String read GetTagName;
-
-    property oOutput: tOutput read foOutput;
-
-    property oVariables: TVariables read foVariables write foVariables;
   end;
 
   TSysTag_Uplower = class(TSysTag)
@@ -81,6 +69,24 @@ type
   end;
 
   TSysTag_Pred = class(TSysTag)
+  private
+  protected
+    function GetTagName: String; override;
+    procedure OnExecute(var aToken: String);
+  public
+    function Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: tTokenProcessor): String; override;
+  end;
+
+  TSysTag_Inc = class(TSysTag)
+  private
+  protected
+    function GetTagName: String; override;
+    procedure OnExecute(var aToken: String);
+  public
+    function Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: tTokenProcessor): String; override;
+  end;
+
+  TSysTag_Dec = class(TSysTag)
   private
   protected
     function GetTagName: String; override;
@@ -164,7 +170,9 @@ begin
     TSysTag_FilePathToURL.Create(aOutput), TSysTag_Lower.Create(aOutput),
     TSysTag_Upper.Create(aOutput), TSysTag_Uplower.Create(aOutput),
     TSysTag_Pred.Create(aOutput),
-    TSysTag_IsVarEmpty.Create(aOutput));
+    TSysTag_IsVarEmpty.Create(aOutput),
+    TSysTag_Inc.Create(aOutput),
+    TSysTag_Dec.Create(aOutput));
 end;
 
 destructor tPlugin_SysTagsBase.Destroy;
@@ -252,21 +260,6 @@ begin
   Result := _Plugin_SysTags;
 end;
 
-constructor TSysTag.Create(aOutput: tOutput);
-begin
-  foOutput := aOutput;
-end;
-
-function TSysTag.GetTagName: String;
-begin
-  Result := '';
-end;
-
-function TSysTag.Execute(aProjectItem: tProjectItem;aTagName: String;aTokens: tTokenProcessor): String;
-begin
-  Result := '';
-end;
-
 function TSysTag_Upper.GetTagName: String;
 begin
   Result := 'UPPER';
@@ -278,9 +271,7 @@ var
 begin
   Try
     Try
-      LFunctionParser := tFunctionParser.Create(aProjectItem, aTokens, foOutput);
-
-      //LFunctionParser.TokenIndex := aTokenIndex;
+      LFunctionParser := tFunctionParser.Create(aProjectItem, aTokens, oOutput);
 
       LFunctionParser.OnExecute := OnExecute;
 
@@ -312,7 +303,7 @@ begin
     Try
       Self.oVariables := tProjectItem(aProjectItem).oVariables;
 
-      LFunctionParser := tFunctionParser.Create(aProjectItem, aTokens, foOutput,
+      LFunctionParser := tFunctionParser.Create(aProjectItem, aTokens, oOutput,
         aTagName);
 
 
@@ -347,7 +338,7 @@ begin
     Try
       Self.oVariables := tProjectItem(aProjectItem).oVariables;
 
-      LFunctionParser := tFunctionParser.Create(aProjectItem, aTokens, foOutput,
+      LFunctionParser := tFunctionParser.Create(aProjectItem, aTokens, oOutput,
         aTagName);
 
       LFunctionParser.OnExecute := OnExecute;
@@ -369,7 +360,7 @@ begin
   FVariable := oVariables.GetVariableByName(aToken);
   if not Assigned(FVariable) then
     begin
-      foOutput.Log('Syntax error: "' + aToken + '" not variable not found.');
+      oOutput.Log('Syntax error: "' + aToken + '" not variable not found.');
 
       aToken := 'false';
 
@@ -383,7 +374,7 @@ begin
 
       if not Assigned(FLinkedVariable) then
         begin
-          foOutput.Log('Syntax error: "' + FLinkedVariable.Value + '" linked variable not found.');
+          oOutput.Log('Syntax error: "' + FLinkedVariable.Value + '" linked variable not found.');
 
           Exit;
         end;
@@ -427,7 +418,7 @@ begin
     Try
       Self.oVariables := tProjectItem(aProjectItem).oVariables;
 
-      LFunctionParser := tFunctionParser.Create(aProjectItem, aTokens, foOutput,
+      LFunctionParser := tFunctionParser.Create(aProjectItem, aTokens, oOutput,
         aTagName);
 
     //  LFunctionParser.TokenIndex := aTokenIndex;
@@ -461,7 +452,7 @@ begin
     Try
       Self.oVariables := tProjectItem(aProjectItem).oVariables;
 
-      LFunctionParser := tFunctionParser.Create(aProjectItem,aTokens, foOutput,
+      LFunctionParser := tFunctionParser.Create(aProjectItem,aTokens, oOutput,
         aTagName);
 
       LFunctionParser.OnExecute := OnExecute;
@@ -524,7 +515,7 @@ var
 begin
   Try
     Try
-      LFunctionParser := tFunctionParser.Create(aProjectItem,aTokens, foOutput,
+      LFunctionParser := tFunctionParser.Create(aProjectItem,aTokens, oOutput,
         aTagName);
 
       LFunctionParser.OnExecute := OnExecute;
@@ -541,6 +532,119 @@ end;
 procedure TSysTag_Pred.OnExecute(var aToken: String);
 begin
   aToken := IntToStr(Pred(StrToint(aToken)));
+end;
+
+
+function TSysTag_Inc.GetTagName: String;
+begin
+  Result := 'Inc';
+end;
+
+function TSysTag_Inc.Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: tTokenProcessor): String;
+var
+  LFunctionParser: tFunctionBParser;
+begin
+  Try
+    Try
+      LFunctionParser := tFunctionBParser.Create(aProjectItem,aTokens, oOutput,
+        aTagName);
+
+      Self.oVariables := tProjectItem(aProjectItem).oVariables;
+
+      LFunctionParser.OnExecute := OnExecute;
+
+      Result := LFunctionParser.Execute;
+    Finally
+      LFunctionParser.Free;
+    End;
+  Except
+    oOutput.InternalError;
+  End;
+end;
+
+procedure TSysTag_Inc.OnExecute(var aToken: String);
+var
+  FVariable: tVariable;
+  FLinkedVariable: tVariable;
+  LiNewValiue: Integer;
+begin
+  FVariable := oVariables.GetVariableByName(aToken);
+  if not Assigned(FVariable) then
+    begin
+      oOutput.Log('Syntax error: "' + aToken + '" not variable not found.');
+
+      aToken := 'false';
+
+      Exit;
+    end;
+
+  if Not FVariable.IsNumeric then
+    begin
+      oOutput.Log('Syntax error: "' + aToken + '" is not numeric.');
+
+      aToken := 'false';
+
+      Exit;
+    end;
+
+  FVariable.Value := FVariable.Value + 1;
+  aToken := cDeleteLine;
+end;
+
+function TSysTag_Dec.GetTagName: String;
+begin
+  Result := 'Dec';
+end;
+
+function TSysTag_Dec.Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: tTokenProcessor): String;
+var
+  LFunctionParser: tFunctionBParser;
+begin
+  Try
+    Try
+      LFunctionParser := tFunctionBParser.Create(aProjectItem,aTokens, oOutput,
+        aTagName);
+
+      Self.oVariables := tProjectItem(aProjectItem).oVariables;
+
+      LFunctionParser.OnExecute := OnExecute;
+
+      Result := LFunctionParser.Execute;
+    Finally
+      LFunctionParser.Free;
+    End;
+  Except
+    oOutput.InternalError;
+  End;
+end;
+
+procedure TSysTag_Dec.OnExecute(var aToken: String);
+var
+  FVariable: tVariable;
+  FLinkedVariable: tVariable;
+  LiNewValiue: Integer;
+begin
+  FVariable := oVariables.GetVariableByName(aToken);
+  if not Assigned(FVariable) then
+    begin
+      oOutput.Log('Syntax error: "' + aToken + '" not variable not found.');
+
+      aToken := 'false';
+
+      Exit;
+    end;
+
+  if Not FVariable.IsNumeric then
+    begin
+      oOutput.Log('Syntax error: "' + aToken + '" is not numeric.');
+
+      aToken := 'false';
+
+      Exit;
+    end;
+
+  FVariable.Value := FVariable.Value - 1;
+  aToken := cDeleteLine;
 end;
 
 

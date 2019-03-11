@@ -39,6 +39,8 @@ type
 
     function ParseNextToken(aIgnoreEOF: boolean = false): String;
 
+    function NextToken: string;
+
 
     //property oCodeGeneratorItem: TCodeGeneratorItem read foCodeGeneratorItem;
 
@@ -221,6 +223,9 @@ begin
 
 
     end
+
+
+
     else
       lTagType := TTagParser.ParseTagType(aProjectItem, NIL, ATokens,
         aOutput, aTokenIndex);
@@ -427,6 +432,15 @@ begin
      if foTokens.EOF then
        foTokens.TokenIndex := foTokens.Count -1;
     end;
+end;
+
+function tTokenParser.NextToken: String;
+begin
+  Result := foTokens.GetNextToken;
+
+  if foTokens.EOF then
+     foTokens.TokenIndex := foTokens.Count -1;
+
 end;
 
 

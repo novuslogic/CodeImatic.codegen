@@ -6,27 +6,14 @@ uses Classes,Plugin, NovusPlugin, NovusVersionUtils, Project,
     Output, SysUtils, System.Generics.Defaults,  runtime, Config, NovusStringUtils,
     APIBase, NovusGUIDEx, CodeGeneratorItem, FunctionsParser, ProjectItem, TokenParser,
     Variables, NovusFileUtils, CodeGenerator, FieldFunctionParser, DataProcessor,
-    TableFunctionParser, TokenProcessor;
+    TableFunctionParser, TokenProcessor, TagBasePlugin;
 
 
 type
-  TDBTag = class
+  TDBTag = class(tTagBasePlugin)
   private
-     foOutput: tOutput;
-     foProjectItem: tProjectItem;
-     foVariables: TVariables;
   protected
-     function GetTagName: String; virtual;
   public
-     constructor Create(aOutput: tOutput);
-
-     function Execute(aProjectItem: tProjectItem;aTagName: string; aTokens: TTokenProcessor): String; virtual;
-
-     property TagName: String
-       read GetTagName;
-
-     property oOutput: tOutput
-       read foOutput;
   end;
 
   TDBTag_FieldCount = class(TDBTag)
@@ -215,24 +202,6 @@ begin
   result := _Plugin_DBTags;
 end;
 
-
-constructor TDBTag.Create(aOutput: tOutput);
-begin
-  foOutput:= aOutput;
-end;
-
-
-function TDBTag.GetTagName: String;
-begin
-  Result := '';
-end;
-
-function TDBTag.Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: TTokenProcessor): String;
-begin
-  Result := '';
-end;
-
-
 //  TDBTag_FieldCount
 function TDBTag_FieldCount.GetTagName: String;
 begin
@@ -252,11 +221,11 @@ begin
 
   Try
     Try
-      LFieldFunctionParser:= tFieldFunctionParser.Create(aProjectItem, aTokens, foOutput, aTagName);
+      LFieldFunctionParser:= tFieldFunctionParser.Create(aProjectItem, aTokens, oOutput, aTagName);
 
       LFieldFunctionParser.OnExecute := OnExecute;
 
-      Result := LFieldFunctionParser.Execute(foProjectItem);
+      Result := LFieldFunctionParser.Execute(aProjectItem);
     Finally
       LFieldFunctionParser.Free;
     End;
@@ -296,10 +265,10 @@ begin
 
     end
     else
-      foOutput.Log('Incorrect syntax: lack ")"');
+      oOutput.Log('Incorrect syntax: lack ")"');
   end
   else
-    foOutput.LogError('Error: Field cannot be found.');
+    oOutput.LogError('Error: Field cannot be found.');
 
   if Assigned(lFieldDesc) then
      lFieldDesc.Free;
@@ -313,12 +282,12 @@ var
 begin
   Try
     Try
-      LFieldFunctionParser:= tFieldFunctionParser.Create(aProjectItem,aTokens, foOutput, aTagName);
+      LFieldFunctionParser:= tFieldFunctionParser.Create(aProjectItem,aTokens, oOutput, aTagName);
 
 
       LFieldFunctionParser.OnExecute := OnExecute;
 
-      Result := LFieldFunctionParser.Execute(self.foProjectItem);
+      Result := LFieldFunctionParser.Execute(aProjectItem);
     Finally
       LFieldFunctionParser.Free;
     End;
@@ -351,12 +320,12 @@ var
 begin
   Try
     Try
-      LTableFunctionParser:= tTableFunctionParser.Create(aProjectItem,aTokens, foOutput, aTagName);
+      LTableFunctionParser:= tTableFunctionParser.Create(aProjectItem,aTokens, oOutput, aTagName);
 
 
       LTableFunctionParser.OnExecute := OnExecute;
 
-      Result := LTableFunctionParser.Execute(foProjectItem);
+      Result := LTableFunctionParser.Execute(aProjectItem);
     Finally
       LTableFunctionParser.Free;
     End;
@@ -400,7 +369,7 @@ begin
 
       end
         else
-          FoOutput.LogError('Error: Field cannot be found.');
+          oOutput.LogError('Error: Field cannot be found.');
 end;
 
 
@@ -410,12 +379,12 @@ var
 begin
   Try
     Try
-      LFieldFunctionParser:= tFieldFunctionParser.Create(aProjectItem,aTokens, foOutput, aTagName);
+      LFieldFunctionParser:= tFieldFunctionParser.Create(aProjectItem,aTokens, oOutput, aTagName);
 
 
       LFieldFunctionParser.OnExecute := OnExecute;
 
-      Result := LFieldFunctionParser.Execute(foProjectItem);
+      Result := LFieldFunctionParser.Execute(aProjectItem);
     Finally
       LFieldFunctionParser.Free;
     End;
@@ -446,11 +415,11 @@ begin
        if aConnectionItem.TableCount > 0 then
          aToken := aConnectionItem.JustTableNamebyIndex(liTableIndex)
        else
-         foOutput.LogError('Error: Tablename cannot be found.');
+         oOutput.LogError('Error: Tablename cannot be found.');
 
      end
        else
-         foOutput.Log('Incorrect syntax: Index is not a number ');
+         oOutput.Log('Incorrect syntax: Index is not a number ');
 end;
 
 
@@ -460,12 +429,12 @@ var
 begin
   Try
     Try
-      LTableFunctionParser:= tTableFunctionParser.Create(aProjectItem,aTokens, foOutput, aTagName);
+      LTableFunctionParser:= tTableFunctionParser.Create(aProjectItem,aTokens, oOutput, aTagName);
 
 
       LTableFunctionParser.OnExecute := OnExecute;
 
-      Result := LTableFunctionParser.Execute(foProjectItem);
+      Result := LTableFunctionParser.Execute(aProjectItem);
     Finally
       LTableFunctionParser.Free;
     End;
@@ -521,10 +490,10 @@ begin
 
     end
     else
-      foOutput.Log('Incorrect syntax: lack ")"');
+      oOutput.Log('Incorrect syntax: lack ")"');
   end
   else
-    foOutput.LogError('Error: Field cannot be found.');
+    oOutput.LogError('Error: Field cannot be found.');
 
   if Assigned(lFieldDesc) then
      lFieldDesc.Free;
@@ -537,11 +506,11 @@ var
 begin
   Try
     Try
-      LFieldFunctionParser:= tFieldFunctionParser.Create(aProjectItem, aTokens, foOutput, ATagName);
+      LFieldFunctionParser:= tFieldFunctionParser.Create(aProjectItem, aTokens, oOutput, ATagName);
 
       LFieldFunctionParser.OnExecute := OnExecute;
 
-      Result := LFieldFunctionParser.Execute(foProjectItem);
+      Result := LFieldFunctionParser.Execute(aProjectItem);
     Finally
       LFieldFunctionParser.Free;
     End;

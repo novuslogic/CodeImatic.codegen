@@ -24,6 +24,15 @@ Type
      function Execute: String;
    end;
 
+   TFunctionBParser = class(tTokenParser)
+   private
+   protected
+   public
+     OnExecute: TOnExecute;
+     function Execute: String;
+   end;
+
+
 implementation
 
 
@@ -91,6 +100,38 @@ begin
         begin
           oOutput.LogError('Incorrect syntax: lack ")"' );
         end;
+
+    end
+  else
+    begin
+      oOutput.LogError('Incorrect syntax: lack "("');
+    end;
+end;
+
+
+function TFunctionBParser.Execute: String;
+Var
+  LsToken: String;
+  fTagType: TTagType;
+begin
+  Result := '';
+
+  if fsTagName = oTokens.Strings[TokenIndex] then
+     oTokens.TokenIndex := oTokens.TokenIndex + 1;
+
+  if ParseNextToken = '(' then
+    begin
+      LsToken := NextToken;
+      if Assigned(OnExecute) then
+        OnExecute(LsToken);
+
+      if NextToken = ')' then
+        begin
+          Result := LsToken;
+          Exit;
+        end
+      else
+        oOutput.LogError('Incorrect syntax: lack ")"');
 
     end
   else

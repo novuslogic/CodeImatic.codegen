@@ -259,7 +259,7 @@ begin
             Result := loXMLlist.GetValueByIndex(StrToint(lsStr));
           end
           else
-            FoOutput.Log('Incorrect syntax: Index is not a number ');
+            FoOutput.Log('Incorrect syntax: Index is not numeric ');
 
         end
         else
@@ -441,6 +441,13 @@ begin
   Try
     Result := aToken;
 
+    if Pos('$$', aTokens[aIndex]) = 1 then
+      Result := tTokenParser.ParseToken(Self, aTokens[aIndex],
+        (foProjectItem as TProjectItem), FoOutput, aTokens, aIndex,
+        TCodeGenerator(FoCodeGenerator).oProject)
+    else if Pos('$', aTokens[aIndex]) = 1 then
+      Result := ParseVariable(aTokens, aIndex);
+
     fTagType := TTagParser.ParseTagType(foProjectItem, FoCodeGenerator, aToken,
       FoOutput, true);
 
@@ -480,13 +487,14 @@ begin
       end;
     end;
 
+    (*
     if Pos('$$', aTokens[aIndex]) = 1 then
       Result := tTokenParser.ParseToken(Self, aTokens[aIndex],
         (foProjectItem as TProjectItem), FoOutput, aTokens, aIndex,
         TCodeGenerator(FoCodeGenerator).oProject)
     else if Pos('$', aTokens[aIndex]) = 1 then
       Result := ParseVariable(aTokens, aIndex);
-
+    *)
   Except
     FoOutput.InternalError;
   end;
