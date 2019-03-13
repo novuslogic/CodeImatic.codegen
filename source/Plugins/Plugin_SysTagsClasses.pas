@@ -59,6 +59,15 @@ type
     function Execute(aProjectItem: tProjectItem;aTagName: String; aTokens: tTokenProcessor): String; override;
   end;
 
+  TSysTag_Output = class(TSysTag)
+  private
+  protected
+    function GetTagName: String; override;
+    procedure OnExecute(var aToken: String);
+  public
+    function Execute(aProjectItem: tProjectItem;aTagName: String; aTokens: tTokenProcessor): String; override;
+  end;
+
   TSysTag_FilePathToURL = class(TSysTag)
   private
   protected
@@ -172,7 +181,8 @@ begin
     TSysTag_Pred.Create(aOutput),
     TSysTag_IsVarEmpty.Create(aOutput),
     TSysTag_Inc.Create(aOutput),
-    TSysTag_Dec.Create(aOutput));
+    TSysTag_Dec.Create(aOutput),
+    TSysTag_Output.Create(aOutput));
 end;
 
 destructor tPlugin_SysTagsBase.Destroy;
@@ -260,6 +270,8 @@ begin
   Result := _Plugin_SysTags;
 end;
 
+
+//TSysTag_Upper
 function TSysTag_Upper.GetTagName: String;
 begin
   Result := 'UPPER';
@@ -288,6 +300,38 @@ procedure TSysTag_Upper.OnExecute(var aToken: String);
 begin
   aToken := Uppercase(aToken);
 end;
+
+
+//TSysTag_Output
+function TSysTag_Output.GetTagName: String;
+begin
+  Result := 'Output';
+end;
+
+function TSysTag_Output.Execute(aProjectItem: tProjectItem;aTagName: String;aTokens: tTokenProcessor): String;
+var
+  LFunctionParser: tFunctionParser;
+begin
+  Try
+    Try
+      LFunctionParser := tFunctionParser.Create(aProjectItem, aTokens, oOutput);
+
+      LFunctionParser.OnExecute := OnExecute;
+
+      Result := LFunctionParser.Execute;
+    Finally
+      LFunctionParser.Free;
+    End;
+  Except
+    oOutput.InternalError;
+  End;
+end;
+
+procedure TSysTag_Output.OnExecute(var aToken: String);
+begin
+//
+end;
+
 
 //TSysTag_Uplower
 function TSysTag_Uplower.GetTagName: String;

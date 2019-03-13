@@ -354,11 +354,6 @@ begin
 
     DoSpecialTags;
 
-   // if Trim(aOutputFilename) <> '' then
-   // begin
-   //   DoPostProcessor(FoProcesorItem, fsSourceFilename, aOutputFilename);
-   // end;
-
     Result := true;
   Except
     foOutput.Log(TNovusUtilities.GetExceptMess);
