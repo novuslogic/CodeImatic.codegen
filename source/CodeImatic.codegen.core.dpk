@@ -31,7 +31,7 @@ package CodeImatic.codegen.core;
 
 requires
   rtl,
-  PascalScript_Core_D25,
+//  PascalScript_Core_D25,
   NovusCodeLibrary_Core,
   NovusCodeLibrary_Log,
   NovusCodeLibrary_XML,
