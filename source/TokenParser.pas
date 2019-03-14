@@ -223,11 +223,29 @@ begin
 
 
     end
-
-
-
+  else If Copy(aToken, 1, 1) = '$' then
+  begin
+    lsValue := TVariables.CleanVariableName(aToken);
+    if Assigned(aProjectItem.oVariables) then
+    begin
+      loVarable := aProjectItem.oVariables.GetVariableByName(lsValue);
+      if Not Assigned(loVarable) then
+      begin
+        aOutput.LogError('Syntax Error: variable ' + lsValue +
+          ' cannot be found.');
+      end
+      else
+        Result := loVarable.Value;
+    end
     else
-      lTagType := TTagParser.ParseTagType(aProjectItem, NIL, ATokens,
+    begin
+      aOutput.LogError('Syntax Error: variable ' + lsValue +
+        ' cannot be found.');
+    end
+   end;
+
+
+   lTagType := TTagParser.ParseTagType(aProjectItem, NIL, ATokens,
         aOutput, aTokenIndex);
 
     case lTagType of
@@ -301,27 +319,9 @@ begin
 
         end;
     end;
-  end
-  else If Copy(aToken, 1, 1) = '$' then
-  begin
-    lsValue := TVariables.CleanVariableName(aToken);
-    if Assigned(aProjectItem.oVariables) then
-    begin
-      loVarable := aProjectItem.oVariables.GetVariableByName(lsValue);
-      if Not Assigned(loVarable) then
-      begin
-        aOutput.LogError('Syntax Error: variable ' + lsValue +
-          ' cannot be found.');
-      end
-      else
-        Result := loVarable.Value;
-    end
-    else
-    begin
-      aOutput.LogError('Syntax Error: variable ' + lsValue +
-        ' cannot be found.');
-    end;
   end;
+
+
   if aUseInterpreter then
     begin
       lTagType := TTagParser.ParseTagType(aProjectItem, NIL, ATokens,

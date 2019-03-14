@@ -1282,7 +1282,14 @@ begin
       end
       else
       begin
-        FoOutput.Log('Syntax error: "' + lsVariableName1 + '" not defined');
+        if not  ((foProjectItem as tProjectItem).oProperties.IsPropertyExists(lsVariableName1)) then
+          FoOutput.Log('Syntax error: variable "' + lsVariableName1 + '" not defined')
+        else
+          begin
+            Result := ((foProjectItem as tProjectItem).oProperties.GetProperty(lsVariableName1));
+            exit;
+          end;
+
         FoOutput.Failed := true;
       end;
 
