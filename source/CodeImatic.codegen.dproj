@@ -129,12 +129,12 @@
         <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=0.5.0.1025;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=Zcodegen;ProductVersion=0.5.0.0;Comments=</VerInfo_Keys>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
+        <VerInfo_MinorVer>1</VerInfo_MinorVer>
         <Debugger_CWD>D:\Projects\AIMS\5.0.0\Deploy\Setup\</Debugger_CWD>
-        <Debugger_RunParams>-project D:\Projects\AIMS\5.0.0\Deploy\Setup\deploy.ccproject -projectconfig D:\Projects\AIMS\5.0.0\Deploy\Setup\deploy.ccpconfig</Debugger_RunParams>
+        <Debugger_RunParams>-project D:\Projects\AIMS\5.0.0\Deploy\Setup\setup.ccproject -projectconfig D:\Projects\AIMS\5.0.0\Deploy\Setup\setup.ccpconfig</Debugger_RunParams>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_IncludeVerInfo>false</VerInfo_IncludeVerInfo>
-        <VerInfo_Keys>CompanyName=;FileVersion=1.0.0.557;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName);FileDescription=$(MSBuildProjectName);ProductName=$(MSBuildProjectName)</VerInfo_Keys>
-        <VerInfo_Build>557</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=;FileVersion=0.1.0.560;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName);FileDescription=$(MSBuildProjectName);ProductName=$(MSBuildProjectName)</VerInfo_Keys>
+        <VerInfo_Build>560</VerInfo_Build>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
@@ -168,9 +168,10 @@
                     <Source Name="MainSource">CodeImatic.codegen.dpr</Source>
                 </Source>
                 <Excluded_Packages>
-                    <Excluded_Packages Name="D:\Projects\CodeImatic\CodeImaticTools\build\19.0\Codeimatic.Delphi.AddIns320.bpl">File D:\Projects\CodeImatic\CodeImaticTools\build\19.0\Codeimatic.Delphi.AddIns320.bpl not found</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k250.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp250.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\bcboffice2k220.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\bcbofficexp220.bpl">Embarcadero C++Builder Office XP Servers Package</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k220.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp220.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
                 </Excluded_Packages>
             </Delphi.Personality>
             <Platforms>

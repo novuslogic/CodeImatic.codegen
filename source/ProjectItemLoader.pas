@@ -119,6 +119,11 @@ begin
   if FNodeLoader.IsExists then
     foProjectItem.deleteoutput := TNovusStringUtils.StrToBoolean(GetValue(FNodeLoader.Value));
 
+  foProjectItem.IgnoreItem := false;
+  FNodeLoader := GetNode(FRootNodeLoader, 'ignoreitem');
+  if FNodeLoader.IsExists then
+    foProjectItem.ignoreitem := TNovusStringUtils.StrToBoolean(GetValue(FNodeLoader.Value));
+
   FNodeLoader := GetNode(FRootNodeLoader, 'output');
   if FNodeLoader.IsExists then
     foProjectItem.OutputFile := GetValue(FNodeLoader.Value)

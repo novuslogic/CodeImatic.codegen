@@ -114,6 +114,7 @@ type
   TProjectItem = class(tobject)
   protected
   private
+    fbIgnoreItem: Boolean;
     foVariables : tVariables;
     fProjectItemType: TProjectItemType;
     foSourceFiles: tSourceFiles;
@@ -156,6 +157,8 @@ type
       write fboverrideoutput;
 
     property deleteoutput: Boolean read fbdeleteoutput write fbdeleteoutput;
+    property IgnoreItem: Boolean read fbIgnoreItem write fbIgnoreItem;
+
 
     property ItemName: String read fsItemName write fsItemName;
 

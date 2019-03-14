@@ -48,6 +48,13 @@ begin
     begin
       loProjectItem := tProjectItem(foProject.oProjectItemList.items[I]);
 
+      if loProjectItem.IgnoreItem then
+         begin
+           foOutput.Log('ProjectItem: '+ loProjectItem.Name + ' Ignored.');
+
+           Continue;
+         end;
+
       case loProjectItem.ProjectItemType of
          pitItem: begin
             foOutput.Log('Project Item: ' + loProjectItem.Name);
@@ -137,7 +144,7 @@ begin
         end
         else
         begin
-          if Not CreateDir(TNovusStringUtils.JustPathname
+          if Not ForceDirectories(TNovusStringUtils.JustPathname
             (loProjectItem.OutputFile)) then
           begin
             foOutput.Log('output ' + TNovusStringUtils.JustPathname
