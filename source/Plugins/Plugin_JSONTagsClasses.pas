@@ -42,7 +42,7 @@ type
   end;
 
 
-  TJSONTag_JSONPairValue = class(TJSONTag)
+  TJSONTag_JSONString = class(TJSONTag)
   private
   protected
     function GetTagName: String; override;
@@ -51,6 +51,17 @@ type
     function Execute(aProjectItem: tProjectItem; aTagName: string;
       aTokens: tTokenProcessor): String; override;
   end;
+
+  TJSONTag_JSONPair = class(TJSONTag)
+  private
+  protected
+    function GetTagName: String; override;
+    procedure OnExecute(var aToken: String; aTokenParser: tTokenParser; aTokens: tTokenProcessor);
+  public
+    function Execute(aProjectItem: tProjectItem; aTagName: string;
+      aTokens: tTokenProcessor): String; override;
+  end;
+
 
   TJSONTag_JSONGetArray = class(TJSONTag)
   private
@@ -180,8 +191,9 @@ begin
     TJSONTag_ToJSONValue.Create(aOutput),
     TJSONTag_JSONGetArray.Create(aOutput),
     TJSONTag_JSONArraySize.Create(aOutput),
-    TJSONTag_JSONPairValue.Create(aOutput),
-    TJSONTag_JSONQueryValue.Create(aOutput));
+    TJSONTag_JSONString.Create(aOutput),
+    TJSONTag_JSONQueryValue.Create(aOutput),
+    TJSONTag_JSONPair.Create(aOutput));
 end;
 
 destructor tPlugin_JSONTagsBase.Destroy;
@@ -693,13 +705,13 @@ begin
   aToken := Self.oVariables.AddVariableObject(FJSONValue, TJSONTag.ClassName);
 end;
 
-// TJSONTag_JSONPairValue
-function TJSONTag_JSONPairValue.GetTagName: String;
+// TJSONTag_JSONString
+function TJSONTag_JSONString.GetTagName: String;
 begin
-  Result := 'JSONPairValue';
+  Result := 'JSONString';
 end;
 
-function TJSONTag_JSONPairValue.Execute(aProjectItem: tProjectItem;
+function TJSONTag_JSONString.Execute(aProjectItem: tProjectItem;
   aTagName: String; aTokens: tTokenProcessor): String;
 var
   LFunctionAParser: tFunctionAParser;
@@ -722,7 +734,7 @@ begin
   End;
 end;
 
-procedure TJSONTag_JSONPairValue.OnExecute(var aToken: String;
+procedure TJSONTag_JSONString.OnExecute(var aToken: String;
   aTokenParser: tTokenParser; aTokens: tTokenProcessor);
 Var
   FJSONArray: TJSONArray;
@@ -739,11 +751,66 @@ begin
   Try
     FJSONPair:= TJSONPair(FVariable.oObject);
 
-    aToken := FJSONPair.JsonString.Value;
+    if Assigned(FJSONPair) then
+      aToken := FJSONPair.JsonString.Value;
   Except
     aToken := '';
   End;
 end;
+
+// TJSONTag_JSONPair
+function TJSONTag_JSONPair.GetTagName: String;
+begin
+  Result := 'JSONPair';
+end;
+
+function TJSONTag_JSONPair.Execute(aProjectItem: tProjectItem;
+  aTagName: String; aTokens: tTokenProcessor): String;
+var
+  LFunctionAParser: tFunctionAParser;
+begin
+  Try
+    Try
+      Self.oVariables := tProjectItem(aProjectItem).oVariables;
+
+      LFunctionAParser := tFunctionAParser.Create(aProjectItem, aTokens,
+        oOutput, aTagName);
+
+      LFunctionAParser.OnExecute := OnExecute;
+
+      Result := LFunctionAParser.Execute;
+    Finally
+      LFunctionAParser.Free;
+    End;
+  Except
+    oOutput.InternalError;
+  End;
+end;
+
+procedure TJSONTag_JSONPair.OnExecute(var aToken: String;
+  aTokenParser: tTokenParser; aTokens: tTokenProcessor);
+Var
+  FJSONArray: TJSONArray;
+  FVariable: TVariable;
+  lsElement: string;
+  liIndex: Integer;
+  FJSONValue: TJSONValue;
+  FJSONPair: TJSONPair;
+  FJOSNObject: tJSONObject;
+begin
+  FVariable := GetJSONObjectVariable(aToken);
+  if not Assigned(FVariable) then
+    Exit;
+
+  Try
+    FJSONPair:= TJSONPair(FVariable.oObject);
+
+    aToken := Self.oVariables.AddVariableObject(FJSONPair, TJSONTag.ClassName);
+  Except
+    aToken := '';
+  End;
+end;
+
 
 
 // TJSONTag_JSONArraySize

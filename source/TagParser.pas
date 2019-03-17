@@ -197,7 +197,9 @@ begin
       exit;
     end;
 
-    lsToken1 := TVariables.CleanVariableName(Uppercase(aTokens.Strings[aTokenIndex]));
+    lsToken1 := TVariables.CleanVariableName
+      (Uppercase(aTokens.Strings[aTokenIndex]));
+
 
     if (aTokenIndex < aTokens.Count - 1) then
       begin
@@ -262,9 +264,7 @@ begin
     else if (Assigned(aProjectItem) and Assigned((aProjectItem as tProjectItem)
       .oProperties)) and ((aProjectItem as tProjectItem)
       .oProperties.IsPropertyExists(lsToken)) then
-      begin
-        result := ttProperty
-      end
+      result := ttProperty
     else if Assigned(oRuntime.oPlugins) and
       (oRuntime.oPlugins.IsTagExists(lsToken,
       lsToken2 ) or

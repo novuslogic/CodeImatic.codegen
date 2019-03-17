@@ -344,8 +344,6 @@ begin
 
     RunPropertyVariables(0, (FCodeGeneratorList.Count - 1));
 
-    //DoConnections;
-
     RunInterpreter(0, (FCodeGeneratorList.Count - 1));
 
     DoTrimLines;
@@ -524,6 +522,18 @@ Var
   I: Integer;
   LTemplateTag: TTemplateTag;
 begin
+
+   for i:= aStrings.count-1 downto 0 do
+     begin
+       if pos(cDeleteLine, aStrings[i])> 0 then
+           aStrings.delete(i)
+       else
+       if pos(cBlankLine, aStrings[i])> 0 then
+           aStrings[i] := '';
+
+      end;
+
+  (*
   try
     loTemplate := TTemplate.CreateTemplate;
     loTemplate.TemplateDoc.text := aStrings.text;
@@ -563,6 +573,7 @@ begin
   finally
     loTemplate.Free;
   end;
+  *)
 end;
 
 procedure TCodeGenerator.RunPropertyVariables;

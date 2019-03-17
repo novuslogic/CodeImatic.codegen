@@ -64,7 +64,6 @@ Type
     function VariableExists(aVariableName: String): boolean;
 
     class function CleanVariableName(AVariableName: String): String;
-    class function IsVariable(AVariableName: String): Boolean;
 
     property oVariableList: tNovusList
       read foVariableList
@@ -182,11 +181,6 @@ begin
   FObject := FoVariableList.FindItem(aVariableName);
   if Not Assigned(FObject) then Exit;
   Result := (FObject as TVariable);
-end;
-
-class function TVariables.IsVariable(AVariableName: String): Boolean;
-begin
-  Result := Copy(AVariableName, 1, 1) = '$';
 end;
 
 class function TVariables.CleanVariableName(AVariableName: String): String;
