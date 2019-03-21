@@ -327,20 +327,20 @@ end;
 function TJSONTag_LoadJSON.Execute(aProjectItem: tProjectItem; aTagName: String;
   aTokens: tTokenProcessor): String;
 var
-  LJSONFunctionParser: tJSONFunctionParser;
+  LFunctionParser: TJSONFunctionParser;
 begin
   Try
     Try
       Self.oVariables := tProjectItem(aProjectItem).oVariables;
 
-      LJSONFunctionParser := tJSONFunctionParser.Create(aProjectItem, aTokens,
+      LFunctionParser := TJSONFunctionParser.Create(aProjectItem, aTokens,
         oOutput, aTagName);
 
-      LJSONFunctionParser.OnExecute := OnExecute;
+      LFunctionParser.OnExecute := OnExecute;
 
-      Result := LJSONFunctionParser.Execute;
+      Result := LFunctionParser.Execute;
     Finally
-      LJSONFunctionParser.Free;
+      LFunctionParser.Free;
     End;
   Except
     oOutput.InternalError;
@@ -374,20 +374,20 @@ end;
 function TJSONTag_JSONQuery.Execute(aProjectItem: tProjectItem;
   aTagName: String; aTokens: tTokenProcessor): String;
 var
-  LFunctionAParser: tFunctionAParser;
+  LFunctionParser: tFunctionAParser;
 begin
   Try
     Try
       Self.oVariables := aProjectItem.oVariables;
 
-      LFunctionAParser := tFunctionAParser.Create(aProjectItem, aTokens,
+      LFunctionParser := tFunctionAParser.Create(aProjectItem, aTokens,
         oOutput, aTagName);
 
-      LFunctionAParser.OnExecute := OnExecute;
+      LFunctionParser.OnExecute := OnExecute;
 
-      Result := LFunctionAParser.Execute;
+      Result := LFunctionParser.Execute;
     Finally
-      LFunctionAParser.Free;
+      LFunctionParser.Free;
     End;
   Except
     oOutput.InternalError;
@@ -485,20 +485,20 @@ end;
 function TJSONTag_ToJSON.Execute(aProjectItem: tProjectItem; aTagName: String;
   aTokens: tTokenProcessor): String;
 var
-  LFunctionAParser: tFunctionAParser;
+  LFunctionParser: tFunctionAParser;
 begin
   Try
     Try
       Self.oVariables := aProjectItem.oVariables;
 
-      LFunctionAParser := tFunctionAParser.Create(aProjectItem, aTokens,
+      LFunctionParser := tFunctionAParser.Create(aProjectItem, aTokens,
         oOutput, aTagName);
 
-      LFunctionAParser.OnExecute := OnExecute;
+      LFunctionParser.OnExecute := OnExecute;
 
-      Result := LFunctionAParser.Execute;
+      Result := LFunctionParser.Execute;
     Finally
-      LFunctionAParser.Free;
+      LFunctionParser.Free;
     End;
   Except
     oOutput.InternalError;
@@ -537,20 +537,20 @@ end;
 function TJSONTag_IsJSONEmpty.Execute(aProjectItem: tProjectItem; aTagName: String;
   aTokens: tTokenProcessor): String;
 var
-  LFunctionAParser: tFunctionAParser;
+  LFunctionParser: tFunctionAParser;
 begin
   Try
     Try
       Self.oVariables := aProjectItem.oVariables;
 
-      LFunctionAParser := tFunctionAParser.Create(aProjectItem, aTokens,
+      LFunctionParser := tFunctionAParser.Create(aProjectItem, aTokens,
         oOutput, aTagName);
 
-      LFunctionAParser.OnExecute := OnExecute;
+      LFunctionParser.OnExecute := OnExecute;
 
-      Result := LFunctionAParser.Execute;
+      Result := LFunctionParser.Execute;
     Finally
-      LFunctionAParser.Free;
+      LFunctionParser.Free;
     End;
   Except
     oOutput.InternalError;
@@ -588,20 +588,20 @@ end;
 function TJSONTag_ToJSONValue.Execute(aProjectItem: tProjectItem;
   aTagName: String; aTokens: tTokenProcessor): String;
 var
-  LFunctionAParser: tFunctionAParser;
+  LFunctionParser: tFunctionAParser;
 begin
   Try
     Try
       Self.oVariables := aProjectItem.oVariables;
 
-      LFunctionAParser := tFunctionAParser.Create(aProjectItem, aTokens,
+      LFunctionParser := tFunctionAParser.Create(aProjectItem, aTokens,
         oOutput, aTagName);
 
-      LFunctionAParser.OnExecute := OnExecute;
+      LFunctionParser.OnExecute := OnExecute;
 
-      Result := LFunctionAParser.Execute;
+      Result := LFunctionParser.Execute;
     Finally
-      LFunctionAParser.Free;
+      LFunctionParser.Free;
     End;
   Except
     oOutput.InternalError;
@@ -636,20 +636,20 @@ end;
 function TJSONTag_JSONGetArray.Execute(aProjectItem: tProjectItem;
   aTagName: String; aTokens: tTokenProcessor): String;
 var
-  LFunctionAParser: tFunctionAParser;
+  LFunctionParser: tFunctionAParser;
 begin
   Try
     Try
       Self.oVariables := tProjectItem(aProjectItem).oVariables;
 
-      LFunctionAParser := tFunctionAParser.Create(aProjectItem, aTokens,
+      LFunctionParser := tFunctionAParser.Create(aProjectItem, aTokens,
         oOutput, aTagName);
 
-      LFunctionAParser.OnExecute := OnExecute;
+      LFunctionParser.OnExecute := OnExecute;
 
-      Result := LFunctionAParser.Execute;
+      Result := LFunctionParser.Execute;
     Finally
-      LFunctionAParser.Free;
+      LFunctionParser.Free;
     End;
   Except
     oOutput.InternalError;
@@ -714,20 +714,20 @@ end;
 function TJSONTag_JSONString.Execute(aProjectItem: tProjectItem;
   aTagName: String; aTokens: tTokenProcessor): String;
 var
-  LFunctionAParser: tFunctionAParser;
+  LFunctionParser: tFunctionAParser;
 begin
   Try
     Try
       Self.oVariables := tProjectItem(aProjectItem).oVariables;
 
-      LFunctionAParser := tFunctionAParser.Create(aProjectItem, aTokens,
+      LFunctionParser := tFunctionAParser.Create(aProjectItem, aTokens,
         oOutput, aTagName);
 
-      LFunctionAParser.OnExecute := OnExecute;
+      LFunctionParser.OnExecute := OnExecute;
 
-      Result := LFunctionAParser.Execute;
+      Result := LFunctionParser.Execute;
     Finally
-      LFunctionAParser.Free;
+      LFunctionParser.Free;
     End;
   Except
     oOutput.InternalError;
@@ -767,20 +767,20 @@ end;
 function TJSONTag_JSONPair.Execute(aProjectItem: tProjectItem;
   aTagName: String; aTokens: tTokenProcessor): String;
 var
-  LFunctionAParser: tFunctionAParser;
+  LFunctionParser: tFunctionAParser;
 begin
   Try
     Try
       Self.oVariables := tProjectItem(aProjectItem).oVariables;
 
-      LFunctionAParser := tFunctionAParser.Create(aProjectItem, aTokens,
+      LFunctionParser := tFunctionAParser.Create(aProjectItem, aTokens,
         oOutput, aTagName);
 
-      LFunctionAParser.OnExecute := OnExecute;
+      LFunctionParser.OnExecute := OnExecute;
 
-      Result := LFunctionAParser.Execute;
+      Result := LFunctionParser.Execute;
     Finally
-      LFunctionAParser.Free;
+      LFunctionParser.Free;
     End;
   Except
     oOutput.InternalError;
@@ -822,20 +822,20 @@ end;
 function TJSONTag_JSONArraySize.Execute(aProjectItem: tProjectItem;
   aTagName: String; aTokens: tTokenProcessor): String;
 var
-  LFunctionAParser: tFunctionAParser;
+  LFunctionParser: tFunctionAParser;
 begin
   Try
     Try
       Self.oVariables := tProjectItem(aProjectItem).oVariables;
 
-      LFunctionAParser := tFunctionAParser.Create(aProjectItem, aTokens,
+      LFunctionParser := tFunctionAParser.Create(aProjectItem, aTokens,
         oOutput, aTagName);
 
-      LFunctionAParser.OnExecute := OnExecute;
+      LFunctionParser.OnExecute := OnExecute;
 
-      Result := LFunctionAParser.Execute;
+      Result := LFunctionParser.Execute;
     Finally
-      LFunctionAParser.Free;
+      LFunctionParser.Free;
     End;
   Except
     oOutput.InternalError;
@@ -871,20 +871,20 @@ end;
 function TJSONTag_JSONQueryValue.Execute(aProjectItem: tProjectItem; aTagName: String;
   aTokens: tTokenProcessor): String;
 var
-  LFunctionAParser: tFunctionAParser;
+  LFunctionParser: tFunctionAParser;
 begin
   Try
     Try
       Self.oVariables := aProjectItem.oVariables;
 
-      LFunctionAParser := tFunctionAParser.Create(aProjectItem, aTokens,
+      LFunctionParser := tFunctionAParser.Create(aProjectItem, aTokens,
         oOutput, aTagName);
 
-      LFunctionAParser.OnExecute := OnExecute;
+      LFunctionParser.OnExecute := OnExecute;
 
-      Result := LFunctionAParser.Execute;
+      Result := LFunctionParser.Execute;
     Finally
-      LFunctionAParser.Free;
+      LFunctionParser.Free;
     End;
   Except
     oOutput.InternalError;

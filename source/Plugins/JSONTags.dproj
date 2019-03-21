@@ -127,7 +127,6 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="Plugin_JSONTagsClasses.pas"/>
-        <DCCReference Include="JSONFunctionParser.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -201,6 +200,12 @@
                     </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\build\plugins\SysTags.dll" Configuration="Debug" Class="ProjectOutput"/>
+                <DeployFile LocalName="..\..\build\plugins\JSONTags.rsm" Configuration="Debug" Class="DebugSymbols">
+                    <Platform Name="Win64">
+                        <RemoteName>JSONTags.rsm</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile LocalName="..\..\build\plugins\JSONTags.dll" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win64">
                         <RemoteName>JSONTags.dll</RemoteName>

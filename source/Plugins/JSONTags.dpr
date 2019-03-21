@@ -7,8 +7,7 @@ uses
   FastMM4,
   System.SysUtils,
   System.Classes,
-  Plugin_JSONTagsClasses in 'Plugin_JSONTagsClasses.pas',
-  JSONFunctionParser in 'JSONFunctionParser.pas';
+  Plugin_JSONTagsClasses in 'Plugin_JSONTagsClasses.pas';
 
 {$R *.res}
 

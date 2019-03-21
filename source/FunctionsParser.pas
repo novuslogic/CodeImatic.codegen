@@ -40,30 +40,34 @@ function TFunctionParser.Execute: String;
 Var
   LsToken: String;
   fTagType: TTagType;
+  lsNextToken: String;
 begin
   Result := '';
 
   if fsTagName = oTokens.Strings[TokenIndex] then
      oTokens.TokenIndex := oTokens.TokenIndex + 1;
 
-  if ParseNextToken = '(' then
+  lsNextToken := ParseNextToken;
+  if  lsNextToken = '(' then
     begin
       LsToken := ParseNextToken;
       if Assigned(OnExecute) then
         OnExecute(LsToken);
 
-      if ParseNextToken = ')' then
+      lsNextToken := ParseNextToken;
+      if  lsNextToken = ')' then
         begin
           Result := LsToken;
           Exit;
         end
       else
-        oOutput.LogError('Incorrect syntax: lack ")"');
+        oOutput.LogError('Syntax error: lack ")" not "'+ lsNextToken +'"');
 
     end
   else
     begin
-      oOutput.LogError('Incorrect syntax: lack "("');
+
+      oOutput.LogError('Syntax error: lack "(" not "'+ lsNextToken +'"');
     end;
 end;
 
@@ -71,13 +75,15 @@ function TFunctionAParser.Execute: String;
 Var
   LsToken, LsToken2: String;
   fTagType: TTagType;
+  lsNextToken: String;
 begin
   Result := '';
 
   if fsTagName = oTokens.Strings[TokenIndex] then
      oTokens.TokenIndex := oTokens.TokenIndex + 1;
 
-  if ParseNextToken = '(' then
+  lsNextToken := ParseNextToken;
+  if lsNextToken = '(' then
     begin
       LsToken := ParseNextToken;
       if Assigned(OnExecute) then
@@ -90,7 +96,8 @@ begin
             oTokens.TokenIndex := oTokens.Count -1;
         end;
 
-      if ParseNextToken = ')' then
+      lsNextToken := ParseNextToken;
+      if lsNextToken = ')' then
         begin
           Result := LsToken;
 
@@ -98,13 +105,13 @@ begin
         end
       else
         begin
-          oOutput.LogError('Incorrect syntax: lack ")"' );
+          oOutput.LogError('Syntax error: lack ")" not "'+ lsNextToken +'"' );
         end;
 
     end
   else
     begin
-      oOutput.LogError('Incorrect syntax: lack "("');
+      oOutput.LogError('Syntax error: lack "(s" not "'+ lsNextToken +'"');
     end;
 end;
 

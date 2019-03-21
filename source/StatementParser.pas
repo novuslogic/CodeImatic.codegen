@@ -20,6 +20,9 @@ var
   fExpressionParser: TExpressionParser;
 begin
   Result := false;
+
+  if Self.Text = '' then Exit;
+ 
   Try
   Try
     fExpressionParser:= TExpressionParser.Create;
