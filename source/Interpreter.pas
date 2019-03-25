@@ -911,6 +911,7 @@ Var
     liLastNextSourceLineNo, liNextSourceLineNo1, liNextSourceLineNo2,
     liStartSourceLineNo, liSourceLineCount, liEndSourceLineNo: Integer;
   lbEqual: Boolean;
+  lbIsTag: Boolean;
 begin
   Result := '';
 
@@ -1006,14 +1007,6 @@ begin
             .oTemplateTag.SourceLineNo;
           Dec(liEndSourceLineNo, 1);
 
-          for I := liStartPos1 to liEndPos1 do
-          begin
-            LCodeGeneratorItem1 :=
-              TCodeGeneratorItem(TCodeGenerator(FoCodeGenerator)
-              .oCodeGeneratorList.Items[I]);
-            LCodeGeneratorItem1.LoopId := fiLoopCounter;
-          end;
-
           LCodeGenerator := (FoCodeGenerator As TCodeGenerator);
 
           LTemplate := LCodeGenerator.oTemplate;
@@ -1029,6 +1022,8 @@ begin
           Repeat
             liPos := 0;
 
+
+            lbIsTag:= false;
             While (liPos < TCodeGenerator(FoCodeGenerator)
               .oCodeGeneratorList.Count) do
             begin
@@ -1037,6 +1032,7 @@ begin
 
               if Assigned(LCodeGeneratorItem1) then
               begin
+                lbIsTag:= true;
                 LTemplateTag1 := LCodeGeneratorItem1.oTemplateTag;
 
                 liTagIndex := LTemplateTag1.TagIndex;
@@ -1072,6 +1068,13 @@ begin
                 end;
               end;
             end;
+
+            if lbIsTag = false then
+              begin
+                if Not lbEqual then
+                  LTemplate.OutputDoc.Strings[liStartSourceLineNo + I] := cDeleteLine;
+              end;
+
 
             Inc(I);
             if I > (liLastEndSourceLineNo - 1) then
@@ -1274,7 +1277,7 @@ begin
   begin
     If FOut = true then
     begin
-      //I := VariableExistsIndex(lsVariableName1);
+      (*
       lVariableI := oVariables.GetVariableByName(lsVariableName1);
       if Assigned(lVariableI) then
       begin
@@ -1286,6 +1289,26 @@ begin
         FoOutput.Log('Syntax error: "' + lsVariableName1 + '" not defined');
         FoOutput.Failed := true;
       end;
+       *)
+      lVariableI := oVariables.GetVariableByName(lsVariableName1);
+      if Assigned(lVariableI) then
+      begin
+        FVariable1 := lVariableI;
+        Result := FVariable1.Value;
+      end
+      else
+      begin
+        if not  ((foProjectItem as tProjectItem).oProperties.IsPropertyExists(lsVariableName1)) then
+          FoOutput.Log('Syntax error: variable "' + lsVariableName1 + '" not defined')
+        else
+          begin
+            Result := ((foProjectItem as tProjectItem).oProperties.GetProperty(lsVariableName1));
+            exit;
+          end;
+
+        FoOutput.Failed := true;
+      end;
+
 
     end
     else
