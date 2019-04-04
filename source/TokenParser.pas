@@ -284,9 +284,11 @@ begin
 
         end;
 
+
       ttConfigProperties:
         begin
-          lsToken2 := ATokens.GetNextToken(ATokens.TokenIndex + 1);
+          lsToken2 := ATokens.GetNextToken(ATokens.TokenIndex + 2);
+
 
           aTokenIndex := ATokens.TokenIndex;
 
@@ -394,12 +396,14 @@ begin
 
         ttConfigProperties:
           begin
+            (*
             lsToken2 := ATokens.GetNextToken(ATokens.TokenIndex + 1);
 
             aTokenIndex := ATokens.TokenIndex;
 
             if Assigned(aProject) then
               Result := aProject.oProjectConfig.Getproperties(lsToken2);
+              *)
           end;
 
 

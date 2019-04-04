@@ -441,9 +441,7 @@ begin
   begin
     lCodeGeneratorItem := TCodeGeneratorItem(FCodeGeneratorList.Items[I]);
 
-    if (lCodeGeneratorItem.tagtype = ttInterpreter) or
-       (lCodeGeneratorItem.tagtype = ttRepeat) or
-       (lCodeGeneratorItem.tagtype = ttEndRepeat) then
+    if (IsInterpreterTagType(lCodeGeneratorItem.tagtype)) then
     begin
       LTemplateTag := lCodeGeneratorItem.oTemplateTag;
 
@@ -476,7 +474,7 @@ begin
       begin
         lCodeGeneratorItem := TCodeGeneratorItem(FCodeGeneratorList.Items[X]);
 
-        if lCodeGeneratorItem.tagtype = ttInterpreter then
+        if IsInterpreterTagType(lCodeGeneratorItem.tagtype) then
         begin
           LTemplateTag := lCodeGeneratorItem.oTemplateTag;
 
@@ -602,12 +600,13 @@ begin
           FoTemplateTag.TagValue := FVariable.Value;
       end;
     end
+  (*
     else if FCodeGeneratorItem.tagtype = ttConfigProperties then
     begin
       if FCodeGeneratorItem.oTokens.Count > 1 then
         FoTemplateTag.TagValue := foProject.oProjectConfig.Getproperties
           (FCodeGeneratorItem.oTokens[1]);
-    end
+    end *)
     else if FCodeGeneratorItem.tagtype = ttprojectitem then
     begin
       if FCodeGeneratorItem.oTokens.Count > 1 then
@@ -969,8 +968,7 @@ begin
   if Pos('END.', Uppercase(FScript.text)) = 0 then
     FScript.Add('end.');
 
-  // foOutput.Log('Script Filename: ' + GetScriptFilename);
-  // FScript.SaveToFile(GetScriptFilename);
+ 
 
   Result := oRuntime.oScriptEngine.ExecuteScript(FScript.text);
 
@@ -1042,20 +1040,34 @@ begin
   begin
     FCodeGeneratorItem := TCodeGeneratorItem(FCodeGeneratorList.Items[I]);
 
-    if FCodeGeneratorItem.tagtype = ttProperty then
-    begin
-      FoTemplateTag := FCodeGeneratorItem.oTemplateTag;
+    case FCodeGeneratorItem.tagtype of
+      ttProperty:
+        begin
+          FoTemplateTag := FCodeGeneratorItem.oTemplateTag;
 
-      FoTemplateTag.TagValue := (foProjectItem as TProjectItem)
-        .oProperties.GetProperty(FoTemplateTag.TagName);
-    end
-    else if FCodeGeneratorItem.tagtype = ttPropertyEx then
-    begin
-      FoTemplateTag := FCodeGeneratorItem.oTemplateTag;
+          FoTemplateTag.TagValue := (foProjectItem as TProjectItem)
+            .oProperties.GetProperty(FoTemplateTag.TagName);
 
-      if FCodeGeneratorItem.oTokens.Count > 1 then
-        FoTemplateTag.TagValue := (foProjectItem as TProjectItem)
-          .oProperties.GetProperty(FCodeGeneratorItem.oTokens[1]);
+        end;
+      ttPropertyEx:
+        begin
+          FoTemplateTag := FCodeGeneratorItem.oTemplateTag;
+
+          if FCodeGeneratorItem.oTokens.Count > 1 then
+            FoTemplateTag.TagValue := (foProjectItem as TProjectItem)
+             .oProperties.GetProperty(FCodeGeneratorItem.oTokens[1]);
+        end;
+      ttConfigProperties:
+        begin
+          FoTemplateTag := FCodeGeneratorItem.oTemplateTag;
+
+          if FCodeGeneratorItem.oTokens.Count > 1 then
+            begin
+              if Assigned(foProject) then
+                 FoTemplateTag.TagValue := foProject.oProjectConfig.Getproperties(FCodeGeneratorItem.oTokens[1]);
+            end;
+        end;
+
     end;
   end;
 end;

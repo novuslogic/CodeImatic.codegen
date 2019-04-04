@@ -451,20 +451,21 @@ begin
     fTagType := TTagParser.ParseTagType(foProjectItem, FoCodeGenerator, aToken,
       FoOutput, true);
 
-    if fTagType = ttplugintag then
-    begin
-      Result := DoPluginTag(aTokens, aIndex);
-    end
-    else if fTagType = ttrepeat then
-      Result := DoRepeat(aTokens, aIndex, ttrepeat, ASkipPOs)
-    else if fTagType = ttendrepeat then
-      Result := DoRepeat(aTokens, aIndex, ttendrepeat, ASkipPOs)
-    else if fTagType = ttif then
-      Result := DoIF(aTokens, aIndex, ttif, ASkipPOs)
-    else if fTagType = ttendif then
-      Result := DoIF(aTokens, aIndex, ttendif, ASkipPOs)
-    else if fTagType = ttLog then
-      Result := DoLog(aTokens, aIndex, fTagType, ASkipPos);
+    case fTagType of
+      ttplugintag:
+         Result := DoPluginTag(aTokens, aIndex);
+      ttrepeat:
+        Result := DoRepeat(aTokens, aIndex, ttrepeat, ASkipPOs);
+      ttendrepeat:
+         Result := DoRepeat(aTokens, aIndex, ttendrepeat, ASkipPOs);
+      ttif:
+        Result := DoIF(aTokens, aIndex, ttif, ASkipPOs);
+      ttendif:
+        Result := DoIF(aTokens, aIndex, ttendif, ASkipPOs);
+      ttLog:
+        Result := DoLog(aTokens, aIndex, fTagType, ASkipPos);
+    end;
+
 
     if (CommandSyntaxIndex(aToken) <> 0) then
     begin
@@ -512,6 +513,12 @@ begin
     Result := aTokens[aIndex];
   try
     lsNextToken := aTokens[aIndex];
+
+
+   // need to merge this in
+    //result := ParseToken(lsNextToken, aIndex,
+     //      aTokens, aSkipPos);
+
 
     fTagType := TTagParser.ParseTagType(foProjectItem, FoCodeGenerator,
       lsNextToken, FoOutput, true);
@@ -562,6 +569,7 @@ begin
           TCodeGenerator(FoCodeGenerator).oProject)
       else if Pos('$', aTokens[aIndex]) = 1 then
         Result := ParseVariable(aTokens, aIndex)
+
     end;
 
   Except
@@ -679,6 +687,7 @@ begin
         ASkipPOs := 0;
 
         LStarTNavigate := FindNavigateID(ltrepeat, fiLoopCounter);
+        if Not Assigned(LStarTNavigate) then Exit;
 
         LiValue := LStarTNavigate.Value;
         lbNegitiveFlag := LStarTNavigate.NegitiveFlag;
@@ -699,6 +708,7 @@ begin
           .oTemplateTag.SourceLineNo;
         Dec(liEndSourceLineNo, 1);
 
+        (*
         for I := liStartPos1 to liEndPos1 do
         begin
           LCodeGeneratorItem1 :=
@@ -706,6 +716,7 @@ begin
             .oCodeGeneratorList.Items[I]);
           LCodeGeneratorItem1.LoopId := fiLoopCounter;
         end;
+        *)
 
         LCodeGenerator := (FoCodeGenerator As TCodeGenerator);
 
@@ -1001,8 +1012,6 @@ begin
             .oTemplateTag.TagIndex;
           Dec(liEndPos1, 1);
 
-
-
           liEndSourceLineNo := (FoCodeGeneratorItem As TCodeGeneratorItem)
             .oTemplateTag.SourceLineNo;
           Dec(liEndSourceLineNo, 1);
@@ -1277,19 +1286,6 @@ begin
   begin
     If FOut = true then
     begin
-      (*
-      lVariableI := oVariables.GetVariableByName(lsVariableName1);
-      if Assigned(lVariableI) then
-      begin
-        FVariable1 := lVariableI;
-        Result := FVariable1.Value;
-      end
-      else
-      begin
-        FoOutput.Log('Syntax error: "' + lsVariableName1 + '" not defined');
-        FoOutput.Failed := true;
-      end;
-       *)
       lVariableI := oVariables.GetVariableByName(lsVariableName1);
       if Assigned(lVariableI) then
       begin
@@ -1299,14 +1295,12 @@ begin
       else
       begin
         if not  ((foProjectItem as tProjectItem).oProperties.IsPropertyExists(lsVariableName1)) then
-          FoOutput.Log('Syntax error: variable "' + lsVariableName1 + '" not defined')
-        else
           begin
-            Result := ((foProjectItem as tProjectItem).oProperties.GetProperty(lsVariableName1));
-            exit;
+            FoOutput.Log('Syntax error: variable "' + lsVariableName1 + '" not defined');
+
+            FoOutput.Failed := true;
           end;
 
-        FoOutput.Failed := true;
       end;
 
 

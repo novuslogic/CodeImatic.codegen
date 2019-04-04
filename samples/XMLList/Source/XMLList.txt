@@ -1,0 +1,6 @@
+<%=$$Properties.XMLFile%>
+
+<%repeat(0)%>
+sssss
+<%endrepeat%>
+bbbbb

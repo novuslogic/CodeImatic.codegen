@@ -4,11 +4,11 @@
   <messageslogpath></messageslogpath>
   <Createoutputdir>true</Createoutputdir>
   
-  <projectitem name = "index.html">
-    <template>[%sourcepath%]index.html</template>
-    <properties>[%propertiespath%]DBStaticWebsite.xml</properties>
+  <projectitem name = "XMLList.txt">
+    <source>[%sourcepath%]XMLList.txt</source>
+    <properties>[%propertiespath%]XMLList.xml</properties>
     <overrideoutput>true</overrideoutput>
-    <output>[%outputpath%]</output>
+    <output>[%outputpath%]XMLList.txt</output>
   </projectitem>
   
 </project>

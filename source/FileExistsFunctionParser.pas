@@ -1,4 +1,4 @@
-unit JSONFunctionParser;
+unit FileExistsFunctionParser;
 
 
 interface
@@ -6,9 +6,9 @@ interface
 Uses TokenParser, TagParser, TagType, DataProcessor, ProjectItem, TokenProcessor, SysUtils;
 
 Type
-   TOnExecute = procedure(var aToken: String; aTokenParser: tTokenParser; aJSONFilename: String) of object;
+   TOnExecute = procedure(var aToken: String; aTokenParser: tTokenParser; aFilename: String) of object;
 
-   TJSONFunctionParser = class(tTokenParser)
+   TFileExistsFunctionParser = class(tTokenParser)
    private
    protected
      foConnectionItem: tConnectionItem;
@@ -23,7 +23,7 @@ Type
 
 implementation
 
-function TJSONFunctionParser.Execute: string;
+function TFileExistsFunctionParser.Execute: string;
 Var
   FFieldDesc: tFieldDesc;
   FsJSONFilename: String;
@@ -57,10 +57,12 @@ begin
             oOutput.LogError('Incorrect syntax: lack ")"');
 
 
-    end
+     end
+    else
+      oOutput.LogError('Incorrect syntax: Cannot find filename [' + FsJSONFilename +']');
   end
    else
-    oOutput.Log('Incorrect syntax: lack "("');
+     oOutput.LogError('Incorrect syntax: lack "("');
 end;
 
 end.

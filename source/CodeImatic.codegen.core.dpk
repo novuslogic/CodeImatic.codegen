@@ -71,6 +71,7 @@ contains
   TokenProcessor in 'TokenProcessor.pas',
   Variables in 'Variables.pas',
   StatementParser in 'StatementParser.pas',
-  TagBasePlugin in 'TagBasePlugin.pas';
+  TagBasePlugin in 'TagBasePlugin.pas',
+  FileExistsFunctionParser in 'FileExistsFunctionParser.pas';
 
 end.

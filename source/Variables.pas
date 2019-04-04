@@ -56,7 +56,7 @@ Type
     constructor Create(aOutput: tOutput); virtual;
     destructor Destroy; override;
 
-    function AddVariableObject(aObject: Tobject; aObjectTypeName: String = ''): String;
+    function AddVariableObject(aObject: Tobject; aObjectTypeName: String; aIsDestroy: boolean): String;
     procedure AddVariable(AVariableName: String;AValue: Variant);
     //function VariableExistsIndex(AVariableName: String): Integer;
    // function GetVariableByIndex(AIndex: Integer): TVariable;
@@ -95,7 +95,7 @@ begin
 end;
 
 
-function TVariables.AddVariableObject(aObject: Tobject; aObjectTypeName: string): String;
+function TVariables.AddVariableObject(aObject: Tobject; aObjectTypeName: String; aIsDestroy: boolean): String;
 Var
   foVariable: TVariable;
 begin

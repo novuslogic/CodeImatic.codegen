@@ -5,9 +5,9 @@ interface
 uses Classes, Plugin, NovusPlugin, NovusVersionUtils, Project,
   Output, SysUtils, System.Generics.Defaults, runtime, Config,
   APIBase, NovusGUIDEx, CodeGeneratorItem, FunctionsParser, ProjectItem,
-  Variables, NovusFileUtils, CodeGenerator, JSONFunctionParser, TokenParser,
+  Variables, NovusFileUtils, CodeGenerator, TokenParser,
   NovusJSONUtils, System.IOUtils, System.JSON, TokenProcessor, NovusStringUtils,
-  TagBasePlugin;
+  TagBasePlugin, FileExistsFunctionParser;
 
 type
   tJsonValueType = (jsArray, jsObject, jsPair, jsUnknown);
@@ -327,13 +327,13 @@ end;
 function TJSONTag_LoadJSON.Execute(aProjectItem: tProjectItem; aTagName: String;
   aTokens: tTokenProcessor): String;
 var
-  LFunctionParser: TJSONFunctionParser;
+  LFunctionParser: TFileExistsFunctionParser;
 begin
   Try
     Try
       Self.oVariables := tProjectItem(aProjectItem).oVariables;
 
-      LFunctionParser := TJSONFunctionParser.Create(aProjectItem, aTokens,
+      LFunctionParser := TFileExistsFunctionParser.Create(aProjectItem, aTokens,
         oOutput, aTagName);
 
       LFunctionParser.OnExecute := OnExecute;
@@ -361,7 +361,7 @@ begin
     oOutput.LogError('JSONFilename cannot read [' + aJSONFilename + ']');
   End;
 
-  aToken := Self.oVariables.AddVariableObject(FJSONValue, TJSONTag.ClassName);
+  aToken := Self.oVariables.AddVariableObject(FJSONValue, TJSONTag.ClassName, true);
 end;
 
 
@@ -472,8 +472,7 @@ begin
     end;
 
 
-    aToken := Self.oVariables.AddVariableObject(FJSONValue, TJSONTag.ClassName);
-
+  aToken := Self.oVariables.AddVariableObject(FJSONValue, TJSONTag.ClassName, false);
 end;
 
 // TJSONTag_ToJSON
@@ -702,7 +701,7 @@ begin
     end;
 
   FJSONValue :=  TJSONArray(FJSONArray.Get(liIndex));
-  aToken := Self.oVariables.AddVariableObject(FJSONValue, TJSONTag.ClassName);
+  aToken := Self.oVariables.AddVariableObject(FJSONValue, TJSONTag.ClassName, false);
 end;
 
 // TJSONTag_JSONString
@@ -805,7 +804,7 @@ begin
   Try
     FJSONPair:= TJSONPair(FVariable.oObject);
 
-    aToken := Self.oVariables.AddVariableObject(FJSONPair, TJSONTag.ClassName);
+    aToken := Self.oVariables.AddVariableObject(FJSONPair, TJSONTag.ClassName, false);
   Except
     aToken := '';
   End;
@@ -852,8 +851,8 @@ Var
   FJSONValue: TJSONValue;
 begin
   FVariable := GetJSONObjectVariable(aToken);
-  if not Assigned(FVariable) then
-    Exit;
+
+  if not Assigned(FVariable) then Exit;
 
   FJSONArray := TJSONArray(FVariable.oObject);
 

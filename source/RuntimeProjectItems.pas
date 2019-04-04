@@ -69,14 +69,14 @@ begin
                loProjectItem.templateFile := TNovusFileUtils.TrailingBackSlash
                  (loProjectItem.templateFile) + loProjectItem.ItemName;
             Except
-              foOutput.Log('TemplateFile Projectconfig error.');
+              foOutput.LogError('TemplateFile Projectconfig error.');
 
               Break;
             End;
 
             if Not FileExists(loProjectItem.templateFile) then
             begin
-              foOutput.Log('template ' + loProjectItem.templateFile +
+              foOutput.LogError('template ' + loProjectItem.templateFile +
                 ' cannot be found.');
 
               foOutput.Failed := true;
@@ -90,7 +90,7 @@ begin
 
           if not TNovusFileUtils.IsValidFolder(loProjectItem.ItemFolder) then
           begin
-            foOutput.Log('Folder ' + loProjectItem.ItemFolder +
+            foOutput.LogError('Folder ' + loProjectItem.ItemFolder +
               ' cannot be found.');
 
             foOutput.Failed := true;
@@ -105,7 +105,7 @@ begin
           if not TNovusFileUtils.IsValidFolder(loProjectItem.oSourceFiles.Folder)
           then
           begin
-            foOutput.Log('Sourcefiles.Folder ' + loProjectItem.oSourceFiles.Folder
+            foOutput.LogError('Sourcefiles.Folder ' + loProjectItem.oSourceFiles.Folder
               + ' cannot be found.');
 
             foOutput.Failed := true;
@@ -127,7 +127,7 @@ begin
                (loProjectItem.OutputFile) + loProjectItem.ItemName;
         end;
       Except
-        foOutput.Log('Output Projectconfig error.');
+        foOutput.LogError('Output Projectconfig error.');
 
         Break;
       End;
@@ -137,7 +137,7 @@ begin
       begin
         if not foProject.Createoutputdir then
         begin
-          foOutput.Log('output ' + TNovusStringUtils.JustPathname
+          foOutput.LogError('output ' + TNovusStringUtils.JustPathname
             (loProjectItem.OutputFile) + ' directory cannot be found.');
 
           Continue;
@@ -147,7 +147,7 @@ begin
           if Not ForceDirectories(TNovusStringUtils.JustPathname
             (loProjectItem.OutputFile)) then
           begin
-            foOutput.Log('output ' + TNovusStringUtils.JustPathname
+            foOutput.LogError('output ' + TNovusStringUtils.JustPathname
               (loProjectItem.OutputFile) + ' directory cannot be created.');
 
             Continue;

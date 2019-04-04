@@ -33,6 +33,9 @@
         <Projects Include="Plugins\JSONTags.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="Plugins\XMLTags.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -131,14 +134,23 @@
     <Target Name="JSONTags:Make">
         <MSBuild Projects="Plugins\JSONTags.dproj" Targets="Make"/>
     </Target>
+    <Target Name="XMLTags">
+        <MSBuild Projects="Plugins\XMLTags.dproj"/>
+    </Target>
+    <Target Name="XMLTags:Clean">
+        <MSBuild Projects="Plugins\XMLTags.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="XMLTags:Make">
+        <MSBuild Projects="Plugins\XMLTags.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="CodeImatic_codegen;CodeImatic_codegen_core;WebServer;WebProcessor;SystemExt;CodeDocsProcessor;SysTags;DBTags;SQLDir;JSONTags"/>
+        <CallTarget Targets="CodeImatic_codegen;CodeImatic_codegen_core;WebServer;WebProcessor;SystemExt;CodeDocsProcessor;SysTags;DBTags;SQLDir;JSONTags;XMLTags"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="CodeImatic_codegen:Clean;CodeImatic_codegen_core:Clean;WebServer:Clean;WebProcessor:Clean;SystemExt:Clean;CodeDocsProcessor:Clean;SysTags:Clean;DBTags:Clean;SQLDir:Clean;JSONTags:Clean"/>
+        <CallTarget Targets="CodeImatic_codegen:Clean;CodeImatic_codegen_core:Clean;WebServer:Clean;WebProcessor:Clean;SystemExt:Clean;CodeDocsProcessor:Clean;SysTags:Clean;DBTags:Clean;SQLDir:Clean;JSONTags:Clean;XMLTags:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="CodeImatic_codegen:Make;CodeImatic_codegen_core:Make;WebServer:Make;WebProcessor:Make;SystemExt:Make;CodeDocsProcessor:Make;SysTags:Make;DBTags:Make;SQLDir:Make;JSONTags:Make"/>
+        <CallTarget Targets="CodeImatic_codegen:Make;CodeImatic_codegen_core:Make;WebServer:Make;WebProcessor:Make;SystemExt:Make;CodeDocsProcessor:Make;SysTags:Make;DBTags:Make;SQLDir:Make;JSONTags:Make;XMLTags:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

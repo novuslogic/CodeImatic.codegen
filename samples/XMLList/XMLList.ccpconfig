@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<projectconfig>
+   <properties> 
+     <outputpath>D:\Projects\CodeImatic.codegen\samples\XMLList\Output\</outputpath>
+     <propertiespath>D:\Projects\CodeImatic.codegen\samples\XMLList\Properties\</propertiespath>
+     <sourcepath>D:\Projects\CodeImatic.codegen\samples\XMLList\Source\</sourcepath>
+   </properties>  
+</projectconfig>
