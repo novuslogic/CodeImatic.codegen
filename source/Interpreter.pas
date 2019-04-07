@@ -219,7 +219,7 @@ begin
   end
   else
   begin
-    FoOutput.Log('Incorrect syntax: lack "("');
+    FoOutput.LogError('Syntax Error: lack "("');
 
   end;
 end;
@@ -259,11 +259,11 @@ begin
             Result := loXMLlist.GetValueByIndex(StrToint(lsStr));
           end
           else
-            FoOutput.Log('Incorrect syntax: Index is not numeric ');
+            FoOutput.LogError('Syntax Error: Index is not numeric ');
 
         end
         else
-          FoOutput.Log('Incorrect syntax: Index is blank.');
+          FoOutput.LogError('Syntax Error: Index is blank.');
 
         if Assigned(loXMLlist) then
           loXMLlist.Free;
@@ -277,16 +277,16 @@ begin
 
     end
     else
-      FoOutput.Log('Incorrect syntax: List is blank.');
+      FoOutput.LogError('Syntax Error: List is blank.');
   end
   else
   begin
-    FoOutput.Log('Incorrect syntax: lack "("');
+    FoOutput.LogError('Syntax Error: lack "("');
 
   end;
 
   if GetNextTokenA(aIndex, aTokens) <> ')' then
-    FoOutput.Log('Incorrect syntax: lack ")"');
+    FoOutput.LogError('Syntax Error: lack ")"');
 end;
 
 function TInterpreter.XMLListName(aTokens: tTokenProcessor;
@@ -324,11 +324,11 @@ begin
             Result := loXMLlist.GetNameByIndex(StrToint(lsStr));
           end
           else
-            FoOutput.Log('Incorrect syntax: Index is not a number ');
+            FoOutput.LogError('Syntax Error: Index is not a number ');
 
         end
         else
-          FoOutput.Log('Incorrect syntax: Index is blank.');
+          FoOutput.LogError('Syntax Error: Index is blank.');
 
         if Assigned(loXMLlist) then
           loXMLlist.Free;
@@ -342,16 +342,16 @@ begin
 
     end
     else
-      FoOutput.Log('Incorrect syntax: List is blank.');
+      FoOutput.LogError('Syntax Error: List is blank.');
   end
   else
   begin
-    FoOutput.Log('Incorrect syntax: lack "("');
+    FoOutput.LogError('Syntax Error: lack "("');
 
   end;
 
   if GetNextTokenA(aIndex, aTokens) <> ')' then
-    FoOutput.Log('Incorrect syntax: lack ")"');
+    FoOutput.LogError('Syntax Error: lack ")"');
 end;
 
 function TInterpreter.XMLlistCount(aTokens: tTokenProcessor;
@@ -395,11 +395,11 @@ begin
 
     end
     else
-      FoOutput.Log('Incorrect syntax: List is blank.');
+      FoOutput.LogError('Syntax Error: List is blank.');
   end
   else
   begin
-    FoOutput.Log('Incorrect syntax: lack "("');
+    FoOutput.LogError('Syntax Error: lack "("');
 
   end;
 end;
@@ -672,15 +672,15 @@ begin
               ASkipPOs := liEndPos1;
             end
             else
-              FoOutput.Log('Incorrect syntax: lack ")"');
+              FoOutput.LogError('Syntax Error: lack ")"');
 
           end
           else
-            FoOutput.Log('Incorrect syntax: Index is not a number ');
+            FoOutput.LogError('Syntax Error: Index is not a number ');
 
         end
         else
-          FoOutput.Log('Incorrect syntax: lack "("');
+          FoOutput.LogError('Syntax Error: lack "("');
       end;
     ttendrepeat:
       begin
@@ -950,7 +950,7 @@ begin
 
               if LsToken <> ')' then
               begin
-                FoOutput.Log('Incorrect syntax: lack ")"');
+                FoOutput.LogError('Syntax Error: lack ")"');
 
                 Exit;
               end;
@@ -983,11 +983,11 @@ begin
 
           end
           else
-            FoOutput.Log('Incorrect syntax: lack "("');
+            FoOutput.LogError('Syntax Error: lack "("');
 
         end
         else
-          FoOutput.Log('Incorrect syntax: lack "IF"');
+          FoOutput.LogError('Syntax Error: lack "IF"');
       end;
     ttendif:
       begin
@@ -1093,7 +1093,7 @@ begin
           ResetToEnd(aTokens, aIndex);
         end
         else
-          FoOutput.Log('Incorrect syntax: lack "ENDIF"');
+          FoOutput.LogError('Syntax Error: lack "ENDIF"');
       end;
   end;
 end;
@@ -1125,16 +1125,16 @@ begin
                 exit;
               end
             else
-              ooutput.logerror('incorrect syntax: lack ")"');
+              ooutput.logerror('Syntax Error: lack ")"');
 
 
           end
           else
-            FoOutput.Log('Incorrect syntax: lack "("');
+            FoOutput.LogError('Syntax Error: lack "("');
 
         end
         else
-          FoOutput.Log('Incorrect syntax: lack "LOG"');
+          FoOutput.LogError('Syntax Error: lack "LOG"');
       end;
   end;
 end;
@@ -1268,7 +1268,7 @@ begin
           FVariable1.Value := FVariable1.Value -
             TNovusStringUtils.Str2Int(LsValue)
         else
-          FoOutput.Log('Incorrect syntax: Is not a number');
+          FoOutput.LogError('Syntax Error: Is not a number');
       end
       else If LStr = '+' then
       begin
@@ -1278,7 +1278,7 @@ begin
           FVariable1.Value := FVariable1.Value +
             TNovusStringUtils.Str2Int(LsValue)
         else
-          FoOutput.Log('Incorrect syntax: Is not a number');
+          FoOutput.LogError('Syntax Error: Is not a number');
       end;
     end;
   end
@@ -1296,7 +1296,7 @@ begin
       begin
         if not  ((foProjectItem as tProjectItem).oProperties.IsPropertyExists(lsVariableName1)) then
           begin
-            FoOutput.Log('Syntax error: variable "' + lsVariableName1 + '" not defined');
+            FoOutput.LogError('Syntax Error: variable "' + lsVariableName1 + '" not defined');
 
             FoOutput.Failed := true;
           end;
@@ -1306,7 +1306,7 @@ begin
 
     end
     else
-      FoOutput.Log('Incorrect syntax: lack "="');
+      FoOutput.LogError('Syntax Error: lack "="');
   end;
 end;
 
@@ -1415,7 +1415,7 @@ begin
   if Pos('$', Result) = 1 then
   begin
     LVariable := oVariables.GetVariableByName(TVariables.CleanVariableName(Result));
-    if Not Assigned(LVariable) then FoOutput.Log('Syntax Error: variable ' + Result + ' cannot be found.');
+    if Not Assigned(LVariable) then FoOutput.LogError('Syntax Error: variable ' + Result + ' cannot be found.');
 
     (*
     I := VariableExistsIndex(TVariables.CleanVariableName(Result));
@@ -1426,7 +1426,7 @@ begin
       Result := LVariable.AsString;
     end
     else
-      FoOutput.Log('Syntax Error: variable ' + Result + ' cannot be found.');
+      FoOutput.LogError('Syntax Error: variable ' + Result + ' cannot be found.');
     *)
   end;
 end;

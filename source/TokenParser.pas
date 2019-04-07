@@ -235,12 +235,17 @@ begin
         Result := aProjectItem.oProperties.GetProperty(fsToken);
       ttPropertyEx:
         begin
-          if aObject is tInterpreter then
-          begin
-            lsToken2 := tInterpreter(aObject).GetNextTokenA(aTokenIndex,
-              ATokens);
+          //if aObject is tInterpreter then
+          //begin
+           // lsToken2 := tInterpreter(aObject).GetNextTokenA(aTokenIndex,
+           //   ATokens);
 
-          end;
+          //end
+          ATokens.TokenIndex := aTokenIndex + 1;
+
+          lsToken2 := ATokens.GetNextToken(false);
+
+          aTokenIndex := ATokens.TokenIndex;
 
           if lsToken2 <> '' then
           begin
@@ -288,7 +293,6 @@ begin
       ttConfigProperties:
         begin
           lsToken2 := ATokens.GetNextToken(ATokens.TokenIndex + 2);
-
 
           aTokenIndex := ATokens.TokenIndex;
 

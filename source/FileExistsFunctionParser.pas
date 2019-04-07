@@ -54,15 +54,15 @@ begin
            Exit;
           end
          else
-            oOutput.LogError('Incorrect syntax: lack ")"');
+            oOutput.LogError('Syntax Error: lack ")"');
 
 
      end
     else
-      oOutput.LogError('Incorrect syntax: Cannot find filename [' + FsJSONFilename +']');
+      oOutput.LogError('Syntax Error: Cannot find filename [' + FsJSONFilename +']');
   end
    else
-     oOutput.LogError('Incorrect syntax: lack "("');
+     oOutput.LogError('Syntax Error: lack "("');
 end;
 
 end.

@@ -16,6 +16,7 @@ type
   private
   protected
   public
+    function GetXMLListObjectVariable(aToken: string): TVariable;
   end;
 
   TXMLTag_XMLList = class(TXMLTag)
@@ -116,6 +117,44 @@ begin
 
   FXMLTags := NIL;
   Inherited;
+end;
+
+
+function TXMLTag.GetXMLListObjectVariable(aToken: string): TVariable;
+Var
+  FVariable: TVariable;
+begin
+  Result := NIL;
+
+  if AToken= ''  then
+    begin
+      Self.oOutput.LogError(
+      'Blank Variable name.');
+
+      Exit;
+    end;
+
+  FVariable := Self.oVariables.GetVariableByName(aToken);
+
+  if Not Assigned(FVariable) then
+  begin
+    Self.oOutput.LogError(aToken +
+      ' Object Variable cannot be found.');
+    Exit;
+  end
+  else if Not FVariable.IsObject then
+  begin
+    Self.oOutput.LogError('[' + aToken + '] not an Object Variable.');
+    Exit;
+  end
+  else if FVariable.Value <> tXMLlist.ClassName then
+  begin
+    Self.oOutput.LogError('[' + aToken + '] not ' + tXMLlist.ClassName +
+      ' Object Variable.');
+    Exit;
+  end;
+
+  Result := FVariable;
 end;
 
 // Plugin_XMLTags
@@ -244,7 +283,7 @@ function TXMLTag_XMLListCount.Execute(aProjectItem: tProjectItem; aTagName: Stri
 var
   LFunctionParser: TFunctionAParser;
 begin
-  (*
+
   Try
     Try
       Self.oVariables := tProjectItem(aProjectItem).oVariables;
@@ -261,14 +300,29 @@ begin
   Except
     oOutput.InternalError;
   End;
-  *)
+
 end;
 
 procedure TXMLTag_XMLListCount.OnExecute(var aToken: String; aTokenParser: tTokenParser; aTokens: tTokenProcessor);
 Var
+  FJSONValueRoot: TJSONValue;
   FJSONValue: TJSONValue;
+  FVariable: TVariable;
+  lsElement: string;
 begin
-  aToken := '';
+  FVariable := GetXMLListObjectVariable(aToken);
+  if not Assigned(FVariable) then
+    Exit;
+
+  if Assigned(FVariable.oObject) then
+    begin
+      aToken := IntToStr(TXMLList(FVariable.oObject).GetCount);
+    end
+  else
+    aToken := '';
+
+
+
   (*
   Try
     FJSONValue := TJSONObject.ParseJSONValue
@@ -322,6 +376,8 @@ begin
     foXMLlist.Retrieve;
   Except
     oOutput.LogError('XMLList Filename cannot read [' + aFilename + ']');
+
+    FreeandNil(foXMLlist);
   End;
 
   aToken := Self.oVariables.AddVariableObject(foXMLlist, tXMLlist.ClassName, true);

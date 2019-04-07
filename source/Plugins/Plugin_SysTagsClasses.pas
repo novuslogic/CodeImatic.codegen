@@ -360,7 +360,7 @@ begin
   FVariable := oVariables.GetVariableByName(aToken);
   if not Assigned(FVariable) then
     begin
-      oOutput.Log('Syntax error: "' + aToken + '" not variable not found.');
+      oOutput.LogError('Syntax Error: "' + aToken + '" not variable not found.');
 
       aToken := 'false';
 
@@ -374,7 +374,7 @@ begin
 
       if not Assigned(FLinkedVariable) then
         begin
-          oOutput.Log('Syntax error: "' + FLinkedVariable.Value + '" linked variable not found.');
+          oOutput.LogError('Syntax Error: "' + FLinkedVariable.Value + '" linked variable not found.');
 
           Exit;
         end;
@@ -571,7 +571,7 @@ begin
   FVariable := oVariables.GetVariableByName(aToken);
   if not Assigned(FVariable) then
     begin
-      oOutput.Log('Syntax error: "' + aToken + '" not variable not found.');
+      oOutput.LogError('Syntax Error: "' + aToken + '" not variable not found.');
 
       aToken := 'false';
 
@@ -580,7 +580,7 @@ begin
 
   if Not FVariable.IsNumeric then
     begin
-      oOutput.Log('Syntax error: "' + aToken + '" is not numeric.');
+      oOutput.LogError('Syntax Error: "' + aToken + '" is not numeric.');
 
       aToken := 'false';
 
@@ -627,7 +627,7 @@ begin
   FVariable := oVariables.GetVariableByName(aToken);
   if not Assigned(FVariable) then
     begin
-      oOutput.Log('Syntax error: "' + aToken + '" not variable not found.');
+      oOutput.LogError('Syntax error: "' + aToken + '" not variable not found.');
 
       aToken := 'false';
 
@@ -636,7 +636,7 @@ begin
 
   if Not FVariable.IsNumeric then
     begin
-      oOutput.Log('Syntax error: "' + aToken + '" is not numeric.');
+      oOutput.LogError('Syntax error: "' + aToken + '" is not numeric.');
 
       aToken := 'false';
 

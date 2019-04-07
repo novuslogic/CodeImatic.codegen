@@ -62,7 +62,7 @@ begin
               Exit;
             end
           else
-            oOutput.LogError('Incorrect syntax: lack ")"');
+            oOutput.LogError('Syntax Error: lack ")"');
         end
         else
         begin
@@ -84,7 +84,7 @@ begin
   end
   else
   begin
-    oOutput.Log('Incorrect syntax: lack "("');
+    oOutput.LogError('Syntax Error: lack "("');
 
   end;
 end;

@@ -673,14 +673,14 @@ begin
   lsElement := aTokenParser.ParseNextToken;
   if Trim(lsElement) = '' then
   begin
-    oOutput.LogError('Incorrect syntax: Element Index cannot be blank.');
+    oOutput.LogError('Syntax Error: Element Index cannot be blank.');
 
     Exit;
   end;
 
   if not TNovusStringUtils.IsNumberStr(lsElement) then
     begin
-      oOutput.Log('Incorrect syntax: Element Index is not a numeric.');
+      oOutput.LogError('Syntax Error: Element Index is not a numeric.');
 
       Exit;
     end;
@@ -688,14 +688,14 @@ begin
   liIndex := TNovusStringUtils.Str2Int(lsElement);
   if liIndex < 0 then
     begin
-      oOutput.Log('Incorrect syntax: Element Index less than zero.');
+      oOutput.LogError('Syntax Error: Element Index less than zero.');
 
       Exit;
     end;
 
   if liIndex > (FJSONArray.Size - 1) then
     begin
-      oOutput.Log('Incorrect syntax: Element Index greater than JSON Array size.');
+      oOutput.LogError('Syntax Error: Element Index greater than JSON Array size.');
 
       Exit;
     end;
@@ -969,7 +969,7 @@ begin
     end
   else
     aToken := '';
-  
+
 end;
 
 

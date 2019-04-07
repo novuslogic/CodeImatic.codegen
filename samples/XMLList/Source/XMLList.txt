@@ -1,6 +1,5 @@
-<%=$$Properties.XMLFile%>
-
-<%repeat(0)%>
+<%$XMLList=XML.LoadXMLList($$Properties.XMLFile)%>
+<%repeat(sys.Pred(XML.XMLListCount($XMLList)))%>
 sssss
 <%endrepeat%>
 bbbbb

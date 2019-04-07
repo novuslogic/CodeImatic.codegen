@@ -265,7 +265,7 @@ begin
 
     end
     else
-      oOutput.Log('Incorrect syntax: lack ")"');
+      oOutput.LogError('Syntax Error: lack ")"');
   end
   else
     oOutput.LogError('Error: Field cannot be found.');
@@ -419,7 +419,7 @@ begin
 
      end
        else
-         oOutput.Log('Incorrect syntax: Index is not a number ');
+         oOutput.LogError('Syntax Error: Index is not a number ');
 end;
 
 
@@ -490,7 +490,7 @@ begin
 
     end
     else
-      oOutput.Log('Incorrect syntax: lack ")"');
+      oOutput.LogError('Syntax Error: lack ")"');
   end
   else
     oOutput.LogError('Error: Field cannot be found.');
