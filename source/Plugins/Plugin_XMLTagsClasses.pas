@@ -19,7 +19,7 @@ type
     function GetXMLListObjectVariable(aToken: string): TVariable;
   end;
 
-  TXMLTag_XMLList = class(TXMLTag)
+  TXMLTag_XMLListIndex = class(TXMLTag)
   private
   protected
     function GetTagName: String; override;
@@ -101,7 +101,7 @@ begin
   Inherited Create(aOutput, aPluginName, aProject, aConfigPlugin);
 
 
-  FXMLTags := tXMLTags.Create(TXMLTag_XMLList.Create(aOutput),
+  FXMLTags := tXMLTags.Create(TXMLTag_XMLListIndex.Create(aOutput),
     TXMLTag_XMLListCount.Create(aOutput), TXMLTag_LoadXMLList.Create(aOutput));
 end;
 
@@ -223,18 +223,18 @@ begin
 end;
 
 
-//TXMLTag_XMLlist
-function TXMLTag_XMLlist.GetTagName: String;
+//TXMLTag_XMLlistIndex
+function TXMLTag_XMLlistIndex.GetTagName: String;
 begin
-  Result := 'XMLLIST';
+  Result := 'XMLLISTIndex';
 end;
 
-function TXMLTag_XMLlist.Execute(aProjectItem: tProjectItem; aTagName: String;
+function TXMLTag_XMLlistIndex.Execute(aProjectItem: tProjectItem; aTagName: String;
   aTokens: tTokenProcessor): String;
 var
   LFunctionParser: TFunctionAParser;
 begin
-  (*
+
   Try
     Try
       Self.oVariables := tProjectItem(aProjectItem).oVariables;
@@ -251,24 +251,45 @@ begin
   Except
     oOutput.InternalError;
   End;
-  *)
 end;
 
-procedure TXMLTag_XMLlist.OnExecute(var aToken: String; aTokenParser: tTokenParser; aTokens: tTokenProcessor);
+procedure TXMLTag_XMLlistIndex.OnExecute(var aToken: String; aTokenParser: tTokenParser; aTokens: tTokenProcessor);
 Var
-  FJSONValue: TJSONValue;
+  FVariable: tVariable;
+  lsElement: string;
 begin
-  aToken := '';
-  (*
-  Try
-    FJSONValue := TJSONObject.ParseJSONValue
-      (TEncoding.ASCII.GetBytes(TFile.ReadAllText(aJSONFilename)), 0);
-  Except
-    oOutput.LogError('JSONFilename cannot read [' + aJSONFilename + ']');
-  End;
+  FVariable := GetXMLListObjectVariable(aToken);
+  if not Assigned(FVariable) then
+    Exit;
 
-  aToken := Self.oVariables.AddVariableObject(FJSONValue, TJSONTag.ClassName);
-  *)
+  lsElement := aTokenParser.ParseNextToken;
+
+  if Trim(lsElement) = '' then
+  begin
+    oOutput.LogError('Syntax Error: Element cannot be blank.');
+
+    aToken := '';
+
+    Exit;
+  end;
+
+
+  if TNovusStringUtils.IsNumberStr(lsElement) then
+    begin
+      aToken := Trim(TXMLList(FVariable.oObject).GetValueByIndex(StrToint(lsElement)));
+    end
+    else
+      begin
+        oOutput.LogError('Syntax Error: Index is not numeric ');
+        aToken := '';
+      end;
+
+
+
+
+
+
+
 end;
 
 
@@ -320,19 +341,6 @@ begin
     end
   else
     aToken := '';
-
-
-
-  (*
-  Try
-    FJSONValue := TJSONObject.ParseJSONValue
-      (TEncoding.ASCII.GetBytes(TFile.ReadAllText(aJSONFilename)), 0);
-  Except
-    oOutput.LogError('JSONFilename cannot read [' + aJSONFilename + ']');
-  End;
-
-  aToken := Self.oVariables.AddVariableObject(FJSONValue, TJSONTag.ClassName);
-  *)
 end;
 
 //TXMLTag_LoadXMLList

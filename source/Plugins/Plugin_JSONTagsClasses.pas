@@ -418,7 +418,7 @@ begin
 
       if Trim(lsElement) = '' then
       begin
-        oOutput.LogError('Element cannot be blank.');
+        oOutput.LogError('Syntax Error: Element cannot be blank.');
 
         Exit;
       end;
@@ -461,13 +461,6 @@ begin
           end;
 
       end;
-
-
-
-      //if Assigned(F//if Not Assigned(FJSONValue) then oOutput.Log(FJSONValue.ToJSON + ' ' + FVariable.VariableName);
-
-
-      //aToken := Self.oVariables.AddVariableObject(FJSONValue, TJSONTag.ClassName);
 
     end;
 
