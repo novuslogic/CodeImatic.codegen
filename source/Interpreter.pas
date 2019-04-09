@@ -7,13 +7,13 @@ Uses
   NovusList, Variants, Variables, XMLList, NovusGUIDEx, TokenProcessor, TagType,
   CodeGeneratorItem, TokenParser, ProjectItem, StatementParser;
 
-const
-  csCommamdSyntax: array [1 .. 25] of String = ('fieldnamebyindex',
-    'fieldtypebyindex', 'lower', 'upper', 'uplower', 'fieldtypetodatatype',
-    'cleardatatype', 'repeat', 'endrepeat', 'fieldcount', 'pred', 'blankline',
-    'tablecount', 'tablenamebyindex', 'fieldassql', 'delimiter', 'reservelist',
-    'rlist', 'list', 'listcount', 'listname', 'newguid', 'rlistformat',
-    'fieldbyname', 'FieldByIndex');
+//const
+ // csCommamdSyntax: array [1 .. 25] of String = ('fieldnamebyindex',
+ //   'fieldtypebyindex', 'lower', 'upper', 'uplower', 'fieldtypetodatatype',
+ //   'cleardatatype', 'repeat', 'endrepeat', 'fieldcount', 'pred', 'blankline',
+ //   'tablecount', 'tablenamebyindex', 'fieldassql', 'delimiter', 'reservelist',
+ //   'rlist', 'list', 'listcount', 'listname', 'newguid', 'rlistformat',
+ //   'fieldbyname', 'FieldByIndex');
 
 Type
   TNavigateType = (ltrepeat, ltendrepeat, ltif, ltendif);
@@ -82,13 +82,13 @@ Type
     procedure AddVariable(AVariableName: String; AValue: Variant);
 
     // function Delimiter(ATokens: tTokenProcessor; Var AIndex: Integer): string;
-    function Reservelist(aTokens: tTokenProcessor; Var aIndex: Integer;
-      ACommandIndex: Integer): string;
-    function XMLlistIndex(aTokens: tTokenProcessor;
-      Var aIndex: Integer): string;
-    function XMLListName(aTokens: tTokenProcessor; Var aIndex: Integer): string;
-    function XMLlistCount(aTokens: tTokenProcessor;
-      Var aIndex: Integer): string;
+    //function Reservelist(aTokens: tTokenProcessor; Var aIndex: Integer;
+    //  ACommandIndex: Integer): string;
+    //function XMLlistIndex(aTokens: tTokenProcessor;
+    //  Var aIndex: Integer): string;
+    //function XMLListName(aTokens: tTokenProcessor; Var aIndex: Integer): string;
+    //function XMLlistCount(aTokens: tTokenProcessor;
+    //  Var aIndex: Integer): string;
 
     function ParseVariable(aTokens: tTokenProcessor; Var aIndex: Integer;
       ASubCommand: Boolean = False): String;
@@ -126,7 +126,7 @@ Type
       aTokens: tTokenProcessor): String;
 
     // function DoTagTypeInterpreter(ATokens: tTokenProcessor): TTagType;
-    function CommandSyntaxIndex(aCommand: String): Integer;
+    //function CommandSyntaxIndex(aCommand: String): Integer;
 
     function Execute(aCodeGeneratorItem: TCodeGeneratorItem;
       Var ASkipPOs: Integer): String;
@@ -174,6 +174,7 @@ begin
   inherited;
 end;
 
+(*
 function TInterpreter.Reservelist(aTokens: tTokenProcessor; Var aIndex: Integer;
   ACommandIndex: Integer): string;
 Var
@@ -223,7 +224,9 @@ begin
 
   end;
 end;
+*)
 
+(*
 function TInterpreter.XMLlistIndex(aTokens: tTokenProcessor;
   Var aIndex: Integer): string;
 Var
@@ -288,7 +291,8 @@ begin
   if GetNextTokenA(aIndex, aTokens) <> ')' then
     FoOutput.LogError('Syntax Error: lack ")"');
 end;
-
+*)
+(*
 function TInterpreter.XMLListName(aTokens: tTokenProcessor;
   Var aIndex: Integer): string;
 Var
@@ -353,7 +357,8 @@ begin
   if GetNextTokenA(aIndex, aTokens) <> ')' then
     FoOutput.LogError('Syntax Error: lack ")"');
 end;
-
+*)
+(*
 function TInterpreter.XMLlistCount(aTokens: tTokenProcessor;
   Var aIndex: Integer): string;
 Var
@@ -403,6 +408,7 @@ begin
 
   end;
 end;
+*)
 
 function TInterpreter.DoPluginTag(aTokens: tTokenProcessor;
   Var aIndex: Integer): string;
@@ -466,7 +472,7 @@ begin
         Result := DoLog(aTokens, aIndex, fTagType, ASkipPos);
     end;
 
-
+    (*
     if (CommandSyntaxIndex(aToken) <> 0) then
     begin
       case CommandSyntaxIndex(aToken) of
@@ -487,7 +493,7 @@ begin
 
       end;
     end;
-
+    *)
     (*
     if Pos('$$', aTokens[aIndex]) = 1 then
       Result := tTokenParser.ParseToken(Self, aTokens[aIndex],
@@ -538,7 +544,7 @@ begin
     else if fTagType = ttLog then
       Result := DoLog(aTokens, aIndex, fTagType, ASkipPOs);
 
-
+   (*
     if (CommandSyntaxIndex(lsNextToken) <> 0) then
     begin
       case CommandSyntaxIndex(lsNextToken) of
@@ -559,7 +565,7 @@ begin
 
       end;
     end;
-
+    *)
     if Not ASubCommand then
     begin
       if Pos('$$', aTokens[aIndex]) = 1 then
@@ -1354,6 +1360,7 @@ begin
   // Result := (foProjectItem as TProjectItem).oCodeGenerator.oLanguage.ReadXML(Afunction, ADataType);
 end;
 
+(*
 function TInterpreter.CommandSyntaxIndex(aCommand: String): Integer;
 Var
   I: Integer;
@@ -1370,7 +1377,7 @@ begin
     end;
   end;
 end;
-
+*)
 function TInterpreter.GetNextToken(Var aIndex: Integer;
   aTokens: tTokenProcessor; aIgnoreTokenParser: Boolean = False;
   ASkipPOs: Integer = 0): String;

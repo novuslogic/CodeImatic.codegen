@@ -7,5 +7,5 @@
 <%$I=0%>
 <%repeat(sys.Pred(XML.XMLListCount($XMLList)))%>
 <%=XML.XMLListName($XMLList, $I)%>
-<%$I=$I+1%>
+<%SYS.Inc($I)%>
 <%endrepeat%>
