@@ -19,7 +19,17 @@ type
     function GetXMLListObjectVariable(aToken: string): TVariable;
   end;
 
-  TXMLTag_XMLListIndex = class(TXMLTag)
+  TXMLTag_XMLListValue = class(TXMLTag)
+  private
+  protected
+    function GetTagName: String; override;
+    procedure OnExecute(var aToken: String; aTokenParser: tTokenParser; aTokens: tTokenProcessor);
+  public
+    function Execute(aProjectItem: tProjectItem; aTagName: string;
+      aTokens: tTokenProcessor): String; override;
+  end;
+
+  TXMLTag_XMLListName = class(TXMLTag)
   private
   protected
     function GetTagName: String; override;
@@ -101,8 +111,10 @@ begin
   Inherited Create(aOutput, aPluginName, aProject, aConfigPlugin);
 
 
-  FXMLTags := tXMLTags.Create(TXMLTag_XMLListIndex.Create(aOutput),
-    TXMLTag_XMLListCount.Create(aOutput), TXMLTag_LoadXMLList.Create(aOutput));
+  FXMLTags := tXMLTags.Create(TXMLTag_XMLListValue.Create(aOutput),
+    TXMLTag_XMLListName.Create(aOutput),
+    TXMLTag_XMLListCount.Create(aOutput),
+    TXMLTag_LoadXMLList.Create(aOutput));
 end;
 
 destructor tPlugin_XMLTagsBase.Destroy;
@@ -223,13 +235,13 @@ begin
 end;
 
 
-//TXMLTag_XMLlistIndex
-function TXMLTag_XMLlistIndex.GetTagName: String;
+//TXMLTag_XMLListValue
+function TXMLTag_XMLListValue.GetTagName: String;
 begin
-  Result := 'XMLLISTIndex';
+  Result := 'XMLListValue';
 end;
 
-function TXMLTag_XMLlistIndex.Execute(aProjectItem: tProjectItem; aTagName: String;
+function TXMLTag_XMLListValue.Execute(aProjectItem: tProjectItem; aTagName: String;
   aTokens: tTokenProcessor): String;
 var
   LFunctionParser: TFunctionAParser;
@@ -253,7 +265,7 @@ begin
   End;
 end;
 
-procedure TXMLTag_XMLlistIndex.OnExecute(var aToken: String; aTokenParser: tTokenParser; aTokens: tTokenProcessor);
+procedure TXMLTag_XMLListValue.OnExecute(var aToken: String; aTokenParser: tTokenParser; aTokens: tTokenProcessor);
 Var
   FVariable: tVariable;
   lsElement: string;
@@ -273,10 +285,9 @@ begin
     Exit;
   end;
 
-
   if TNovusStringUtils.IsNumberStr(lsElement) then
     begin
-      aToken := Trim(TXMLList(FVariable.oObject).GetValueByIndex(StrToint(lsElement)));
+      aToken := TXMLList(FVariable.oObject).GetValueByIndex(StrToint(lsElement));
     end
     else
       begin
@@ -284,13 +295,71 @@ begin
         aToken := '';
       end;
 
+end;
 
+//TXMLTag_XMLListName
+function TXMLTag_XMLListName.GetTagName: String;
+begin
+  Result := 'XMLListName';
+end;
 
+function TXMLTag_XMLListName.Execute(aProjectItem: tProjectItem; aTagName: String;
+  aTokens: tTokenProcessor): String;
+var
+  LFunctionParser: TFunctionAParser;
+begin
 
+  Try
+    Try
+      Self.oVariables := tProjectItem(aProjectItem).oVariables;
 
+      LFunctionParser := TFunctionAParser.Create(aProjectItem, aTokens,
+        oOutput, aTagName);
 
+      LFunctionParser.OnExecute := OnExecute;
+
+      Result := LFunctionParser.Execute;
+    Finally
+      LFunctionParser.Free;
+    End;
+  Except
+    oOutput.InternalError;
+  End;
+end;
+
+procedure TXMLTag_XMLListName.OnExecute(var aToken: String; aTokenParser: tTokenParser; aTokens: tTokenProcessor);
+Var
+  FVariable: tVariable;
+  lsElement: string;
+begin
+  FVariable := GetXMLListObjectVariable(aToken);
+  if not Assigned(FVariable) then
+    Exit;
+
+  lsElement := aTokenParser.ParseNextToken;
+
+  if Trim(lsElement) = '' then
+  begin
+    oOutput.LogError('Syntax Error: Element cannot be blank.');
+
+    aToken := '';
+
+    Exit;
+  end;
+
+  if TNovusStringUtils.IsNumberStr(lsElement) then
+    begin
+      aToken := TXMLList(FVariable.oObject).GetNameByIndex(StrToint(lsElement));
+    end
+    else
+      begin
+        oOutput.LogError('Syntax Error: Index is not numeric ');
+        aToken := '';
+      end;
 
 end;
+
+
 
 
 //TXMLTag_XMLListCount

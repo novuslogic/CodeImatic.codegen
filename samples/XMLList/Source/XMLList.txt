@@ -1,6 +1,11 @@
 <%$XMLList=XML.LoadXMLList($$Properties.XMLFile)%>
 <%$I=0%>
 <%repeat(sys.Pred(XML.XMLListCount($XMLList)))%>
-<%=XML.XMLListIndex($XMLList, $I)%>
+<%=XML.XMLListValue($XMLList, $I)%>
+<%$I=$I+1%>
+<%endrepeat%>
+<%$I=0%>
+<%repeat(sys.Pred(XML.XMLListCount($XMLList)))%>
+<%=XML.XMLListName($XMLList, $I)%>
 <%$I=$I+1%>
 <%endrepeat%>

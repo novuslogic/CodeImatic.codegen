@@ -101,7 +101,7 @@ begin
 
 
   lsNodeName := NodeNames.Strings[AIndex];
-  Result := GetFirstNodeName(lsNodeName);
+  Result := Trim(GetFirstNodeName(lsNodeName));
 end;
 
 function tXMLlist.GetNameByIndex(aIndex: Integer): String;
@@ -110,7 +110,7 @@ begin
 
   If aIndex > (NodeNames.Count - 1) then Exit;
 
-  Result := NodeNames.Strings[AIndex];
+  Result := Trim(NodeNames.Strings[AIndex]);
 end;
 
 function tXMLlist.IsLoaded: Boolean;
