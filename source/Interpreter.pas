@@ -108,6 +108,9 @@ Type
     function DoLog(aTokens: tTokenProcessor; Var aIndex: Integer;
       aTagType: TTagType; Var ASkipPOs: Integer): string;
 
+    function DoComment(aTokens: tTokenProcessor; Var aIndex: Integer;
+      aTagType: TTagType; Var ASkipPOs: Integer): string;
+
   public
     constructor Create(aCodeGenerator: TObject; aOutput: TOutput;
       aProjectItem: TProjectItem); overload;
@@ -470,6 +473,8 @@ begin
         Result := DoIF(aTokens, aIndex, ttendif, ASkipPOs);
       ttLog:
         Result := DoLog(aTokens, aIndex, fTagType, ASkipPos);
+      ttComment:
+        Result := DoComment(aTokens, aIndex, fTagType, ASkipPos);
     end;
 
     (*
@@ -542,8 +547,9 @@ begin
     else if fTagType = ttendif then
       Result := DoIF(aTokens, aIndex, ttendif, ASkipPOs)
     else if fTagType = ttLog then
-      Result := DoLog(aTokens, aIndex, fTagType, ASkipPOs);
-
+      Result := DoLog(aTokens, aIndex, fTagType, ASkipPOs)
+    else if fTagType = ttComment then
+      Result := DoComment(aTokens, aIndex, fTagType, ASkipPos);
    (*
     if (CommandSyntaxIndex(lsNextToken) <> 0) then
     begin
@@ -692,9 +698,9 @@ begin
       begin
         ASkipPOs := 0;
 
-        LStarTNavigate := FindNavigateID(ltrepeat, fiLoopCounter);
-        if Not Assigned(LStarTNavigate) then Exit;
-
+        LStartNavigate := FindNavigateID(ltrepeat, fiLoopCounter);
+        if Assigned(LStarTNavigate) then
+          begin
         LiValue := LStarTNavigate.Value;
         lbNegitiveFlag := LStarTNavigate.NegitiveFlag;
 
@@ -714,15 +720,7 @@ begin
           .oTemplateTag.SourceLineNo;
         Dec(liEndSourceLineNo, 1);
 
-        (*
-        for I := liStartPos1 to liEndPos1 do
-        begin
-          LCodeGeneratorItem1 :=
-            TCodeGeneratorItem(TCodeGenerator(FoCodeGenerator)
-            .oCodeGeneratorList.Items[I]);
-          LCodeGeneratorItem1.LoopId := fiLoopCounter;
-        end;
-        *)
+
 
         LCodeGenerator := (FoCodeGenerator As TCodeGenerator);
 
@@ -865,6 +863,9 @@ begin
             Break;
         until False;
 
+        end
+        else
+          FoOutput.LogError('Syntax Error: lack "REPEAT"');
       end;
   end;
 end;
@@ -1003,100 +1004,106 @@ begin
 
           LStarTNavigate := FindNavigateID(ltif, fiLoopCounter);
 
-          liStartPos1 :=
-            (LStarTNavigate.CodeGeneratorItem As TCodeGeneratorItem)
-            .oTemplateTag.TagIndex;
-
-
-          Inc(liStartPos1, 1);
-
-          liStartSourceLineNo :=
-            (LStarTNavigate.CodeGeneratorItem As TCodeGeneratorItem)
-            .oTemplateTag.SourceLineNo;
-
-          liEndPos1 := (FoCodeGeneratorItem As TCodeGeneratorItem)
-            .oTemplateTag.TagIndex;
-          Dec(liEndPos1, 1);
-
-          liEndSourceLineNo := (FoCodeGeneratorItem As TCodeGeneratorItem)
-            .oTemplateTag.SourceLineNo;
-          Dec(liEndSourceLineNo, 1);
-
-          LCodeGenerator := (FoCodeGenerator As TCodeGenerator);
-
-          LTemplate := LCodeGenerator.oTemplate;
-
-          liLastNextSourceLineNo := liStartSourceLineNo;
-
-          FNavigate := NIL;
-
-          I := 0;
-
-          liLastEndSourceLineNo := (liEndSourceLineNo - liStartSourceLineNo);
-
-          Repeat
-            liPos := 0;
-
-
-            lbIsTag:= false;
-            While (liPos < TCodeGenerator(FoCodeGenerator)
-              .oCodeGeneratorList.Count) do
+          if Assigned(LStarTNavigate) then
             begin
-              LCodeGeneratorItem1 := GetCodeGeneratorItemBySourceLineNo
-                ((liLastNextSourceLineNo + I) + 1, liPos);
 
-              if Assigned(LCodeGeneratorItem1) then
-              begin
-                lbIsTag:= true;
-                LTemplateTag1 := LCodeGeneratorItem1.oTemplateTag;
+              liStartPos1 :=
+                (LStarTNavigate.CodeGeneratorItem As TCodeGeneratorItem)
+                .oTemplateTag.TagIndex;
 
-                liTagIndex := LTemplateTag1.TagIndex;
 
-                lbEqual := LStarTNavigate.StatementParser.IsEqual;
+              Inc(liStartPos1, 1);
 
-                if lbEqual then
+              liStartSourceLineNo :=
+                (LStarTNavigate.CodeGeneratorItem As TCodeGeneratorItem)
+                .oTemplateTag.SourceLineNo;
+
+              liEndPos1 := (FoCodeGeneratorItem As TCodeGeneratorItem)
+                .oTemplateTag.TagIndex;
+              Dec(liEndPos1, 1);
+
+              liEndSourceLineNo := (FoCodeGeneratorItem As TCodeGeneratorItem)
+                .oTemplateTag.SourceLineNo;
+              Dec(liEndSourceLineNo, 1);
+
+              LCodeGenerator := (FoCodeGenerator As TCodeGenerator);
+
+              LTemplate := LCodeGenerator.oTemplate;
+
+              liLastNextSourceLineNo := liStartSourceLineNo;
+
+              FNavigate := NIL;
+
+              I := 0;
+
+              liLastEndSourceLineNo := (liEndSourceLineNo - liStartSourceLineNo);
+
+              Repeat
+                liPos := 0;
+
+
+                lbIsTag:= false;
+                While (liPos < TCodeGenerator(FoCodeGenerator)
+                  .oCodeGeneratorList.Count) do
+                begin
+                  LCodeGeneratorItem1 := GetCodeGeneratorItemBySourceLineNo
+                    ((liLastNextSourceLineNo + I) + 1, liPos);
+
+                  if Assigned(LCodeGeneratorItem1) then
                   begin
-                    LCodeGenerator.RunPropertyVariables(liTagIndex, liTagIndex);
-                    LCodeGenerator.RunInterpreter(liTagIndex, liTagIndex);
-                  end
-                else
-                  begin
-                     LTemplateTag1.TagValue := cDeleteLine;
+                    lbIsTag:= true;
+                    LTemplateTag1 := LCodeGeneratorItem1.oTemplateTag;
 
+                    liTagIndex := LTemplateTag1.TagIndex;
+
+                    lbEqual := LStarTNavigate.StatementParser.IsEqual;
+
+                    if lbEqual then
+                      begin
+                        LCodeGenerator.RunPropertyVariables(liTagIndex, liTagIndex);
+                        LCodeGenerator.RunInterpreter(liTagIndex, liTagIndex);
+                      end
+                    else
+                      begin
+                         LTemplateTag1.TagValue := cDeleteLine;
+
+                      end;
+
+                    If ((IsEndIf(LCodeGeneratorItem2) = False) and
+                      (IsIf(LCodeGeneratorItem2) = False)) then
+                    begin
+                       If IsEndIf(LCodeGeneratorItem1) then
+                        begin
+                          FNavigate := FindNavigateID(ltif, fiLoopCounter);
+
+                          liLastEndSourceLineNo := liEndSourceLineNo + 1;
+                          liSourceLineCount :=
+                            (liEndSourceLineNo - liStartSourceLineNo);
+
+                          LCodeGeneratorItem1.oTemplateTag.TagValue := cDeleteLine;
+
+                          Break;
+                        end;
+                    end;
+                  end;
+                end;
+
+                if lbIsTag = false then
+                  begin
+                    if Not lbEqual then
+                      LTemplate.OutputDoc.Strings[liStartSourceLineNo + I] := cDeleteLine;
                   end;
 
-                If ((IsEndIf(LCodeGeneratorItem2) = False) and
-                  (IsIf(LCodeGeneratorItem2) = False)) then
-                begin
-                   If IsEndIf(LCodeGeneratorItem1) then
-                    begin
-                      FNavigate := FindNavigateID(ltif, fiLoopCounter);
 
-                      liLastEndSourceLineNo := liEndSourceLineNo + 1;
-                      liSourceLineCount :=
-                        (liEndSourceLineNo - liStartSourceLineNo);
+                Inc(I);
+                if I > (liLastEndSourceLineNo - 1) then
+                  Break;
+              until False;
 
-                      LCodeGeneratorItem1.oTemplateTag.TagValue := cDeleteLine;
-
-                      Break;
-                    end;
-                end;
-              end;
-            end;
-
-            if lbIsTag = false then
-              begin
-                if Not lbEqual then
-                  LTemplate.OutputDoc.Strings[liStartSourceLineNo + I] := cDeleteLine;
-              end;
-
-
-            Inc(I);
-            if I > (liLastEndSourceLineNo - 1) then
-              Break;
-          until False;
-
-          ResetToEnd(aTokens, aIndex);
+              ResetToEnd(aTokens, aIndex);
+            end
+        else
+          FoOutput.LogError('Syntax Error: lack "IF"');
         end
         else
           FoOutput.LogError('Syntax Error: lack "ENDIF"');
@@ -1144,6 +1151,30 @@ begin
       end;
   end;
 end;
+
+function TInterpreter.DoComment(aTokens: tTokenProcessor; Var aIndex: Integer;
+  aTagType: TTagType; Var ASkipPOs: Integer): string;
+Var
+  lsComment: String;
+begin
+  Result := '';
+
+  case aTagType of
+    ttComment:
+      begin
+        If GetNextToken(aIndex, aTokens, true) = 'REM' then
+        begin
+         ResetToEnd(aTokens, aIndex);
+
+         Exit;
+
+        end
+        else
+          FoOutput.LogError('Syntax Error: lack "REM"');
+      end;
+  end;
+end;
+
 
 
 
