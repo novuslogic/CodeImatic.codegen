@@ -85,8 +85,6 @@ Type
 
     property oLanguage: tLanguage read FLanguage write FLanguage;
 
-   // property oVariables: tVariables read foVariables write foVariables;
-
     property oOutput: tOutput read foOutput write foOutput;
 
     function Execute(aOutputFilename: String): boolean;
@@ -376,11 +374,33 @@ function TCodeGenerator.DoOutputFilename(aTemplateFile: String;
   aOutputFilename: string; aProcesorItem: tProcessorItem): boolean;
 var
   fEncoding: TEncoding;
+  lsNewOutputFilename: String;
 begin
   Result := true;
 
   if Trim(aOutputFilename) <> '' then
   begin
+    if TNovusFileUtils.IsOnlyFolder(aOutputFilename) then
+      begin
+        if DirectoryExists(aOutputFilename) then
+          begin
+            lsNewOutputFilename :=  TNovusFileUtils.TrailingBackSlash(aOutputFilename) + foProjectItem.ItemName;
+
+            foOutput.Log('Using Projectitem name for output: [' + lsNewOutputFilename +']');
+
+            aOutputFilename := lsNewOutputFilename;
+          end
+       else
+         begin
+           Result := False;
+
+           foOutput.LogError('Output Folder doesn''t exists ['+ TNovusFileUtils.TrailingBackSlash(aOutputFilename)+ ']');
+
+
+           Exit;
+         end;
+     end;
+
 {$I-}
     Try
       DoPostProcessor(aProcesorItem, fsSourceFilename, aOutputFilename);

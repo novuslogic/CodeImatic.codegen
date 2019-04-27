@@ -3,7 +3,7 @@ unit CodeGeneratorItem;
 interface
 
 uses Project, ExpressionParser, NovusTemplate, Classes, SysUtils, tagType, output,
-     NovusList, TokenProcessor;
+     NovusList, TokenProcessor, NovusGUIDEx;
 
 type
   TCodeGeneratorItem = class(TObject)
@@ -16,9 +16,10 @@ type
     ExpressionParser: tExpressionParser;
     FTemplateTag: TTemplateTag;
     FoTokens: tTokenProcessor;
-    LiLoopID: Integer;
+    //LiLoopID: Integer;
     foProjectItem: TObject;
    // foVariables: Tobject;
+    fsID: String;
   private
     function GetTokenIndex: Integer;
     procedure SetTokenIndex(Value: Integer);
@@ -50,9 +51,8 @@ type
       read fsDefaultTagName
       write fsDefaultTagName;
 
-    property LoopID: Integer
-      read liLoopId
-      write liLoopId;
+    property ID: String
+      read fsID;
 
     property TokenIndex: Integer
       read GetTokenIndex
@@ -101,13 +101,13 @@ begin
 
   foProjectItem := aProjectItem;
 
-  //foVariables := aVariables;
-
   foProject := TProject(aProject);
 
   ExpressionParser := TExpressionParser.Create;
 
   FoTokens := tTokenProcessor.Create;
+
+  fsID := TGuidExUtils.NewGuidNoBracketsString;
 end;
 
 destructor TCodeGeneratorItem.Destroy;

@@ -12,10 +12,8 @@ uses
   project,
   projectconfig,
   Language in 'Language.pas',
-  Reservelist in 'Reservelist.pas',
-  XMLList in 'XMLList.pas',
   Plugins in 'Plugins.pas',
-  PluginsMapFactory in 'PluginsMapFactory.pas' ;
+  PluginsMapFactory in 'PluginsMapFactory.pas';
 
 {$R *.res}
 

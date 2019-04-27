@@ -120,12 +120,15 @@ begin
           loProjectItem.OutputFile := tProjectconfigParser.ParseProjectconfig
             (loProjectItem.OutputFile, foProject, foOutput);
 
+            //Moved to DoOutputFilename
+            (*
         if TNovusFileUtils.IsValidFolder(loProjectItem.OutputFile) then
         begin
           if DirectoryExists(loProjectItem.OutputFile) then
             loProjectItem.OutputFile := TNovusFileUtils.TrailingBackSlash
                (loProjectItem.OutputFile) + loProjectItem.ItemName;
         end;
+        *)
       Except
         foOutput.LogError('Output Projectconfig error.');
 

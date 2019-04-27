@@ -1,3 +1,11 @@
-TEST LINE 1
 <%REM Repeat Tag%>
-TEST LINE 2
+
+<%repeat(0)%>
+aaaaaaaa
+<%repeat(1)%>
+bbbbbbbb
+<%endrepeat%>
+cccccccc
+<%endrepeat%>
+
+
