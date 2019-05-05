@@ -221,12 +221,13 @@
         <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=0.5.0.1025;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=Zcodegen;ProductVersion=0.5.0.0;Comments=</VerInfo_Keys>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
-        <Debugger_CWD>D:\Projects\NovuscodeLibrary\Source\BuildPackages\</Debugger_CWD>
-        <Debugger_RunParams>-project packages.ccproject -projectconfig packages.ccpconfig  -var DELPHIVER=&quot;DELPHI10_3&quot;;LIBSUFFIX=&quot;260&quot; </Debugger_RunParams>
+        <Debugger_CWD>D:\Projects\CodeImatic.com\</Debugger_CWD>
+        <Debugger_RunParams>-project codeimatic_com.ccproject -projectconfig codeimatic_com.ccpconfig</Debugger_RunParams>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_IncludeVerInfo>false</VerInfo_IncludeVerInfo>
-        <VerInfo_Keys>CompanyName=;FileVersion=1.0.0.662;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName);FileDescription=$(MSBuildProjectName);ProductName=$(MSBuildProjectName)</VerInfo_Keys>
-        <VerInfo_Build>662</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=;FileVersion=1.0.0.665;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName);FileDescription=$(MSBuildProjectName);ProductName=$(MSBuildProjectName)</VerInfo_Keys>
+        <VerInfo_Build>665</VerInfo_Build>
+        <Debugger_DebugSourcePath>D:\Projects\NovuscodeLibrary\Source\Core\Infrastructure\;$(Debugger_DebugSourcePath)</Debugger_DebugSourcePath>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">

@@ -569,28 +569,9 @@ begin
       Result := DoLog(aTokens, aIndex, fTagType, ASkipPOs)
     else if fTagType = ttComment then
       Result := DoComment(aTokens, aIndex, fTagType, ASkipPos);
-   (*
-    if (CommandSyntaxIndex(lsNextToken) <> 0) then
-    begin
-      case CommandSyntaxIndex(lsNextToken) of
 
-        // 16:
-        // Result := Delimiter(ATokens, AIndex);
-        17, 18:
-          Result := Reservelist(aTokens, aIndex, 0);
-        19:
-          Result := XMLlistIndex(aTokens, aIndex);
-        20:
-          Result := XMLlistCount(aTokens, aIndex);
-        21:
-          Result := XMLListName(aTokens, aIndex);
+    if aTokens.EOF then Exit;
 
-        23:
-          Result := Reservelist(aTokens, aIndex, 1);
-
-      end;
-    end;
-    *)
     if Not ASubCommand then
     begin
       if Pos('$$', aTokens[aIndex]) = 1 then
