@@ -346,8 +346,8 @@ function TPlugins.PostProcessor(aProcessorItem: tProcessorItem;
 begin
   Result := PRIgnore;
 
-  if Not Assigned(aProcessorItem) then
-    exit;
+   if Not Assigned(aProcessorItem) then
+      exit;
 
   Result := aProcessorItem.PostProcessor(aProjectItem, aTemplate, aTemplateFile,
     aOutputFilename);

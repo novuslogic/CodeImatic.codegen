@@ -23,6 +23,7 @@ type
     foPlugin: tPlugin;
     foNodeLoader: tNodeLoader;
     function InsertTagValue(aTagValue: String; aTagName: String): boolean;
+    function FindProcessorPlugin(aProcessor: string): TProcessorPlugin;
     procedure Init;
   private
   public
@@ -131,10 +132,54 @@ begin
   inherited;
 end;
 
+
+function TProcessor.FindProcessorPlugin(aProcessor: string): TProcessorPlugin;
+Var
+  I: Integer;
+  loProcessorItem: TProcessorItem;
+begin
+  Result := nil;
+
+  if not Assigned(foPlugins) then Exit;
+  foPlugin := NIL;
+
+  // PluginName
+  if (foPlugins as TPlugins).IsPluginNameExists(fsProcessor) then
+    begin
+      foPlugin := (foPlugins as TPlugins).FindPlugin(fsProcessor);
+
+      if (foPlugin Is TProcessorPlugin) then
+        begin
+          Result := TProcessorPlugin(foPlugin);
+        end;
+    end;
+
+  // ProcessorName
+  If not Assigned(Result) then
+    begin
+      for I := 0 to (foPlugins as TPlugins).PluginsList.Count - 1 do
+      begin
+        foPlugin := (foPlugins as TPlugins).PluginsList.Items[I];
+        if (foPlugin Is TProcessorPlugin) then
+          begin
+            loProcessorItem := TProcessorPlugin(foPlugin).GetProcesorItem(fsProcessor);
+            if Assigned(loProcessorItem) then
+            begin
+              Result := TProcessorPlugin(foPlugin);
+              break;
+            end;
+          end;
+      end;
+    end;
+end;
+
+
 procedure TProcessor.Init;
 begin
   if Trim(fsProcessor) <> '' then
     begin
+      foprocessorPlugin := FindProcessorPlugin(fsProcessor);
+      (*
       if (foPlugins as TPlugins).IsPluginNameExists(fsProcessor) then
         begin
           foPlugin := (foPlugins as TPlugins).FindPlugin(fsProcessor);
@@ -144,6 +189,7 @@ begin
                foprocessorPlugin := TProcessorPlugin(foPlugin);
             end;
         end;
+        *)
     end;
 
 
