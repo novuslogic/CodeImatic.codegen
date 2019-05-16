@@ -993,12 +993,12 @@ begin
 
               LsToken := GetNextToken(aIndex, aTokens);
               if LsToken <> ')' then
-                lStatementParser.Add(LsToken);
+                lStatementParser.Add(Trim(LsToken));
               while Not aTokens.EOF do
               begin
                 LsToken := GetNextToken(aIndex, aTokens);
                 if LsToken <> ')' then
-                  lStatementParser.Add(LsToken);
+                  lStatementParser.Add(Trim(LsToken));
               end;
 
               ResetToEnd(aTokens, aIndex);
@@ -1285,6 +1285,7 @@ Var
   LStr: STring;
   liSkipPos: Integer;
   FOut: Boolean;
+  fbIsIf: Boolean;
 
   function GetToken: String;
   begin
@@ -1299,14 +1300,21 @@ Var
 begin
   Result := '';
   FOut := False;
+  fbIsIf := false;
 
   lsVariableName1 := TVariables.CleanVariableName(aTokens[aIndex]);
 
-  // Do not like this
-  if (aTokens[0] = '=') or (Trim(Uppercase(aTokens[0]))='IF') then
-    FOut := true;
+  fbIsIf := false;
+  if (Trim(Uppercase(aTokens[0]))='IF') then
+     begin
+       FOut := true;
+       fbIsIf := true;
+     end
+  else
+  if (aTokens[0] = '=') then
+      FOut := true;
 
-  If GetToken = '=' then
+  If (GetToken = '=') and (fbIsIf = false) then
   begin
     lVariableI := oVariables.GetVariableByName(lsVariableName1);
 
@@ -1372,6 +1380,14 @@ begin
         // end;
       end;
 
+      if fbIsIf  then
+        begin
+          if Assigned(FVariable1) then
+             Result := FVariable1.Value;
+
+          Exit;
+        end;
+
       LStr := GetToken;
 
       If LStr = '-' then
@@ -1394,7 +1410,7 @@ begin
         else
           FoOutput.LogError('Syntax Error: Is not a number');
       end;
-    end;
+   end;
   end
   else
   begin

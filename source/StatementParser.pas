@@ -26,12 +26,12 @@ begin
   Result := false;
   fsErrorStatementMessage := '';
 
-  if Trim(Self.Text) = '' then Exit;
+  if Trim(Self.GetTextStr) = '' then Exit;
 
   Try
   Try
     fExpressionParser:= TExpressionParser.Create;
-    fExpressionParser.Expr := Trim(Self.Text);
+    fExpressionParser.Expr := Self.ToString();
 
     Result := fExpressionParser.Execute;
 

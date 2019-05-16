@@ -27,6 +27,8 @@ type
      constructor Create; overload;
      constructor Create(aOutput: tOutput); overload;
 
+     function ToString: String; override;
+
      function GetFirstToken: string;
      function GetFirstTokenProcessorItem: tTokenProcessorItem;
      function GetNextToken(aIgnoreNextToken: Boolean = false): string; overload;
@@ -39,7 +41,6 @@ type
      property TokenIndex: Integer
          read fiTokenIndex
          write fiTokenIndex;
-
 
      property oOutput: tOutput
        read foOutput
@@ -122,6 +123,16 @@ end;
 function tTokenProcessor.IsNextTokenOpenBracket: Boolean;
 begin
   Result := GetNextToken = '(';
+end;
+
+function tTokenProcessor.ToString: String;
+Var
+  I: Integer;
+begin
+  Result := '';
+
+  for I := 0 to Self.Count -1 do
+     Result := Result +Trim(Strings[i]);
 end;
 
 end.
