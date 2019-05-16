@@ -162,7 +162,7 @@ begin
         foPlugin := (foPlugins as TPlugins).PluginsList.Items[I];
         if (foPlugin Is TProcessorPlugin) then
           begin
-            loProcessorItem := TProcessorPlugin(foPlugin).GetProcesorItem(fsProcessor);
+            loProcessorItem := TProcessorPlugin(foPlugin).GetProcessorName(fsProcessor);
             if Assigned(loProcessorItem) then
             begin
               Result := TProcessorPlugin(foPlugin);

@@ -149,6 +149,8 @@ type
       aProject: tProject; aConfigPlugin: TConfigPlugin); override;
     destructor Destroy;
 
+    function GetProcessorName(aProcessorName: String): TProcessorItem;
+
     function GetProcesorItem(aFileExt: string): TProcessorItem; overload;
     function GetProcesorItem: TProcessorItem; overload;
 
@@ -252,6 +254,26 @@ end;
 destructor TProcessorPlugin.Destroy;
 begin
   fProcessorItems.Free;
+end;
+
+
+function TProcessorPlugin.GetProcessorName(aProcessorName: String): TProcessorItem;
+Var
+  I: Integer;
+  loProcessorItem: TProcessorItem;
+begin
+  Result := NIL;
+
+  for I  := 0 to fProcessorItems.Count - 1  do
+    begin
+      loProcessorItem:= TProcessorItem(fProcessorItems.Items[i]);
+
+      if ((uppercase(loProcessorItem.ProcessorName) = Uppercase(aProcessorName))) then
+        begin
+          Result := loProcessorItem;
+          Break;
+        end;
+    end;
 end;
 
 
