@@ -31,6 +31,7 @@ type
   //Main parser class
   TExpressionParser = class(Tobject)
   private
+    fsErrorExpressionMessage: string;
     FExpr : String;
     FLExpr : Integer;
     FExprID : Integer;
@@ -67,6 +68,9 @@ type
     procedure ListTokens(Str : TStrings);
     //Entry point
     function Execute : Boolean;
+
+    property ErrorExpressionMessage: string
+      read fsErrorExpressionMessage;
   end;
 
 implementation
@@ -102,6 +106,9 @@ begin
   Result := FExpr;
 end;
 
+
+
+
 function TExpressionParser.Execute: Boolean;
 var
   PRes : TPRes;
@@ -114,7 +121,13 @@ begin
   end;
   Level1(@PRes);
   if PRes.Res<>trBool then
-    raise TParserException.CreatePE(pBadSyntax);
+    begin
+      Result := False;
+
+      fsErrorExpressionMessage := PEMessageStr[pBadSyntax];
+
+      Exit;
+    end;
   Result := (PRes.Value=STrue);
 end;
 

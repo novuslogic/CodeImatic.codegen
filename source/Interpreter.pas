@@ -5,7 +5,7 @@ interface
 Uses
   Classes, ExpressionParser, SysUtils, DB, NovusStringUtils, Output,
   NovusList, Variants, Variables, XMLList, NovusGUIDEx, TokenProcessor, TagType,
-  CodeGeneratorItem, TokenParser, ProjectItem, StatementParser;
+  CodeGeneratorItem, TokenParser, ProjectItem, StatementParser, NovusUtilities;
 
 Type
   TNavigateType = (ltrepeat, ltendrepeat, ltif, ltendif);
@@ -1104,7 +1104,15 @@ begin
 
                     liTagIndex := LTemplateTag1.TagIndex;
 
-                    lbEqual := LStarTNavigate.StatementParser.IsEqual;
+                    lbEqual := false;
+                    Try
+                      lbEqual := LStarTNavigate.StatementParser.IsEqual;
+
+                      if Trim(LStarTNavigate.StatementParser.ErrorStatementMessage) <> '' then
+                         FoOutput.LogError('Syntax Error: ' + LStarTNavigate.StatementParser.ErrorStatementMessage);
+                    Except
+                      FoOutput.LogError('Syntax Error: ' + LStarTNavigate.StatementParser.ErrorStatementMessage);
+                    End;
 
                     if lbEqual then
                       begin
@@ -1117,22 +1125,25 @@ begin
 
                       end;
 
-                    If ((IsEndIf(LCodeGeneratorItem2) = False) and
-                      (IsIf(LCodeGeneratorItem2) = False)) then
-                    begin
-                       If IsEndIf(LCodeGeneratorItem1) then
+                    if Assigned(LCodeGeneratorItem2) then
+                      begin
+                        If ((IsEndIf(LCodeGeneratorItem2) = False) and
+                          (IsIf(LCodeGeneratorItem2) = False)) then
                         begin
-                          FNavigate := FindNavigateLevel(ltif, fiLevelCounter);
+                           If IsEndIf(LCodeGeneratorItem1) then
+                            begin
+                              FNavigate := FindNavigateLevel(ltif, fiLevelCounter);
 
-                          liLastEndSourceLineNo := liEndSourceLineNo + 1;
-                          liSourceLineCount :=
-                            (liEndSourceLineNo - liStartSourceLineNo);
+                              liLastEndSourceLineNo := liEndSourceLineNo + 1;
+                              liSourceLineCount :=
+                                (liEndSourceLineNo - liStartSourceLineNo);
 
-                          LCodeGeneratorItem1.oTemplateTag.TagValue := cDeleteLine;
+                              LCodeGeneratorItem1.oTemplateTag.TagValue := cDeleteLine;
 
-                          Break;
+                              Break;
+                            end;
                         end;
-                    end;
+                      end;
                   end;
                 end;
 
@@ -1397,11 +1408,15 @@ begin
       end
       else
       begin
-        if not  ((foProjectItem as tProjectItem).oProperties.IsPropertyExists(lsVariableName1)) then
+        if not ((foProjectItem as tProjectItem).oProperties.IsPropertyExists(lsVariableName1)) then
           begin
             FoOutput.LogError('Syntax Error: variable "' + lsVariableName1 + '" not defined');
 
             FoOutput.Failed := true;
+          end
+        else
+          begin
+            result := ((foProjectItem as tProjectItem).oProperties.GetProperty(lsVariableName1));
           end;
 
       end;
