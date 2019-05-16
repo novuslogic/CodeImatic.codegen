@@ -1303,7 +1303,7 @@ begin
   lsVariableName1 := TVariables.CleanVariableName(aTokens[aIndex]);
 
   // Do not like this
-  if (aTokens[0] = '=') or (aTokens[0]='IF') then
+  if (aTokens[0] = '=') or (Trim(Uppercase(aTokens[0]))='IF') then
     FOut := true;
 
   If GetToken = '=' then
