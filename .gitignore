@@ -32,3 +32,5 @@ samples/DBStaticWebsite/codeimatic.codegen.log
 *.log
 *.log
 *.stat
+samples/Interpreter/Output/INTERPRETER.TXT
+source/Plugins/WebServer.stat

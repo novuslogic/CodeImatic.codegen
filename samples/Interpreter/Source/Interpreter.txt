@@ -1,11 +1,6 @@
 <%REM Repeat Tag%>
-
-<%repeat(0)%>
-aaaaaaaa
 <%repeat(1)%>
 bbbbbbbb
-<%endrepeat%>
-cccccccc
 <%endrepeat%>
 
 

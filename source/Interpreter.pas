@@ -12,7 +12,6 @@ Type
 
   TNavigatePos = (lpStart, lpEnd);
 
-
   TEndNavigate = record
     SkipPos: Integer;
     ID: string;
@@ -30,6 +29,7 @@ Type
     fsID: String;
     fsLinkID: String;
     fiSkipPos: Integer;
+    fbHasRun: Boolean;
   private
   public
     constructor Create; overload;
@@ -51,17 +51,13 @@ Type
     property StatementParser: tStatementParser read fStatementParser
       write fStatementParser;
 
-    property ID: String
-      read fsID
-      write fsID;
+    property ID: String read fsID write fsID;
 
-    property LinkID: String
-      read fsLinkID
-      write fsLinkID;
+    property LinkID: String read fsLinkID write fsLinkID;
 
-    property SkipPos: Integer
-      read fiSkipPos
-      write fiSkipPos;
+    property SkipPos: Integer read fiSkipPos write fiSkipPos;
+
+    property HasRun: Boolean read fbHasRun write fbHasRun;
 
   End;
 
@@ -100,20 +96,8 @@ Type
       ASubVariable: Boolean = False): String;
     procedure AddVariable(AVariableName: String; AValue: Variant);
 
-    // function Delimiter(ATokens: tTokenProcessor; Var AIndex: Integer): string;
-    //function Reservelist(aTokens: tTokenProcessor; Var aIndex: Integer;
-    //  ACommandIndex: Integer): string;
-    //function XMLlistIndex(aTokens: tTokenProcessor;
-    //  Var aIndex: Integer): string;
-    //function XMLListName(aTokens: tTokenProcessor; Var aIndex: Integer): string;
-    //function XMLlistCount(aTokens: tTokenProcessor;
-    //  Var aIndex: Integer): string;
-
     function ParseVariable(aTokens: tTokenProcessor; Var aIndex: Integer;
       ASubCommand: Boolean = False): String;
-
-    //function VariableExistsIndex(AVariableName: String): Integer;
-    // function GetVariableByIndex(aIndex: Integer): TVariable;
 
     function GetCodeGeneratorItemBySourceLineNo(ASourceLineNo: Integer;
       Var APos: Integer): TCodeGeneratorItem;
@@ -148,7 +132,7 @@ Type
       aTokens: tTokenProcessor): String;
 
     // function DoTagTypeInterpreter(ATokens: tTokenProcessor): TTagType;
-    //function CommandSyntaxIndex(aCommand: String): Integer;
+    // function CommandSyntaxIndex(aCommand: String): Integer;
 
     function Execute(aCodeGeneratorItem: TCodeGeneratorItem;
       Var ASkipPOs: Integer): String;
@@ -156,8 +140,7 @@ Type
 
     property oTokens: tTokenProcessor read foTokens write foTokens;
 
-    property oVariables: tVariables
-       read GetVariables;
+    property oVariables: tVariables read GetVariables;
   End;
 
 implementation
@@ -180,7 +163,7 @@ begin
 
   FoCodeGenerator := aCodeGenerator;
 
-  //oVariables := foProjectItem.oVariables;
+  // oVariables := foProjectItem.oVariables;
 
   FNavigateList := tNovusList.Create(TNavigate);
 
@@ -195,242 +178,6 @@ begin
 
   inherited;
 end;
-
-(*
-function TInterpreter.Reservelist(aTokens: tTokenProcessor; Var aIndex: Integer;
-  ACommandIndex: Integer): string;
-Var
-  lConnectionItem: tConnectionItem;
-  lsFilename: String;
-  loreservelist: treservelist;
-  lsWord: String;
-  lsFormatOption: String;
-begin
-  Result := '';
-
-  If GetNextTokenA(aIndex, aTokens) = '(' then
-  begin
-    lsFilename := GetNextTokenA(aIndex, aTokens);
-
-    lsWord := GetNextTokenA(aIndex, aTokens);
-
-    If lsWord <> '' then
-    begin
-      If FileExists(lsFilename) then
-      begin
-        loreservelist := treservelist.Create;
-
-        loreservelist.XMLFileName := lsFilename;
-        loreservelist.Retrieve;
-
-        Result := lsWord;
-        if loreservelist.IsReserveWordExists(lsWord) then
-          Result := loreservelist.GetReserveWord(lsWord);
-
-        If ACommandIndex = 1 then
-        begin
-          lsFormatOption := GetNextTokenA(aIndex, aTokens);
-
-          Result := Format(Result, [lsFormatOption]);
-        end;
-
-        loreservelist.Free;
-      end
-      else
-        Result := lsWord;
-    end;
-  end
-  else
-  begin
-    FoOutput.LogError('Syntax Error: lack "("');
-
-  end;
-end;
-*)
-
-(*
-function TInterpreter.XMLlistIndex(aTokens: tTokenProcessor;
-  Var aIndex: Integer): string;
-Var
-  lConnectionItem: tConnectionItem;
-  lsStr: String;
-  loXMLlist: tXMLlist;
-  lsDelimiter: string;
-  liDelimiterCounter, liDelimiterLength: Integer;
-begin
-  Result := '';
-
-  If GetNextTokenA(aIndex, aTokens) = '(' then
-  begin
-    lsStr := GetNextTokenA(aIndex, aTokens);
-
-    if lsStr <> '' then
-    begin
-      Result := lsStr;
-
-      loXMLlist := NIL;
-      if FileExists(lsStr) then
-      begin
-        loXMLlist := tXMLlist.Create;
-
-        loXMLlist.XMLFileName := lsStr;
-        loXMLlist.Retrieve;
-
-        lsStr := GetNextTokenA(aIndex, aTokens);
-        if lsStr <> '' then
-        begin
-          if TNovusStringUtils.IsNumberStr(lsStr) then
-          begin
-            Result := loXMLlist.GetValueByIndex(StrToint(lsStr));
-          end
-          else
-            FoOutput.LogError('Syntax Error: Index is not numeric ');
-
-        end
-        else
-          FoOutput.LogError('Syntax Error: Index is blank.');
-
-        if Assigned(loXMLlist) then
-          loXMLlist.Free;
-
-      end
-      else
-      begin
-        FoOutput.LogError('Error: List filname cannot be found.');
-
-      end;
-
-    end
-    else
-      FoOutput.LogError('Syntax Error: List is blank.');
-  end
-  else
-  begin
-    FoOutput.LogError('Syntax Error: lack "("');
-
-  end;
-
-  if GetNextTokenA(aIndex, aTokens) <> ')' then
-    FoOutput.LogError('Syntax Error: lack ")"');
-end;
-*)
-(*
-function TInterpreter.XMLListName(aTokens: tTokenProcessor;
-  Var aIndex: Integer): string;
-Var
-  lConnectionItem: tConnectionItem;
-  lsStr: String;
-  loXMLlist: tXMLlist;
-  lsDelimiter: string;
-  liDelimiterCounter, liDelimiterLength: Integer;
-begin
-  Result := '';
-
-  If GetNextTokenA(aIndex, aTokens) = '(' then
-  begin
-    lsStr := GetNextTokenA(aIndex, aTokens);
-
-    if lsStr <> '' then
-    begin
-      Result := lsStr;
-
-      loXMLlist := NIL;
-      if FileExists(lsStr) then
-      begin
-        loXMLlist := tXMLlist.Create;
-
-        loXMLlist.XMLFileName := lsStr;
-        loXMLlist.Retrieve;
-
-        lsStr := GetNextTokenA(aIndex, aTokens);
-        if lsStr <> '' then
-        begin
-          if TNovusStringUtils.IsNumberStr(lsStr) then
-          begin
-            Result := loXMLlist.GetNameByIndex(StrToint(lsStr));
-          end
-          else
-            FoOutput.LogError('Syntax Error: Index is not a number ');
-
-        end
-        else
-          FoOutput.LogError('Syntax Error: Index is blank.');
-
-        if Assigned(loXMLlist) then
-          loXMLlist.Free;
-
-      end
-      else
-      begin
-        FoOutput.LogError('Error: List filname cannot be found.');
-
-      end;
-
-    end
-    else
-      FoOutput.LogError('Syntax Error: List is blank.');
-  end
-  else
-  begin
-    FoOutput.LogError('Syntax Error: lack "("');
-
-  end;
-
-  if GetNextTokenA(aIndex, aTokens) <> ')' then
-    FoOutput.LogError('Syntax Error: lack ")"');
-end;
-*)
-(*
-function TInterpreter.XMLlistCount(aTokens: tTokenProcessor;
-  Var aIndex: Integer): string;
-Var
-  lConnectionItem: tConnectionItem;
-  lsStr: String;
-  loXMLlist: tXMLlist;
-  lsDelimiter: string;
-  liDelimiterCounter, liDelimiterLength: Integer;
-begin
-  Result := '0';
-
-  If GetNextTokenA(aIndex, aTokens) = '(' then
-  begin
-    lsStr := GetNextTokenA(aIndex, aTokens);
-
-    if lsStr <> '' then
-    begin
-      Result := lsStr;
-
-      loXMLlist := NIL;
-      if FileExists(lsStr) then
-      begin
-        loXMLlist := tXMLlist.Create;
-
-        loXMLlist.XMLFileName := lsStr;
-        loXMLlist.Retrieve;
-
-        Result := IntToStr(loXMLlist.GetCount);
-
-        if Assigned(loXMLlist) then
-          loXMLlist.Free;
-
-      end
-      else
-      begin
-        FoOutput.LogError('Error: List filname cannot be found.');
-
-      end;
-
-    end
-    else
-      FoOutput.LogError('Syntax Error: List is blank.');
-  end
-  else
-  begin
-    FoOutput.LogError('Syntax Error: lack "("');
-
-  end;
-end;
-*)
 
 function TInterpreter.DoPluginTag(aTokens: tTokenProcessor;
   Var aIndex: Integer): string;
@@ -481,51 +228,21 @@ begin
 
     case fTagType of
       ttplugintag:
-         Result := DoPluginTag(aTokens, aIndex);
+        Result := DoPluginTag(aTokens, aIndex);
       ttrepeat:
         Result := DoRepeat(aTokens, aIndex, ttrepeat, ASkipPOs);
       ttendrepeat:
-         Result := DoRepeat(aTokens, aIndex, ttendrepeat, ASkipPOs);
+        Result := DoRepeat(aTokens, aIndex, ttendrepeat, ASkipPOs);
       ttif:
         Result := DoIF(aTokens, aIndex, ttif, ASkipPOs);
       ttendif:
         Result := DoIF(aTokens, aIndex, ttendif, ASkipPOs);
       ttLog:
-        Result := DoLog(aTokens, aIndex, fTagType, ASkipPos);
+        Result := DoLog(aTokens, aIndex, fTagType, ASkipPOs);
       ttComment:
-        Result := DoComment(aTokens, aIndex, fTagType, ASkipPos);
+        Result := DoComment(aTokens, aIndex, fTagType, ASkipPOs);
     end;
 
-    (*
-    if (CommandSyntaxIndex(aToken) <> 0) then
-    begin
-      case CommandSyntaxIndex(aToken) of
-
-        // 16:
-        // Result := Delimiter(ATokens, AIndex);
-        17, 18:
-          Result := Reservelist(aTokens, aIndex, 0);
-        19:
-          Result := XMLlistIndex(aTokens, aIndex);
-        20:
-          Result := XMLlistCount(aTokens, aIndex);
-        21:
-          Result := XMLListName(aTokens, aIndex);
-
-        23:
-          Result := Reservelist(aTokens, aIndex, 1);
-
-      end;
-    end;
-    *)
-    (*
-    if Pos('$$', aTokens[aIndex]) = 1 then
-      Result := tTokenParser.ParseToken(Self, aTokens[aIndex],
-        (foProjectItem as TProjectItem), FoOutput, aTokens, aIndex,
-        TCodeGenerator(FoCodeGenerator).oProject)
-    else if Pos('$', aTokens[aIndex]) = 1 then
-      Result := ParseVariable(aTokens, aIndex);
-    *)
   Except
     FoOutput.InternalError;
   end;
@@ -545,10 +262,9 @@ begin
     lsNextToken := aTokens[aIndex];
 
 
-   // need to merge this in
-    //result := ParseToken(lsNextToken, aIndex,
-     //      aTokens, aSkipPos);
-
+    // need to merge this in
+    // result := ParseToken(lsNextToken, aIndex,
+    // aTokens, aSkipPos);
 
     fTagType := TTagParser.ParseTagType(foProjectItem, FoCodeGenerator,
       lsNextToken, FoOutput, true);
@@ -568,9 +284,10 @@ begin
     else if fTagType = ttLog then
       Result := DoLog(aTokens, aIndex, fTagType, ASkipPOs)
     else if fTagType = ttComment then
-      Result := DoComment(aTokens, aIndex, fTagType, ASkipPos);
+      Result := DoComment(aTokens, aIndex, fTagType, ASkipPOs);
 
-    if aTokens.EOF then Exit;
+    if aTokens.EOF then
+      Exit;
 
     if Not ASubCommand then
     begin
@@ -679,16 +396,21 @@ begin
 
               Inc(liStartPos1, 1);
 
-              LEndNavigate := FindEndNavigate(liStartPos1, 'repeat', 'endrepeat');
+              LEndNavigate := FindEndNavigate(liStartPos1, 'repeat',
+                'endrepeat');
 
-              //liEndPos1 := FindEndNavigateIndexPos(liStartPos1, 'repeat',
-               // 'endrepeat');
+              if LEndNavigate.ID = '' then
+              begin
+                FoOutput.LogError
+                  ('Syntax Error: Block Repeat without EndRepeat.');
+
+              end;
 
               FoCodeGeneratorItem.oTemplateTag.TagValue := cDeleteLine;
 
-              ASkipPos := LEndNavigate.SkipPos;
+              ASkipPOs := LEndNavigate.SkipPos;
 
-              FNavigate.SkipPos := ASkipPos ;
+              FNavigate.SkipPos := ASkipPOs;
               FNavigate.LinkID := LEndNavigate.ID;
             end
             else
@@ -704,216 +426,193 @@ begin
       end;
     ttendrepeat:
       begin
-        ASkipPos := 0;
+        ASkipPOs := 0;
 
-        //LStartNavigate := FindNavigateLevel(ltrepeat, fiLevelCounter);
         LStartNavigate := FindNavigateLinkID(ltrepeat, FoCodeGeneratorItem.ID);
 
-        if Assigned(LStarTNavigate) then
-          begin
-        LiValue := LStarTNavigate.Value;
-        lbNegitiveFlag := LStarTNavigate.NegitiveFlag;
-
-        liStartPos1 := (LStarTNavigate.CodeGeneratorItem As TCodeGeneratorItem)
-          .oTemplateTag.TagIndex;
-        Inc(liStartPos1, 1);
-
-        liStartSourceLineNo :=
-          (LStarTNavigate.CodeGeneratorItem As TCodeGeneratorItem)
-          .oTemplateTag.SourceLineNo;
-
-        liEndPos1 := (FoCodeGeneratorItem As TCodeGeneratorItem)
-          .oTemplateTag.TagIndex;
-        Dec(liEndPos1, 1);
-
-        liEndSourceLineNo := (FoCodeGeneratorItem As TCodeGeneratorItem)
-          .oTemplateTag.SourceLineNo;
-        Dec(liEndSourceLineNo, 1);
-
-        LCodeGenerator := (FoCodeGenerator As TCodeGenerator);
-
-        LTemplate := LCodeGenerator.oTemplate;
-
-        liLastNextSourceLineNo := liStartSourceLineNo;
-
-        FNavigate := NIL;
-
-        I := 0;
-
-        liLastEndSourceLineNo := (liEndSourceLineNo - liStartSourceLineNo);
-
-        Repeat
-          liPos := 0;
-
-          While (liPos < TCodeGenerator(FoCodeGenerator)
-            .oCodeGeneratorList.Count) do
-          begin
-            LCodeGeneratorItem1 := GetCodeGeneratorItemBySourceLineNo
-              ((liLastNextSourceLineNo + I) + 1, liPos);
-
-            if Assigned(LCodeGeneratorItem1) then
-            begin
-              LTemplateTag1 := LCodeGeneratorItem1.oTemplateTag;
-
-              liTagIndex := LTemplateTag1.TagIndex;
-
-              LCodeGenerator.RunPropertyVariables(liTagIndex, liTagIndex);
-
-              LCodeGenerator.RunInterpreter(liTagIndex, liTagIndex);
-
-              if IsInterpreterTagType(LCodeGeneratorItem1.TagType) then
-              begin
-                If IsRepeat(LCodeGeneratorItem1) then
-                  begin
-                    (*
-                    LsValue := '10';
-
-                    FNavigate := TNavigate.Create;
-
-                    FNavigate.NavigateType := ltrepeat;
-                    FNavigate.NavigatePos := lpStart;
-                    FNavigate.Level := 0;
-
-                    FNavigate.CodeGeneratorItem := LCodeGeneratorItem1;
-
-                    FNavigate.NegitiveFlag := (StrToint(LsValue) < 0);
-
-                    FNavigate.Value := 0;
-                    If StrToint(LsValue) > 0 then
-                      FNavigate.Value := StrToint(LsValue);
-
-                    FNavigateList.Add(FNavigate);
-
-                    liStartPos1 := LCodeGeneratorItem1.oTemplateTag.TagIndex;
-
-                    FNavigate.ID := FoCodeGeneratorItem.ID;
-
-                    Inc(liStartPos1, 1);
-
-                    LEndNavigate := FindEndNavigate(liStartPos1, 'repeat', 'endrepeat');
-
-                    FoCodeGeneratorItem.oTemplateTag.TagValue := cDeleteLine;
-
-                    liSkipPos := LEndNavigate.SkipPos;
-
-                    FNavigate.LinkID := LEndNavigate.ID;
-                    *)
-                  end
-               else
-                If IsEndRepeat(LCodeGeneratorItem1) then
-                begin
-                  //FNavigate := FindNavigateLevel(ltrepeat, fiLevelCounter);
-                  FNavigate := FindNavigateLinkID(ltrepeat, LCodeGeneratorItem1.ID);
-
-                  liLastEndSourceLineNo := liEndSourceLineNo + 1;
-                  liSourceLineCount :=
-                    (liEndSourceLineNo - liStartSourceLineNo);
-
-                 // Break;
-                end;
-              end;
-            end;
-          end;
-
-          Inc(I);
-          if I > (liLastEndSourceLineNo - 1) then
-            Break;
-        until False;
-
-        if LiValue = 0 then
+        if Assigned(LStartNavigate) then
         begin
-          If lbNegitiveFlag then
+          if LStartNavigate.LinkID = FoCodeGeneratorItem.ID then
           begin
-            For A := 0 to liLastEndSourceLineNo do
-            begin
-              LTemplate.OutputDoc.strings[liStartSourceLineNo + A] := '';
-            end;
-          end;
+            LiValue := LStartNavigate.Value;
+            lbNegitiveFlag := LStartNavigate.NegitiveFlag;
 
-          Exit;
-        end;
+            liStartPos1 :=
+              (LStartNavigate.CodeGeneratorItem As TCodeGeneratorItem)
+              .oTemplateTag.TagIndex;
+            Inc(liStartPos1, 1);
 
-        if Not Assigned(FNavigate) then
-        begin
-          liLastEndSourceLineNo := liEndSourceLineNo;
+            liStartSourceLineNo :=
+              (LStartNavigate.CodeGeneratorItem As TCodeGeneratorItem)
+              .oTemplateTag.SourceLineNo;
 
-          if ((FindEndNavigateIndexPos(liStartPos1, 'repeat', 'endrepeat') +
-            liStartPos1) < (liEndSourceLineNo - liStartSourceLineNo)) then
-            liSourceLineCount := (liEndSourceLineNo - liStartSourceLineNo) -
-              ((FindEndNavigateIndexPos(liStartPos1, 'repeat', 'endrepeat') +
-              liStartPos1) + 1)
-          else
-            liSourceLineCount := (liEndSourceLineNo - liStartSourceLineNo) - 1;
-        end;
+            liEndPos1 := (FoCodeGeneratorItem As TCodeGeneratorItem)
+              .oTemplateTag.TagIndex;
+            Dec(liEndPos1, 1);
 
-        liLineNoPos := 0;
-        Y := 0;
-        repeat
-          liStartTagIndex := 0;
-          liEndTagIndex := 0;
+            liEndSourceLineNo := (FoCodeGeneratorItem As TCodeGeneratorItem)
+              .oTemplateTag.SourceLineNo;
+            Dec(liEndSourceLineNo, 1);
 
-          for I := 0 to liSourceLineCount do
-          begin
-            liNextSourceLineNo1 := liLastEndSourceLineNo + liLineNoPos;
+            LCodeGenerator := (FoCodeGenerator As TCodeGenerator);
 
-            LTemplate.InsertLineNo(liNextSourceLineNo1,
-              LTemplate.TemplateDoc.strings[liStartSourceLineNo + I]);
+            LTemplate := LCodeGenerator.oTemplate;
 
-            liPos := 0;
+            liLastNextSourceLineNo := liStartSourceLineNo;
 
-            liPosMax := TCodeGenerator(FoCodeGenerator)
-              .oCodeGeneratorList.Count;
+            FNavigate := NIL;
 
-            While (liPos < liPosMax) do
-            begin
-              LCodeGeneratorItem1 := GetCodeGeneratorItemBySourceLineNo
-                ((liStartSourceLineNo + I) + 1, liPos);
-              if Assigned(LCodeGeneratorItem1) then
+            I := 0;
+
+            liLastEndSourceLineNo := (liEndSourceLineNo - liStartSourceLineNo);
+
+            Repeat
+              liPos := 0;
+
+              While (liPos < TCodeGenerator(FoCodeGenerator)
+                .oCodeGeneratorList.Count) do
               begin
-                LTemplateTag1 := LCodeGeneratorItem1.oTemplateTag;
+                LCodeGeneratorItem1 := GetCodeGeneratorItemBySourceLineNo
+                  ((liLastNextSourceLineNo + I) + 1, liPos);
 
-                LTemplateTag2 := TTemplateTag.Create(NIL);
-
-                LTemplateTag2.SourceLineNo := liNextSourceLineNo1 + 1;
-
-                LTemplateTag2.SourcePos := LTemplateTag1.SourcePos;
-
-                LTemplateTag2.TagName := LTemplateTag1.TagName;
-                LTemplateTag2.RawTag := LTemplateTag1.RawTag;
-
-                LTemplateTag2.RawTagEx := LTemplateTag1.RawTagEx;
-
-                LTemplateTag2.TagValue := '';
-
-                liTagIndex := LTemplate.AddTemplateTag(LTemplateTag2);
-
-                LCodeGeneratorItem2 := LCodeGenerator.AddTag(LTemplateTag2);
-
-                if liStartTagIndex = 0 then
-                  liStartTagIndex := liTagIndex;
-                liEndTagIndex := liTagIndex;
-
-                If ((IsEndRepeat(LCodeGeneratorItem2) = False) and
-                  (IsRepeat(LCodeGeneratorItem2) = False)) then
+                if Assigned(LCodeGeneratorItem1) then
                 begin
+                  LTemplateTag1 := LCodeGeneratorItem1.oTemplateTag;
+
+                  liTagIndex := LTemplateTag1.TagIndex;
+
                   LCodeGenerator.RunPropertyVariables(liTagIndex, liTagIndex);
+
                   LCodeGenerator.RunInterpreter(liTagIndex, liTagIndex);
+
+                  if IsInterpreterTagType(LCodeGeneratorItem1.TagType) then
+                  begin
+                    If IsRepeat(LCodeGeneratorItem1) then
+                    begin
+
+                    end
+                    else If IsEndRepeat(LCodeGeneratorItem1) then
+                    begin
+                      // FNavigate := FindNavigateLevel(ltrepeat, fiLevelCounter);
+                      FNavigate := FindNavigateLinkID(ltrepeat,
+                        LCodeGeneratorItem1.ID);
+
+                      liLastEndSourceLineNo := liEndSourceLineNo + 1;
+                      liSourceLineCount :=
+                        (liEndSourceLineNo - liStartSourceLineNo);
+
+                      // Break;
+                    end;
+                  end;
                 end;
               end;
+
+              Inc(I);
+              if I > (liLastEndSourceLineNo - 1) then
+                Break;
+            until False;
+
+            if LiValue = 0 then
+            begin
+              If lbNegitiveFlag then
+              begin
+                For A := 0 to liLastEndSourceLineNo do
+                begin
+                  LTemplate.OutputDoc.strings[liStartSourceLineNo + A] := '';
+                end;
+              end;
+
+              Exit;
             end;
 
-            Inc(liLineNoPos);
+            if Not Assigned(FNavigate) then
+            begin
+              liLastEndSourceLineNo := liEndSourceLineNo;
+
+              if ((FindEndNavigateIndexPos(liStartPos1, 'repeat', 'endrepeat') +
+                liStartPos1) < (liEndSourceLineNo - liStartSourceLineNo)) then
+                liSourceLineCount := (liEndSourceLineNo - liStartSourceLineNo) -
+                  ((FindEndNavigateIndexPos(liStartPos1, 'repeat', 'endrepeat')
+                  + liStartPos1) + 1)
+              else
+                liSourceLineCount :=
+                  (liEndSourceLineNo - liStartSourceLineNo) - 1;
+            end;
+
+            liLineNoPos := 0;
+            Y := 0;
+            repeat
+              liStartTagIndex := 0;
+              liEndTagIndex := 0;
+
+              for I := 0 to liSourceLineCount do
+              begin
+                liNextSourceLineNo1 := liLastEndSourceLineNo + liLineNoPos;
+
+                LTemplate.InsertLineNo(liNextSourceLineNo1,
+                  LTemplate.TemplateDoc.strings[liStartSourceLineNo + I]);
+
+                liPos := 0;
+
+                liPosMax := TCodeGenerator(FoCodeGenerator)
+                  .oCodeGeneratorList.Count;
+
+                While (liPos < liPosMax) do
+                begin
+                  LCodeGeneratorItem1 := GetCodeGeneratorItemBySourceLineNo
+                    ((liStartSourceLineNo + I) + 1, liPos);
+
+                  if Assigned(LCodeGeneratorItem1) then
+                  begin
+                    LTemplateTag1 := LCodeGeneratorItem1.oTemplateTag;
+
+                    LTemplateTag2 := TTemplateTag.Create(NIL);
+
+                    LTemplateTag2.SourceLineNo := liNextSourceLineNo1 + 1;
+
+                    LTemplateTag2.SourcePos := LTemplateTag1.SourcePos;
+
+                    LTemplateTag2.TagName := LTemplateTag1.TagName;
+                    LTemplateTag2.RawTag := LTemplateTag1.RawTag;
+
+                    LTemplateTag2.RawTagEx := LTemplateTag1.RawTagEx;
+
+                    LTemplateTag2.TagValue := '';
+
+                    liTagIndex := LTemplate.AddTemplateTag(LTemplateTag2);
+
+                    LCodeGeneratorItem2 := LCodeGenerator.AddTag(LTemplateTag2);
+
+                    if liStartTagIndex = 0 then
+                      liStartTagIndex := liTagIndex;
+                    liEndTagIndex := liTagIndex;
+
+                    If ((IsEndRepeat(LCodeGeneratorItem2) = False) and
+                      (IsRepeat(LCodeGeneratorItem2) = False)) then
+                    begin
+                      LCodeGenerator.RunPropertyVariables(liTagIndex,
+                        liTagIndex);
+                      LCodeGenerator.RunInterpreter(liTagIndex, liTagIndex);
+                    end;
+                  end;
+                end;
+
+                Inc(liLineNoPos);
+              end;
+
+              Inc(Y);
+
+              if Y = LiValue then
+                Break;
+            until False;
+
+            LStartNavigate.HasRun := true;
           end;
-
-          Inc(Y);
-
-          if Y = LiValue then
-            Break;
-        until False;
-
+        //  else
+         //   FoOutput.LogError('Syntax Error: Block EndRepeat internal error.');
         end
         else
-          FoOutput.LogError('Syntax Error: lack "REPEAT"');
+          FoOutput.LogError('Syntax Error: Block EndRepeat without Repeat.');
       end;
   end;
 end;
@@ -947,8 +646,6 @@ begin
 
 end;
 
-
-
 function TInterpreter.DoIF(aTokens: tTokenProcessor; Var aIndex: Integer;
   aTagType: TTagType; Var ASkipPOs: Integer): string;
 Var
@@ -958,7 +655,7 @@ Var
   lbNegitiveFlag: Boolean;
   liPos, liLineNoPos: Integer;
   liStartPos1, liEndPos1, liStartPos2, liEndPos2: Integer;
-  LStarTNavigate, FNavigate: TNavigate;
+  LStartNavigate, FNavigate: TNavigate;
   liLastSourceNo, I, X, Y, Z, A: Integer;
   LCodeGeneratorItem3, LCodeGeneratorItem2, LCodeGeneratorItem1
     : TCodeGeneratorItem;
@@ -989,7 +686,7 @@ begin
           If GetNextToken(aIndex, aTokens, False) = '(' then
           begin
             Try
-              lStatementParser := tStatementParser.Create(foOutput);
+              lStatementParser := tStatementParser.Create(FoOutput);
 
               LsToken := GetNextToken(aIndex, aTokens);
               if LsToken <> ')' then
@@ -1027,13 +724,13 @@ begin
 
               FoCodeGeneratorItem.oTemplateTag.TagValue := cDeleteLine;
 
-              ASkipPos := liEndPos1;
+              ASkipPOs := liEndPos1;
 
               FNavigate.StatementParser := lStatementParser;
 
               FNavigateList.Add(FNavigate);
             Finally
-              //ResetToEnd(aTokens, aIndex);
+              // ResetToEnd(aTokens, aIndex);
             End;
 
           end
@@ -1050,126 +747,127 @@ begin
         begin
           ASkipPOs := 0;
 
-          LStarTNavigate := FindNavigateLevel(ltif, fiLevelCounter);
+          LStartNavigate := FindNavigateLevel(ltif, fiLevelCounter);
 
-          if Assigned(LStarTNavigate) then
-            begin
+          if Assigned(LStartNavigate) then
+          begin
 
-              liStartPos1 :=
-                (LStarTNavigate.CodeGeneratorItem As TCodeGeneratorItem)
-                .oTemplateTag.TagIndex;
+            liStartPos1 :=
+              (LStartNavigate.CodeGeneratorItem As TCodeGeneratorItem)
+              .oTemplateTag.TagIndex;
 
+            Inc(liStartPos1, 1);
 
-              Inc(liStartPos1, 1);
+            liStartSourceLineNo :=
+              (LStartNavigate.CodeGeneratorItem As TCodeGeneratorItem)
+              .oTemplateTag.SourceLineNo;
 
-              liStartSourceLineNo :=
-                (LStarTNavigate.CodeGeneratorItem As TCodeGeneratorItem)
-                .oTemplateTag.SourceLineNo;
+            liEndPos1 := (FoCodeGeneratorItem As TCodeGeneratorItem)
+              .oTemplateTag.TagIndex;
+            Dec(liEndPos1, 1);
 
-              liEndPos1 := (FoCodeGeneratorItem As TCodeGeneratorItem)
-                .oTemplateTag.TagIndex;
-              Dec(liEndPos1, 1);
+            liEndSourceLineNo := (FoCodeGeneratorItem As TCodeGeneratorItem)
+              .oTemplateTag.SourceLineNo;
+            Dec(liEndSourceLineNo, 1);
 
-              liEndSourceLineNo := (FoCodeGeneratorItem As TCodeGeneratorItem)
-                .oTemplateTag.SourceLineNo;
-              Dec(liEndSourceLineNo, 1);
+            LCodeGenerator := (FoCodeGenerator As TCodeGenerator);
 
-              LCodeGenerator := (FoCodeGenerator As TCodeGenerator);
+            LTemplate := LCodeGenerator.oTemplate;
 
-              LTemplate := LCodeGenerator.oTemplate;
+            liLastNextSourceLineNo := liStartSourceLineNo;
 
-              liLastNextSourceLineNo := liStartSourceLineNo;
+            FNavigate := NIL;
 
-              FNavigate := NIL;
+            I := 0;
 
-              I := 0;
+            liLastEndSourceLineNo := (liEndSourceLineNo - liStartSourceLineNo);
 
-              liLastEndSourceLineNo := (liEndSourceLineNo - liStartSourceLineNo);
+            Repeat
+              liPos := 0;
 
-              Repeat
-                liPos := 0;
+              lbIsTag := False;
+              While (liPos < TCodeGenerator(FoCodeGenerator)
+                .oCodeGeneratorList.Count) do
+              begin
+                LCodeGeneratorItem1 := GetCodeGeneratorItemBySourceLineNo
+                  ((liLastNextSourceLineNo + I) + 1, liPos);
 
-
-                lbIsTag:= false;
-                While (liPos < TCodeGenerator(FoCodeGenerator)
-                  .oCodeGeneratorList.Count) do
+                if Assigned(LCodeGeneratorItem1) then
                 begin
-                  LCodeGeneratorItem1 := GetCodeGeneratorItemBySourceLineNo
-                    ((liLastNextSourceLineNo + I) + 1, liPos);
+                  lbIsTag := true;
+                  LTemplateTag1 := LCodeGeneratorItem1.oTemplateTag;
 
-                  if Assigned(LCodeGeneratorItem1) then
+                  liTagIndex := LTemplateTag1.TagIndex;
+
+                  lbEqual := False;
+                  Try
+                    lbEqual := LStartNavigate.StatementParser.IsEqual;
+
+                    if Trim(LStartNavigate.StatementParser.
+                      ErrorStatementMessage) <> '' then
+                      FoOutput.LogError('Syntax Error: ' +
+                        LStartNavigate.StatementParser.ErrorStatementMessage);
+                  Except
+                    FoOutput.LogError('Syntax Error: ' +
+                      LStartNavigate.StatementParser.ErrorStatementMessage);
+                  End;
+
+                  if lbEqual then
                   begin
-                    lbIsTag:= true;
-                    LTemplateTag1 := LCodeGeneratorItem1.oTemplateTag;
+                    LCodeGenerator.RunPropertyVariables(liTagIndex, liTagIndex);
+                    LCodeGenerator.RunInterpreter(liTagIndex, liTagIndex);
+                  end
+                  else
+                  begin
+                    LTemplateTag1.TagValue := cDeleteLine;
 
-                    liTagIndex := LTemplateTag1.TagIndex;
+                  end;
 
-                    lbEqual := false;
-                    Try
-                      lbEqual := LStarTNavigate.StatementParser.IsEqual;
-
-                      if Trim(LStarTNavigate.StatementParser.ErrorStatementMessage) <> '' then
-                         FoOutput.LogError('Syntax Error: ' + LStarTNavigate.StatementParser.ErrorStatementMessage);
-                    Except
-                      FoOutput.LogError('Syntax Error: ' + LStarTNavigate.StatementParser.ErrorStatementMessage);
-                    End;
-
-                    if lbEqual then
+                  if Assigned(LCodeGeneratorItem2) then
+                  begin
+                    If ((IsEndIf(LCodeGeneratorItem2) = False) and
+                      (IsIf(LCodeGeneratorItem2) = False)) then
+                    begin
+                      If IsEndIf(LCodeGeneratorItem1) then
                       begin
-                        LCodeGenerator.RunPropertyVariables(liTagIndex, liTagIndex);
-                        LCodeGenerator.RunInterpreter(liTagIndex, liTagIndex);
-                      end
-                    else
-                      begin
-                         LTemplateTag1.TagValue := cDeleteLine;
+                        FNavigate := FindNavigateLevel(ltif, fiLevelCounter);
 
+                        liLastEndSourceLineNo := liEndSourceLineNo + 1;
+                        liSourceLineCount :=
+                          (liEndSourceLineNo - liStartSourceLineNo);
+
+                        LCodeGeneratorItem1.oTemplateTag.TagValue :=
+                          cDeleteLine;
+
+                        Break;
                       end;
-
-                    if Assigned(LCodeGeneratorItem2) then
-                      begin
-                        If ((IsEndIf(LCodeGeneratorItem2) = False) and
-                          (IsIf(LCodeGeneratorItem2) = False)) then
-                        begin
-                           If IsEndIf(LCodeGeneratorItem1) then
-                            begin
-                              FNavigate := FindNavigateLevel(ltif, fiLevelCounter);
-
-                              liLastEndSourceLineNo := liEndSourceLineNo + 1;
-                              liSourceLineCount :=
-                                (liEndSourceLineNo - liStartSourceLineNo);
-
-                              LCodeGeneratorItem1.oTemplateTag.TagValue := cDeleteLine;
-
-                              Break;
-                            end;
-                        end;
-                      end;
+                    end;
                   end;
                 end;
+              end;
 
-                if lbIsTag = false then
-                  begin
-                    if Not lbEqual then
-                      LTemplate.OutputDoc.Strings[liStartSourceLineNo + I] := cDeleteLine;
-                  end;
+              if lbIsTag = False then
+              begin
+                if Not lbEqual then
+                  LTemplate.OutputDoc.strings[liStartSourceLineNo + I] :=
+                    cDeleteLine;
+              end;
 
+              Inc(I);
+              if I > (liLastEndSourceLineNo - 1) then
+                Break;
+            until False;
 
-                Inc(I);
-                if I > (liLastEndSourceLineNo - 1) then
-                  Break;
-              until False;
-
-              ResetToEnd(aTokens, aIndex);
-            end
-        else
-          FoOutput.LogError('Syntax Error: lack "IF"');
+            ResetToEnd(aTokens, aIndex);
+          end
+          else
+            FoOutput.LogError('Syntax Error: lack "IF"');
         end
         else
           FoOutput.LogError('Syntax Error: lack "ENDIF"');
       end;
   end;
 end;
-
 
 function TInterpreter.DoLog(aTokens: tTokenProcessor; Var aIndex: Integer;
   aTagType: TTagType; Var ASkipPOs: Integer): string;
@@ -1179,7 +877,7 @@ begin
   Result := '';
 
   case aTagType of
-    ttlog:
+    ttLog:
       begin
         If Uppercase(GetNextToken(aIndex, aTokens, true)) = 'LOG' then
         begin
@@ -1188,17 +886,15 @@ begin
             lsLog := GetNextToken(aIndex, aTokens, False);
 
             if GetNextToken(aIndex, aTokens, False) = ')' then
-              begin
-                foOutput.Log(lsLog);
+            begin
+              FoOutput.Log(lsLog);
 
-                ResetToEnd(aTokens, aIndex);
+              ResetToEnd(aTokens, aIndex);
 
-
-                exit;
-              end
+              Exit;
+            end
             else
-              ooutput.logerror('Syntax Error: lack ")"');
-
+              ooutput.LogError('Syntax Error: lack ")"');
 
           end
           else
@@ -1223,9 +919,9 @@ begin
       begin
         If GetNextToken(aIndex, aTokens, true) = 'REM' then
         begin
-         ResetToEnd(aTokens, aIndex);
+          ResetToEnd(aTokens, aIndex);
 
-         Exit;
+          Exit;
 
         end
         else
@@ -1234,8 +930,8 @@ begin
   end;
 end;
 
-function TInterpreter.FindNavigateLinkID(aNavigateType: TNavigateType; aID: string)
-  : TNavigate;
+function TInterpreter.FindNavigateLinkID(aNavigateType: TNavigateType;
+  aID: string): TNavigate;
 Var
   I: Integer;
   FNavigate: TNavigate;
@@ -1246,7 +942,8 @@ begin
   begin
     FNavigate := TNavigate(FNavigateList.Items[I]);
 
-    if (FNavigate.NavigateType = aNavigateType) and (FNavigate.LinkID = aID) then
+    if (FNavigate.NavigateType = aNavigateType) and (FNavigate.LinkID = aID)
+    then
     begin
       Result := FNavigate;
       Break;
@@ -1254,9 +951,8 @@ begin
   end;
 end;
 
-
-function TInterpreter.FindNavigateLevel(aNavigateType: TNavigateType; aLevel: Integer)
-  : TNavigate;
+function TInterpreter.FindNavigateLevel(aNavigateType: TNavigateType;
+  aLevel: Integer): TNavigate;
 Var
   I: Integer;
   FNavigate: TNavigate;
@@ -1267,7 +963,8 @@ begin
   begin
     FNavigate := TNavigate(FNavigateList.Items[I]);
 
-    if (FNavigate.NavigateType = aNavigateType) and (FNavigate.Level = aLevel) then
+    if (FNavigate.NavigateType = aNavigateType) and (FNavigate.Level = aLevel)
+    then
     begin
       Result := FNavigate;
       Break;
@@ -1300,21 +997,20 @@ Var
 begin
   Result := '';
   FOut := False;
-  fbIsIf := false;
+  fbIsIf := False;
 
-  lsVariableName1 := TVariables.CleanVariableName(aTokens[aIndex]);
+  lsVariableName1 := tVariables.CleanVariableName(aTokens[aIndex]);
 
-  fbIsIf := false;
-  if (Trim(Uppercase(aTokens[0]))='IF') then
-     begin
-       FOut := true;
-       fbIsIf := true;
-     end
-  else
-  if (aTokens[0] = '=') then
-      FOut := true;
+  fbIsIf := False;
+  if (Trim(Uppercase(aTokens[0])) = 'IF') then
+  begin
+    FOut := true;
+    fbIsIf := true;
+  end
+  else if (aTokens[0] = '=') then
+    FOut := true;
 
-  If (GetToken = '=') and (fbIsIf = false) then
+  If (GetToken = '=') and (fbIsIf = False) then
   begin
     lVariableI := oVariables.GetVariableByName(lsVariableName1);
 
@@ -1345,7 +1041,7 @@ begin
       lVariableX := NIL;
       if Pos('$', LsValue) = 1 then
       begin
-        lsVariableName2 := TVariables.CleanVariableName(LsValue);
+        lsVariableName2 := tVariables.CleanVariableName(LsValue);
 
         lVariableX := oVariables.GetVariableByName(lsVariableName2);
       end;
@@ -1380,13 +1076,13 @@ begin
         // end;
       end;
 
-      if fbIsIf  then
-        begin
-          if Assigned(FVariable1) then
-             Result := FVariable1.Value;
+      if fbIsIf then
+      begin
+        if Assigned(FVariable1) then
+          Result := FVariable1.Value;
 
-          Exit;
-        end;
+        Exit;
+      end;
 
       LStr := GetToken;
 
@@ -1410,7 +1106,7 @@ begin
         else
           FoOutput.LogError('Syntax Error: Is not a number');
       end;
-   end;
+    end;
   end
   else
   begin
@@ -1424,19 +1120,21 @@ begin
       end
       else
       begin
-        if not ((foProjectItem as tProjectItem).oProperties.IsPropertyExists(lsVariableName1)) then
-          begin
-            FoOutput.LogError('Syntax Error: variable "' + lsVariableName1 + '" not defined');
+        if not((foProjectItem as TProjectItem).oProperties.IsPropertyExists
+          (lsVariableName1)) then
+        begin
+          FoOutput.LogError('Syntax Error: variable "' + lsVariableName1 +
+            '" not defined');
 
-            FoOutput.Failed := true;
-          end
+          FoOutput.Failed := true;
+        end
         else
-          begin
-            result := ((foProjectItem as tProjectItem).oProperties.GetProperty(lsVariableName1));
-          end;
+        begin
+          Result := ((foProjectItem as TProjectItem).oProperties.GetProperty
+            (lsVariableName1));
+        end;
 
       end;
-
 
     end
     else
@@ -1489,22 +1187,22 @@ begin
 end;
 
 (*
-function TInterpreter.CommandSyntaxIndex(aCommand: String): Integer;
-Var
+  function TInterpreter.CommandSyntaxIndex(aCommand: String): Integer;
+  Var
   I: Integer;
-begin
+  begin
   Result := -1;
 
   For I := 1 to Length(csCommamdSyntax) do
   begin
-    if Uppercase(csCommamdSyntax[I]) = Uppercase(aCommand) then
-    begin
-      Result := I;
+  if Uppercase(csCommamdSyntax[I]) = Uppercase(aCommand) then
+  begin
+  Result := I;
 
-      Break;
-    end;
+  Break;
   end;
-end;
+  end;
+  end;
 *)
 function TInterpreter.GetNextToken(Var aIndex: Integer;
   aTokens: tTokenProcessor; aIgnoreTokenParser: Boolean = False;
@@ -1549,40 +1247,43 @@ begin
 
   if Pos('$', Result) = 1 then
   begin
-    LVariable := oVariables.GetVariableByName(TVariables.CleanVariableName(Result));
-    if Not Assigned(LVariable) then FoOutput.LogError('Syntax Error: variable ' + Result + ' cannot be found.');
+    LVariable := oVariables.GetVariableByName
+      (tVariables.CleanVariableName(Result));
+    if Not Assigned(LVariable) then
+      FoOutput.LogError('Syntax Error: variable ' + Result +
+        ' cannot be found.');
 
     (*
-    I := VariableExistsIndex(TVariables.CleanVariableName(Result));
-    if I <> -1 then
-    begin
+      I := VariableExistsIndex(TVariables.CleanVariableName(Result));
+      if I <> -1 then
+      begin
       LVariable := GetVariableByIndex(I);
 
       Result := LVariable.AsString;
-    end
-    else
+      end
+      else
       FoOutput.LogError('Syntax Error: variable ' + Result + ' cannot be found.');
     *)
   end;
 end;
+
 function TInterpreter.GetVariables: tVariables;
 begin
   Result := (foProjectItem as TProjectItem).oVariables;
 end;
 
-
 (*
-function TInterpreter.VariableExistsIndex(AVariableName: String): Integer;
-begin
+  function TInterpreter.VariableExistsIndex(AVariableName: String): Integer;
+  begin
   Result := (foProjectItem as TProjectItem).oVariables.VariableExistsIndex
-    (AVariableName)
-end;
+  (AVariableName)
+  end;
 
-function TInterpreter.GetVariableByIndex(aIndex: Integer): TVariable;
-begin
+  function TInterpreter.GetVariableByIndex(aIndex: Integer): TVariable;
+  begin
   Result := (foProjectItem as TProjectItem)
-    .oVariables.GetVariableByIndex(aIndex);
-end;
+  .oVariables.GetVariableByIndex(aIndex);
+  end;
 *)
 
 function TInterpreter.FindEndNavigateIndexPos(aIndex: Integer;
@@ -1696,6 +1397,7 @@ begin
   fiSkipPos := 0;
   fsID := '';
   fsLinkID := '';
+  fbHasRun := False;
 end;
 
 destructor TNavigate.Destroy;
