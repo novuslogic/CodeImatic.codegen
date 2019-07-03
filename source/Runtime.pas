@@ -133,9 +133,9 @@ begin
 
   if Not oConfig.ConsoleOutputOnly then
   begin
-    FoOutput.OpenLog(true);
+    //FoOutput.OpenLog(true);
 
-    if not FoOutput.IsFileOpen then
+    if not FoOutput.OpenLog then
     begin
       foProject.Free;
 
@@ -144,6 +144,8 @@ begin
       Exit;
     end;
   end;
+
+  foOutput.WriteLog('Logging started');
 
   FoOutput.Log
     ('CodeImatic.codegen - © Copyright Novuslogic Software 2019 All Rights Reserved');
@@ -223,7 +225,12 @@ begin
     Result := 0;
 
   if Not oConfig.ConsoleOutputOnly then
-    FoOutput.CloseLog;
+    begin
+      FoOutput.CloseLog;
+
+      FoOutput.WriteLog('Logging finished');
+    end;
+
 
   FoOutput.Free;
 

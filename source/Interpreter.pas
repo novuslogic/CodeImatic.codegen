@@ -607,9 +607,9 @@ begin
             until False;
 
             LStartNavigate.HasRun := true;
-          end;
-        //  else
-         //   FoOutput.LogError('Syntax Error: Block EndRepeat internal error.');
+          end
+        else
+          FoOutput.LogError('Syntax Error: Block EndRepeat internal error.');
         end
         else
           FoOutput.LogError('Syntax Error: Block EndRepeat without Repeat.');
