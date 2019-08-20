@@ -1,6 +1,10 @@
 VARIABLES
 
+* Variable name are stored as case insensitive
+
 $Foo
+
+
 
 
  

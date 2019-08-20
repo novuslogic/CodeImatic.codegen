@@ -6,7 +6,7 @@ uses Classes, Plugin, NovusPlugin, NovusVersionUtils, Project,
   Output, SysUtils, System.Generics.Defaults, runtime, Config,
   APIBase, NovusGUIDEx, CodeGeneratorItem, FunctionsParser, ProjectItem,
   Variables, NovusFileUtils, CodeGenerator, FileExistsFunctionParser, TokenParser,
-  NovusJSONUtils, System.IOUtils, System.JSON, TokenProcessor, NovusStringUtils,
+  {NovusJSONUtils,} System.IOUtils, System.JSON, TokenProcessor, NovusStringUtils,
   TagBasePlugin, XMLList;
 
 type

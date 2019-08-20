@@ -3,7 +3,7 @@ unit DataProcessor;
 interface
 
 Uses Classes, NovusList, NovusTemplate, NovusStringParser, SysUtils,
-     NovusStringUtils, {SDEngine,} NovusSQLDirUtils, NovusUtilities,
+     NovusStringUtils, {SDEngine,} (*NovusSQLDirUtils,*) NovusUtilities,
      DB, {SDCommon,} Output, NovusXMLBO, JvSimpleXml;
 
 Type

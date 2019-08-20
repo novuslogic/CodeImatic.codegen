@@ -36,9 +36,10 @@ requires
   NovusCodeLibrary_XML,
   NovusCodeLibrary_Parser,
   NovusCodeLibrary_Plugin,
-  NovusCodeLibrary_Env,
+  NovusCodeLibrary_Env;
+  (*,
   NovusCodeLibrary_SQLDir;
-
+    *)
 contains
   Plugin in 'Plugin.pas',
   Output in 'Output.pas',

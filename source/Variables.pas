@@ -58,8 +58,6 @@ Type
 
     function AddVariableObject(aObject: Tobject; aObjectTypeName: String; aIsDestroy: boolean): String;
     procedure AddVariable(AVariableName: String;AValue: Variant);
-    //function VariableExistsIndex(AVariableName: String): Integer;
-   // function GetVariableByIndex(AIndex: Integer): TVariable;
     function GetVariableByName(aVariableName: String): TVariable;
     function VariableExists(aVariableName: String): boolean;
 
