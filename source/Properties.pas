@@ -26,7 +26,7 @@ Type
 
 implementation
 
-uses Runtime, Plugin, ProjectconfigParser;
+uses Runtime, Plugin, ProjectParser;
 
 
 function tProperties.GetProperty(APropertyName: String): String;
@@ -36,8 +36,8 @@ begin
   lsGetProperty := GetFieldAsString(oXMLDocument.Root, APropertyName);
   Try
     if Assigned(foProject) then
-      if foProject.oProjectConfig.IsLoaded then
-         lsGetProperty := tProjectconfigParser.ParseProjectconfig(lsGetProperty,foProject, foOutput);
+      if foProject.oProjectConfigLoader.Load then
+         lsGetProperty := tProjectParser.ParseProject(lsGetProperty,foProject, foOutput);
   Except
     FoOutput.log(APropertyName + ' Projectconfig error.');
 

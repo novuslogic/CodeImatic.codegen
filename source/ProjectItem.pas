@@ -3,7 +3,7 @@ unit ProjectItem;
 interface
 
 Uses NovusBO, JvSimpleXml, Project, SysUtils, NovusSimpleXML,
-  ProjectConfigParser,
+  ProjectParser,
   Properties, NovusTemplate, {CodeGenerator,} Output, Template,
   NovusFileUtils,  Variables,
   NovusList, System.RegularExpressions, NovusUtilities, plugin, Loader;
@@ -248,7 +248,7 @@ begin
       end;
     end;
 
-    result := tProjectConfigParser.ParseProjectConfig(result, aProject,
+    result := tProjectParser.ParseProject(result, aProject,
       foOutput);
   end;
 end;

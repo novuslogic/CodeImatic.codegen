@@ -171,7 +171,7 @@ type
 
 implementation
 
-uses ProjectconfigParser, CodeGenerator;
+uses ProjectParser, CodeGenerator;
 
 constructor TPlugin.Create;
 begin
@@ -399,8 +399,7 @@ begin
 
   if fotmpNodeLoader.IsExists then
     begin
-       Result := tProjectconfigParser.ParseProjectconfig
-          (fotmpNodeLoader.Node.Value, foProject, foOutput);
+       Result := tProjectParser.ParseProject(fotmpNodeLoader.Node.Value, foProject, foOutput);
      end;
 end;
 

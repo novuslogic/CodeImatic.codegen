@@ -2,7 +2,7 @@ unit RuntimeProjectItems;
 
 interface
 
-Uses Output, ProjectItem, NovusFileUtils, Project, ProjectconfigParser,
+Uses Output, ProjectItem, NovusFileUtils, Project, ProjectParser,
   SysUtils, Plugins,  System.RegularExpressions,
   NovusStringUtils, System.IOUtils;
 
@@ -60,10 +60,9 @@ begin
             foOutput.Log('Project Item: ' + loProjectItem.Name);
 
             Try
-              if foProject.oProjectConfig.IsLoaded then
+             if foProject.oProjectConfigLoader.Load then
                 loProjectItem.templateFile :=
-                  tProjectconfigParser.ParseProjectconfig
-                  (loProjectItem.templateFile, foProject, foOutput);
+                  tProjectParser.ParseProject(loProjectItem.templateFile, foProject, foOutput);
 
               if TNovusFileUtils.IsValidFolder(loProjectItem.templateFile) then
                loProjectItem.templateFile := TNovusFileUtils.TrailingBackSlash
@@ -85,7 +84,7 @@ begin
             end;
          end;
         pitFolder: begin
-           loProjectItem.ItemFolder := TNovusFileUtils.TrailingBackSlash(tProjectconfigParser.ParseProjectconfig
+           loProjectItem.ItemFolder := TNovusFileUtils.TrailingBackSlash(tProjectParser.ParseProject
             (loProjectItem.ItemFolder, foProject, foOutput));
 
           if not TNovusFileUtils.IsValidFolder(loProjectItem.ItemFolder) then
@@ -99,8 +98,7 @@ begin
           end;
 
           loProjectItem.oSourceFiles.Folder := TNovusFileUtils.TrailingBackSlash(
-            tProjectconfigParser.ParseProjectconfig
-            (loProjectItem.oSourceFiles.Folder, foProject, foOutput));
+            tProjectParser.ParseProject(loProjectItem.oSourceFiles.Folder, foProject, foOutput));
 
           if not TNovusFileUtils.IsValidFolder(loProjectItem.oSourceFiles.Folder)
           then
@@ -116,19 +114,10 @@ begin
       end;
 
       Try
-        if foProject.oProjectConfig.IsLoaded then
-          loProjectItem.OutputFile := tProjectconfigParser.ParseProjectconfig
-            (loProjectItem.OutputFile, foProject, foOutput);
+       if foProject.oProjectConfigLoader.Load then
+          loProjectItem.OutputFile := tProjectParser.ParseProject(loProjectItem.OutputFile, foProject, foOutput);
 
-            //Moved to DoOutputFilename
-            (*
-        if TNovusFileUtils.IsValidFolder(loProjectItem.OutputFile) then
-        begin
-          if DirectoryExists(loProjectItem.OutputFile) then
-            loProjectItem.OutputFile := TNovusFileUtils.TrailingBackSlash
-               (loProjectItem.OutputFile) + loProjectItem.ItemName;
-        end;
-        *)
+     
       Except
         foOutput.LogError('Output Projectconfig error.');
 
@@ -183,10 +172,9 @@ begin
       end;
 
       Try
-        if foProject.oProjectConfig.IsLoaded then
+       // if foProject.oProjectConfig.IsLoaded then
           loProjectItem.propertiesFile :=
-            tProjectconfigParser.ParseProjectconfig
-            (loProjectItem.propertiesFile, foProject, foOutput);
+            tProjectParser.ParseProject(loProjectItem.propertiesFile, foProject, foOutput);
       Except
         foOutput.Log('PropertiesFile Projectconfig error.');
 

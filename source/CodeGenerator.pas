@@ -804,7 +804,7 @@ begin
       Finally
         if lsTempIncludeFilename <> '' then
           lsIncludeFilename := TNovusFileUtils.TrailingBackSlash
-            (foProject.oProjectConfig.TemplatePath) + lsTempIncludeFilename;
+            (foProject.oProjectConfigLoader.TemplatePath) + lsTempIncludeFilename;
 
         if Assigned(FTokenProcessor) then
           FTokenProcessor.Free;
@@ -1084,7 +1084,7 @@ begin
           if FCodeGeneratorItem.oTokens.Count > 1 then
             begin
               if Assigned(foProject) then
-                 FoTemplateTag.TagValue := foProject.oProjectConfig.Getproperties(FCodeGeneratorItem.oTokens[1]);
+                 FoTemplateTag.TagValue := foProject.oProjectConfigLoader.Getproperties(FCodeGeneratorItem.oTokens[1]);
             end;
         end;
 

@@ -83,6 +83,8 @@ begin
   foOutput := aOutput;
 
   foVariableList := tNovusList.Create(TVariable);
+
+  foVariableList.InSensitiveKey := true;
 end;
 
 destructor TVariables.Destroy;
@@ -127,39 +129,6 @@ begin
   FoVariableList.Add(AVariableName, foVariable);
 end;
 
-
-(*
-function TVariables.VariableExistsIndex(AVariableName: String): Integer;
-Var
-  I: Integer;
-  foVariable: TVariable;
-begin
-  Result := -1;
-
-  for I := 0 to foVariableList.Count - 1 do
-    begin
-      foVariable := TVariable(foVariableList.Items[i]);
-
-      if Uppercase(foVariable.VariableName) = Uppercase(AVariableName) then
-        begin
-          Result := i;
-
-          break;
-        end;
-    end;
-end;
-*)
-
-(*
-function TVariables.GetVariableByIndex(AIndex: Integer): TVariable;
-begin
-  Try
-    Result := TVariable(foVariableList.Items[AIndex]);
-  Except
-    Result := NIL;
-  End;
-end;
-*)
 
 
 function TVariables.VariableExists(aVariableName: String): boolean;

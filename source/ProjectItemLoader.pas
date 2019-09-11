@@ -29,7 +29,7 @@ Type
 
 implementation
 
-Uses novusSimpleXML, ProjectconfigParser;
+Uses novusSimpleXML, ProjectParser;
 
 constructor TProjectItemLoader.Create(aProject: Tproject;
   aProjectItem: TProjectItem; aNode: TJvSimpleXmlElem; aOutput: tOutput;
@@ -252,8 +252,7 @@ end;
 
 function TProjectItemLoader.GetValue(aValue: String): String;
 begin
-  Result := tProjectconfigParser.ParseProjectconfig
-          (aValue, foProject, foOutput);
+  Result := tProjectParser.ParseProject(aValue, foProject, foOutput);
 end;
 
 end.

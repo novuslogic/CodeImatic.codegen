@@ -226,12 +226,12 @@
         <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=0.5.0.1025;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=Zcodegen;ProductVersion=0.5.0.0;Comments=</VerInfo_Keys>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
-        <Debugger_CWD>D:\Projects\CodeImatic.codegen\samples\VariableCmdLine</Debugger_CWD>
-        <Debugger_RunParams>-project VariableCmdLine.ccproject -projectconfig VariableCmdLine.ccpconfig -var VAR1=&quot;TEST1&quot;;VAR2=&quot;TEST2&quot;</Debugger_RunParams>
+        <Debugger_CWD>D:\Projects\CodeImatic.codegen\samples\Interpreter</Debugger_CWD>
+        <Debugger_RunParams>-project Interpreter.ccproject</Debugger_RunParams>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_IncludeVerInfo>false</VerInfo_IncludeVerInfo>
-        <VerInfo_Keys>CompanyName=;FileVersion=1.0.0.710;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName);FileDescription=$(MSBuildProjectName);ProductName=$(MSBuildProjectName)</VerInfo_Keys>
-        <VerInfo_Build>710</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=;FileVersion=1.0.0.718;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName);FileDescription=$(MSBuildProjectName);ProductName=$(MSBuildProjectName)</VerInfo_Keys>
+        <VerInfo_Build>718</VerInfo_Build>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">

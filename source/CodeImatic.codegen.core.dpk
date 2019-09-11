@@ -37,9 +37,7 @@ requires
   NovusCodeLibrary_Parser,
   NovusCodeLibrary_Plugin,
   NovusCodeLibrary_Env;
-  (*,
-  NovusCodeLibrary_SQLDir;
-    *)
+
 contains
   Plugin in 'Plugin.pas',
   Output in 'Output.pas',
@@ -48,10 +46,9 @@ contains
   ExpressionParser in 'ExpressionParser.pas',
   Config in 'Config.pas',
   Project in 'Project.pas',
-  projectconfig in 'projectconfig.pas',
   ConfigProperties in 'ConfigProperties.pas',
   TokenParser in 'TokenParser.pas',
-  ProjectconfigParser in 'ProjectconfigParser.pas',
+  ProjectParser in 'ProjectParser.pas',
   VariablesCmdLine in 'VariablesCmdLine.pas',
   ProjectItem in 'ProjectItem.pas',
   ProjectItemLoader in 'ProjectItemLoader.pas',
@@ -73,7 +70,8 @@ contains
   Variables in 'Variables.pas',
   StatementParser in 'StatementParser.pas',
   TagBasePlugin in 'TagBasePlugin.pas',
-  FileExistsFunctionParser in 'FileExistsFunctionParser.pas';
+  FileExistsFunctionParser in 'FileExistsFunctionParser.pas',
+  ProjectConfigLoader in 'ProjectConfigLoader.pas';
 
 end.
 

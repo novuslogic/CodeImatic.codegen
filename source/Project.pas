@@ -3,17 +3,19 @@ unit Project;
 interface
 
 Uses NovusXMLBO, Classes, SysUtils, NovusStringUtils, NovusBO, NovusList,NovusFileUtils,
-     JvSimpleXml, NovusSimpleXML, XMLlist, ProjectConfig, Output;
+     JvSimpleXml, NovusSimpleXML, XMLlist, {ProjectConfig, } Output,
+     ProjectConfigLoader;
 
 
 Type
   TProject = class(TXMLlist)
   protected
   private
+    foProjectConfigLoader: TProjectConfigLoader;
     foPlugins: tObject;
     foOutput: TOutput;
     fbcreateoutputdir: Boolean;
-    foProjectConfig: TProjectConfig;
+  //  foProjectConfig: TProjectConfig;
     foProjectItemList: TNovusList;
     fsBasePath: String;
     fsTemplatePath: String;
@@ -31,7 +33,7 @@ Type
 
     function GetWorkingdirectory: String;
 
-    function LoadProjectFile(aProjectFilename: String; aProjectConfigFilename: String; aOutput: TOutput): boolean;
+    function LoadProjectFile(aProjectFilename: String;aOutput: TOutput; aWorkingdirectory: string): boolean;
 
     property oProjectItemList: TNovusList
       read foProjectItemList
@@ -53,32 +55,36 @@ Type
       read fbcreateoutputdir
       write fbcreateoutputdir;
 
-    property oProjectConfig: TProjectConfig
-      read foProjectConfig
-      write foProjectConfig;
+   // property oProjectConfig: TProjectConfig
+   //   read foProjectConfig
+    //  write foProjectConfig;
 
     property oPlugins: tObject
        read GetoPlugins
        write SetoPlugins;
+
+    property oProjectConfigLoader: TProjectConfigLoader
+      read foProjectConfigLoader
+      write foProjectConfigLoader;
   end;
 
 implementation
 
-uses Runtime, ProjectConfigParser, ProjectItem, ProjectItemLoader, Plugins;
+uses Runtime, ProjectParser, ProjectItem, ProjectItemLoader, Plugins;
 
 
 constructor TProject.Create(aOutput: tOutput);
 begin
   inherited Create;
 
-  foProjectConfig := TProjectConfig.Create(aOutput);
+  foProjectConfigLoader := TProjectConfigLoader.Create(Self, aOutput);
 
   foProjectItemList:= TNovusList.Create(TProjectItem);
 end;
 
 destructor TProject.Destroy;
 begin
-  foProjectConfig.Free;
+  foProjectConfigLoader.Free;
 
   foProjectItemList.Free;
 
@@ -92,10 +98,10 @@ var
 begin
   Result := '';
 
-  lsWorkingdirectory := Trim(foProjectConfig.workingdirectory);
+  lsWorkingdirectory := Trim(foProjectConfigLoader.workingdirectory);
 
   if lsWorkingdirectory <> '' then
-    lsWorkingdirectory :=  IncludeTrailingPathDelimiter(foProjectConfig.workingdirectory);
+    lsWorkingdirectory :=  IncludeTrailingPathDelimiter(foProjectConfigLoader.workingdirectory);
 
   if (Not DirectoryExists(lsWorkingdirectory))  or (Trim(lsWorkingdirectory) = '') then
     lsWorkingdirectory := IncludeTrailingPathDelimiter(TNovusFileUtils.AbsoluteFilePath(ProjectFileName));
@@ -128,7 +134,7 @@ end;
 procedure TProject.SetoPlugins(Value: tObject);
 begin
   foPlugins := Value;
-  oProjectConfig.oPlugins := Value;
+  oProjectConfigLoader.oPlugins := Value;
 end;
 
 function TProject.GetOutputConsole: Boolean;
@@ -136,7 +142,7 @@ begin
   Result := GetFieldAsBoolean(oXMLDocument.Root, 'outputconsole');
 end;
 
-function TProject.LoadProjectFile(aProjectFilename: String; aProjectConfigFilename: String; aOutput: TOutput): boolean;
+function TProject.LoadProjectFile(aProjectFilename: String; aOutput: TOutput; aWorkingdirectory: string): boolean;
 Var
   fNodeProjectItem: TJvSimpleXmlElem;
   Index: Integer;
@@ -150,6 +156,9 @@ begin
 
   Result := Retrieve;
   if not Result then exit;
+
+  // Project Config
+  foProjectConfigLoader.LoadProjectConfig(aWorkingdirectory);
 
   fsBasePath := GetBasePath;
 
@@ -169,6 +178,8 @@ begin
 
       fNodeProjectItem  := TNovusSimpleXML.FindNode(oXMLDocument.Root, 'projectitem', Index);
     end;
+
+
 
 end;
 

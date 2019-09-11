@@ -6,63 +6,6 @@ uses XMLList, NovusTemplate, SysUtils, NovusSimpleXML, JvSimpleXml, novuslist,
      NovusStringUtils, NovusFileUtils, NovusEnvironment, DataProcessor, output;
 
 type
-   (*
-   TConnectionName = class
-   private
-     fsConnectionname: string;
-     fsDriverName: string;
-     fsAuxdriver: string;
-     fsServer: string;
-     fsDatabase: string;
-     fsUserID: string;
-     fsPassword: string;
-     fsSQLLibrary: string;
-     fsparams: string;
-     fiPort: Integer;
-   protected
-   public
-     property Connectionname: string
-       read fsConnectionname
-       write fsConnectionname;
-
-     property Auxdriver: string
-       read fsAuxdriver
-       write fsAuxdriver;
-
-     property DriverName: string
-       read fsDriverName
-       write fsDriverName;
-
-     property Server: string
-       read fsServer
-       write fsServer;
-
-     property Database: string
-       read fsDatabase
-       write fsDatabase;
-
-     property UserID: string
-       read fsUserID
-       write fsUserID;
-
-     property Password: string
-       read fsPassword
-       write fsPassword;
-
-     property SQLLibrary: string
-       read fsSQLLibrary
-       write fsSQLLibrary;
-
-     property params: string
-       read fsparams
-       write fsparams;
-
-     property Port: Integer
-       read fiPort
-       write fiPort;
-   end;
-   *)
-
    tProjectConfig = Class(TXMLList)
    private
    protected
@@ -93,8 +36,6 @@ type
       procedure LoadConnections;
       function Parseproperties(aInput: String): String;
       function GetProperties(aPropertyName: String): String;
-
-      //function FindConnectionName(AConnectionName: String): TConnectionName;
 
       property ProjectConfigFileName: String
         read fsProjectConfigFileName

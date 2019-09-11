@@ -297,7 +297,7 @@ begin
           aTokenIndex := ATokens.TokenIndex;
 
           if Assigned(aProject) then
-            Result := aProject.oProjectConfig.Getproperties(lsToken2);
+            Result := aProject.oProjectConfigLoader.Getproperties(lsToken2);
         end;
 
       ttUnknown:

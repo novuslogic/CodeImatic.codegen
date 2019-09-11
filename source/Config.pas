@@ -68,9 +68,9 @@ Type
        read fsProjectFileName
        write fsProjectFileName;
 
-     property ProjectConfigFileName: String
-       read fsProjectConfigFileName
-       write fsProjectConfigFileName;
+    // property ProjectConfigFileName: String
+     //  read fsProjectConfigFileName
+     ///  write fsProjectConfigFileName;
 
      property  RootPath: String
         read fsRootPath
@@ -155,6 +155,7 @@ begin
     end
   else Result := false;
 
+  (*
   if FindCmdLineSwitch('projectconfig', true) then
     begin
       FindCmdLineSwitch('projectconfig', fsProjectConfigFileName, True, [clstValueNextParam, clstValueAppended]);
@@ -167,6 +168,7 @@ begin
         end;
     end
   else Result := False;
+  *)
 
   if FindCmdLineSwitch('outputlog', true) then
     FindCmdLineSwitch('outputlog', fsOutputlogFilename, True, [clstValueNextParam, clstValueAppended]);
@@ -185,12 +187,14 @@ begin
       Result := false;
     end;
 
+    (*
   if Trim(fsProjectConfigFileName) = '' then
      begin
        writeln ('-projectconfig filename cannot be found.');
 
        result := False;
      end;
+   *)
 
   if Result = True then
      begin

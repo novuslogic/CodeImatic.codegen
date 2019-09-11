@@ -2,7 +2,7 @@ unit Loader;
 
 interface
 
-Uses novusSimpleXML, JvSimpleXML, Classes, SysUtils, NovusEnvironment, NovusStringUtils;
+Uses novusSimpleXML, JvSimpleXML, Classes, SysUtils;
 
 type
   tNodeLoader = record
@@ -13,7 +13,6 @@ type
     function GetPropertyValue: string;
     function GetPropertyValueA: string;
     function GetValue: string;
-    procedure SetValue(Value: string);
   public
     constructor Create(aIndexPos: Integer);
     function IsExists: Boolean;
@@ -22,7 +21,7 @@ type
 
     property PropertyName: String read GetPropertyName;
 
-    property Value: String read GetValue write SetValue;
+    property Value: String read GetValue;
 
     property PropertyValue: String read GetPropertyValue;
     property PropertyValueA: String read GetPropertyValueA;
@@ -41,27 +40,12 @@ type
     procedure Init(aNodeLoader: tNodeLoader);
 
     function GetNode(aNodeLoader: TNodeLoader; aNodeName: String; aIndexPos: integer = 0): TNodeLoader;
-
-
     function GetRootNode: TNodeLoader;
 
     function GetValue(aValue: String): String; virtual;
 
     property RootNode: TJvSimpleXmlElem read fRootNode write fRootNode;
     property RootNodeLoader: tNodeLoader read fRootNodeLoader write fRootNodeLoader;
-
-    procedure SetFieldAsBoolean(aNodeList: TJvSimpleXmlElem; FieldName: String;
-        Value: Boolean);
-    procedure SetFieldAsinteger(aNodeList: TJvSimpleXmlElem; FieldName: String;
-        Value: Integer);
-    procedure SetFieldAsString(aNodeList: TJvSimpleXmlElem; FieldName: String;
-        Value: String);
-    function GetFieldAsinteger(aNodeList: TJvSimpleXmlElem;
-        FieldName: String): Integer;
-    function GetFieldAsBoolean(aNodeList: TJvSimpleXmlElem;
-        FieldName: String): Boolean;
-    function GetFieldAsString(aNodeList: TJvSimpleXmlElem;
-        FieldName: String): String;
 
   end;
 
@@ -89,10 +73,7 @@ end;
 
 function TLoader.GetValue(aValue: String): String;
 begin
-  Result := tNovusEnvironment.ParseGetEnvironmentVar
-    (aValue, ETTToken2);
-
-  Result :=  tNovusEnvironment.ParseGetEnvironmentVar(result, ETTToken1);
+  Result := '';
 end;
 
 function TLoader.GetNode(aNodeLoader: TNodeLoader; aNodeName: String; aIndexPos: integer): TNodeLoader;
@@ -104,66 +85,6 @@ begin
   fIndex := aIndexPos;
   Result.Node := TnovusSimpleXML.FindNode(aNodeLoader.Node,aNodeName, fIndex);
   Result.IndexPos := fIndex;
-end;
-
-procedure tLoader.SetFieldAsString(aNodeList: TJvSimpleXmlElem;
-  FieldName: String; Value: String);
-Var
-  Index: Integer;
-  fJvSimpleXmlElem: TJvSimpleXmlElem;
-begin
-  Index := 0;
-  fJvSimpleXmlElem := TNovusSimpleXML.FindNode(aNodeList, FieldName, Index);
-
-  If Assigned(fJvSimpleXmlElem) then
-    fJvSimpleXmlElem.Value := Value;
-end;
-
-procedure tLoader.SetFieldAsBoolean(aNodeList: TJvSimpleXmlElem;
-  FieldName: String; Value: Boolean);
-begin
-  If Value = True then
-    SetFieldAsString(aNodeList, FieldName, 'True')
-  else
-    SetFieldAsString(aNodeList, FieldName, 'False');
-end;
-
-procedure tLoader.SetFieldAsinteger(aNodeList: TJvSimpleXmlElem;
-  FieldName: String; Value: Integer);
-begin
-  SetFieldAsString(aNodeList, FieldName, InttoStr(Value))
-end;
-
-function tLoader.GetFieldAsString(aNodeList: TJvSimpleXmlElem;
-  FieldName: String): String;
-Var
-  Index: Integer;
-  fJvSimpleXmlElem: TJvSimpleXmlElem;
-begin
-  Result := '';
-
-  If Not Assigned(aNodeList) then
-    Exit;
-
-  Index := 0;
-  fJvSimpleXmlElem := TNovusSimpleXML.FindNode(aNodeList, FieldName, Index);
-
-  If Assigned(fJvSimpleXmlElem) then
-    Result := fJvSimpleXmlElem.Value;
-end;
-
-function tLoader.GetFieldAsBoolean(aNodeList: TJvSimpleXmlElem;
-  FieldName: String): Boolean;
-begin
-  Result := False;
-  If uppercase(GetFieldAsString(aNodeList, FieldName)) = 'TRUE' then
-    Result := True;
-end;
-
-function tLoader.GetFieldAsinteger(aNodeList: TJvSimpleXmlElem;
-  FieldName: String): Integer;
-begin
-  Result := TNovusStringUtils.Str2Int(GetFieldAsString(aNodeList, FieldName));
 end;
 
 // NodeLoader
@@ -205,14 +126,5 @@ begin
   if IsExists then
     Result := uppercase(Node.Value);
 end;
-
-procedure tNodeLoader.SetValue(Value: string);
-begin
- if IsExists then
-    Node.Value := Value;
-end;
-
-
-
 
 end.

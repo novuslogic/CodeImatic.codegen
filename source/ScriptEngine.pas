@@ -76,7 +76,7 @@ begin
   end
   else
   begin
-    if FileExists(oruntime.oProject.oProjectConfig.SearchPath + name + '.pas')
+    if FileExists(oruntime.oProject.oProjectConfigLoader.SearchPath + name + '.pas')
     then
     begin
       Try
@@ -84,7 +84,7 @@ begin
           oruntime.oOutput.Log('Compiling unit ... ' + name + '.pas');
 
           lList := TStringList.Create;
-          lList.LoadFromFile(oruntime.oProject.oProjectConfig.SearchPath + name
+          lList.LoadFromFile(oruntime.oProject.oProjectConfigLoader.SearchPath + name
             + '.pas');
 
           if Sender.Compile(lList.Text) then

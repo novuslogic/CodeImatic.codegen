@@ -6,8 +6,8 @@ interface
 uses
   SysUtils, Classes, NovusTemplate, Config,  NovusFileUtils,
   Properties, NovusStringUtils, Snippits, Plugins, ScriptEngine,
-  CodeGenerator, Output, NovusVersionUtils, Project, ProjectItem,
-  ProjectConfig;
+  CodeGenerator, Output, NovusVersionUtils, Project, ProjectItem{,
+  ProjectConfig};
 
 type
   tRuntime = class
@@ -42,7 +42,7 @@ Var
 
 implementation
 
-uses ProjectconfigParser, RuntimeProjectItems;
+uses ProjectParser, RuntimeProjectItems;
 
 function tRuntime.RunProjectItems: boolean;
 Var
@@ -71,14 +71,18 @@ begin
   if Trim(oConfig.workingdirectory) = '' then
   begin
     fsworkingdirectory := TNovusFileUtils.TrailingBackSlash
-      (ExtractFilePath(oConfig.ProjectConfigFileName));
+      (ExtractFilePath(oConfig.ProjectFileName));
     if Trim(fsworkingdirectory) = '' then
       fsworkingdirectory := TNovusFileUtils.TrailingBackSlash
-        (TNovusFileUtils.AbsoluteFilePath(oConfig.ProjectConfigFileName));
+        (TNovusFileUtils.AbsoluteFilePath(oConfig.ProjectFileName));
   end
   else
     fsworkingdirectory := TNovusFileUtils.TrailingBackSlash
       (oConfig.workingdirectory);
+
+
+  if Trim(fsworkingdirectory) = '' then fsworkingdirectory := GetCurrentDir;
+
 
   if not DirectoryExists(fsworkingdirectory) then
     Exit;
@@ -88,14 +92,14 @@ begin
   FoOutput.Consoleoutputonly := true;
 
   foProject := tProject.Create(FoOutput);
-  foProject.oProjectConfig.ProjectConfigFileName :=
-    oConfig.ProjectConfigFileName;
+  //foProject.oProjectConfig.ProjectConfigFileName :=
+  //  oConfig.ProjectConfigFileName;
 
-  if Trim(TNovusStringUtils.JustFilename(oConfig.ProjectConfigFileName))
-    = Trim(oConfig.ProjectConfigFileName) then
-    foProject.oProjectConfig.ProjectConfigFileName := fsworkingdirectory +
-      oConfig.ProjectConfigFileName;
-
+  //if Trim(TNovusStringUtils.JustFilename(oConfig.ProjectConfigFileName))
+  //  = Trim(oConfig.ProjectConfigFileName) then
+  //  foProject.oProjectConfig.ProjectConfigFileName := fsworkingdirectory +
+   //   oConfig.ProjectConfigFileName;
+   (*
   if not foProject.oProjectConfig.LoadProjectConfigFile
     (foProject.oProjectConfig.ProjectConfigFileName) then
   begin
@@ -116,15 +120,15 @@ begin
 
     Exit;
   end;
-
+   *)
  // FoOutput := TOutput.Create('');
  // FoOutput.Consoleoutputonly := true;
 
   foProject.LoadProjectFile(oConfig.ProjectFileName,
-    oConfig.ProjectConfigFileName, FoOutput);
+     FoOutput, fsworkingdirectory);
 
-  if foProject.oProjectConfig.IsLoaded then
-    FoOutput.InitLog(tProjectconfigParser.ParseProjectconfig(foProject.BasePath,
+  if foProject.oProjectConfigLoader.Load then
+    FoOutput.InitLog(tProjectParser.ParseProject(foProject.BasePath,
       foProject, FoOutput) + oConfig.OutputlogFilename, foProject.OutputConsole,
       oConfig.ConsoleOutputOnly)
   else
@@ -153,8 +157,8 @@ begin
 
   FoOutput.Log('Project: ' + foProject.ProjectFileName);
 
-  FoOutput.Log('Project Config: ' + foProject.oProjectConfig.
-    ProjectConfigFileName);
+  //FoOutput.Log('Project Config: ' + foProject.oProjectConfig.
+   // ProjectConfigFileName);
 
     (*
   if Trim(foProject.oProjectConfig.DBSchemaPath) <> '' then
@@ -175,17 +179,17 @@ begin
   end;
   *)
 
-  if Trim(foProject.oProjectConfig.LanguagesPath) <> '' then
+  if Trim(foProject.oProjectConfigLoader.LanguagesPath) <> '' then
   begin
-    if Not DirectoryExists(foProject.oProjectConfig.LanguagesPath) then
+    if Not DirectoryExists(foProject.oProjectConfigLoader.LanguagesPath) then
     begin
       FoOutput.Log('Languages path missing: ' +
-        foProject.oProjectConfig.LanguagesPath);
+        foProject.oProjectConfigLoader.LanguagesPath);
 
       Exit;
     end;
 
-    oConfig.LanguagesPath := foProject.oProjectConfig.LanguagesPath;
+    oConfig.LanguagesPath := foProject.oProjectConfigLoader.LanguagesPath;
 
     FoOutput.Log('Languages path: ' + oConfig.LanguagesPath);
   end;
@@ -208,7 +212,7 @@ begin
 
   foProject.oPlugins := foPlugins;
 
-  foProject.oProjectConfig.LoadConnections;
+  foProject.oProjectConfigLoader.LoadConnections;
 
   RunProjectItems;
 
