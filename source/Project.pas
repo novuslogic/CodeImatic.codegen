@@ -179,8 +179,6 @@ begin
       fNodeProjectItem  := TNovusSimpleXML.FindNode(oXMLDocument.Root, 'projectitem', Index);
     end;
 
-
-
 end;
 
 function TProject.GetCreateoutputdir: Boolean;

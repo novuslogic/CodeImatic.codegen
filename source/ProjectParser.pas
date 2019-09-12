@@ -74,8 +74,8 @@ begin
                   FTemplateTag.TagValue := lvariable.Value;
 
               end
-           else ; // this need fixing
-            // FTemplateTag.TagValue := aProject.Getproperties(FTemplateTag.TagName);
+           else
+             FTemplateTag.TagValue := aProject.oProjectConfigLoader.Getproperties(FTemplateTag.TagName);
          end;
        end;
 

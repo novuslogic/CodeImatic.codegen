@@ -72,6 +72,8 @@ type
 
 implementation
 
+Uses ProjectParser, Project;
+
 constructor tProjectConfigLoader.Create(aProject: TXMLlist; aOutput: tOutput );
 begin
   foProject := aProject;
@@ -154,31 +156,26 @@ end;
 
 function tProjectConfigLoader.Getproperties(aPropertyName: string): String;
 Var
+  FPropertiesNodeLoader,
   FNodeLoader: TNodeLoader;
 begin
   Result := '';
   if Trim(aPropertyName) = '' then
     Exit;
 
-  FNodeLoader := GetNode(FoRootNodeLoader, aPropertyName);
-  if FNodeLoader.IsExists then
-    Result := GetValue(FNodeLoader.Value)
+  FPropertiesNodeLoader := GetNode(FoRootNodeLoader, 'properties');
+  if FPropertiesNodeLoader.IsExists then
+    begin
+      FNodeLoader := GetNode(FPropertiesNodeLoader , aPropertyName);
+      if FNodeLoader.IsExists then
+         Result := GetValue(FNodeLoader.Value)
+    end;
 
 
+  Result :=   tProjectParser.ParseProject(GetValue(FNodeLoader.Value),  (foProject as TProject), foOutput);
 
-  (*
-  Result := '';
-  if aPropertyName = '' then
-    Exit;
+  // Result := GetValue(FNodeLoader.Value);
 
-  if not Assigned(oXMLDocument) then
-    Exit;
-
-  Result := tNovusEnvironment.ParseGetEnvironmentVar
-    (GetFieldAsString(oXMLDocument.Root, Lowercase(aPropertyName)), ETTToken2);
-
-  Result :=  tNovusEnvironment.ParseGetEnvironmentVar(result, ETTToken1);
-  *)
 end;
 
 function tProjectConfigLoader.IspropertyExists(aPropertyName: String): boolean;

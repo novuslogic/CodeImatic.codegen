@@ -1,9 +1,6 @@
 <%REM Repeat Tag%>
-<%repeat(0)%>
+<%repeat(1)%>
 aaaaaaaa
-<%repeat(0)%>
-bbbbbbbb
-<%endrepeat%>
 <%endrepeat%>
 
 
