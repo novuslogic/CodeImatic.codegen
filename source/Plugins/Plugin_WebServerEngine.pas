@@ -130,7 +130,7 @@ end;
 
 function TPlugin_WebServerEngine.GetOutputPath: string;
 begin
-  Result := foProject.oProjectConfig.OutputPath;
+  Result := foProject.oProjectConfigLoader.OutputPath;
   if Result = '' then
     Result := foProject.BasePath;
 end;

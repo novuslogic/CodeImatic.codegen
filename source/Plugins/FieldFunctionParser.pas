@@ -42,7 +42,7 @@ begin
   begin
     FConnectionName := ParseNextToken;
 
-    foConnectionItem := aProjectItem.oProject.oProjectConfig.oConnections.FindConnectionName(FConnectionName);
+    foConnectionItem := aProjectItem.oProject.oProjectConfigLoader.oConnections.FindConnectionName(FConnectionName);
 
     if Assigned(foConnectionItem) then
     begin

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<project>
+  <outputconsole>true</outputconsole>
+  <messageslogpath></messageslogpath>
+  <Createoutputdir>true</Createoutputdir>
+  
+  <projectitem name = "Interpreter.txt">
+    <source>[%sourcepath%]Interpreter.txt</source>
+    <properties>[%propertiespath%]Interpreter.xml</properties>
+    <overrideoutput>true</overrideoutput>
+    <output>[%outputpath%]Interpreter.txt</output>
+  </projectitem>
+
+  <projectconfig>
+     <properties> 
+       <outputpath>D:\Projects\CodeImatic.codegen\samples\Interpreter\Output\</outputpath>
+       <propertiespath>D:\Projects\CodeImatic.codegen\samples\Interpreter\Properties\</propertiespath>
+       <sourcepath>D:\Projects\CodeImatic.codegen\samples\Interpreter\Source\</sourcepath>
+   </properties>  
+   <Connectionname name="Test">
+      <Driver>
+         <Auxdriver></Auxdriver>
+         <Server>127.0.0.1</Server>
+         <Database>D:\Projects\MarqueeAppServer\Build\Database\CONFIG5.FDB</Database>
+         <UserID>SYSDBA</UserID>
+         <password>masterkey</password>
+         <SQLLibrary>C:\Program Files\Firebird\Firebird_3_0\WOW64\FBClient.DLL</SQLLibrary>
+         <Port>3051</Port>
+      </Driver>
+   </Connectionname>
+
+   
+  </projectconfig>
+</project>

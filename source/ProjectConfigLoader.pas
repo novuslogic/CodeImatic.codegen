@@ -68,6 +68,10 @@ type
     property oPlugins: TObject
         read foPlugins
         write foPlugins;
+
+    property oConnections: tConnections
+       read foConnections
+       write foConnections;
   End;
 
 implementation
