@@ -179,6 +179,7 @@ begin
   end;
   *)
 
+  (*
   if Trim(foProject.oProjectConfigLoader.LanguagesPath) <> '' then
   begin
     if Not DirectoryExists(foProject.oProjectConfigLoader.LanguagesPath) then
@@ -193,7 +194,7 @@ begin
 
     FoOutput.Log('Languages path: ' + oConfig.LanguagesPath);
   end;
-
+  *)
 
 
   foScriptEngine := tScriptEngine.Create(FoOutput);
@@ -212,7 +213,7 @@ begin
 
   foProject.oPlugins := foPlugins;
 
-  foProject.oProjectConfigLoader.LoadConnections;
+  //foProject.oProjectConfigLoader.LoadConnections;
 
   RunProjectItems;
 

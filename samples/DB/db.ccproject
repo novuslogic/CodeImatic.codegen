@@ -4,20 +4,20 @@
   <messageslogpath></messageslogpath>
   <Createoutputdir>true</Createoutputdir>
   
-  <projectitem name = "Interpreter.txt">
-    <source>[%sourcepath%]Interpreter.txt</source>
-    <properties>[%propertiespath%]Interpreter.xml</properties>
+  <projectitem name = "DB.txt">
+    <source>[%sourcepath%]DB.txt</source>
+    <properties>[%propertiespath%]DB.xml</properties>
     <overrideoutput>true</overrideoutput>
-    <output>[%outputpath%]Interpreter.txt</output>
+    <output>[%outputpath%]DB.txt</output>
   </projectitem>
 
   <projectconfig>
      <properties> 
-       <outputpath>D:\Projects\CodeImatic.codegen\samples\Interpreter\Output\</outputpath>
-       <propertiespath>D:\Projects\CodeImatic.codegen\samples\Interpreter\Properties\</propertiespath>
-       <sourcepath>D:\Projects\CodeImatic.codegen\samples\Interpreter\Source\</sourcepath>
+       <outputpath>D:\Projects\CodeImatic.codegen\samples\DB\Output\</outputpath>
+       <propertiespath>D:\Projects\CodeImatic.codegen\samples\DB\Properties\</propertiespath>
+       <sourcepath>D:\Projects\CodeImatic.codegen\samples\DB\Source\</sourcepath>
    </properties>  
-   <Connectionname name="Test">
+   <Connectionname name="TestDB">
       <Driver>
          <Auxdriver></Auxdriver>
          <Server>127.0.0.1</Server>

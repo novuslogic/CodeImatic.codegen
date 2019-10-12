@@ -151,6 +151,8 @@ begin
   if Trim(fsworkingdirectory) = '' then
     fsworkingdirectory := aWorkingdirectory;
 
+
+  LoadConnections;
 end;
 
 function tProjectConfigLoader.GetSearchPath: String;
@@ -262,7 +264,7 @@ Var
 begin
   if not  Assigned(foConnections) then Exit;
 
-  foConnections.oPlugins := foPlugins;
+  //foConnections.oPlugins := foPlugins;
 
   liIndex := 0;
 
