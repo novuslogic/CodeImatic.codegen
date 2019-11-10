@@ -13,7 +13,7 @@ type
     foProject: tProject;
     fsDefaultTagName: String;
     FTagType: tTagType;
-    ExpressionParser: tExpressionParser;
+    foExpressionParser: tExpressionParser;
     FTemplateTag: TTemplateTag;
     FoTokens: tTokenProcessor;
     //LiLoopID: Integer;
@@ -61,8 +61,8 @@ type
     property oProjectItem: TObject
       read foProjectItem;
 
-    //property oVariables: Tobject
-     // read foVariables;
+    property oExpressionParser: tExpressionParser
+      read foExpressionParser;
   end;
 
 implementation
@@ -84,9 +84,9 @@ begin
     end
   else
     begin
-      ExpressionParser.Expr := fsDefaultTagName;
+      oExpressionParser.Expr := fsDefaultTagName;
 
-      ExpressionParser.ListTokens(foTokens);
+      oExpressionParser.ListTokens(foTokens);
 
       FTagType := TTagParser.ParseTagType(foProjectItem, foCodeGenerator, foTokens , foOutput, 0  );
     end;
@@ -103,7 +103,7 @@ begin
 
   foProject := TProject(aProject);
 
-  ExpressionParser := TExpressionParser.Create;
+  foExpressionParser := TExpressionParser.Create;
 
   FoTokens := tTokenProcessor.Create;
 
@@ -112,7 +112,7 @@ end;
 
 destructor TCodeGeneratorItem.Destroy;
 begin
-  ExpressionParser.Free;
+  foExpressionParser.Free;
 
   FoTokens.Free;
 

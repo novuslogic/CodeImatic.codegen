@@ -6,13 +6,34 @@ uses Classes, Plugin, NovusPlugin, NovusVersionUtils, Project,
   Output, SysUtils, System.Generics.Defaults, runtime, Config,
   APIBase, NovusGUIDEx, CodeGeneratorItem, FunctionsParser, ProjectItem,
   Variables, NovusFileUtils, CodeGenerator, NovusStringUtils, TokenProcessor,
-  TagBasePlugin;
+  TagBasePlugin, TokenParser;
 
 type
+   TSaveToFileOnExecute = procedure(var aToken: String; aTokenParser: tTokenParser; aFilename: String) of object;
+
+   TSaveToFileFunctionParser = class(tTokenParser)
+   private
+   protected
+   public
+     OnExecute: TSaveToFileOnExecute;
+     function Execute: String;
+   end;
+
+
+
   TSysTag = class(TTagBasePlugin)
   private
   protected
   public
+  end;
+
+  TSysTag_StringToFile = class(TSysTag)
+  private
+  protected
+    function GetTagName: String; override;
+    procedure OnExecute(var aToken: String; aTokenParser: tTokenParser; aFilename: String);
+  public
+    function Execute(aProjectItem: tProjectItem;aTagName: String; aTokens: tTokenProcessor): String; override;
   end;
 
   TSysTag_Uplower = class(TSysTag)
@@ -172,7 +193,8 @@ begin
     TSysTag_Pred.Create(aOutput),
     TSysTag_IsVarEmpty.Create(aOutput),
     TSysTag_Inc.Create(aOutput),
-    TSysTag_Dec.Create(aOutput));
+    TSysTag_Dec.Create(aOutput),
+    TSysTag_StringToFile.Create(aOutput));
 end;
 
 destructor tPlugin_SysTagsBase.Destroy;
@@ -187,6 +209,53 @@ begin
 
   FSysTags := NIL;
   Inherited;
+end;
+
+function TSaveToFileFunctionParser.Execute: string;
+Var
+  FsFilename: String;
+  FsTableName: String;
+  FFieldIndex: Integer;
+  LStr: String;
+  LsToken: string;
+  lsValue: string;
+begin
+  Result := '';
+
+  if fsTagName = oTokens.Strings[TokenIndex] then
+     oTokens.TokenIndex := oTokens.TokenIndex + 1;
+
+  If  ParseNextToken = '(' then
+  begin
+    lsValue := Trim(ParseNextToken);
+    if Trim(lsValue) <> '' then
+      begin
+        FsFilename := ParseNextToken;
+
+        if DirectoryExists(ExtractFilePath(FsFilename)) then
+        begin
+          LsToken := lsValue;
+          if Assigned(OnExecute) then
+            OnExecute(LsToken, self, FsFilename);
+
+          if ParseNextToken = ')' then
+             begin
+               Result := LsToken;
+               Exit;
+              end
+             else
+                oOutput.LogError('Syntax Error: lack ")"');
+
+
+         end
+        else
+          oOutput.LogError('Syntax Error: Cannot find folder [' + ExtractFilePath(FsFilename) +']');
+      end
+    else
+    oOutput.LogError('Syntax Error: string cannot be blank');
+  end
+   else
+     oOutput.LogError('Syntax Error: lack "("');
 end;
 
 // Plugin_SysTags
@@ -260,6 +329,60 @@ begin
   Result := _Plugin_SysTags;
 end;
 
+//TSysTag_StringToFile
+function TSysTag_StringToFile.GetTagName: String;
+begin
+  Result := 'STRINGTOFILE';
+end;
+
+function TSysTag_StringToFile.Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: tTokenProcessor): String;
+var
+  LFunctionParser: TSaveToFileFunctionParser;
+begin
+  Try
+    Try
+      Self.oVariables := tProjectItem(aProjectItem).oVariables;
+
+      LFunctionParser := TSaveToFileFunctionParser.Create(aProjectItem, aTokens, oOutput,
+        aTagName);
+
+
+      LFunctionParser.OnExecute := OnExecute;
+
+      Result := LFunctionParser.Execute;
+    Finally
+      LFunctionParser.Free;
+    End;
+  Except
+    oOutput.InternalError;
+  End;
+end;
+
+procedure TSysTag_StringToFile.OnExecute(var aToken: String; aTokenParser: tTokenParser; aFilename: String);
+Var
+  lStringList: tStringlist;
+begin
+  Try
+    try
+      lstringlist:= tstringlist.create;
+
+      lstringlist.text := atoken;
+
+      lstringlist.savetofile(afilename);
+    finally
+      lstringlist.free;
+
+      aToken := '';
+    end;
+  Except
+    oOutput.InternalError;
+  End;
+end;
+
+
+
+
+// Upper
 function TSysTag_Upper.GetTagName: String;
 begin
   Result := 'UPPER';

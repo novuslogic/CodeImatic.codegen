@@ -1,0 +1,4 @@
+<%REM Basic Variable%>
+<%$helloworld="helloworld"%>
+<%$helloworld2=$helloworld+" helloworld"%>
+ Hello world variable: <%=$helloworld2%>

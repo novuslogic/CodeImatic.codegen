@@ -261,7 +261,7 @@ begin
         begin
           if aObject is tInterpreter then
           begin
-            lsToken2 := tInterpreter(aObject).GetNextTokenA(aTokenIndex,
+            lsToken2 := tInterpreter(aObject).GetNextToken(aTokenIndex,
               ATokens);
             if Assigned(tInterpreter(aObject).oTokens) then
               loTokens :=
@@ -340,7 +340,7 @@ begin
           begin
             if aObject is tInterpreter then
             begin
-              lsToken2 := tInterpreter(aObject).GetNextTokenA(aTokenIndex,
+              lsToken2 := tInterpreter(aObject).GetNextToken(aTokenIndex,
                 ATokens);
 
             end;
@@ -369,7 +369,7 @@ begin
             else
             if aObject is tInterpreter then
             begin
-              lsToken2 := tInterpreter(aObject).GetNextTokenA(aTokenIndex,
+              lsToken2 := tInterpreter(aObject).GetNextToken(aTokenIndex,
                 ATokens);
               if Assigned(tInterpreter(aObject).oTokens) then
                 loTokens :=

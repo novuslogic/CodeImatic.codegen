@@ -66,18 +66,21 @@ Type
     FoCodeGenerator: TObject;
     fiLevelCounter: Integer;
     FNavigateList: tNovusList;
-
     FoCodeGeneratorItem: TCodeGeneratorItem;
-
   private
     function GetVariables: tVariables;
+
+    function IsVariable(aToken: string): Boolean;
+
 
     function DoPluginTag(aTokens: tTokenProcessor; Var aIndex: Integer): string;
 
     function IsEndIf(aCodeGeneratorItem: TObject): Boolean;
     function IsRepeat(aCodeGeneratorItem: TObject): Boolean;
     function IsEndRepeat(aCodeGeneratorItem: TObject): Boolean;
-    function IsIf(aCodeGeneratorItem: TObject): Boolean;
+
+    function IsIf(aCodeGeneratorItem: TObject): Boolean; overload;
+    function IsIf(aToken: string): boolean; overload;
 
     function FindEndNavigate(aIndex: Integer;
       aStartTagName, aEndTagName: string): TEndNavigate;
@@ -126,19 +129,14 @@ Type
     procedure ResetToEnd(aTokens: tTokenProcessor; var aIndex: Integer);
 
     function GetNextToken(Var aIndex: Integer; aTokens: tTokenProcessor;
-      aIgnoreTokenParser: Boolean = False; ASkipPOs: Integer = 0): String;
+      aIgnoreTokenParser: Boolean; ASkipPOs: Integer): String; overload;
 
-    function GetNextTokenA(Var aIndex: Integer;
-      aTokens: tTokenProcessor): String;
-
-    // function DoTagTypeInterpreter(ATokens: tTokenProcessor): TTagType;
-    // function CommandSyntaxIndex(aCommand: String): Integer;
+    function GetNextToken(Var aIndex: Integer; aTokens: tTokenProcessor): String; overload;
 
     function Execute(aCodeGeneratorItem: TCodeGeneratorItem;
-      Var ASkipPOs: Integer): String;
-    function LanguageFunctions(AFunction: string; ADataType: String): String;
+      Var ASkipPos: Integer): String;
 
-    property oTokens: tTokenProcessor read foTokens write foTokens;
+    function LanguageFunctions(AFunction: string; ADataType: String): String;
 
     property oVariables: tVariables read GetVariables;
   End;
@@ -163,8 +161,6 @@ begin
 
   FoCodeGenerator := aCodeGenerator;
 
-  // oVariables := foProjectItem.oVariables;
-
   FNavigateList := tNovusList.Create(TNavigate);
 
   FoOutput := aOutput;
@@ -178,6 +174,8 @@ begin
 
   inherited;
 end;
+
+
 
 function TInterpreter.DoPluginTag(aTokens: tTokenProcessor;
   Var aIndex: Integer): string;
@@ -248,6 +246,13 @@ begin
   end;
 end;
 
+
+function TInterpreter.IsVariable(aToken: string): Boolean;
+begin
+  Result := (ttVariable = TTagParser.ParseTagType(foProjectItem, FoCodeGenerator,
+      aToken, FoOutput, true));
+end;
+
 function TInterpreter.GetNextTag(aTokens: tTokenProcessor; Var aIndex: Integer;
   Var ASkipPOs: Integer; ASubCommand: Boolean = False;
   ASubVariable: Boolean = False): String;
@@ -260,11 +265,6 @@ begin
     Result := aTokens[aIndex];
   try
     lsNextToken := aTokens[aIndex];
-
-
-    // need to merge this in
-    // result := ParseToken(lsNextToken, aIndex,
-    // aTokens, aSkipPos);
 
     fTagType := TTagParser.ParseTagType(foProjectItem, FoCodeGenerator,
       lsNextToken, FoOutput, true);
@@ -289,7 +289,7 @@ begin
     if aTokens.EOF then
       Exit;
 
-    if Not ASubCommand then
+    if (Not ASubCommand) (*or (fTagType in [ttPropertyVariable, ttVariable]) *) then
     begin
       if Pos('$$', aTokens[aIndex]) = 1 then
         Result := tTokenParser.ParseToken(Self, aTokens[aIndex],
@@ -364,13 +364,13 @@ begin
   case aTagType of
     ttrepeat:
       begin
-        If GetNextTokenA(aIndex, aTokens) = '(' then
+        If GetNextToken(aIndex, aTokens) = '(' then
         begin
-          LsValue := GetNextTokenA(aIndex, aTokens);
+          LsValue := GetNextToken(aIndex, aTokens);
 
           if TNovusStringUtils.IsNumberStr(LsValue) then
           begin
-            if GetNextTokenA(aIndex, aTokens) = ')' then
+            if GetNextToken(aIndex, aTokens) = ')' then
             begin
               Inc(fiLevelCounter, 1);
 
@@ -681,19 +681,19 @@ begin
   case aTagType of
     ttif:
       begin
-        If Uppercase(GetNextToken(aIndex, aTokens, true)) = 'IF' then
+        If Uppercase(GetNextToken(aIndex, aTokens, true, 0)) = 'IF' then
         begin
-          If GetNextToken(aIndex, aTokens, False) = '(' then
+          If GetNextToken(aIndex, aTokens, False, 0) = '(' then
           begin
             Try
               lStatementParser := tStatementParser.Create(FoOutput);
 
-              LsToken := GetNextToken(aIndex, aTokens);
+              LsToken := GetNextToken(aIndex, aTokens, false, 0);
               if LsToken <> ')' then
                 lStatementParser.Add(Trim(LsToken));
               while Not aTokens.EOF do
               begin
-                LsToken := GetNextToken(aIndex, aTokens);
+                LsToken := GetNextToken(aIndex, aTokens, false, 0);
                 if LsToken <> ')' then
                   lStatementParser.Add(Trim(LsToken));
               end;
@@ -743,7 +743,7 @@ begin
       end;
     ttendif:
       begin
-        If Uppercase(GetNextToken(aIndex, aTokens, true)) = 'ENDIF' then
+        If Uppercase(GetNextToken(aIndex, aTokens, true, 0)) = 'ENDIF' then
         begin
           ASkipPOs := 0;
 
@@ -879,13 +879,13 @@ begin
   case aTagType of
     ttLog:
       begin
-        If Uppercase(GetNextToken(aIndex, aTokens, true)) = 'LOG' then
+        If Uppercase(GetNextToken(aIndex, aTokens, true, 0)) = 'LOG' then
         begin
-          If GetNextToken(aIndex, aTokens, False) = '(' then
+          If GetNextToken(aIndex, aTokens, False, 0) = '(' then
           begin
-            lsLog := GetNextToken(aIndex, aTokens, False);
+            lsLog := GetNextToken(aIndex, aTokens, False, 0);
 
-            if GetNextToken(aIndex, aTokens, False) = ')' then
+            if GetNextToken(aIndex, aTokens, False, 0) = ')' then
             begin
               FoOutput.Log(lsLog);
 
@@ -908,7 +908,7 @@ begin
 end;
 
 function TInterpreter.DoComment(aTokens: tTokenProcessor; Var aIndex: Integer;
-  aTagType: TTagType; Var ASkipPOs: Integer): string;
+  aTagType: TTagType; Var ASkipPos: Integer): string;
 Var
   lsComment: String;
 begin
@@ -917,7 +917,7 @@ begin
   case aTagType of
     ttComment:
       begin
-        If GetNextToken(aIndex, aTokens, true) = 'REM' then
+        If GetNextToken(aIndex, aTokens, true, 0) = 'REM' then
         begin
           ResetToEnd(aTokens, aIndex);
 
@@ -994,6 +994,30 @@ Var
       Result := GetNextTag(aTokens, aIndex, liSkipPos, true);
   end;
 
+
+  procedure AddTokenValue(aToken: String);
+  begin
+     if Not Assigned(FVariable1) then
+       begin
+         lsVariableName1 := tVariables.CleanVariableName(aTokens[0]);
+
+         FVariable1 := (foProjectItem as TProjectItem).oVariables.GetVariableByName(lsVariableName1);
+       end;
+
+     if Not Assigned(FVariable1) then Exit;
+
+     If TNovusStringUtils.IsNumberStr(aToken) then
+        FVariable1.Value := FVariable1.Value +
+          TNovusStringUtils.Str2Int(aToken)
+      else
+        begin
+          if Not FVariable1.IsObject then
+            FVariable1.Value := FVariable1.Value + aToken
+          else
+            FoOutput.LogError('Syntax Error: Cannot add a Object');
+        end;
+   end;
+
 begin
   Result := '';
   FOut := False;
@@ -1016,22 +1040,39 @@ begin
 
     if Not Assigned(lVariableI) then
     begin
-      LsValue := GetToken;
+      While(aIndex < aTokens.Count - 1) do
+        begin
+           LsValue := GetToken;
 
-      LsValue := tTokenParser.ParseToken(Self, LsValue,
-        (foProjectItem as TProjectItem), (* TCodeGenerator(FoCodeGenerator)
-          .oVariables, *) FoOutput, aTokens, aIndex,
-        TCodeGenerator(FoCodeGenerator).oProject);
+            LsValue := tTokenParser.ParseToken(Self, LsValue,
+              (foProjectItem as TProjectItem), (* TCodeGenerator(FoCodeGenerator)
+                .oVariables, *) FoOutput, aTokens, aIndex,
+              TCodeGenerator(FoCodeGenerator).oProject);
 
-      If TNovusStringUtils.IsNumberStr(LsValue) then
-      begin
-        if Pos('.', LsValue) > 0 then
-          AddVariable(lsVariableName1, TNovusStringUtils.Str2Float(LsValue))
-        else
-          AddVariable(lsVariableName1, TNovusStringUtils.Str2Int(LsValue));
-      end
-      else
-        AddVariable(lsVariableName1, LsValue);
+           if lsValue = '+' then
+             begin
+               AddTokenValue(GetToken);
+
+
+             end
+           else
+           If TNovusStringUtils.IsNumberStr(LsValue) then
+            begin
+              if Pos('.', LsValue) > 0 then
+                begin
+                  if Trim(lsVariableName1) <> '' then AddVariable(lsVariableName1, TNovusStringUtils.Str2Float(LsValue))
+                end
+              else
+                begin
+                  if Trim(lsVariableName1) <> '' then AddVariable(lsVariableName1, TNovusStringUtils.Str2Int(LsValue));
+                end;
+            end
+            else
+              if Trim(lsVariableName1) <> '' then  AddVariable(lsVariableName1, LsValue);
+
+           lsVariableName1 := '';
+        end;
+
 
     end
     else
@@ -1098,13 +1139,18 @@ begin
       end
       else If LStr = '+' then
       begin
-        LsValue := GetToken;
+        AddTokenValue(GetToken);
+
+        (*
+         LsValue := GetToken;
 
         If TNovusStringUtils.IsNumberStr(LsValue) then
           FVariable1.Value := FVariable1.Value +
             TNovusStringUtils.Str2Int(LsValue)
         else
           FoOutput.LogError('Syntax Error: Is not a number');
+          *)
+
       end;
     end;
   end
@@ -1142,27 +1188,29 @@ begin
   end;
 end;
 
+
 procedure TInterpreter.AddVariable(AVariableName: String; AValue: Variant);
 begin
   (foProjectItem as TProjectItem).oVariables.AddVariable(AVariableName, AValue);
 end;
 
 function TInterpreter.Execute(aCodeGeneratorItem: TCodeGeneratorItem;
-  Var ASkipPOs: Integer): String;
+  Var ASkipPos: Integer): String;
 Var
   FIndex: Integer;
   FOut: Boolean;
-  fsScript: string;
-  lbIsFailedCompiled: Boolean;
+  lsVariableName: string;
 begin
   Result := '';
 
   FOut := False;
 
   FoCodeGeneratorItem := aCodeGeneratorItem;
-  foTokens := FoCodeGeneratorItem.oTokens;
+
+  Self.oTokens :=  FoCodeGeneratorItem.oTokens;
 
   FIndex := 0;
+
   if foTokens.strings[0] = '=' then
   begin
     FOut := true;
@@ -1171,12 +1219,12 @@ begin
 
   if FOut = true then
   begin
-    Result := GetNextTag(foTokens, FIndex, ASkipPOs)
+    Result := GetNextTag(oTokens, FIndex, ASkipPOs)
   end
   else
   begin
     Result := '';
-    GetNextTag(foTokens, FIndex, ASkipPOs);
+    GetNextTag(oTokens, FIndex, ASkipPOs);
   end;
 end;
 
@@ -1205,8 +1253,8 @@ end;
   end;
 *)
 function TInterpreter.GetNextToken(Var aIndex: Integer;
-  aTokens: tTokenProcessor; aIgnoreTokenParser: Boolean = False;
-  ASkipPOs: Integer = 0): String;
+  aTokens: tTokenProcessor; aIgnoreTokenParser: Boolean;
+  ASkipPos: Integer): String;
 Var
   I: Integer;
   LVariable: TVariable;
@@ -1229,7 +1277,8 @@ begin
   aTokens.TokenIndex := aIndex;
 end;
 
-function TInterpreter.GetNextTokenA(Var aIndex: Integer;
+
+function TInterpreter.GetNextToken(Var aIndex: Integer;
   aTokens: tTokenProcessor): String;
 Var
   I: Integer;
@@ -1252,20 +1301,9 @@ begin
     if Not Assigned(LVariable) then
       FoOutput.LogError('Syntax Error: variable ' + Result +
         ' cannot be found.');
-
-    (*
-      I := VariableExistsIndex(TVariables.CleanVariableName(Result));
-      if I <> -1 then
-      begin
-      LVariable := GetVariableByIndex(I);
-
-      Result := LVariable.AsString;
-      end
-      else
-      FoOutput.LogError('Syntax Error: variable ' + Result + ' cannot be found.');
-    *)
   end;
 end;
+
 
 function TInterpreter.GetVariables: tVariables;
 begin
@@ -1383,6 +1421,12 @@ end;
 function TInterpreter.IsIf(aCodeGeneratorItem: TObject): Boolean;
 begin
   Result := (TCodeGeneratorItem(aCodeGeneratorItem).TagType = ttif);
+end;
+
+function TInterpreter.IsIf(aToken: string): Boolean;
+begin
+ Result := (ttIf = TTagParser.ParseTagType(foProjectItem, FoCodeGenerator,
+      aToken, FoOutput, true));
 end;
 
 function TInterpreter.IsRepeat(aCodeGeneratorItem: TObject): Boolean;

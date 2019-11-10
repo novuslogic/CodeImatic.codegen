@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<project>
+  <outputconsole>true</outputconsole>
+  <messageslogpath></messageslogpath>
+  <Createoutputdir>true</Createoutputdir>
+  
+  <projectitem name = "variables.txt">
+    <source>[%sourcepath%]variables.txt</source>
+    <properties>[%propertiespath%]variables.xml</properties>
+    <overrideoutput>true</overrideoutput>
+    <output>[%outputpath%]Variables.txt</output>
+  </projectitem>
+
+  <projectconfig>
+     <properties> 
+       <outputpath>D:\Projects\CodeImatic.codegen\samples\variables\Output\</outputpath>
+       <propertiespath>D:\Projects\CodeImatic.codegen\samples\variables\Properties\</propertiespath>
+       <sourcepath>D:\Projects\CodeImatic.codegen\samples\variables\Source\</sourcepath>
+   </properties>  
+  </projectconfig>
+</project>

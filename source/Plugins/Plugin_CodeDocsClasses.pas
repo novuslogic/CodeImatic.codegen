@@ -5,7 +5,10 @@ interface
 uses Winapi.Windows, System.SysUtils, System.Classes,
   Plugin, NovusPlugin, NovusVersionUtils, Project, NovusTemplate,
   Output, System.Generics.Defaults, runtime, Config, NovusStringUtils,
-  APIBase, ProjectItem, TagType, CodeDocsProcessorItem;
+  APIBase, ProjectItem, TagType, CodeDocsProcessorItem, JvHtmlParser;
+
+
+  //https://wiki.delphi-jedi.org/wiki/JVCL_Help:TJvHTMLParser
 
 type
   tPlugin_CodeDocsBase = class(TProcessorPlugin)

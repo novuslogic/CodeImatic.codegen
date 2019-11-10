@@ -227,6 +227,10 @@ begin
 
     if lsToken = '' then
       result := ttUnknown
+    else if Pos('$$', lsToken) = 1 then
+       result := ttPropertyVariable
+    else if Pos('$', lsToken) = 1 then
+       result := ttVariable
     else if lsToken = 'LANGUAGE' then
       result := ttlanguage
     else if lsToken = 'CONNECTION' then

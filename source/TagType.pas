@@ -6,7 +6,8 @@ Type
   TTagType = (ttProperty, ttConnection, ttInterpreter, ttLanguage, ttInclude,
     ttUnknown, ttplugintag, ttprojectitem, ttPropertyEx, ttConfigProperties,
     ttVariableCmdLine, ttlayout, ttRenderBodyTag, ttCodebehine,
-    ttOpenToken, ttCloseToken, ttrepeat, ttendrepeat, ttcode, ttif, ttendif, ttlog, ttComment);
+    ttOpenToken, ttCloseToken, ttrepeat, ttendrepeat, ttcode, ttif, ttendif, ttlog, ttComment,
+    ttPropertyVariable, ttVariable);
 
   function IsInterpreterTagType(aTagType: tTagType): Boolean;
 

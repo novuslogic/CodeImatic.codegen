@@ -26,7 +26,7 @@ implementation
 function TFileExistsFunctionParser.Execute: string;
 Var
   FFieldDesc: tFieldDesc;
-  FsJSONFilename: String;
+  FsFilename: String;
   FsTableName: String;
   FFieldIndex: Integer;
   LStr: String;
@@ -40,13 +40,13 @@ begin
 
   If  ParseNextToken = '(' then
   begin
-    FsJSONFilename := ParseNextToken;
+    FsFilename := ParseNextToken;
 
-    if FileExists(FsJSONFilename) then
+    if FileExists(FsFilename) then
     begin
       LsToken := '';
       if Assigned(OnExecute) then
-        OnExecute(LsToken, self, FsJSONFilename);
+        OnExecute(LsToken, self, FsFilename);
 
       if ParseNextToken = ')' then
          begin
@@ -59,7 +59,7 @@ begin
 
      end
     else
-      oOutput.LogError('Syntax Error: Cannot find filename [' + FsJSONFilename +']');
+      oOutput.LogError('Syntax Error: Cannot find filename [' + FsFilename +']');
   end
    else
      oOutput.LogError('Syntax Error: lack "("');
