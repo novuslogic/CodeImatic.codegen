@@ -1,4 +1,11 @@
 <%REM Basic Variable%>
+
+Test 1
 <%$helloworld="helloworld"%>
 <%$helloworld2=$helloworld+" helloworld"%>
- Hello world variable: <%=$helloworld2%>
+Test 1 output: <%=$helloworld2%>
+
+Test 2
+<%$helloworld3=$helloworld2+ $helloworld%>
+Test 1 output: <%=$helloworld3%>
+

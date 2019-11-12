@@ -259,6 +259,7 @@ function TInterpreter.GetNextTag(aTokens: tTokenProcessor; Var aIndex: Integer;
 Var
   lsNextToken: string;
   fTagType: TTagType;
+  lVariable: Tvariable;
 begin
   Result := '';
   if ASubCommand then
@@ -289,8 +290,9 @@ begin
     if aTokens.EOF then
       Exit;
 
+
     if (Not ASubCommand) (*or (fTagType in [ttPropertyVariable, ttVariable]) *) then
-    begin
+     begin
       if Pos('$$', aTokens[aIndex]) = 1 then
         Result := tTokenParser.ParseToken(Self, aTokens[aIndex],
           (foProjectItem as TProjectItem), (* TCodeGenerator(FoCodeGenerator)
@@ -299,8 +301,17 @@ begin
       else if Pos('$', aTokens[aIndex]) = 1 then
         Result := ParseVariable(aTokens, aIndex)
 
-    end;
+    end
+    else
+      begin
+        if (Pos('$$', aTokens[aIndex]) = 1) or (Pos('$', aTokens[aIndex]) = 1) then
+          begin
+            lVariable := oVariables.GetVariableByName(aTokens[aIndex]);
 
+            if Assigned(lVariable) then Result := lVariable.AsString;
+
+          end;
+     end;
   Except
     FoOutput.InternalError;
   end;
@@ -992,6 +1003,7 @@ Var
 
     if (aIndex <= aTokens.Count - 1) then
       Result := GetNextTag(aTokens, aIndex, liSkipPos, true);
+
   end;
 
 
@@ -1022,6 +1034,8 @@ begin
   Result := '';
   FOut := False;
   fbIsIf := False;
+
+  FVariable1 := nil;
 
   lsVariableName1 := tVariables.CleanVariableName(aTokens[aIndex]);
 
@@ -1183,8 +1197,8 @@ begin
       end;
 
     end
-    else
-      FoOutput.LogError('Syntax Error: lack "="');
+     else
+       FoOutput.LogError('Syntax Error: lack "="');
   end;
 end;
 
