@@ -6,7 +6,7 @@ uses Classes, Plugin, NovusPlugin, NovusVersionUtils, Project,
   Output, SysUtils, System.Generics.Defaults, runtime, Config,
   APIBase, NovusGUIDEx, CodeGeneratorItem, FunctionsParser, ProjectItem,
   Variables, NovusFileUtils, CodeGenerator, NovusStringUtils, TokenProcessor,
-  TagBasePlugin, TokenParser;
+  TagBasePlugin, TokenParser, System.IOUtils, TagParser, TagType;
 
 type
    TSaveToFileOnExecute = procedure(var aToken: String; aTokenParser: tTokenParser; aFilename: String) of object;
@@ -107,6 +107,18 @@ type
     function Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: tTokenProcessor): String; override;
   end;
 
+
+  TSysTag_CreateFolder = class(TSysTag)
+  private
+  protected
+    foTokens: tTokenProcessor;
+    foProjectItem: tProjectItem;
+    function GetTagName: String; override;
+    procedure OnExecute(var aToken: String);
+  public
+    function Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: tTokenProcessor): String; override;
+  end;
+
   TSysTag_Dec = class(TSysTag)
   private
   protected
@@ -194,7 +206,8 @@ begin
     TSysTag_IsVarEmpty.Create(aOutput),
     TSysTag_Inc.Create(aOutput),
     TSysTag_Dec.Create(aOutput),
-    TSysTag_StringToFile.Create(aOutput));
+    TSysTag_StringToFile.Create(aOutput),
+    TSysTag_CreateFolder.Create(aOutput));
 end;
 
 destructor tPlugin_SysTagsBase.Destroy;
@@ -361,6 +374,7 @@ end;
 procedure TSysTag_StringToFile.OnExecute(var aToken: String; aTokenParser: tTokenParser; aFilename: String);
 Var
   lStringList: tStringlist;
+  lsFolder: String;
 begin
   Try
     try
@@ -712,6 +726,79 @@ begin
 
   FVariable.Value := FVariable.Value + 1;
   aToken := cDeleteLine;
+end;
+
+
+function TSysTag_CreateFolder.GetTagName: String;
+begin
+  Result := 'CreateFolder';
+end;
+
+function TSysTag_CreateFolder.Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: tTokenProcessor): String;
+var
+  LFunctionParser: tFunctionBParser;
+begin
+  foProjectItem := aProjectItem;
+  foTokens:= aTokens;
+
+
+  Try
+    Try
+      LFunctionParser := tFunctionBParser.Create(aProjectItem,aTokens, oOutput,
+        aTagName);
+
+      Self.oVariables := tProjectItem(aProjectItem).oVariables;
+
+      LFunctionParser.OnExecute := OnExecute;
+
+      Result := LFunctionParser.Execute;
+    Finally
+      LFunctionParser.Free;
+    End;
+  Except
+    oOutput.InternalError;
+  End;
+end;
+
+procedure TSysTag_CreateFolder.OnExecute(var aToken: String);
+var
+  FVariable: tVariable;
+  FTagType: tTagType;
+  lsFolder: String;
+begin
+  lsFolder := aToken;
+  if TVariables.IsVariableType(aToken) in [ttPropertyVariable, ttVariable] then
+    begin
+      FVariable := oVariables.GetVariableByName(aToken);
+      if not Assigned(FVariable) then
+        begin
+          oOutput.LogError('Syntax Error: "' + aToken + '" not variable not found.');
+
+          aToken := 'false';
+
+          Exit;
+        end;
+
+
+      if not  FVariable.IsString then
+        begin
+          oOutput.LogError('Syntax Error: "' + aToken + '" variable must be string type.');
+
+          aToken := 'false';
+
+          Exit;
+        end;
+
+      lsFolder := FVariable.AsString;
+    end;
+
+   Try
+     if not DirectoryExists(lsFolder) then
+       TDirectory.CreateDirectory(lsFolder);
+   Except
+     oOutput.InternalError;
+   End;
+
 end;
 
 function TSysTag_Dec.GetTagName: String;

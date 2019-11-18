@@ -306,7 +306,7 @@ begin
       begin
         if (Pos('$$', aTokens[aIndex]) = 1) or (Pos('$', aTokens[aIndex]) = 1) then
           begin
-            lVariable := oVariables.GetVariableByName(aTokens[aIndex]);
+            lVariable := oVariables.GetVariableByName(lsNextToken);
 
             if Assigned(lVariable) then Result := lVariable.AsString;
 
@@ -1153,7 +1153,30 @@ begin
       end
       else If LStr = '+' then
       begin
-        AddTokenValue(GetToken);
+        lsValue := GetToken;
+
+        AddTokenValue(lsValue);
+
+
+       While(aIndex < aTokens.Count - 1) do
+        begin
+           LsValue := GetToken;
+
+           LsValue := tTokenParser.ParseToken(Self, LsValue,
+              (foProjectItem as TProjectItem), (* TCodeGenerator(FoCodeGenerator)
+                .oVariables, *) FoOutput, aTokens, aIndex,
+              TCodeGenerator(FoCodeGenerator).oProject);
+
+           if lsValue = '+' then
+             begin
+               AddTokenValue(GetToken);
+             end
+           else
+             begin
+               FoOutput.LogError('Syntax Error: lack "+"');
+               break;
+             end;
+         end;
 
         (*
          LsValue := GetToken;

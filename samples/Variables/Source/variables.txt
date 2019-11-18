@@ -6,6 +6,12 @@ Test 1
 Test 1 output: <%=$helloworld2%>
 
 Test 2
-<%$helloworld3=$helloworld2+ $helloworld%>
+<%$helloworld3=$helloworld2+$helloworld + " hellowworld"%>
 Test 1 output: <%=$helloworld3%>
 
+Test 3
+
+<%$hellowworld4=$helloworld3+"\"+ "Hello"%>
+
+
+Test 3 output: <%=$hellowworld4%>

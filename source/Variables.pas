@@ -2,7 +2,7 @@ unit Variables;
 
 interface
 
-Uses Variants, NovusList, SysUtils, Output, NovusGUIDEx, NovusStringUtils;
+Uses Variants, NovusList, SysUtils, Output, NovusGUIDEx, NovusStringUtils, TagType;
 
 Type
   TVariable = class(TObject)
@@ -15,6 +15,7 @@ Type
     function GetIsLinked: Boolean;
     function GetIsObject: Boolean;
     function GetIsNumeric: Boolean;
+    function GetIsString: Boolean;
   public
     constructor Create; virtual;
     destructor Destroy; override;
@@ -44,6 +45,9 @@ Type
 
     property IsVarEmpty: Boolean
       read GetIsVarEmpty;
+
+    property IsString: Boolean
+      read GetIsString;
   end;
 
   TVariables = class(TObject)
@@ -60,6 +64,8 @@ Type
     procedure AddVariable(AVariableName: String;AValue: Variant);
     function GetVariableByName(aVariableName: String): TVariable;
     function VariableExists(aVariableName: String): boolean;
+
+    class function IsVariableType(aVariableName: String): tTagType;
 
     class function CleanVariableName(AVariableName: String): String;
 
@@ -150,6 +156,16 @@ begin
   Result := (FObject as TVariable);
 end;
 
+class function TVariables.IsVariableType(aVariableName: String): tTagType;
+begin
+  Result := ttUnknown;
+  if Pos('$$', aVariableName) = 1 then
+      result := ttPropertyVariable
+    else if Pos('$', aVariableName) = 1 then
+       result := ttVariable
+end;
+
+
 class function TVariables.CleanVariableName(AVariableName: String): String;
 begin
   If Copy(AVariableName, 1, 2) = '$$' then
@@ -207,6 +223,13 @@ begin
     Result :=  TNovusStringUtils.IsNumberStr(AsString)
 end;
 
+
+function TVariable.GetIsString: Boolean;
+begin
+  Result := False;
+  if Not IsObject then
+    Result := (VarType(FValue) = varUString);
+end;
 
 function TVariable.GetIsVarEmpty:Boolean;
 begin

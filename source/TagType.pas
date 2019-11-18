@@ -7,7 +7,7 @@ Type
     ttUnknown, ttplugintag, ttprojectitem, ttPropertyEx, ttConfigProperties,
     ttVariableCmdLine, ttlayout, ttRenderBodyTag, ttCodebehine,
     ttOpenToken, ttCloseToken, ttrepeat, ttendrepeat, ttcode, ttif, ttendif, ttlog, ttComment,
-    ttPropertyVariable, ttVariable);
+    ttPropertyVariable, ttVariable, ttText);
 
   function IsInterpreterTagType(aTagType: tTagType): Boolean;
 
@@ -24,6 +24,8 @@ begin
   if ATagType in [ttInterpreter, ttRepeat, ttEndRepeat, ttEndif, ttIf,ttLog, ttplugintag, ttComment ] then
       Result := True;
 end;
+
+
 
 
 end.

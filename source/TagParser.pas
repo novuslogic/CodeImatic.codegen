@@ -23,8 +23,6 @@ Type
 
     destructor Destroy; override;
 
-    //function IsAnyDeleteLine: Boolean;
-
     function Execute: Boolean;
 
     property oTokenProcessor: tTokenProcessor read FoTokenProcessor
@@ -179,7 +177,6 @@ begin
 end;
 
 
-
 function TTagParser.InternalParseTag(aProjectItem: Tobject;
   aCodeGenerator: Tobject; aToken: string; aTokens: tTokenProcessor;
   aOutput: tOutput; aTokenIndex: Integer; aIsTokens: Boolean): TTagType;
@@ -220,7 +217,18 @@ begin
     lsToken1 := Uppercase(aToken);
   end;
 
+
+   If trim(lsToken1) = '\' then
+     begin
+       Result := ttText;
+
+       Exit;
+     end;
+
+
+
   Try
+
     FTokenProcessor := tTokenParser.ParseExpressionToken(lsToken1, aOutput);
 
     lsToken := Uppercase(FTokenProcessor.GetNextToken);

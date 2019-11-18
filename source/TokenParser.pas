@@ -185,6 +185,10 @@ begin
 
   loTokens := NIL;
 
+
+
+
+
   If Copy(aToken, 1, 2) = '$$' then
   begin
     fsToken := TVariables.CleanVariableName(aToken);
