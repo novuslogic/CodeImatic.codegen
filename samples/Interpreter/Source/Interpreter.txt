@@ -1,6 +1,8 @@
 <%REM Repeat Tag%>
 <%repeat(1)%>
-aaaaaaaa
+test line 1 
+<%repeat(1)%>
+test line 2
 <%endrepeat%>
-
+<%endrepeat%>
 

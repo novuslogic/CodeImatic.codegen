@@ -10,17 +10,19 @@ Uses
 Type
   TNavigateType = (ltrepeat, ltendrepeat, ltif, ltendif);
 
-  TNavigatePos = (lpStart, lpEnd);
+  TNavigatePosType = (lpStart, lpEnd);
 
-  TEndNavigate = record
+  TNavigatePos = record
     SkipPos: Integer;
     ID: string;
+    IsNested: Boolean;
   end;
 
   TNavigate = Class(TObject)
   protected
     fStatementParser: tStatementParser;
     FNavigateType: TNavigateType;
+    FNavigatePosType: TNavigatePosType;
     FNavigatePos: TNavigatePos;
     fiLevel: Integer;
     FoCodeGeneratorItem: TObject;
@@ -35,7 +37,7 @@ Type
     constructor Create; overload;
     destructor Destroy; override;
 
-    property NavigatePos: TNavigatePos read FNavigatePos write FNavigatePos;
+    property NavigatePosType: TNavigatePosType read FNavigatePosType write FNavigatePosType;
 
     property NavigateType: TNavigateType read FNavigateType write FNavigateType;
 
@@ -58,6 +60,8 @@ Type
     property SkipPos: Integer read fiSkipPos write fiSkipPos;
 
     property HasRun: Boolean read fbHasRun write fbHasRun;
+
+    property NavigatePos: TNavigatePos read FNavigatePos write FNavigatePos;
 
   End;
 
@@ -82,14 +86,16 @@ Type
     function IsIf(aCodeGeneratorItem: TObject): Boolean; overload;
     function IsIf(aToken: string): boolean; overload;
 
-    function FindEndNavigate(aIndex: Integer;
-      aStartTagName, aEndTagName: string): TEndNavigate;
+    function FindNavigatePos(aIndex: Integer;
+      aStartTagName, aEndTagName: string): TNavigatePos;
 
     function FindEndNavigateIndexPos(aIndex: Integer;
       aStartTagName, aEndTagName: string): Integer;
 
     function FindNavigateLevel(aNavigateType: TNavigateType; aLevel: Integer)
       : TNavigate;
+
+    function FindNavigate(aID: String) : TNavigate;
 
     function FindNavigateLinkID(aNavigateType: TNavigateType; aID: String)
       : TNavigate;
@@ -320,7 +326,7 @@ end;
 function TInterpreter.DoRepeat(aTokens: tTokenProcessor; Var aIndex: Integer;
   aTagType: TTagType; Var ASkipPOs: Integer): string;
 Var
-  LEndNavigate: TEndNavigate;
+  LNavigatePos: TNavigatePos;
   lbNegitiveFlag: Boolean;
   liPos, liLineNoPos, liPosMax: Integer;
   liStartPos1, liEndPos1, liStartPos2, liEndPos2: Integer;
@@ -337,8 +343,9 @@ Var
   liLineCount: Integer;
   lsTagValue: String;
   liStartTagIndex, liEndTagIndex, liTagIndexCounter, liLastEndSourceLineNo,
-    liLastNextSourceLineNo, liNextSourceLineNo1, liNextSourceLineNo2,
-    liStartSourceLineNo, liSourceLineCount, liEndSourceLineNo: Integer;
+  liLastNextSourceLineNo, liNextSourceLineNo1, liNextSourceLineNo2,
+  liStartSourceLineNo, liSourceLineCount, liEndSourceLineNo: Integer;
+  lbIsNested: Boolean;
 
   function GetCodeGeneratorItemBySourceLineNo(ASourceLineNo: Integer;
     Var APos: Integer): TCodeGeneratorItem;
@@ -388,7 +395,7 @@ begin
               FNavigate := TNavigate.Create;
 
               FNavigate.NavigateType := ltrepeat;
-              FNavigate.NavigatePos := lpStart;
+              FNavigate.NavigatePosType := lpStart;
               FNavigate.Level := fiLevelCounter;
 
               FNavigate.CodeGeneratorItem := FoCodeGeneratorItem;
@@ -407,10 +414,10 @@ begin
 
               Inc(liStartPos1, 1);
 
-              LEndNavigate := FindEndNavigate(liStartPos1, 'repeat',
+              LNavigatePos := FindNavigatePos(liStartPos1, 'repeat',
                 'endrepeat');
 
-              if LEndNavigate.ID = '' then
+              if LNavigatePos.ID = '' then
               begin
                 FoOutput.LogError
                   ('Syntax Error: Block Repeat without EndRepeat.');
@@ -419,10 +426,14 @@ begin
 
               FoCodeGeneratorItem.oTemplateTag.TagValue := cDeleteLine;
 
-              ASkipPOs := LEndNavigate.SkipPos;
+              ASkipPos := LNavigatePos.SkipPos;
 
               FNavigate.SkipPos := ASkipPOs;
-              FNavigate.LinkID := LEndNavigate.ID;
+              FNavigate.LinkID := LNavigatePos.ID;
+
+              FNavigate.NavigatePos := LNavigatePos;
+
+
             end
             else
               FoOutput.LogError('Syntax Error: lack ")"');
@@ -441,10 +452,13 @@ begin
 
         LStartNavigate := FindNavigateLinkID(ltrepeat, FoCodeGeneratorItem.ID);
 
+
         if Assigned(LStartNavigate) then
         begin
           if LStartNavigate.LinkID = FoCodeGeneratorItem.ID then
           begin
+
+
             LiValue := LStartNavigate.Value;
             lbNegitiveFlag := LStartNavigate.NegitiveFlag;
 
@@ -504,7 +518,7 @@ begin
                     end
                     else If IsEndRepeat(LCodeGeneratorItem1) then
                     begin
-                      // FNavigate := FindNavigateLevel(ltrepeat, fiLevelCounter);
+
                       FNavigate := FindNavigateLinkID(ltrepeat,
                         LCodeGeneratorItem1.ID);
 
@@ -563,6 +577,7 @@ begin
                 LTemplate.InsertLineNo(liNextSourceLineNo1,
                   LTemplate.TemplateDoc.strings[liStartSourceLineNo + I]);
 
+
                 liPos := 0;
 
                 liPosMax := TCodeGenerator(FoCodeGenerator)
@@ -620,7 +635,7 @@ begin
             LStartNavigate.HasRun := true;
           end
         else
-          FoOutput.LogError('Syntax Error: Block EndRepeat internal error.');
+          FoOutput.LogError('Syntax Error: Block EndRepeat without Repeat.');
         end
         else
           FoOutput.LogError('Syntax Error: Block EndRepeat without Repeat.');
@@ -722,7 +737,7 @@ begin
 
               FNavigate := TNavigate.Create;
               FNavigate.NavigateType := ltif;
-              FNavigate.NavigatePos := lpStart;
+              FNavigate.NavigatePosType := lpStart;
 
               FNavigate.Level := fiLevelCounter;
               FNavigate.CodeGeneratorItem := FoCodeGeneratorItem;
@@ -954,6 +969,27 @@ begin
     FNavigate := TNavigate(FNavigateList.Items[I]);
 
     if (FNavigate.NavigateType = aNavigateType) and (FNavigate.LinkID = aID)
+    then
+    begin
+      Result := FNavigate;
+      Break;
+    end;
+  end;
+end;
+
+
+function TInterpreter.FindNavigate(aID: String) : TNavigate;
+Var
+  I: Integer;
+  FNavigate: TNavigate;
+begin
+  Result := NIL;
+
+  for I := 0 to FNavigateList.Count - 1 do
+  begin
+    FNavigate := TNavigate(FNavigateList.Items[I]);
+
+    if (FNavigate.LinkID = aID)
     then
     begin
       Result := FNavigate;
@@ -1402,8 +1438,8 @@ begin
   end;
 end;
 
-function TInterpreter.FindEndNavigate(aIndex: Integer;
-  aStartTagName, aEndTagName: string): TEndNavigate;
+function TInterpreter.FindNavigatePos(aIndex: Integer;
+  aStartTagName, aEndTagName: string): TNavigatePos;
 Var
   I: Integer;
   LCodeGeneratorItem: TCodeGeneratorItem;
@@ -1413,6 +1449,7 @@ Var
 begin
   Result.SkipPos := -1;
   Result.ID := '';
+  Result.IsNested := False;
 
   LCodeGeneratorList := (FoCodeGenerator As TCodeGenerator).oCodeGeneratorList;
 
@@ -1428,6 +1465,8 @@ begin
       if Pos(Uppercase(aStartTagName), Uppercase(LTemplateTag.TagName)) = 1 then
       begin
         Inc(iCount);
+
+        Result.IsNested := true;
       end
       else if (Uppercase(LTemplateTag.TagName) = Uppercase(aEndTagName)) and
         (iCount = 0) then

@@ -656,6 +656,7 @@ Var
   lsElement: string;
   liIndex: Integer;
   FJSONValue: TJSONValue;
+
 begin
   FVariable := GetJSONObjectVariable(aToken);
   if not Assigned(FVariable) then
@@ -693,7 +694,15 @@ begin
       Exit;
     end;
 
-  FJSONValue :=  TJSONArray(FJSONArray.Get(liIndex));
+  FJSONValue := NIL;
+  Try
+    FJSONValue :=  TJSONArray(FJSONArray.Get(liIndex));
+
+  Except
+    oOutput.InternalError;
+  End;
+
+
   aToken := Self.oVariables.AddVariableObject(FJSONValue, TJSONTag.ClassName, false);
 end;
 

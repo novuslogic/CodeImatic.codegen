@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<projectconfig>
-   <properties> 
-     <outputpath>D:\Projects\CodeImatic.codegen\samples\VariableCmdLine\Output\</outputpath>
-     <propertiespath>D:\Projects\CodeImatic.codegen\samples\VariableCmdLine\Properties\</propertiespath>
-     <sourcepath>D:\Projects\CodeImatic.codegen\samples\VariableCmdLine\Source\</sourcepath>
-   </properties>  
-</projectconfig>
