@@ -36,7 +36,8 @@ requires
   NovusCodeLibrary_XML,
   NovusCodeLibrary_Parser,
   NovusCodeLibrary_Plugin,
-  NovusCodeLibrary_Env;
+  NovusCodeLibrary_Env,
+  NovusCodeLibrary_Console;
 
 contains
   Plugin in 'Plugin.pas',
@@ -71,7 +72,8 @@ contains
   StatementParser in 'StatementParser.pas',
   TagBasePlugin in 'TagBasePlugin.pas',
   FileExistsFunctionParser in 'FileExistsFunctionParser.pas',
-  ProjectConfigLoader in 'ProjectConfigLoader.pas';
+  ProjectConfigLoader in 'ProjectConfigLoader.pas',
+  CommandLine in 'CommandLine.pas';
 
 end.
 

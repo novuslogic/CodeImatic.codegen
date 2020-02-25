@@ -2,7 +2,8 @@ unit VariablesCmdLine;
 
 interface
 
-uses Variables,Classes, NovusStringUtils, ExpressionParser, NovusTemplate, SysUtils, NovusUtilities;
+uses Variables,Classes, NovusStringUtils, ExpressionParser, NovusTemplate, SysUtils,
+      NovusUtilities, NovusStringParser ;
 
 type
    tVariablesCmdLine = class(tVariables)
@@ -10,7 +11,7 @@ type
       fsError: String;
       fbFailed: Boolean;
    public
-     function AddVarCmdLine(aVarCmdLine: String): boolean;
+     function AddVariableCmdLine(aVarCmdLine: String): boolean;
 
      property Error: String
         read fsError;
@@ -21,40 +22,27 @@ type
 
 implementation
 
-function tVariablesCmdLine.AddVarCmdLine(aVarCmdLine: String): Boolean;
+function tVariablesCmdLine.AddVariableCmdLine(aVarCmdLine: String): Boolean;
 Var
-  FVarCmdLineStrList: TStringList;
-  FExpressionParser: TExpressionParser;
   I: integer;
-  FTokens: tStringList;
   fsVariableName: String;
   fsValue: String;
   fsOperator: String;
+  fNovusStringParser: tNovusStringParser;
 begin
   Try
     Try
         Result := true;
+        fNovusStringParser:= tNovusStringParser.Create(aVarCmdLine, true);
 
-        FVarCmdLineStrList := TStringList.Create;
-        FExpressionParser:= TExpressionParser.Create;
-        FTokens:= tStringList.Create;
-
-
-        TNovusStringUtils.ParseStringList(';', aVarCmdLine, FVarCmdLineStrList);
-
-        for I := 0 to FVarCmdLineStrList.Count - 1 do
-          begin
-            FTokens.Clear;
-            FExpressionParser.Expr := FVarCmdLineStrList.Strings[i];
-            FExpressionParser.ListTokens(FTokens);
-
-            if FTokens.Count > 0 then
+            if fNovusStringParser.Items.Count > 0 then
               begin
-                fsVariableName := FTokens[0];
-                if FTokens.Count > 2 then
+                fsVariableName := fNovusStringParser.Items[0];
+
+                if fNovusStringParser.Items.Count > 2 then
                   begin
-                    fsOperator := FTokens[1];
-                    fsValue := FTokens[2];
+                    fsOperator := fNovusStringParser.Items[1];
+                    fsValue := fNovusStringParser.Items[2];
 
                     if fsOperator = '=' then
                       begin
@@ -87,16 +75,11 @@ begin
                  Exit;
                end;
 
-          end;
-
       Finally
-        FExpressionParser.Free;
-        FTokens.Free;
-        FVarCmdLineStrList.Free;
+        fNovusStringParser.Free;
       End;
   Except
     fsError := TNovusUtilities.GetExceptMess;
-
 
     Result := False;
 

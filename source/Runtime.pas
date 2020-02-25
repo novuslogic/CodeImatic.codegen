@@ -4,10 +4,10 @@ unit Runtime;
 interface
 
 uses
-  SysUtils, Classes, NovusTemplate, Config,  NovusFileUtils,
+  SysUtils, Classes, NovusTemplate, Config, NovusFileUtils,
   Properties, NovusStringUtils, Snippits, Plugins, ScriptEngine,
-  CodeGenerator, Output, NovusVersionUtils, Project, ProjectItem{,
-  ProjectConfig};
+  NovusCommandLine,
+  CodeGenerator, Output, NovusVersionUtils, Project, ProjectItem, CommandLine;
 
 type
   tRuntime = class
@@ -19,9 +19,11 @@ type
     foProject: tProject;
     foScriptEngine: tScriptEngine;
   public
-    function RunEnvironment: Integer;
+    function RunEnvironment(aCommandLineResult
+      : INovusCommandLineResult): Integer;
 
     function GetVersion(aIndex: Integer): string;
+    function GetVersionCopyright: string;
 
     function RunProjectItems: boolean;
 
@@ -29,12 +31,10 @@ type
 
     property oPlugins: TPlugins read foPlugins write foPlugins;
 
-    property oScriptEngine: tScriptEngine
-      read foScriptEngine
+    property oScriptEngine: tScriptEngine read foScriptEngine
       write foScriptEngine;
 
-    property oOutput: tOutput
-      read foOutput;
+    property oOutput: tOutput read foOutput;
   end;
 
 Var
@@ -50,7 +50,8 @@ Var
   I: Integer;
 begin
   Try
-    loRuntimeProjectItems:= tRuntimeProjectItems.Create(foOutput, foProject, foPlugins);
+    loRuntimeProjectItems := tRuntimeProjectItems.Create(foOutput, foProject,
+      foPlugins);
 
     Result := loRuntimeProjectItems.RunProjectItems
   Finally
@@ -58,15 +59,25 @@ begin
   End;
 end;
 
-function tRuntime.RunEnvironment: Integer;
+function tRuntime.RunEnvironment(aCommandLineResult
+  : INovusCommandLineResult): Integer;
 Var
-  liIndex, i, x: Integer;
+  liIndex, I, x: Integer;
   FTemplateTag: TTemplateTag;
-  bOK: Boolean;
+  bOK: boolean;
   lsPropertieVariable: String;
-
+  fNovusCommandLineResultCommands: INovusCommandLineResultCommands;
+  fNovusCommandLineResultCommand: INovusCommandLineResultCommand;
+  fNovusCommandLineResultOption: INovusCommandLineResultOption;
 begin
-  Result := -1;
+  Result := 0;
+
+  oConfig.workingdirectory := '';
+
+  fNovusCommandLineResultOption := aCommandLineResult.FindFirstCommandwithOption(clworkingdirectory);
+  if Assigned(fNovusCommandLineResultOption) then
+    oConfig.workingdirectory := fNovusCommandLineResultOption.Value;
+
 
   if Trim(oConfig.workingdirectory) = '' then
   begin
@@ -80,144 +91,172 @@ begin
     fsworkingdirectory := TNovusFileUtils.TrailingBackSlash
       (oConfig.workingdirectory);
 
-
-  if Trim(fsworkingdirectory) = '' then fsworkingdirectory := GetCurrentDir;
-
+  if Trim(fsworkingdirectory) = '' then
+    fsworkingdirectory := GetCurrentDir;
 
   if not DirectoryExists(fsworkingdirectory) then
-    Exit;
-
-
-  FoOutput := TOutput.Create('');
-  FoOutput.Consoleoutputonly := true;
-
-  foProject := tProject.Create(FoOutput);
-  //foProject.oProjectConfig.ProjectConfigFileName :=
-  //  oConfig.ProjectConfigFileName;
-
-  //if Trim(TNovusStringUtils.JustFilename(oConfig.ProjectConfigFileName))
-  //  = Trim(oConfig.ProjectConfigFileName) then
-  //  foProject.oProjectConfig.ProjectConfigFileName := fsworkingdirectory +
-   //   oConfig.ProjectConfigFileName;
-   (*
-  if not foProject.oProjectConfig.LoadProjectConfigFile
-    (foProject.oProjectConfig.ProjectConfigFileName) then
-  begin
-    if Not FileExists(foProject.oProjectConfig.ProjectConfigFileName) then
     begin
-      writeln('Projectconfig missing: ' +
-        foProject.oProjectConfig.ProjectConfigFileName);
+      aCommandLineResult.ExitCode := -2;
 
-      foProject.Free;
+      Result := aCommandLineResult.ExitCode;
+
+      aCommandLineResult.AddError('Workingdirectory cannot be found.');
 
       Exit;
     end;
 
-    writeln('Loading errror Projectconfig: ' +
-      foProject.oProjectConfig.ProjectConfigFileName);
+  foOutput := tOutput.Create('');
 
-    foProject.Free;
+  oConfig.Consoleoutputonly := false;
+  fNovusCommandLineResultCommand := aCommandLineResult.FindFirstCommand(clConsoleoutputonly);
+  if Assigned(fNovusCommandLineResultCommand) then
+    oConfig.Consoleoutputonly := fNovusCommandLineResultCommand.IsCommandOnly;
 
-    Exit;
-  end;
-   *)
- // FoOutput := TOutput.Create('');
- // FoOutput.Consoleoutputonly := true;
 
-  foProject.LoadProjectFile(oConfig.ProjectFileName,
-     FoOutput, fsworkingdirectory);
+  foProject := tProject.Create(foOutput);
+
+  oConfig.ProjectFileName := '';
+  fNovusCommandLineResultOption := aCommandLineResult.FindFirstCommandwithOption(clproject);
+  if Assigned(fNovusCommandLineResultOption) then
+    oConfig.ProjectFileName := fNovusCommandLineResultOption.Value;
+
+  foProject.LoadProjectFile(oConfig.ProjectFileName, foOutput,
+    fsworkingdirectory);
 
   if foProject.oProjectConfigLoader.Load then
-    FoOutput.InitLog(tProjectParser.ParseProject(foProject.BasePath,
-      foProject, FoOutput) + oConfig.OutputlogFilename, foProject.OutputConsole,
-      oConfig.ConsoleOutputOnly)
+    foOutput.InitLog(tProjectParser.ParseProject(foProject.BasePath, foProject,
+      foOutput) + oConfig.OutputlogFilename, foProject.OutputConsole,
+      oConfig.Consoleoutputonly)
   else
-    FoOutput.InitLog(foProject.BasePath + oConfig.OutputlogFilename,
-      foProject.OutputConsole, oConfig.ConsoleOutputOnly);
+    foOutput.InitLog(foProject.BasePath + oConfig.OutputlogFilename,
+      foProject.OutputConsole, oConfig.Consoleoutputonly);
 
-  if Not oConfig.ConsoleOutputOnly then
+  // var
+  fNovusCommandLineResultCommands:= aCommandLineResult.Commands.GetCommands(clvar);
+  if Assigned(fNovusCommandLineResultCommands) then
+    begin
+      fNovusCommandLineResultCommand := fNovusCommandLineResultCommands.FirstCommand;
+      While( Assigned(fNovusCommandLineResultCommand)) do
+        begin
+          if not oConfig.oVariablesCmdLine.AddVariableCmdLine(fNovusCommandLineResultCommand.Options.FirstOption.Value) then
+            begin
+              foProject.Free;
+
+              aCommandLineResult.ExitCode := -4;
+
+              Result := aCommandLineResult.ExitCode;
+
+              aCommandLineResult.AddError('Variable Command Line error [' + oConfig.oVariablesCmdLine.Error + ']');
+
+              Exit;
+
+            end;
+
+         fNovusCommandLineResultCommand := fNovusCommandLineResultCommands.NextCommand;
+        end;
+
+
+
+
+
+
+
+
+
+    end;
+
+
+
+
+
+
+  if Not oConfig.Consoleoutputonly then
   begin
-    //FoOutput.OpenLog(true);
-
-    if not FoOutput.OpenLog then
+    if not foOutput.OpenLog then
     begin
       foProject.Free;
 
-      writeln(FoOutput.Filename + ' log file cannot be created.');
+      aCommandLineResult.ExitCode := -3;
+
+      Result := aCommandLineResult.ExitCode;
+
+      aCommandLineResult.AddError(foOutput.Filename + ' log file cannot be created.');
+
 
       Exit;
     end;
   end;
+
 
   foOutput.WriteLog('Logging started');
 
-  FoOutput.Log
-    ('CodeImatic.codegen - © Copyright Novuslogic Software 2019 All Rights Reserved');
-  FoOutput.Log('Version: ' + GetVersion(0));
+  foOutput.Log(GetVersionCopyright);
+  foOutput.Log('Version: ' + GetVersion(0));
 
-  FoOutput.Log('Project: ' + foProject.ProjectFileName);
+  foOutput.Log('Project: ' + foProject.ProjectFileName);
 
-  //FoOutput.Log('Project Config: ' + foProject.oProjectConfig.
-   // ProjectConfigFileName);
+  // FoOutput.Log('Project Config: ' + foProject.oProjectConfig.
+  // ProjectConfigFileName);
 
-    (*
-  if Trim(foProject.oProjectConfig.DBSchemaPath) <> '' then
-  begin
+  (*
+    if Trim(foProject.oProjectConfig.DBSchemaPath) <> '' then
+    begin
     if Not FileExists(foProject.oProjectConfig.DBSchemaPath + 'DBSchema.xml')
     then
     begin
-      FoOutput.Log('DBSchema.xml path missing: ' +
-        foProject.oProjectConfig.DBSchemaPath);
+    FoOutput.Log('DBSchema.xml path missing: ' +
+    foProject.oProjectConfig.DBSchemaPath);
 
-      Exit;
+    Exit;
     end;
 
     oConfig.dbschemafilename := foProject.oProjectConfig.DBSchemaPath +
-      'DBSchema.xml';
+    'DBSchema.xml';
 
     FoOutput.Log('DBSchema filename: ' + oConfig.dbschemafilename);
-  end;
+    end;
   *)
 
   (*
-  if Trim(foProject.oProjectConfigLoader.LanguagesPath) <> '' then
-  begin
+    if Trim(foProject.oProjectConfigLoader.LanguagesPath) <> '' then
+    begin
     if Not DirectoryExists(foProject.oProjectConfigLoader.LanguagesPath) then
     begin
-      FoOutput.Log('Languages path missing: ' +
-        foProject.oProjectConfigLoader.LanguagesPath);
+    FoOutput.Log('Languages path missing: ' +
+    foProject.oProjectConfigLoader.LanguagesPath);
 
-      Exit;
+    Exit;
     end;
 
     oConfig.LanguagesPath := foProject.oProjectConfigLoader.LanguagesPath;
 
     FoOutput.Log('Languages path: ' + oConfig.LanguagesPath);
-  end;
+    end;
   *)
 
+  foScriptEngine := tScriptEngine.Create(foOutput);
 
-  foScriptEngine := tScriptEngine.Create(FoOutput);
-
-  foPlugins := TPlugins.Create(FoOutput, foProject, foScriptEngine);
+  foPlugins := TPlugins.Create(foOutput, foProject, foScriptEngine);
 
   foPlugins.LoadPlugins;
 
-
   foPlugins.RegisterImports;
-  if not foPlugins.LoadDBSchemaFiles then Exit;
+  if not foPlugins.LoadDBSchemaFiles then
+    Exit;
 
-  if not foPlugins.IsCommandLine then Exit;
+  if not foPlugins.IsCommandLine then
+    Exit;
 
-  if not foPlugins.BeforeCodeGen then Exit;
+  if not foPlugins.BeforeCodeGen then
+    Exit;
 
   foProject.oPlugins := foPlugins;
 
-  //foProject.oProjectConfigLoader.LoadConnections;
+  // foProject.oProjectConfigLoader.LoadConnections;
 
   RunProjectItems;
 
-  if Not FoOutput.Failed then
+  if Not foOutput.Failed then
     foPlugins.AfterCodeGen;
 
   foPlugins.UnLoadPlugins;
@@ -226,18 +265,17 @@ begin
 
   foScriptEngine.Free;
 
-  if Not FoOutput.Failed then
+  if Not foOutput.Failed then
     Result := 0;
 
-  if Not oConfig.ConsoleOutputOnly then
-    begin
-      FoOutput.CloseLog;
+  if Not oConfig.Consoleoutputonly then
+  begin
+    foOutput.CloseLog;
 
-      FoOutput.WriteLog('Logging finished');
-    end;
+    foOutput.WriteLog('Logging finished');
+  end;
 
-
-  FoOutput.Free;
+  foOutput.Free;
 
   foProject.Free;
 end;
@@ -251,6 +289,11 @@ begin
       Result := Trim(TNovusVersionUtils.GetProductName) + ' ' +
         TNovusVersionUtils.GetFullVersionNumber;
   end;
+end;
+
+function tRuntime.GetVersionCopyright: string;
+begin
+  Result := 'CodeImatic.codegen - © Copyright Novuslogic Software 2020 All Rights Reserved';
 end;
 
 Initialization

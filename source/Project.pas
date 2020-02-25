@@ -149,6 +149,8 @@ Var
   loProjectItem: TProjectItem;
   Tmp: string;
 begin
+  Result := False;
+
   foOutput := aOutput;
 
   XMLFileName := aProjectFilename;

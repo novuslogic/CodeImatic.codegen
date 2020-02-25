@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<config version="codeimatic.codegen1.0">
+<config>
     <plugins>
         <SysTags>
           <filename>SysTags.dll</filename>
         </SysTags>
-         <CodeDocsTags>
-          <filename>CodeDocsTags.dll</filename>
-        </CodeDocsTags>
         <DBTags>
           <filename>DBTags.dll</filename>
         </DBTags>
@@ -52,16 +49,6 @@
               <SSLCertFile>sample.crt</SSLCertFile>
               <SSLRootCertFile>sampleRoot.pem</SSLRootCertFile>
           </properties>
-          <commandline>
-              <command>
-                 <commandname>webserver</commandname>
-                 <help>The webserver command launches a local web server</help>
-              </command>
-              <command>
-                 <commandname>openbrowser</commandname>
-                 <help>The openbrowser command launches default web browser</help>
-              </command>
-         </commandline>
         </WebServer>                                 
         <CodeDocsProcessor>
            <filename>CodeDocsProcessor.dll</filename>

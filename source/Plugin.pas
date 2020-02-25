@@ -117,7 +117,7 @@ type
     function PostProcessor(aProjectItem: tObject; var aTemplate: tTemplate; aTemplateFile: String; var aOutputFilename: string): TPluginReturn; virtual;
     function Convert(aProjectItem: tObject;aInputFilename: string; var aOutputFilename: string): TPluginReturn; virtual;
     function ParseConvertParameters(aParameters, aInputFilename, aOutputFilename: string): string;
-    function RunCaptureCommand(const aCommandLine: string; var aOutput: String): Integer;
+    function RunCommandCapture(const aCommandLine: string; var aOutput: String): Integer;
     function Delete(const aFilename: String): Boolean;
 
     property oConfigPlugin: tConfigPlugin
@@ -462,7 +462,7 @@ begin
   End;
 end;
 
-function TProcessorItem.RunCaptureCommand(const aCommandLine: string;
+function TProcessorItem.RunCommandCapture(const aCommandLine: string;
   var aOutput: String): Integer;
 Var
   loShell: TNovusShell;
@@ -471,7 +471,7 @@ begin
     Try
       loShell := TNovusShell.Create;
 
-      Result := loShell.RunCaptureCommand(aCommandLine, aOutput);
+      Result := loShell.RunCommandCapture(aCommandLine, aOutput);
 
     Except
       foOutput.InternalError;

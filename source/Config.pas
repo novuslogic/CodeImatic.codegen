@@ -4,16 +4,19 @@ interface
 
 Uses SysUtils, NovusXMLBO, Registry, Windows, NovusStringUtils, NovusFileUtils,
      JvSimpleXml, NovusSimpleXML, NovusList, ConfigProperties, NovusEnvironment,
-     Classes, VariablesCmdLine;
+     Classes, VariablesCmdLine, CommandLine, NovusCommandLine;
 
 
 Const
   csOutputFile = 'codeimatic.codegen.log';
   csConfigfile = 'codeimatic.codegen.config';
+  csConfigfileversion = 'codeimatic.codegen1.0';
+
 
 Type
    TConfigPlugin = class(Tobject)
    private
+
      fsPluginName: String;
      fsPluginFilename: string;
      fsPluginFilenamePathname: String;
@@ -38,31 +41,46 @@ Type
      property oConfigProperties: tConfigProperties
        read foConfigProperties
        write foConfigProperties;
+
+
    end;
 
 
    TConfig = Class(TNovusXMLBO)
    protected
-      fbConsoleOutputOnly: Boolean;
-      fsOutputlogFilename: string;
-      fsVarCmdLine: String;
-      fVariablesCmdLine: tVariablesCmdLine;
-      fConfigPluginList: tNovusList;
-      fsDBSchemaFileName: String;
-      fsProjectConfigFileName: String;
-      fsProjectFileName: String;
-      fsRootPath: String;
-      fsLanguagesPath: String;
-      fsConfigfile: string;
-      fsworkingdirectory: String;
+     fiExitCode: integer;
+     fbErrors: Boolean;
+     fErrorMessages: TStringlist;
+     fbConsoleOutputOnly: Boolean;
+     fsOutputlogFilename: string;
+     fsVarCmdLine: String;
+     fVariablesCmdLine: tVariablesCmdLine;
+     fConfigPluginList: tNovusList;
+     fsDBSchemaFileName: String;
+     fsProjectConfigFileName: String;
+     fsProjectFileName: String;
+     fsRootPath: String;
+     fsLanguagesPath: String;
+     fsConfigfile: string;
+     fsworkingdirectory: String;
+
+
+     function GetExitCode: integer;
+     procedure SetExitCode(Value: integer);
+     function GetErrors: Boolean;
+     procedure SetErrors(Value: Boolean);
+     function GetErrorMessages: TStringlist;
+     procedure SetErrorMessages(Value: TStringlist);
    private
    public
      constructor Create; virtual; // override;
      destructor  Destroy; override;
 
-     function LoadConfig: Integer;
+     function LoadConfig(aCommandLineResult: INovusCommandLineResult): Integer;
 
-     function ParseParams: Boolean;
+     //function ParseParams: Boolean;
+
+     procedure AddError(aErrorMessage: string; aExitCode: integer = 0);
 
      property ProjectFileName: String
        read fsProjectFileName
@@ -107,6 +125,11 @@ Type
      property workingdirectory: String
        read fsworkingdirectory
        write fsworkingdirectory;
+
+     property ExitCode: Integer read GetExitCode write SetExitCode;
+     property Errors: Boolean read GetErrors write SetErrors;
+     property ErrorMessages: TStringlist read GetErrorMessages
+        write SetErrorMessages;
    End;
 
 Var
@@ -121,10 +144,14 @@ begin
   fVariablesCmdLine:= tVariablesCmdLine.Create(NIL);
 
   fConfigPluginList := tNovusList.Create(TConfigPlugin);
+
+  fErrorMessages:= TStringlist.Create;
 end;
 
 destructor TConfig.Destroy;
 begin
+  fErrorMessages.Free;
+
   fConfigPluginList.Free;
 
   fVariablesCmdLine.Free;
@@ -132,6 +159,7 @@ begin
   inherited Destroy;
 end;
 
+{
 function TConfig.ParseParams: Boolean;
 Var
   I: integer;
@@ -155,20 +183,6 @@ begin
     end
   else Result := false;
 
-  (*
-  if FindCmdLineSwitch('projectconfig', true) then
-    begin
-      FindCmdLineSwitch('projectconfig', fsProjectConfigFileName, True, [clstValueNextParam, clstValueAppended]);
-
-      if Not FileExists(fsProjectConfigFileName) then
-        begin
-          writeln ('-projectconfig ' + TNovusStringUtils.JustFilename(fsProjectConfigFileName) + ' projectconfig filename cannot be found.');
-
-          Result := False;
-        end;
-    end
-  else Result := False;
-  *)
 
   if FindCmdLineSwitch('outputlog', true) then
     FindCmdLineSwitch('outputlog', fsOutputlogFilename, True, [clstValueNextParam, clstValueAppended]);
@@ -198,12 +212,19 @@ begin
 
   if Result = True then
      begin
+
+
+
       if FindCmdLineSwitch('var', true) then
         begin
           FindCmdLineSwitch('var', fsVarCmdLine, True, [clstValueNextParam, clstValueAppended]);
 
           Result := fVariablesCmdLine.AddVarCmdLine(fsVarCmdLine);
         end;
+
+
+
+
      end;
 
   if Result = false then
@@ -216,16 +237,25 @@ begin
       //
     end;
 end;
+}
 
-function  TConfig.LoadConfig: Integer;
+function  TConfig.LoadConfig(aCommandLineResult
+  : INovusCommandLineResult): Integer;
 Var
+  fPluginCommandLine,
+  fPluginCommand,
   fPluginProperties,
-  fPluginElem,
-  fPluginsElem: TJvSimpleXmlElem;
-  i, Index: Integer;
+  fPluginFilename,
+  fPluginCommandName,
+  fPluginHelp,
+  fPlugins: TJvSimpleXmlElem;
+  i, Index, SubIndex: Integer;
   fsPluginName,
   fsPluginFilename: String;
   loConfigPlugin: TConfigPlugin;
+  fsCommandName: string;
+  fsHelp: string;
+  fConfigElem: TJvSimpleXmlElem;
 begin
   Result := 0;
 
@@ -240,34 +270,123 @@ begin
       Retrieve;
 
       Index := 0;
-      fPluginsElem  := TNovusSimpleXML.FindNode(oXMLDocument.Root, 'plugins', Index);
-      if Assigned(fPluginsElem) then
-         begin
-           For I := 0 to fPluginsElem.Items.count -1 do
-             begin
-               fsPluginName := fPluginsElem.Items[i].Name;
+      fConfigElem := TNovusSimpleXML.FindNode(oXMLDocument.Root, 'config', Index);
+      if assigned(fConfigElem) then
+        begin
+          if TNovusSimpleXML.HasProperties(fConfigElem, 'version') = csConfigfileversion then
+            begin
+              Index := 0;
+              fPlugins  := TNovusSimpleXML.FindNode(oXMLDocument.Root, 'plugins', Index);
+              if Assigned(fPlugins) then
+                 begin
+                   For I := 0 to fPlugins.Items.count -1 do
+                     begin
+                       fsPluginName := fPlugins.Items[i].Name;
 
-               Index := 0;
-               fsPluginFilename := '';
-               fPluginElem := TNovusSimpleXML.FindNode(fPluginsElem.Items[i], 'filename', Index);
-               if Assigned(fPluginElem) then
-                 fsPluginFilename := fPluginElem.Value;
+                       Index := 0;
+                       fsPluginFilename := '';
+                       fPluginFilename := TNovusSimpleXML.FindNode(fPlugins.Items[i], 'filename', Index);
+                       if Assigned(fPluginFilename) then
+                         fsPluginFilename := fPluginFilename.Value;
 
-               Index := 0;
-               fPluginProperties := TNovusSimpleXML.FindNode(fPluginsElem.Items[i], 'properties', Index);
-               loConfigPlugin := TConfigPlugin.Create(fPluginProperties);
+                       Index := 0;
+                       fPluginProperties := TNovusSimpleXML.FindNode(fPlugins.Items[i], 'properties', Index);
+                       loConfigPlugin := TConfigPlugin.Create(fPluginProperties);
 
-               loConfigPlugin.PluginName := fsPluginName;
-               loConfigPlugin.Pluginfilename := fsPluginfilename;
-               loConfigPlugin.PluginFilenamePathname := rootpath + 'plugins\'+ fsPluginfilename;
+                       loConfigPlugin.PluginName := fsPluginName;
+                       loConfigPlugin.Pluginfilename := fsPluginfilename;
+                       loConfigPlugin.PluginFilenamePathname := rootpath + 'plugins\'+ fsPluginfilename;
+
+                       Index := 0;
+                       fPluginCommandLine := TNovusSimpleXML.FindNode(fPlugins.Items[i], 'commandline', Index);
+                       if Assigned(fPluginCommandLine) then
+                         begin
+
+                           Index := 0;
+                           fPluginCommand := TNovusSimpleXML.FindNode(fPluginCommandLine, 'command', Index);
+                           While(fPluginCommand <> NIL) do
+                             begin
+                               if Assigned(fPluginCommand) then
+                                 begin
+                                   SubIndex :=0;
+                                   fPluginCommandName := TNovusSimpleXML.FindNode(fPluginCommand, 'commandname', SubIndex);
+                                   if Assigned(fPluginCommandName) then
+                                     fsCommandName := fPluginCommandName.Value;
+
+                                   SubIndex :=0;
+                                   fPluginHelp := TNovusSimpleXML.FindNode(fPluginCommand, 'help', SubIndex);
+                                   if Assigned(fPluginHelp) then
+                                     fsHelp := fPluginHelp.Value;
 
 
-               fConfigPluginList.Add(loConfigPlugin);
-             end;
-         end;
+                                   fPluginCommand := TNovusSimpleXML.FindNode(fPluginCommandLine, 'command', Index);
+                                 end;
+                             end;
+
+                         end;
+
+                      fConfigPluginList.Add(loConfigPlugin);
+                     end;
+               end;
+            end
+          else
+            begin
+              aCommandLineResult.AddError(csConfigfile + ' is the wrong config file version [ '+ csConfigfileversion  + ']');
+              aCommandLineResult.ExitCode := -1001;
+              Result := aCommandLineResult.ExitCode;
+            end;
+        end
+      else
+        begin
+          aCommandLineResult.AddError(csConfigfile + ' not a config file.', -1000);
+          aCommandLineResult.ExitCode := -1000;
+          Result := aCommandLineResult.ExitCode;
+        end;
+    end
+  else
+    begin
+      aCommandLineResult.AddError(csConfigfile + ' not a config file.', -1000);
+      aCommandLineResult.ExitCode := -1000;
+      Result := aCommandLineResult.ExitCode;
     end;
 end;
 
+procedure TConfig.AddError(aErrorMessage: string; aExitCode: integer = 0);
+begin
+  fiExitCode := aExitCode;
+  fbErrors := true;
+  fErrorMessages.Add(aErrorMessage)
+end;
+
+function TConfig.GetErrors: Boolean;
+begin
+  result := fbErrors;
+end;
+
+procedure TConfig.SetErrors(Value: Boolean);
+begin
+  fbErrors := Value;
+end;
+
+function TConfig.GetExitCode: integer;
+begin
+  result := fiExitCode;
+end;
+
+procedure TConfig.SetExitCode(Value: integer);
+begin
+  fiExitCode := Value;
+end;
+
+function TConfig.GetErrorMessages: TStringlist;
+begin
+  result := fErrorMessages;
+end;
+
+procedure TConfig.SetErrorMessages(Value: TStringlist);
+begin
+  fErrorMessages := Value;
+end;
 
 constructor TConfigPlugin.Create;
 begin

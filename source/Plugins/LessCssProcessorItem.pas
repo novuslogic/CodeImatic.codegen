@@ -75,7 +75,7 @@ begin
 
       oOutput.LogFormat('Running: %s', [lsCommandLine]);
 
-      liExitCode := RunCaptureCommand(lsCommandLine, lsOutput);
+      liExitCode := RunCommandCapture(lsCommandLine, lsOutput);
 
       oOutput.Log(lsoutput);
       if liExitCode = 0 then Result := PRPassed
