@@ -7,7 +7,7 @@ Type
     ttUnknown, ttplugintag, ttprojectitem, ttPropertyEx, ttConfigProperties,
     ttVariableCmdLine, ttlayout, ttRenderBodyTag, ttCodebehine,
     ttOpenToken, ttCloseToken, ttrepeat, ttendrepeat, ttcode, ttif, ttendif, ttlog, ttComment,
-    ttPropertyVariable, ttVariable, ttText);
+    ttPropertyVariable, ttVariable, ttText, ttWorkingDirectory);
 
   function IsInterpreterTagType(aTagType: tTagType): Boolean;
 

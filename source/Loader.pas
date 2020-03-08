@@ -92,7 +92,7 @@ begin
   Result := tNovusEnvironment.ParseGetEnvironmentVar
     (aValue, ETTToken2);
 
-  Result :=  tNovusEnvironment.ParseGetEnvironmentVar(result, ETTToken1);
+  //Result :=  tNovusEnvironment.ParseGetEnvironmentVar(result, ETTToken1);
 end;
 
 function TLoader.GetNode(aNodeLoader: TNodeLoader; aNodeName: String; aIndexPos: integer): TNodeLoader;

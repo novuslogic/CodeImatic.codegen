@@ -74,6 +74,11 @@ begin
 
   oConfig.workingdirectory := '';
 
+
+  fNovusCommandLineResultOption := aCommandLineResult.FindFirstCommandwithOption(clOutputlog);
+  if Assigned(fNovusCommandLineResultOption) then
+    oConfig.OutputlogFilename := fNovusCommandLineResultOption.Value;
+
   fNovusCommandLineResultOption := aCommandLineResult.FindFirstCommandwithOption(clworkingdirectory);
   if Assigned(fNovusCommandLineResultOption) then
     oConfig.workingdirectory := fNovusCommandLineResultOption.Value;
@@ -154,21 +159,7 @@ begin
 
          fNovusCommandLineResultCommand := fNovusCommandLineResultCommands.NextCommand;
         end;
-
-
-
-
-
-
-
-
-
     end;
-
-
-
-
-
 
   if Not oConfig.Consoleoutputonly then
   begin

@@ -146,6 +146,8 @@ begin
   fConfigPluginList := tNovusList.Create(TConfigPlugin);
 
   fErrorMessages:= TStringlist.Create;
+
+  fsOutputlogFilename := csOutputFile;
 end;
 
 destructor TConfig.Destroy;

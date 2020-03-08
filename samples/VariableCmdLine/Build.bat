@@ -1,4 +1,4 @@
-call CodeImatic.codegen.exe -project VariableCmdLine.ccproject -projectconfig VariableCmdLine.ccpconfig -var VAR1="TEST1";VAR2="TEST2"
+call CodeImatic.codegen.exe -project VariableCmdLine.ccproject -var VAR1="TEST1" -var VAR2="TEST2"
 
 pause 
 

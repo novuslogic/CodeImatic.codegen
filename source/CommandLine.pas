@@ -10,6 +10,7 @@ const
   clproject = 'project';
   clconsoleoutputonly = 'consoleoutputonly';
   clvar = 'var';
+  clOutputlog = 'outputlog';
 
 
 type
@@ -32,6 +33,19 @@ type
   public
     constructor Create; override;
     function Execute: boolean; override;
+  end;
+
+  tOutputlogCommand = class(tNovusCommandLineCommand)
+  protected
+  private
+    fsOutputlogFilename: string;
+  public
+    constructor Create; override;
+    function Execute: boolean; override;
+
+    property OutputlogFilename: string
+      read fsOutputlogFilename
+      write fsOutputlogFilename;
   end;
 
 
@@ -76,6 +90,8 @@ type
 
 
 implementation
+
+Uses Config;
 
 // tPeojectCommand
 constructor tprojectCommand.Create;
@@ -158,6 +174,34 @@ begin
 
 end;
 
+// tOutputlogCommand
+constructor tOutputlogCommand.Create;
+begin
+  inherited;
+
+  fsOutputlogFilename := csOutputFile;
+
+  RegisterOption(clOutputlog, '', false, NIL);
+end;
+
+function tOutputlogCommand.Execute: boolean;
+var
+  fOutputlogOption: INovusCommandLineOption;
+begin
+  result := false;
+
+  fOutputlogOption := FindOptionByName(clOutputlog);
+
+  if Assigned(fOutputlogOption) then
+    begin
+      result := true;
+
+      OutputlogFilename := fOutputlogOption.Value;
+    end;
+
+
+end;
+
 // TVarCoomand
 constructor tVarCommand.Create;
 begin
@@ -202,6 +246,10 @@ begin
 
   tCommandLine.RegisterCommand('help', 'h', 'Usage : codeimatic.codegen -help [command]', false,
     tHelpCommand.Create);
+
+  tCommandLine.RegisterCommand(clvar, 'o', 'Usage : codeimatic.codegen -outputlog [outputlogfilename]', false,
+    tOutputlogCommand.Create);
+
 
 end;
 

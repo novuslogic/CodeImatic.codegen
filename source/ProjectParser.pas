@@ -33,9 +33,12 @@ var
 begin
   Result := '';
 
-
   if aItemName= '' then Exit;
 
+
+  loTemplate := NIL;
+  lTokens := NIL;
+  lEParser := NIL;
 
   Try
 
@@ -63,6 +66,21 @@ begin
          FTagType := TTagParser.ParseTagType(NIL, NIL,lTokens, aOutput, 0);
 
          case FtagType of
+           ttworkingdirectory:
+             begin
+               FTemplateTag.TagValue := aProject.GetWorkingDirectory;
+
+
+
+
+
+             end;
+
+
+
+            // ;
+
+
            ttVariableCmdLine:
               begin
                 lsToken1 := lTokens.GetFirstToken;
@@ -83,16 +101,14 @@ begin
 
     Result := Trim(loTemplate.OutputDoc.Text);
   Finally
-    loTemplate.Free;
-    lTokens.Free;
-    lEParser.Free;
+    if Assigned(loTemplate) then loTemplate.Free;
+    if assigned(lTokens) then lTokens.Free;
+    if assigned(lEParser) then lEParser.Free;
   End;
-
-
 
   Result :=  tNovusEnvironment.ParseGetEnvironmentVar(Result,ETTToken2 );
 
-  Result :=  tNovusEnvironment.ParseGetEnvironmentVar(Result, ETTToken1);
+  //Result :=  tNovusEnvironment.ParseGetEnvironmentVar(Result, ETTToken1);
 
 end;
 

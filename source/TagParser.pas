@@ -271,6 +271,8 @@ begin
       result := ttLog
     else if Uppercase(lsToken1) = 'REM' then
       result := ttComment
+    else if Uppercase(lsToken1) = 'WORKINGDIRECTORY' then
+      result := ttWorkingDirectory
     else if ((lsToken = '<') and (aTokenIndex = 0)) then
       result := ttOpenToken
     else if ((lsToken = '>') and (EOF = true)) then

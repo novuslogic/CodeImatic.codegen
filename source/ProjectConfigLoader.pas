@@ -164,24 +164,27 @@ function tProjectConfigLoader.Getproperties(aPropertyName: string): String;
 Var
   FPropertiesNodeLoader,
   FNodeLoader: TNodeLoader;
+  lsItemName: string;
 begin
   Result := '';
   if Trim(aPropertyName) = '' then
     Exit;
+  Try
+    lsItemName := '';
 
-  FPropertiesNodeLoader := GetNode(FoRootNodeLoader, 'properties');
-  if FPropertiesNodeLoader.IsExists then
-    begin
-      FNodeLoader := GetNode(FPropertiesNodeLoader , aPropertyName);
-      if FNodeLoader.IsExists then
-         Result := GetValue(FNodeLoader.Value)
-    end;
+    FPropertiesNodeLoader := GetNode(FoRootNodeLoader, 'properties');
+    if FPropertiesNodeLoader.IsExists then
+      begin
+        FNodeLoader := GetNode(FPropertiesNodeLoader , aPropertyName);
+        if FNodeLoader.IsExists then
+           lsItemName := GetValue(FNodeLoader.Value)
+      end;
 
 
-  Result :=   tProjectParser.ParseProject(GetValue(FNodeLoader.Value),  (foProject as TProject), foOutput);
-
-  // Result := GetValue(FNodeLoader.Value);
-
+    Result :=   tProjectParser.ParseProject(lsItemName,  (foProject as TProject), foOutput);
+  Except
+    Self.foOutput.InternalError;
+  End;
 end;
 
 function tProjectConfigLoader.IspropertyExists(aPropertyName: String): boolean;
