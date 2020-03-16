@@ -150,6 +150,7 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="rtl.dcp"/>
+        <DCCReference Include="NovusCodeLibrary_Utils.dcp"/>
         <DCCReference Include="NovusCodeLibrary_Core.dcp"/>
         <DCCReference Include="NovusCodeLibrary_Log.dcp"/>
         <DCCReference Include="NovusCodeLibrary_XML.dcp"/>

@@ -69,17 +69,7 @@ begin
            ttworkingdirectory:
              begin
                FTemplateTag.TagValue := aProject.GetWorkingDirectory;
-
-
-
-
-
              end;
-
-
-
-            // ;
-
 
            ttVariableCmdLine:
               begin

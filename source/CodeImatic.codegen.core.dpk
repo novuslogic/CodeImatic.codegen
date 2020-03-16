@@ -31,6 +31,7 @@ package CodeImatic.codegen.core;
 
 requires
   rtl,
+  NovusCodeLibrary_Utils,
   NovusCodeLibrary_Core,
   NovusCodeLibrary_Log,
   NovusCodeLibrary_XML,

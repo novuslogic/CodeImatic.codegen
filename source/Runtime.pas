@@ -5,7 +5,7 @@ interface
 
 uses
   SysUtils, Classes, NovusTemplate, Config, NovusFileUtils,
-  Properties, NovusStringUtils, Snippits, Plugins, ScriptEngine,
+  Properties, NovusStringUtils, Snippits, Plugins, ScriptEngine,  dialogs,
   NovusCommandLine,
   CodeGenerator, Output, NovusVersionUtils, Project, ProjectItem, CommandLine;
 
@@ -19,7 +19,7 @@ type
     foProject: tProject;
     foScriptEngine: tScriptEngine;
   public
-    function RunEnvironment(aCommandLineResult
+    function Execute(aCommandLineResult
       : INovusCommandLineResult): Integer;
 
     function GetVersion(aIndex: Integer): string;
@@ -59,7 +59,7 @@ begin
   End;
 end;
 
-function tRuntime.RunEnvironment(aCommandLineResult
+function tRuntime.Execute(aCommandLineResult
   : INovusCommandLineResult): Integer;
 Var
   liIndex, I, x: Integer;
@@ -116,25 +116,8 @@ begin
   fNovusCommandLineResultCommand := aCommandLineResult.FindFirstCommand(clConsoleoutputonly);
   if Assigned(fNovusCommandLineResultCommand) then
     oConfig.Consoleoutputonly := fNovusCommandLineResultCommand.IsCommandOnly;
+  foOutput.Consoleoutputonly := oConfig.Consoleoutputonly;
 
-
-  foProject := tProject.Create(foOutput);
-
-  oConfig.ProjectFileName := '';
-  fNovusCommandLineResultOption := aCommandLineResult.FindFirstCommandwithOption(clproject);
-  if Assigned(fNovusCommandLineResultOption) then
-    oConfig.ProjectFileName := fNovusCommandLineResultOption.Value;
-
-  foProject.LoadProjectFile(oConfig.ProjectFileName, foOutput,
-    fsworkingdirectory);
-
-  if foProject.oProjectConfigLoader.Load then
-    foOutput.InitLog(tProjectParser.ParseProject(foProject.BasePath, foProject,
-      foOutput) + oConfig.OutputlogFilename, foProject.OutputConsole,
-      oConfig.Consoleoutputonly)
-  else
-    foOutput.InitLog(foProject.BasePath + oConfig.OutputlogFilename,
-      foProject.OutputConsole, oConfig.Consoleoutputonly);
 
   // var
   fNovusCommandLineResultCommands:= aCommandLineResult.Commands.GetCommands(clvar);
@@ -161,6 +144,27 @@ begin
         end;
     end;
 
+
+  foProject := tProject.Create(foOutput);
+
+  oConfig.ProjectFileName := '';
+  fNovusCommandLineResultOption := aCommandLineResult.FindFirstCommandwithOption(clproject);
+  if Assigned(fNovusCommandLineResultOption) then
+    oConfig.ProjectFileName := fNovusCommandLineResultOption.Value;
+
+  foProject.LoadProjectFile(oConfig.ProjectFileName, foOutput,
+    fsworkingdirectory);
+
+  if foProject.oProjectConfigLoader.Load then
+    foOutput.InitLog(tProjectParser.ParseProject(foProject.BasePath, foProject,
+      foOutput) + oConfig.OutputlogFilename, foProject.OutputConsole,
+      oConfig.Consoleoutputonly)
+  else
+    foOutput.InitLog(foProject.BasePath + oConfig.OutputlogFilename,
+      foProject.OutputConsole, oConfig.Consoleoutputonly);
+
+
+
   if Not oConfig.Consoleoutputonly then
   begin
     if not foOutput.OpenLog then
@@ -179,7 +183,7 @@ begin
   end;
 
 
-  foOutput.WriteLog('Logging started');
+  foOutput.Log('Logging started');
 
   foOutput.Log(GetVersionCopyright);
   foOutput.Log('Version: ' + GetVersion(0));
@@ -263,7 +267,7 @@ begin
   begin
     foOutput.CloseLog;
 
-    foOutput.WriteLog('Logging finished');
+    foOutput.Log('Logging finished');
   end;
 
   foOutput.Free;

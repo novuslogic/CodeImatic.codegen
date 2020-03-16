@@ -1,3 +1,7 @@
+16/08/2020
+
+* New Project tag [%workingdirectory%] Current working directory
+
 9/3/2020
 
   * reintroduced command line -outputlog 

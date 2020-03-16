@@ -188,7 +188,7 @@ begin
   end;
   PStart := Stack.Count - 1;
 
-  oRuntime.oOutput.WriteLog(Stack.GetString(PStart));
+  oRuntime.oOutput.Log(Stack.GetString(PStart));
 
   Result := True;
 end;

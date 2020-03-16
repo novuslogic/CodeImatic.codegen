@@ -58,7 +58,7 @@ begin
           ExitCode := oConfig.LoadConfig(FComandLineResult);
           if ExitCode = 0 then
             begin
-              ExitCode := oruntime.RunEnvironment(FComandLineResult);
+              ExitCode := oruntime.Execute(FComandLineResult);
 
               if (FComandLineResult.Errors) then
                 begin
