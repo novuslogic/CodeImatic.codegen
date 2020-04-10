@@ -1,4 +1,8 @@
-16/08/2020
+21/03/2020
+
+* Upgrade to NovuscodeLibrary new NovusObject Package
+
+16/03/2020
 
 * New Project tag [%workingdirectory%] Current working directory
 

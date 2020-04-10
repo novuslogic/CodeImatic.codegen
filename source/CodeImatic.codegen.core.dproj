@@ -151,12 +151,14 @@
         </DelphiCompile>
         <DCCReference Include="rtl.dcp"/>
         <DCCReference Include="NovusCodeLibrary_Utils.dcp"/>
-        <DCCReference Include="NovusCodeLibrary_Core.dcp"/>
+        <DCCReference Include="NovusCodeLibrary_Object.dcp"/>
         <DCCReference Include="NovusCodeLibrary_Log.dcp"/>
         <DCCReference Include="NovusCodeLibrary_XML.dcp"/>
         <DCCReference Include="NovusCodeLibrary_Parser.dcp"/>
         <DCCReference Include="NovusCodeLibrary_Plugin.dcp"/>
         <DCCReference Include="NovusCodeLibrary_Env.dcp"/>
+        <DCCReference Include="NovusCodeLibrary_WebUtils.dcp"/>
+        <DCCReference Include="NovusCodeLibrary_Indy.dcp"/>
         <DCCReference Include="NovusCodeLibrary_Console.dcp"/>
         <DCCReference Include="Plugin.pas"/>
         <DCCReference Include="Output.pas"/>

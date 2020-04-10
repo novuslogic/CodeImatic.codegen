@@ -171,6 +171,8 @@ function TCodeDocsTag_WrapText.Execute(aProjectItem: tProjectItem;aTagName: stri
 var
   LFunctionParser: tFunctionParser;
 begin
+  LFunctionParser := NIL;
+
   Try
     Try
       Self.oVariables := tProjectItem(aProjectItem).oVariables;
@@ -182,7 +184,8 @@ begin
 
       Result := LFunctionParser.Execute;
     Finally
-      LFunctionParser.Free;
+      if Assigned(LFunctionParser) then
+        LFunctionParser.Free;
     End;
   Except
     oOutput.InternalError;
