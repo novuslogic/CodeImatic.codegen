@@ -1,3 +1,7 @@
+06/05/2020
+
+* Upgrade FastMM4 to FastMM5
+
 21/03/2020
 
 * Upgrade to NovuscodeLibrary new NovusObject Package

@@ -1,7 +1,7 @@
 library SQLDir;
 
 uses
-  FastMM4,
+ // FastMM4,
   System.SysUtils,
   System.Classes,
   Plugin_SQLDirClasses in 'Plugin_SQLDirClasses.pas';

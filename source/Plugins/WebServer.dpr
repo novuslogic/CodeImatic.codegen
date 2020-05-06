@@ -1,11 +1,11 @@
-{$define ShareMM}
-{$define ShareMMIfLibrary}
-{$define AttemptToUseSharedMM}
+{.$define ShareMM}
+{.$define ShareMMIfLibrary}
+{.$define AttemptToUseSharedMM}
 
 library WebServer;
 
 uses
-  FastMM4,
+ // FastMM4,
   System.SysUtils,
   System.Classes,
   Plugin_WebServerClasses in 'Plugin_WebServerClasses.pas',

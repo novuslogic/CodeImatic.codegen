@@ -4,7 +4,7 @@
 library DBTags;
 
 uses
-  FastMM4,
+ // FastMM4,
   System.SysUtils,
   System.Classes,
   Plugin_DBTagsClasses in 'Plugin_DBTagsClasses.pas',

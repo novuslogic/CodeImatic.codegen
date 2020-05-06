@@ -1,10 +1,10 @@
-{$define ShareMM}
-{$define ShareMMIfLibrary}
-{$define AttemptToUseSharedMM}
+{.$define ShareMM}
+{.$define ShareMMIfLibrary}
+{.$define AttemptToUseSharedMM}
 library WebProcessor;
 
 uses
-  FastMM4,
+//  FastMM4,
   System.SysUtils,
   System.Classes,
   Plugin_WebProcessorClasses in 'Plugin_WebProcessorClasses.pas',

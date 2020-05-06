@@ -267,10 +267,9 @@
         <Debugger_CWD>D:\Projects\CodeImatic.build\samples\Codegen</Debugger_CWD>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_IncludeVerInfo>false</VerInfo_IncludeVerInfo>
-        <VerInfo_Keys>CompanyName=;FileVersion=1.0.0.951;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName);FileDescription=$(MSBuildProjectName);ProductName=$(MSBuildProjectName)</VerInfo_Keys>
-        <VerInfo_Build>951</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=;FileVersion=1.0.0.970;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName);FileDescription=$(MSBuildProjectName);ProductName=$(MSBuildProjectName)</VerInfo_Keys>
+        <VerInfo_Build>970</VerInfo_Build>
         <Debugger_RunParams>-project test.ccproject -var VAR1=TEST1 -var VAR2=TEST2 -consoleoutputonly</Debugger_RunParams>
-        <Debugger_DebugSourcePath>D:\Projects\NovuscodeLibrary\Source\Core\Utilities\;$(Debugger_DebugSourcePath)</Debugger_DebugSourcePath>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">

@@ -1,10 +1,10 @@
-{$define ShareMM}
-{$define ShareMMIfLibrary}
-{$define AttemptToUseSharedMM}
+{.$define ShareMM}
+{.$define ShareMMIfLibrary}
+{.$define AttemptToUseSharedMM}
 library SystemExt;
 
 uses
-  FastMM4,
+//  FastMM4,
   System.SysUtils,
   System.Classes,
   Plugin_SystemExtClasses in 'Plugin_SystemExtClasses.pas';

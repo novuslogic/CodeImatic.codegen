@@ -6,7 +6,7 @@ program CodeImatic.codegen;
 {$R *.res}
 
 uses
-  FastMM4,
+  FastMM5,
   System.SysUtils,
   Config,
   output,
