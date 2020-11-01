@@ -3,7 +3,7 @@ unit Plugin;
 interface
 
 uses classes, Output, NovusPlugin, Project, config, NovusTemplate, uPSRuntime,
-  uPSCompiler, NovusList, SysUtils, JvSimpleXml, CodeGeneratorItem,
+  uPSCompiler, NovusList, SysUtils, JvSimpleXml, CodeGeneratorItem, NovusCommandLine,
   NovusShell, System.IoUtils, Loader, Template, DataProcessor, DB, TokenProcessor;
 
 type
@@ -24,7 +24,7 @@ type
 
     function BeforeCodeGen: boolean; virtual;
     function AfterCodeGen: boolean; virtual;
-    function IsCommandLine: boolean; virtual;
+    function IsCommandLine(aResultCommand: INovusCommandLineResultCommand): boolean; virtual;
 
     property oProject: tProject read foProject write foProject;
 
@@ -197,7 +197,7 @@ begin
   Result := True;
 end;
 
-function TPlugin.IsCommandLine: boolean;
+function TPlugin.IsCommandLine(aResultCommand: INovusCommandLineResultCommand): boolean;
 begin
   Result := True;
 end;

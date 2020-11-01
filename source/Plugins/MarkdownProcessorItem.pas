@@ -43,22 +43,23 @@ var
 begin
   aBlock.type_ := btNONE;
 
-  try
-    fTagParser := TTagParser.ParseTag(foProjectItem, foCodeGenerator,
-      aBlock.lines.value,  oOutput);
+  if Assigned(aBlock.lines) then
+    begin
+      try
+        fTagParser := TTagParser.ParseTag(foProjectItem, foCodeGenerator,
+          aBlock.lines.value,  oOutput);
 
-    if fTagParser.Execute then
-      begin
-       // if fTagParser.IsAnyDeleteLine then ;
+        if fTagParser.Execute then
+          begin
+           // if fTagParser.IsAnyDeleteLine then ;
+          end;
+
+
+
+      finally
+        fTagParser.Free;
       end;
-
-
-
-  finally
-    fTagParser.Free;
-  end;
-
-
+    end;
 end;
 
 function tMarkdownProcessorItem.PreProcessor(aProjectItem: tObject;
@@ -96,7 +97,7 @@ function tMarkdownProcessorItem.PostProcessor(aProjectItem: tObject;
   var aTemplate: tTemplate; aTemplateFile: String; var aOutputFilename: string)
   : TPluginReturn;
 begin
-   aOutputFilename := ChangeFileExt(aOutputFilename, '.' + outputextension);
+  aOutputFilename := ChangeFileExt(aOutputFilename, '.' + outputextension);
 
   oOutput.Log('New output:' + aOutputFilename);
 

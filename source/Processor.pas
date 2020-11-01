@@ -48,7 +48,7 @@ type
 
     destructor Destroy; override;
 
-    function Execute: boolean;
+    function Execute(aDolayout: boolean = false): boolean;
 
     property OutputFilename: String
       read fsOutputFilename
@@ -201,7 +201,7 @@ begin
     foProjectItem, foProcessorPlugin, fsInputFileName, fsSourceFileName);
 end;
 
-function TProcessor.Execute: boolean;
+function TProcessor.Execute(aDolayout: boolean = false): boolean;
 begin
    result := false;
 

@@ -2,7 +2,7 @@ unit Plugin_WebServerClasses;
 
 interface
 
-uses Classes,Plugin, NovusPlugin, NovusVersionUtils,Project,
+uses Classes,Plugin, NovusPlugin, NovusVersionUtils,Project, NovusCommandLine,
     Output, SysUtils, System.Generics.Defaults,  runtime, config, TagType,
     APIBase, IdBaseComponent, IdComponent, IdTCPServer, IdHTTPServer, StdCtrls,
     ExtCtrls, HTTPApp, Windows, {NovusConsoleUtils,} Plugin_WebServerEngine;
@@ -18,7 +18,7 @@ type
     constructor Create(aOutput: tOutput; aPluginName: String; aProject: TProject; aConfigPlugin: TConfigPlugin); override;
     destructor Destroy; override;
 
-    function IsCommandLine: boolean; override;
+    function IsCommandLine(aResultCommand: INovusCommandLineResultCommand): boolean; override;
     function BeforeCodeGen: boolean; override;
     function AfterCodeGen: boolean; override;
 
@@ -107,7 +107,7 @@ begin
     begin
       if oProject.OutputConsole = false then
         begin
-          oOutput.Log('Cannot run -WebServer with Project option of OutputConsole = false');
+          oOutput.Log('Cannot run webserver [runwerbserver] with Project option of OutputConsole = false');
 
           result := False;
         end
@@ -125,11 +125,27 @@ begin
     end;
 end;
 
-function tPlugin_WebServerBase.IsCommandLine: boolean;
+function tPlugin_WebServerBase.IsCommandLine(aResultCommand: INovusCommandLineResultCommand): boolean;
+Var
+  loResultOption: INovusCommandLineResultOption;
 begin
   Result := true;
 
-  if FindCmdLineSwitch('webserver', true) then
+  if Not Assigned(aResultCommand) then Exit;
+
+
+  loResultOption := aResultCommand.Options.FindOptionByName('command');
+  if Assigned(loResultOption) then
+    begin
+      if lowercase(Trim(loResultOption.Value)) =  'runwebserver' then
+        IsWebServer := true;
+
+
+    end;
+
+
+   (*
+  if FindCmdLineSwitch('runwebserver', true) then
      IsWebServer := true;
 
   if FindCmdLineSwitch('openbrowser', true) then
@@ -141,7 +157,7 @@ begin
             result := False;
           end;
 
-
+   *)
 
 end;
 

@@ -5,7 +5,7 @@ interface
 
 uses
   SysUtils, Classes, NovusTemplate, Config, NovusFileUtils,
-  Properties, NovusStringUtils, Snippits, Plugins, ScriptEngine,  dialogs,
+  Properties, NovusStringUtils, Snippits, Plugins, ScriptEngine, dialogs,
   NovusCommandLine,
   CodeGenerator, Output, NovusVersionUtils, Project, ProjectItem, CommandLine;
 
@@ -19,8 +19,7 @@ type
     foProject: tProject;
     foScriptEngine: tScriptEngine;
   public
-    function Execute(aCommandLineResult
-      : INovusCommandLineResult): Integer;
+    function Execute(aCommandLineResult: INovusCommandLineResult): Integer;
 
     function GetVersion(aIndex: Integer): string;
     function GetVersionCopyright: string;
@@ -59,8 +58,7 @@ begin
   End;
 end;
 
-function tRuntime.Execute(aCommandLineResult
-  : INovusCommandLineResult): Integer;
+function tRuntime.Execute(aCommandLineResult: INovusCommandLineResult): Integer;
 Var
   liIndex, I, x: Integer;
   FTemplateTag: TTemplateTag;
@@ -74,15 +72,15 @@ begin
 
   oConfig.workingdirectory := '';
 
-
-  fNovusCommandLineResultOption := aCommandLineResult.FindFirstCommandwithOption(clOutputlog);
+  fNovusCommandLineResultOption := aCommandLineResult.FindFirstCommandwithOption
+    (clOutputlog);
   if Assigned(fNovusCommandLineResultOption) then
     oConfig.OutputlogFilename := fNovusCommandLineResultOption.Value;
 
-  fNovusCommandLineResultOption := aCommandLineResult.FindFirstCommandwithOption(clworkingdirectory);
+  fNovusCommandLineResultOption := aCommandLineResult.FindFirstCommandwithOption
+    (clworkingdirectory);
   if Assigned(fNovusCommandLineResultOption) then
     oConfig.workingdirectory := fNovusCommandLineResultOption.Value;
-
 
   if Trim(oConfig.workingdirectory) = '' then
   begin
@@ -100,60 +98,77 @@ begin
     fsworkingdirectory := GetCurrentDir;
 
   if not DirectoryExists(fsworkingdirectory) then
-    begin
-      aCommandLineResult.ExitCode := -2;
+  begin
+    aCommandLineResult.ExitCode := -2;
 
-      Result := aCommandLineResult.ExitCode;
+    Result := aCommandLineResult.ExitCode;
 
-      aCommandLineResult.AddError('Workingdirectory cannot be found.');
+    aCommandLineResult.AddError('Workingdirectory cannot be found.');
 
-      Exit;
-    end;
+    Exit;
+  end;
 
   foOutput := tOutput.Create('');
 
   oConfig.Consoleoutputonly := false;
-  fNovusCommandLineResultCommand := aCommandLineResult.FindFirstCommand(clConsoleoutputonly);
+  fNovusCommandLineResultCommand := aCommandLineResult.FindFirstCommand
+    (clConsoleoutputonly);
   if Assigned(fNovusCommandLineResultCommand) then
     oConfig.Consoleoutputonly := fNovusCommandLineResultCommand.IsCommandOnly;
   foOutput.Consoleoutputonly := oConfig.Consoleoutputonly;
 
-
   // var
-  fNovusCommandLineResultCommands:= aCommandLineResult.Commands.GetCommands(clvar);
+  fNovusCommandLineResultCommands :=
+    aCommandLineResult.Commands.GetCommands(clvar);
   if Assigned(fNovusCommandLineResultCommands) then
+  begin
+    fNovusCommandLineResultCommand :=
+      fNovusCommandLineResultCommands.FirstCommand;
+    While (Assigned(fNovusCommandLineResultCommand)) do
     begin
-      fNovusCommandLineResultCommand := fNovusCommandLineResultCommands.FirstCommand;
-      While( Assigned(fNovusCommandLineResultCommand)) do
-        begin
-          if not oConfig.oVariablesCmdLine.AddVariableCmdLine(fNovusCommandLineResultCommand.Options.FirstOption.Value) then
-            begin
-              foProject.Free;
+      if not oConfig.oVariablesCmdLine.AddVariableCmdLine
+        (fNovusCommandLineResultCommand.Options.FirstOption.Value) then
+      begin
+        foProject.Free;
 
-              aCommandLineResult.ExitCode := -4;
+        aCommandLineResult.ExitCode := -4;
 
-              Result := aCommandLineResult.ExitCode;
+        Result := aCommandLineResult.ExitCode;
 
-              aCommandLineResult.AddError('Variable Command Line error [' + oConfig.oVariablesCmdLine.Error + ']');
+        aCommandLineResult.AddError('Variable Command Line error [' +
+          oConfig.oVariablesCmdLine.Error + ']');
 
-              Exit;
+        Exit;
 
-            end;
+      end;
 
-         fNovusCommandLineResultCommand := fNovusCommandLineResultCommands.NextCommand;
-        end;
+      fNovusCommandLineResultCommand :=
+        fNovusCommandLineResultCommands.NextCommand;
     end;
-
+  end;
 
   foProject := tProject.Create(foOutput);
 
   oConfig.ProjectFileName := '';
-  fNovusCommandLineResultOption := aCommandLineResult.FindFirstCommandwithOption(clproject);
+  fNovusCommandLineResultOption := aCommandLineResult.FindFirstCommandwithOption
+    (clproject);
   if Assigned(fNovusCommandLineResultOption) then
     oConfig.ProjectFileName := fNovusCommandLineResultOption.Value;
 
-  foProject.LoadProjectFile(oConfig.ProjectFileName, foOutput,
-    fsworkingdirectory);
+  If not foProject.LoadProjectFile(oConfig.ProjectFileName, foOutput,
+    fsworkingdirectory) then
+  begin
+    aCommandLineResult.AddError('Project [filename] cannot not be found [' +
+      oConfig.ProjectFileName + ']');
+
+    aCommandLineResult.ExitCode := -5;
+
+    if Assigned(foProject) then
+      foProject.Free;
+
+    Exit;
+
+  end;
 
   if foProject.oProjectConfigLoader.Load then
     foOutput.InitLog(tProjectParser.ParseProject(foProject.BasePath, foProject,
@@ -162,8 +177,6 @@ begin
   else
     foOutput.InitLog(foProject.BasePath + oConfig.OutputlogFilename,
       foProject.OutputConsole, oConfig.Consoleoutputonly);
-
-
 
   if Not oConfig.Consoleoutputonly then
   begin
@@ -175,13 +188,12 @@ begin
 
       Result := aCommandLineResult.ExitCode;
 
-      aCommandLineResult.AddError(foOutput.Filename + ' log file cannot be created.');
-
+      aCommandLineResult.AddError(foOutput.Filename +
+        ' log file cannot be created.');
 
       Exit;
     end;
   end;
-
 
   foOutput.Log('Logging started');
 
@@ -239,7 +251,10 @@ begin
   if not foPlugins.LoadDBSchemaFiles then
     Exit;
 
-  if not foPlugins.IsCommandLine then
+  fNovusCommandLineResultCommands := aCommandLineResult.Commands.GetCommands
+    (clplugin);
+
+  if not foPlugins.IsCommandLine(fNovusCommandLineResultCommands) then
     Exit;
 
   if not foPlugins.BeforeCodeGen then

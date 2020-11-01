@@ -1030,6 +1030,7 @@ Var
   liSkipPos: Integer;
   FOut: Boolean;
   fbIsIf: Boolean;
+  fsProperty: string;
 
   function GetToken: String;
   begin
@@ -1087,6 +1088,16 @@ begin
   If (GetToken = '=') and (fbIsIf = False) then
   begin
     lVariableI := oVariables.GetVariableByName(lsVariableName1);
+
+    if Not Assigned(lVariableI) then
+      begin
+        if (foProjectItem as TProjectItem).oProperties.IsPropertyExists(lsVariableName1) then
+          begin
+            fsProperty := (foProjectItem as TProjectItem).oProperties.GetProperty(lsVariableName1);
+
+            lVariableI := oVariables.AddVariable(lsVariableName1, fsProperty);
+          end;
+      end;
 
     if Not Assigned(lVariableI) then
     begin

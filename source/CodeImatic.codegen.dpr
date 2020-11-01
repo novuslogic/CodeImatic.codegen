@@ -23,12 +23,28 @@ uses
     FComandLineResult :  TNovusCommandLineResult;
 
 begin
+    FComandLineResult := NIL;
+
+
     Try
       TCommandLine.RegisterCommands;
 
       FComandLineResult := tCommandLine.Execute;
+      if (FComandLineResult.IsHelpCommand) and (FComandLineResult.Errors = false) then
+        begin
+          Writeln(oRuntime.GetVersionCopyright);
+          Writeln('');
+
+          if Trim(FComandLineResult.Help) = '' then
+                 Writeln('Usage : codeimatic.codegen [command] [options]')
+           else Writeln(FComandLineResult.Help);
+
+           ExitCode := FComandLineResult.ExitCode;
+        end
+      else
       if (FComandLineResult.Errors) and (FComandLineResult.IsCommandEmpty = false) then
       begin
+        Writeln(oRuntime.GetVersionCopyright);
         Writeln('');
         Writeln('Invalid options:');
 
@@ -46,7 +62,6 @@ begin
     if FComandLineResult.IsCommandEmpty then
       begin
         Writeln(oRuntime.GetVersionCopyright);
-        Writeln('Version: ' + oRuntime.GetVersion(0));
         Writeln('');
         Writeln('Usage : codeimatic.codegen [command] [options]');
 
@@ -63,7 +78,6 @@ begin
               if (FComandLineResult.Errors) then
                 begin
                   Writeln(oRuntime.GetVersionCopyright);
-                  Writeln('Version: ' + oRuntime.GetVersion(0));
                   Writeln('');
                   Writeln('Error:');
                   Writeln(FComandLineResult.ErrorMessages.Text);
@@ -72,7 +86,6 @@ begin
           else
              begin
                Writeln(oRuntime.GetVersionCopyright);
-               Writeln('Version: ' + oRuntime.GetVersion(0));
                Writeln('');
                Writeln('Config Error:');
 
@@ -81,7 +94,8 @@ begin
 
         end;
     Finally
-      FComandLineResult.Free;
+      if Assigned(FComandLineResult) then
+        FComandLineResult.Free;
     End;
 
 end.

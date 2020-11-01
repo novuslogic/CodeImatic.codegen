@@ -120,9 +120,9 @@ type
     foSourceFiles: tSourceFiles;
     foProject: tProject;
     foOutput: Toutput;
-    //foDBSchema: TDBSchema;
+
     foProperties: tProperties;
-   // foConnections: tConnections;
+
     fsItemName: String;
     fsItemFolder: String;
     fsOutputFile: String;
@@ -182,6 +182,8 @@ type
 
     property oVariables : tVariables read foVariables write foVariables;
 
+
+    property oOutput: tOutput read foOutput write foOutput;
   end;
 
 implementation
@@ -196,7 +198,7 @@ begin
   foOutput := aOutput;
 
 
-  foProperties := tProperties.Create;
+  foProperties := tProperties.Create(self);
 
   //foDBSchema := TDBSchema.Create;
 
@@ -263,8 +265,8 @@ begin
 
     if PropertiesFile <> '' then
     begin
-      foProperties.oProject := foProject;
-      foProperties.oOutput := foOutput;
+     // foProperties.oProject := foProject;
+     // foProperties.oOutput := foOutput;
       foProperties.XMLFileName := PropertiesFile;
       foProperties.Retrieve;
     end;
@@ -277,6 +279,8 @@ begin
      *)
     //foConnections := tConnections.Create(foOutput,
     //  foProject.oProjectConfig, Self);
+
+    self.oVariables.ClearVariables;
 
     case Self.ProjectItemType of
       pitItem:

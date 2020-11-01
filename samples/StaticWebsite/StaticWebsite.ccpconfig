@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<projectconfig>
-   <properties> 
-     <outputpath>D:\Projects\CodeImatic.codegen\samples\DBSchema\Output</outputpath>
-     <propertiespath>D:\Projects\CodeImatic.codegen\samples\DBSchema\Properties\</propertiespath>
-     <sourcepath>D:\Projects\CodeImatic.codegen\samples\DBSchema\Source\</sourcepath>
-   </properties>  
-</projectconfig>

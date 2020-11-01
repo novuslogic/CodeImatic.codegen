@@ -16,7 +16,6 @@ Const
 Type
    TConfigPlugin = class(Tobject)
    private
-
      fsPluginName: String;
      fsPluginFilename: string;
      fsPluginFilenamePathname: String;
@@ -41,8 +40,6 @@ Type
      property oConfigProperties: tConfigProperties
        read foConfigProperties
        write foConfigProperties;
-
-
    end;
 
 

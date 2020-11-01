@@ -1,4 +1,4 @@
-call CodeImatic.codegen.exe -project StaticWebsite.ccproject -projectconfig StaticWebsite.ccpconfig
+call CodeImatic.codegen.exe -project StaticWebsite.ccproject 
 
-pause 
+
 

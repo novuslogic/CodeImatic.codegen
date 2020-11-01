@@ -125,6 +125,9 @@
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
+        <Debugger_HostApplication>D:\Projects\CodeImatic.codegen\build\CodeImatic.codegen.exe</Debugger_HostApplication>
+        <Debugger_RunParams>-project FinityEngine.ccproject -plugin webserver runwebserver</Debugger_RunParams>
+        <Debugger_CWD>D:\Projects\FinityEngine\Website</Debugger_CWD>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>

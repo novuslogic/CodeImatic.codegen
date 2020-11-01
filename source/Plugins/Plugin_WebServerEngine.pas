@@ -42,6 +42,8 @@ Type
     function GetSSLKeyFile: string;
     function GetSSLCertFile: String;
     function GetSSLRootCertFile: String;
+    function Get404:string;
+
     function RunProjectItems: boolean;
   public
     constructor Create(aOutput: TOutput; aProject: tProject;
@@ -178,12 +180,12 @@ begin
 
         FHTTPServer.Active := true;
 
-        foOutput.Log('WebServer running ... press ctrl-c to stop | ctrl-r to refresh project.');
+        foOutput.Log('WebServer running ... press ctrl-s to stop | ctrl-r to refresh project. | ctrl-b open in default browser');
 
         Sleep(2000);
 
-        if fbIsOpenBrowser then
-          TNovusWebUtils.OpenDefaultWebBrowser(Address);
+        //if fbIsOpenBrowser then
+        //  TNovusWebUtils.OpenDefaultWebBrowser(Address);
 
         stdin := TNovusConsole.GetStdInputHandle;
 
@@ -204,16 +206,23 @@ begin
               begin
                 ch := TNovusConsole.GetAvailableChar(stdin);
 
+                if ch = #19 then
+                  break;
+
+                if ch = #02 then
+                  tNovusWebUtils.OpenDefaultWebBrowser(Address);
+
                 if ch = #18 then
                   begin
                     RunProjectItems;
 
-                    foOutput.Log('Press ctrl-c to stop | ctrl-r to refresh project.');
+                    foOutput.Log('WebServer running ... press ctrl-s to stop | ctrl-r to refresh project. | ctrl-b open in default browser');
                   end;
               end;
           end
           Else
             Sleep(20);
+
         Until false;
 
         FHTTPServer.Active := false;
@@ -275,9 +284,11 @@ begin
   else
   begin
     AResponseInfo.ResponseNo := 404;
-    AResponseInfo.ContentText :=
-      '<html><head><title>Error 404</title></head><body><h1>' +
-      AResponseInfo.ResponseText + '</h1></body></html>';
+
+    fContent := TIdReadFileExclusiveStream.Create(OutputPath  + Get404);
+
+    AResponseInfo.ContentStream := fContent;
+    AResponseInfo.ContentLength := fContent.Size;
   end;
 end;
 
@@ -352,6 +363,13 @@ begin
   Result := '';
   if foConfigPlugin.oConfigProperties.IsPropertyExists('SSLRootCertFile') then
     Result := foConfigPlugin.oConfigProperties.GetProperty('SSLRootCertFile');
+end;
+
+function TPlugin_WebServerEngine.Get404: String;
+begin
+  Result := '';
+  if foConfigPlugin.oConfigProperties.IsPropertyExists('404') then
+    Result := foConfigPlugin.oConfigProperties.GetProperty('404');
 end;
 
 function TPlugin_WebServerEngine.GetMIMEType(aURL: string): string;

@@ -3,7 +3,7 @@ unit Plugins;
 interface
 
 uses NovusPlugin, Config, Output, Classes, SysUtils, PluginsMapFactory, Plugin,
-  Project, ProjectItem,
+  Project, ProjectItem, NovusCommandLine,
   NovusTemplate, ScriptEngine, uPSRuntime, uPSCompiler, NovusFileUtils,
   CodeGeneratorItem, Loader, CodeGenerator, Template, TokenProcessor;
 
@@ -58,7 +58,7 @@ type
       aCodeGenerator: tCodeGenerator)
       : tProcessorItem;
 
-    function IsCommandLine: Boolean;
+    function IsCommandLine(aResultCommands: INovusCommandLineResultCommands): Boolean;
 
     function BeforeCodeGen: Boolean;
     function AfterCodeGen: Boolean;
@@ -250,10 +250,39 @@ begin
   end;
 end;
 
-function TPlugins.IsCommandLine: Boolean;
+function TPlugins.IsCommandLine(aResultCommands: INovusCommandLineResultCommands): Boolean;
 var
   loPlugin: TPlugin;
   I: Integer;
+
+  function FindPluginname(aPluginName: String): INovusCommandLineResultCommand;
+   var
+      loResultCommand: INovusCommandLineResultCommand;
+      loResultOption: INovusCommandLineResultOption;
+     begin
+       Result := NIL;
+
+       if Assigned(aResultCommands) then
+          begin
+            loResultCommand := aResultCommands.FirstCommand;
+            While( Assigned(loResultCommand)) do
+              begin
+                loResultOption := loResultCommand.Options.FindOptionByName('pluginname');
+
+                if Assigned(loResultOption) then
+                  begin
+                    if uppercase(loResultOption.Value) = uppercase(aPluginName) then
+                      begin
+                        Result := loResultCommand;
+                        break;
+                      end;
+                  end;
+
+                loResultCommand := aResultCommands.NextCommand;
+              end;
+          end;
+    end;
+
 begin
   Result := True;
 
@@ -261,7 +290,7 @@ begin
   begin
     loPlugin := TPlugin(fPluginsList.Items[I]);
 
-    Result := loPlugin.IsCommandLine;
+    Result := loPlugin.IsCommandLine(FindPluginname(loPlugin.PluginName));
     if Not Result then
       break;
   end;

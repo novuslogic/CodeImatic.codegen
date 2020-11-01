@@ -11,6 +11,7 @@ const
   clconsoleoutputonly = 'consoleoutputonly';
   clvar = 'var';
   clOutputlog = 'outputlog';
+  clPlugin = 'plugin';
 
 
 type
@@ -27,7 +28,15 @@ type
       write fsProjectFileName;
   end;
 
-  tHelpCommand = class(tNovusCommandLineCommand)
+  tPluginCommand = class(tNovusCommandLineCommand )
+  protected
+  private
+  public
+    constructor Create; override;
+    function Execute: boolean; override;
+  end;
+
+  tHelpCommand = class(tNovusCommandLineCommand )
   protected
   private
   public
@@ -122,7 +131,7 @@ constructor tHelpCommand.Create;
 begin
   inherited;
 
-  RegisterOption('command', '', true, NIL);
+  RegisterOption('command', '', false, NIL);
 end;
 
 
@@ -141,7 +150,7 @@ begin
         begin
           result := True;
 
-          writeln(fCommand.Help);
+          Help := fCommand.Help;
         end;
     end;
 
@@ -198,8 +207,33 @@ begin
 
       OutputlogFilename := fOutputlogOption.Value;
     end;
+end;
 
 
+//tPluginCommand
+constructor tPluginCommand.Create;
+begin
+  inherited;
+
+  RegisterOption('pluginname', '', true, NIL);
+  RegisterOption('command', '', true, NIL);
+end;
+
+function tPluginCommand.Execute: boolean;
+var
+  fOutputlogOption: INovusCommandLineOption;
+begin
+  result := True;
+  (*
+  fOutputlogOption := FindOptionByName(clOutputlog);
+
+  if Assigned(fOutputlogOption) then
+    begin
+      result := true;
+
+      OutputlogFilename := fOutputlogOption.Value;
+    end;
+    *)
 end;
 
 // TVarCoomand
@@ -244,13 +278,14 @@ begin
   tCommandLine.RegisterCommand(clvar, 'v', 'Usage : codeimatic.codegen -var [variable]', false,
     tVarCommand.Create);
 
-  tCommandLine.RegisterCommand('help', 'h', 'Usage : codeimatic.codegen -help [command]', false,
+  tCommandLine.RegisterHelpCommand('help', 'h', 'Usage : codeimatic.codegen -help [command]',
     tHelpCommand.Create);
 
-  tCommandLine.RegisterCommand(clvar, 'o', 'Usage : codeimatic.codegen -outputlog [outputlogfilename]', false,
+  tCommandLine.RegisterCommand(clOutputlog, 'o', 'Usage : codeimatic.codegen -outputlog [outputlogfilename]', false,
     tOutputlogCommand.Create);
 
-
+  tCommandLine.RegisterCommand(clplugin, 'p', 'Usage : codeimatic.codegen -plugin [pluginname] [command]', false,
+    tPluginCommand.Create);
 end;
 
 

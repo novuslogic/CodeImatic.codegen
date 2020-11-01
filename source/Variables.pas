@@ -60,8 +60,10 @@ Type
     constructor Create(aOutput: tOutput); virtual;
     destructor Destroy; override;
 
+    procedure ClearVariables;
+
     function AddVariableObject(aObject: Tobject; aObjectTypeName: String; aIsDestroy: boolean): String;
-    procedure AddVariable(AVariableName: String;AValue: Variant);
+    function AddVariable(AVariableName: String;AValue: Variant): tVariable;
     function GetVariableByName(aVariableName: String): TVariable;
     function VariableExists(aVariableName: String): boolean;
 
@@ -100,6 +102,11 @@ begin
   inherited;
 end;
 
+procedure TVariables.ClearVariables;
+begin
+  foVariableList.Clear;
+end;
+
 
 function TVariables.AddVariableObject(aObject: Tobject; aObjectTypeName: String; aIsDestroy: boolean): String;
 Var
@@ -122,7 +129,7 @@ begin
 end;
 
 
-procedure TVariables.AddVariable(AVariableName: String;AValue: Variant);
+function TVariables.AddVariable(AVariableName: String;AValue: Variant): tVariable;
 Var
   foVariable: TVariable;
 begin
@@ -133,6 +140,8 @@ begin
   foVariable.Value := AValue;
 
   FoVariableList.Add(AVariableName, foVariable);
+
+  Result := foVariable;
 end;
 
 

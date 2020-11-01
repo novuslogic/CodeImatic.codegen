@@ -1,3 +1,9 @@
+* WebServer plugin support for 404.html
+* Changed Ctrl-C to Ctrl-S WebServer Plugin 
+* Fix tMarkdownProcessorItem.DoBlockEvent crashing when aBlock.lines is NILL
+* Cleaned up StaticWebSite to current CodeImatic.gen
+
+
 06/05/2020
 
 * Upgrade FastMM4 to FastMM5

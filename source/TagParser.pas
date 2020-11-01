@@ -231,14 +231,27 @@ begin
 
     FTokenProcessor := tTokenParser.ParseExpressionToken(lsToken1, aOutput);
 
+
+
     lsToken := Uppercase(FTokenProcessor.GetNextToken);
 
+
+    if FTokenProcessor.Count > 1 then
+      begin
+        result := ttInterpreter;
+
+
+
+      end
+    else
     if lsToken = '' then
       result := ttUnknown
     else if Pos('$$', lsToken) = 1 then
        result := ttPropertyVariable
     else if Pos('$', lsToken) = 1 then
-       result := ttVariable
+      begin
+        result := ttVariable
+      end
     else if lsToken = 'LANGUAGE' then
       result := ttlanguage
     else if lsToken = 'CONNECTION' then

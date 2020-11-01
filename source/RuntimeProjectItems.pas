@@ -48,12 +48,15 @@ begin
     begin
       loProjectItem := tProjectItem(foProject.oProjectItemList.items[I]);
 
+
+
       if loProjectItem.IgnoreItem then
          begin
            foOutput.Log('ProjectItem: '+ loProjectItem.Name + ' Ignored.');
 
            Continue;
          end;
+
 
       case loProjectItem.ProjectItemType of
          pitItem: begin

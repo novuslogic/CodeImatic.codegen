@@ -185,10 +185,6 @@ begin
 
   loTokens := NIL;
 
-
-
-
-
   If Copy(aToken, 1, 2) = '$$' then
   begin
     fsToken := TVariables.CleanVariableName(aToken);
@@ -224,12 +220,7 @@ begin
         LExpressionParser.Free;
         lTokens.Free;
       End;
-
-
     end
-
-
-
     else
       lTagType := TTagParser.ParseTagType(aProjectItem, NIL, ATokens,
         aOutput, aTokenIndex);
@@ -239,12 +230,6 @@ begin
         Result := aProjectItem.oProperties.GetProperty(fsToken);
       ttPropertyEx:
         begin
-          //if aObject is tInterpreter then
-          //begin
-           // lsToken2 := tInterpreter(aObject).GetNextTokenA(aTokenIndex,
-           //   ATokens);
-
-          //end
           ATokens.TokenIndex := aTokenIndex + 1;
 
           lsToken2 := ATokens.GetNextToken(false);

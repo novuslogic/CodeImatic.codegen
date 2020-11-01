@@ -163,7 +163,7 @@ end;
 function TProjectConfig.Loadproperties(aPropertyName: String): String;
 var
   fXmlElemlproperties: TJvSimpleXmlElem;
-  liIndex, i: Integer;
+  liIndex: Integer;
 begin
   Result := '';
 
