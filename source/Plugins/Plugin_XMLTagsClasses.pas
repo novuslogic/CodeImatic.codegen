@@ -285,7 +285,7 @@ begin
     Exit;
   end;
 
-  if TNovusStringUtils.IsNumberStr(lsElement) then
+  if TNovusStringUtils.IsNumeric(lsElement) then
     begin
       aToken := TXMLList(FVariable.oObject).GetValueByIndex(StrToint(lsElement));
     end
@@ -347,7 +347,7 @@ begin
     Exit;
   end;
 
-  if TNovusStringUtils.IsNumberStr(lsElement) then
+  if TNovusStringUtils.IsNumeric(lsElement) then
     begin
       aToken := TXMLList(FVariable.oObject).GetNameByIndex(StrToint(lsElement));
     end

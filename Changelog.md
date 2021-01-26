@@ -1,3 +1,9 @@
+26/01/2021
+
+* Updated for new changes in NovuscodeLibrary
+* Refectored TNovusStringUtils.IsNumberStr to TNovusStringUtils.IsNumeric
+* Log unload external plugins
+
 10/01/2021
 
 * Upgraded DelphiVerion.inc

@@ -99,19 +99,30 @@ end;
 procedure TPlugins.UnloadPlugins;
 Var
   I: Integer;
-  loPlugin: TPlugin;
+  loPlugin: tPlugin;
+  fPluginInfo: PPluginInfo;
 begin
+  foOutput.Log('Unload Plugins');
 
   for I := 0 to fPluginsList.Count - 1 do
   begin
     loPlugin := TPlugin(fPluginsList.Items[I]);
+
     loPlugin.Free;
     loPlugin := nil;
   end;
 
   fPluginsList.Clear;
 
-  FExternalPlugins.UnloadAllPlugins;
+  //FExternalPlugins.UnloadAllPlugins;
+
+   for I := FExternalPlugins.PluginCount - 1 downto 0 do
+    begin
+      fPluginInfo := FExternalPlugins.GetPluginList(i);
+      foOutput.Log('Unload: ' +fPluginInfo^.PluginName);
+
+      FExternalPlugins.UnloadPlugin(I);
+    end;
 end;
 
 procedure TPlugins.RegisterImports;

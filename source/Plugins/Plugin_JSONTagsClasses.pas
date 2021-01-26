@@ -672,7 +672,7 @@ begin
     Exit;
   end;
 
-  if not TNovusStringUtils.IsNumberStr(lsElement) then
+  if not TNovusStringUtils.IsNumeric(lsElement) then
     begin
       oOutput.LogError('Syntax Error: Element Index is not a numeric.');
 

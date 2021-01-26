@@ -167,11 +167,7 @@ type
     property ProcessorPlugin: String read fsprocessorPlugin
       write fsprocessorPlugin;
 
-    //property oConnections: tConnections read foConnections write foConnections;
-
     Property oProperties: tProperties read foProperties write foProperties;
-
-   // property oDBSchema: TDBSchema read foDBSchema write foDBSchema;
 
     property oSourceFiles: tSourceFiles read foSourceFiles write foSourceFiles;
 
@@ -181,7 +177,6 @@ type
     property oProject: tProject read foProject write foProject;
 
     property oVariables : tVariables read foVariables write foVariables;
-
 
     property oOutput: tOutput read foOutput write foOutput;
   end;
@@ -265,20 +260,9 @@ begin
 
     if PropertiesFile <> '' then
     begin
-     // foProperties.oProject := foProject;
-     // foProperties.oOutput := foOutput;
       foProperties.XMLFileName := PropertiesFile;
       foProperties.Retrieve;
     end;
-    (*
-    if fileexists(oconfig.dbschemafilename) then
-    begin
-      foDBSchema.XMLFileName := oconfig.dbschemafilename;
-      foDBSchema.Retrieve;
-    end;
-     *)
-    //foConnections := tConnections.Create(foOutput,
-    //  foProject.oProjectConfig, Self);
 
     self.oVariables.ClearVariables;
 
@@ -301,17 +285,6 @@ begin
           Finally
             loProcessor.Free;
           End;
-
-          (*
-            foTemplate.TemplateDoc.LoadFromFile(TemplateFile);
-
-            foTemplate.ParseTemplate;
-
-            foCodeGenerator := tCodeGenerator.Create(foTemplate, foOutput,
-            foProject, Self, NIL, fsTemplateFile, fsTemplateFile);
-
-            foCodeGenerator.Execute(fsOutputFile);
-          *)
 
           if Not foOutput.Failed then
           begin

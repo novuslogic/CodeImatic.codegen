@@ -35,3 +35,5 @@ samples/DBStaticWebsite/codeimatic.codegen.log
 samples/Interpreter/Output/INTERPRETER.TXT
 source/Plugins/WebServer.stat
 source/CodeImatic.codegen.$manifest
+source/__recovery/__recovery.ini
+samples/Interpreter/Output/INTERPRETER.TXT

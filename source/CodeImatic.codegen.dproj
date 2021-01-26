@@ -268,8 +268,8 @@
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
         <Debugger_CWD>D:\Projects\FinityEngine\Website</Debugger_CWD>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=;FileVersion=0.5.0.1098;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName);FileDescription=$(MSBuildProjectName);ProductName=$(MSBuildProjectName)</VerInfo_Keys>
-        <VerInfo_Build>1098</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=;FileVersion=0.5.0.1119;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName);FileDescription=$(MSBuildProjectName);ProductName=$(MSBuildProjectName)</VerInfo_Keys>
+        <VerInfo_Build>1119</VerInfo_Build>
         <Debugger_RunParams>-project FinityEngine.ccproject -plugin webserver runwebserver</Debugger_RunParams>
         <Debugger_DebugSourcePath>D:\Projects\NovuscodeLibrary\Source\Core\Object\;D:\Projects\NovuscodeLibrary\Source\Core\Console\;$(Debugger_DebugSourcePath)</Debugger_DebugSourcePath>
     </PropertyGroup>

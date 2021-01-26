@@ -229,7 +229,7 @@ function TVariable.GetIsNumeric: Boolean;
 begin
   Result := False;
   if Not IsObject then
-    Result :=  TNovusStringUtils.IsNumberStr(AsString)
+    Result :=  TNovusStringUtils.IsNumeric(AsString)
 end;
 
 

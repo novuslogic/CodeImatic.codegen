@@ -386,7 +386,7 @@ begin
         begin
           LsValue := GetNextToken(aIndex, aTokens);
 
-          if TNovusStringUtils.IsNumberStr(LsValue) then
+          if TNovusStringUtils.IsNumeric(LsValue) then
           begin
             if GetNextToken(aIndex, aTokens) = ')' then
             begin
@@ -1055,7 +1055,7 @@ Var
 
      if Not Assigned(FVariable1) then Exit;
 
-     If TNovusStringUtils.IsNumberStr(aToken) then
+     If TNovusStringUtils.IsNumeric(aToken) then
         FVariable1.Value := FVariable1.Value +
           TNovusStringUtils.Str2Int(aToken)
       else
@@ -1117,7 +1117,7 @@ begin
 
              end
            else
-           If TNovusStringUtils.IsNumberStr(LsValue) then
+           If TNovusStringUtils.IsNumeric(LsValue) then
             begin
               if Pos('.', LsValue) > 0 then
                 begin
@@ -1162,7 +1162,7 @@ begin
           // foOutput.Log(lsValue);
 
         end
-        else If TNovusStringUtils.IsNumberStr(LsValue) then
+        else If TNovusStringUtils.IsNumeric(LsValue) then
         begin
           if Pos('.', LsValue) > 0 then
             FVariable1.Value := TNovusStringUtils.Str2Float(LsValue)
@@ -1192,7 +1192,7 @@ begin
       begin
         LsValue := GetToken;
 
-        If TNovusStringUtils.IsNumberStr(LsValue) then
+        If TNovusStringUtils.IsNumeric(LsValue) then
           FVariable1.Value := FVariable1.Value -
             TNovusStringUtils.Str2Int(LsValue)
         else

@@ -248,7 +248,7 @@ Var
 begin
   lsToken := aTokenParser.ParseNextToken;
 
-  if TNovusStringUtils.IsNumberStr(lsToken) then
+  if TNovusStringUtils.IsNumeric(lsToken) then
   begin
     liFieldIndex := StrToint(lsToken);
 
@@ -408,7 +408,7 @@ Var
 begin
   lsToken := aTokenParser.ParseNextToken;
 
-  if TNovusStringUtils.IsNumberStr(lsToken) then
+  if TNovusStringUtils.IsNumeric(lsToken) then
      begin
        liTableIndex := StrToint(lsToken);
 
@@ -459,7 +459,7 @@ Var
 begin
   lsToken := aTokenParser.ParseNextToken;
 
-  if TNovusStringUtils.IsNumberStr(lsToken) then
+  if TNovusStringUtils.IsNumeric(lsToken) then
   begin
     liFieldIndex := StrToint(lsToken);
 
