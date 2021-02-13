@@ -13,9 +13,9 @@
 
   <projectconfig>
    <properties> 
-     <outputpath>[%workingdirectory%]Site\</outputpath>
-     <propertiespath>[%workingdirectory%]Properties\</propertiespath>
-     <sourcepath>[%workingdirectory%]Source\</sourcepath>
+      <outputpath>[%workingdirectory%]Site\</outputpath>
+      <propertiespath>[%workingdirectory%]Properties\</propertiespath>
+      <sourcepath>[%workingdirectory%]Source\</sourcepath>
    </properties>  
 </projectconfig>
   

@@ -89,7 +89,7 @@ destructor TPlugins.Destroy;
 begin
   Inherited;
 
-  UnloadPlugins;
+//  UnloadPlugins;
 
   FExternalPlugins.Free;
 
