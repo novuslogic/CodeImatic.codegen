@@ -3,7 +3,7 @@ unit CodeGeneratorItem;
 interface
 
 uses Project, ExpressionParser, NovusTemplate, Classes, SysUtils, tagType, output,
-     NovusList, TokenProcessor, NovusGUIDEx;
+     NovusList, TokenProcessor, NovusGUID;
 
 type
   TCodeGeneratorItem = class(TObject)
@@ -107,7 +107,7 @@ begin
 
   FoTokens := tTokenProcessor.Create;
 
-  fsID := TGuidExUtils.NewGuidNoBracketsString;
+  fsID := TNovusGuid.NewGuidNoBracketsString;
 end;
 
 destructor TCodeGeneratorItem.Destroy;

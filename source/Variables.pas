@@ -2,14 +2,15 @@ unit Variables;
 
 interface
 
-Uses Variants, NovusList, SysUtils, Output, NovusGUIDEx, NovusStringUtils, TagType;
+Uses Variants, NovusList, SysUtils, Output, NovusGUID, NovusStringUtils, TagType;
 
 Type
   TVariable = class(TObject)
   protected
+     fbIsDestroy: Boolean;
      fsVariableName: String;
      FValue: Variant;
-     FObject: tObject;
+     FoObject: tObject;
   private
     function GetIsVarEmpty: boolean;
     function GetIsLinked: Boolean;
@@ -25,8 +26,8 @@ Type
       write fsVariableName;
 
     property oObject: Tobject
-      read fObject
-      write fObject;
+      read foObject
+      write foObject;
 
     property Value: Variant
       read FValue
@@ -48,6 +49,10 @@ Type
 
     property IsString: Boolean
       read GetIsString;
+
+    property IsDestroy: boolean
+      read fbIsDestroy
+      write fbIsDestroy;
   end;
 
   TVariables = class(TObject)
@@ -62,7 +67,7 @@ Type
 
     procedure ClearVariables;
 
-    function AddVariableObject(aObject: Tobject; aObjectTypeName: String; aIsDestroy: boolean): String;
+    function AddVariableObject(AVariableName: String; aObject: Tobject; aIsDestroy: boolean): String;
     function AddVariable(AVariableName: String;AValue: Variant): tVariable;
     function GetVariableByName(aVariableName: String): TVariable;
     function VariableExists(aVariableName: String): boolean;
@@ -108,20 +113,22 @@ begin
 end;
 
 
-function TVariables.AddVariableObject(aObject: Tobject; aObjectTypeName: String; aIsDestroy: boolean): String;
+function TVariables.AddVariableObject(AVariableName: String; aObject: Tobject; aIsDestroy: boolean): String;
 Var
   foVariable: TVariable;
 begin
   foVariable := TVariable.Create;
 
-  foVariable.VariableName := '@@' + TGuidExUtils.NewGuidNoBracketsString + '.' + aObjectTypeName;
+  foVariable.VariableName := '@@' + TNovusGuid.NewGuidNoBracketsString + '.' + AVariableName;
 
-  if aObjectTypeName = '' then
+  if AVariableName = '' then
     foVariable.Value := 'TObject'
   else
-    foVariable.Value := aObjectTypeName;
+    foVariable.Value := AVariableName;
 
   foVariable.oObject := aObject;
+
+  foVariable.IsDestroy := aIsDestroy;
 
   FoVariableList.Add(foVariable.VariableName, foVariable);
 
@@ -197,12 +204,12 @@ constructor TVariable.Create;
 begin
   inherited Create;
 
-  FObject := NIL;
+  //FObject := NIL;
 end;
 
 destructor TVariable.Destroy;
 begin
-  if Assigned(fObject) then FObject.Free;
+//  if Assigned(fObject) then FObject.Free;
   
   inherited;
 end;

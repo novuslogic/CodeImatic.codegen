@@ -4,7 +4,7 @@ interface
 
 Uses
   Classes, ExpressionParser, SysUtils, DB, NovusStringUtils, Output,
-  NovusList, Variants, Variables, XMLList, NovusGUIDEx, TokenProcessor, TagType,
+  NovusList, Variants, Variables, XMLList, NovusGUID, TokenProcessor, TagType,
   CodeGeneratorItem, TokenParser, ProjectItem, StatementParser, NovusUtilities;
 
 Type

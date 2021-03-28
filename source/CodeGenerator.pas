@@ -407,7 +407,7 @@ begin
         Result := false;
 
         foOutput.LogError('Save Error: ' + aOutputFilename +
-          ' - IsTextFile Fail');
+          ' - IsTextFile Failed');
 
         Exit;
       end;

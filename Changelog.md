@@ -1,3 +1,7 @@
+28/03/2021
+
+* Updated for NovusGUID class for NovuscodeLibrary
+
 26/01/2021
 
 * Updated for new changes in NovuscodeLibrary
