@@ -4,7 +4,7 @@ interface
 
 uses Classes,Plugin, NovusPlugin, NovusVersionUtils, Project,
     Output, SysUtils, System.Generics.Defaults,  runtime, Config, NovusStringUtils,
-    APIBase, NovusGUIDEx, CodeGeneratorItem, FunctionsParser, ProjectItem, TokenParser,
+    APIBase, NovusGUID, CodeGeneratorItem, FunctionsParser, ProjectItem, TokenParser,
     Variables, NovusFileUtils, CodeGenerator, FieldFunctionParser, DataProcessor,
     TableFunctionParser, TokenProcessor, TagBasePlugin;
 

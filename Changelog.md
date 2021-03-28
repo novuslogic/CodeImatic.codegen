@@ -1,4 +1,5 @@
 28/03/2021
+* Changed function TVariables.AddVariableObject(AVariableName: String; aObject: Tobject; aIsDestroy: boolean): String;
 
 * Updated for NovusGUID class for NovuscodeLibrary
 

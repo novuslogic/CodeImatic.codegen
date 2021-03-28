@@ -4,7 +4,7 @@ interface
 
 uses Classes, Plugin, NovusPlugin, NovusVersionUtils, Project,
   Output, SysUtils, System.Generics.Defaults, runtime, Config,
-  APIBase, NovusGUIDEx, CodeGeneratorItem, FunctionsParser, ProjectItem,
+  APIBase, NovusGUID, CodeGeneratorItem, FunctionsParser, ProjectItem,
   Variables, NovusFileUtils, CodeGenerator, TokenParser,
   {NovusJSONUtils, } System.IOUtils, System.JSON, TokenProcessor, NovusStringUtils,
   TagBasePlugin, FileExistsFunctionParser;
@@ -361,7 +361,7 @@ begin
     oOutput.LogError('JSONFilename cannot read [' + aJSONFilename + ']');
   End;
 
-  aToken := Self.oVariables.AddVariableObject(FJSONValue, TJSONTag.ClassName, true);
+  aToken := Self.oVariables.AddVariableObject(TJSONTag.ClassName, FJSONValue,  true);
 end;
 
 
@@ -465,7 +465,7 @@ begin
     end;
 
 
-  aToken := Self.oVariables.AddVariableObject(FJSONValue, TJSONTag.ClassName, false);
+  aToken := Self.oVariables.AddVariableObject(TJSONTag.ClassName, FJSONValue, false);
 end;
 
 // TJSONTag_ToJSON
@@ -703,7 +703,7 @@ begin
   End;
 
 
-  aToken := Self.oVariables.AddVariableObject(FJSONValue, TJSONTag.ClassName, false);
+  aToken := Self.oVariables.AddVariableObject(TJSONTag.ClassName, FJSONValue, false);
 end;
 
 // TJSONTag_JSONString
@@ -806,7 +806,7 @@ begin
   Try
     FJSONPair:= TJSONPair(FVariable.oObject);
 
-    aToken := Self.oVariables.AddVariableObject(FJSONPair, TJSONTag.ClassName, false);
+    aToken := Self.oVariables.AddVariableObject(TJSONTag.ClassName, FJSONPair, false);
   Except
     aToken := '';
   End;

@@ -616,7 +616,7 @@ end;
 function TSysTag_newguid.Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: tTokenProcessor): String;
 begin
   Self.oVariables := tProjectItem(aProjectItem).oVariables;
-  Result := TGuidExUtils.NewGuidString;
+  Result := TNovusGuid.NewGuidString;
 end;
 
 function TSysTag_BlankLine.GetTagName: String;
@@ -636,7 +636,7 @@ end;
 
 function TSysTag_NewguidNoBrackets.Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: tTokenProcessor): String;
 begin
-  Result := TGuidExUtils.NewGuidNoBracketsString;;
+  Result := TNovusGuid.NewGuidNoBracketsString;;
 end;
 
 
