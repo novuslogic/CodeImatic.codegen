@@ -4,7 +4,7 @@ interface
 
 uses Classes, Plugin, NovusPlugin, NovusVersionUtils, Project,
   Output, SysUtils, System.Generics.Defaults, runtime, Config,
-  APIBase, NovusGUIDEx, CodeGeneratorItem, FunctionsParser, ProjectItem,
+  APIBase, NovusGUID, CodeGeneratorItem, FunctionsParser, ProjectItem,
   Variables, NovusFileUtils, CodeGenerator, FileExistsFunctionParser, TokenParser,
   {NovusJSONUtils,} System.IOUtils, System.JSON, TokenProcessor, NovusStringUtils,
   TagBasePlugin, XMLList;
@@ -457,7 +457,7 @@ begin
     FreeandNil(foXMLlist);
   End;
 
-  aToken := Self.oVariables.AddVariableObject(foXMLlist, tXMLlist.ClassName, true);
+  aToken := Self.oVariables.AddVariableObject(tXMLlist.ClassName, foXMLlist,  true);
 end;
 
 

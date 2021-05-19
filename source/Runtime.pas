@@ -5,7 +5,7 @@ interface
 
 uses
   SysUtils, Classes, NovusTemplate, Config, NovusFileUtils,
-  Properties, NovusStringUtils, Snippits, Plugins, ScriptEngine, dialogs,
+  Properties, NovusStringUtils, Snippits, Plugins, PascalScriptEngine, dialogs,
   NovusCommandLine,
   CodeGenerator, Output, NovusVersionUtils, Project, ProjectItem, CommandLine;
 
@@ -17,7 +17,7 @@ type
     fsworkingdirectory: string;
     foPlugins: TPlugins;
     foProject: tProject;
-    foScriptEngine: tScriptEngine;
+    foScriptEngine: TPascalScriptEngine;
   public
     function Execute(aCommandLineResult: INovusCommandLineResult): Integer;
 
@@ -30,7 +30,7 @@ type
 
     property oPlugins: TPlugins read foPlugins write foPlugins;
 
-    property oScriptEngine: tScriptEngine read foScriptEngine
+    property oScriptEngine: TPascalScriptEngine read foScriptEngine
       write foScriptEngine;
 
     property oOutput: tOutput read foOutput;
@@ -241,7 +241,7 @@ begin
     end;
   *)
 
-  foScriptEngine := tScriptEngine.Create(foOutput);
+  foScriptEngine := TPascalScriptEngine.Create(foOutput);
 
   foPlugins := TPlugins.Create(foOutput, foProject, foScriptEngine);
 

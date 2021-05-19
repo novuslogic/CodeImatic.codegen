@@ -1,6 +1,10 @@
-28/03/2021
-* Changed function TVariables.AddVariableObject(AVariableName: String; aObject: Tobject; aIsDestroy: boolean): String;
+19/05/2021
 
+* Renamed tScriptEngine class to tPascalScriptEngine
+  
+28/03/2021
+
+* Changed function TVariables.AddVariableObject(AVariableName: String; aObject: Tobject; aIsDestroy: boolean): String;
 * Updated for NovusGUID class for NovuscodeLibrary
 
 26/01/2021

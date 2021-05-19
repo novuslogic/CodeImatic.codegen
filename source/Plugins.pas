@@ -4,14 +4,14 @@ interface
 
 uses NovusPlugin, Config, Output, Classes, SysUtils, PluginsMapFactory, Plugin,
   Project, ProjectItem, NovusCommandLine,
-  NovusTemplate, ScriptEngine, uPSRuntime, uPSCompiler, NovusFileUtils,
+  NovusTemplate, PascalScriptEngine, uPSRuntime, uPSCompiler, NovusFileUtils,
   CodeGeneratorItem, Loader, CodeGenerator, Template, TokenProcessor;
 
 type
   TPlugins = class(TObject)
   private
   protected
-    foScriptEngine: tScriptEngine;
+    foScriptEngine: tPascalScriptEngine;
     foProject: tProject;
     foOutput: TOutput;
     FExternalPlugins: TNovusPlugins;
@@ -19,7 +19,7 @@ type
     fImp: TPSRuntimeClassImporter;
   public
     constructor Create(aOutput: TOutput; aProject: tProject;
-      aScriptEngine: tScriptEngine);
+      aScriptEngine: tPascalScriptEngine);
     destructor Destroy; override;
 
     procedure LoadPlugins;
