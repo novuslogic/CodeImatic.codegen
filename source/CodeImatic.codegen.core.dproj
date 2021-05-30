@@ -4,7 +4,7 @@
         <MainSource>CodeImatic.codegen.core.dpk</MainSource>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
-        <TargetedPlatforms>2</TargetedPlatforms>
+        <TargetedPlatforms>3</TargetedPlatforms>
         <AppType>Package</AppType>
         <FrameworkType>None</FrameworkType>
         <ProjectVersion>18.8</ProjectVersion>
@@ -184,7 +184,7 @@
         <DCCReference Include="Properties.pas"/>
         <DCCReference Include="CodeGenerator.pas"/>
         <DCCReference Include="Interpreter.pas"/>
-        <DCCReference Include="ScriptEngine.pas"/>
+        <DCCReference Include="PascalScriptEngine.pas"/>
         <DCCReference Include="RuntimeProjectItems.pas"/>
         <DCCReference Include="FunctionsParser.pas"/>
         <DCCReference Include="TokenProcessor.pas"/>
@@ -227,7 +227,7 @@
                 <Platform value="iOSDevice64">False</Platform>
                 <Platform value="iOSSimulator">False</Platform>
                 <Platform value="OSX32">False</Platform>
-                <Platform value="Win32">False</Platform>
+                <Platform value="Win32">True</Platform>
                 <Platform value="Win64">True</Platform>
             </Platforms>
             <Deployment Version="3">

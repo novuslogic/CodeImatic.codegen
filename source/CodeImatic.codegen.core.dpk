@@ -67,7 +67,7 @@ contains
   Properties in 'Properties.pas',
   CodeGenerator in 'CodeGenerator.pas',
   Interpreter in 'Interpreter.pas',
-  ScriptEngine in 'ScriptEngine.pas',
+  PascalScriptEngine in 'PascalScriptEngine.pas',
   RuntimeProjectItems in 'RuntimeProjectItems.pas',
   FunctionsParser in 'FunctionsParser.pas',
   TokenProcessor in 'TokenProcessor.pas',
