@@ -1,3 +1,7 @@
+08/06/2021
+* Renamed TScriptEnginePlugin to TPascalScriptPlugin
+
+
 19/05/2021
 
 * Renamed tScriptEngine class to tPascalScriptEngine

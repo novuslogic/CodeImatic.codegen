@@ -43,7 +43,6 @@ requires
   NovusCodeLibrary_Console;
 
 contains
-  Plugin in 'Plugin.pas',
   Output in 'Output.pas',
   APIBase in 'Plugins\API\APIBase.pas',
   Runtime in 'Runtime.pas',
@@ -76,7 +75,9 @@ contains
   TagBasePlugin in 'TagBasePlugin.pas',
   FileExistsFunctionParser in 'FileExistsFunctionParser.pas',
   ProjectConfigLoader in 'ProjectConfigLoader.pas',
-  CommandLine in 'CommandLine.pas';
+  CommandLine in 'CommandLine.pas',
+  Plugin in 'Plugin.pas',
+  Language in 'Language.pas';
 
 end.
 

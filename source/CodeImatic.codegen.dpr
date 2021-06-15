@@ -15,11 +15,9 @@ uses
   projectconfig,
   CommandLine,
   NovusCommandLine,
-  Language in 'Language.pas',
-  Plugins in 'Plugins.pas',
   PluginsMapFactory in 'PluginsMapFactory.pas';
 
-  var
+var
     FComandLineResult :  TNovusCommandLineResult;
 
 begin

@@ -268,8 +268,8 @@
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
         <Debugger_CWD>D:\Projects\FinityEngine\Website</Debugger_CWD>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=;FileVersion=0.5.0.1151;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName);FileDescription=$(MSBuildProjectName);ProductName=$(MSBuildProjectName)</VerInfo_Keys>
-        <VerInfo_Build>1151</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=;FileVersion=0.5.0.1159;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName);FileDescription=$(MSBuildProjectName);ProductName=$(MSBuildProjectName)</VerInfo_Keys>
+        <VerInfo_Build>1159</VerInfo_Build>
         <Debugger_RunParams>-project FinityEngine.ccproject -plugin webserver runwebserver</Debugger_RunParams>
         <Debugger_DebugSourcePath>D:\Projects\NovuscodeLibrary\Source\Core\Object\;D:\Projects\NovuscodeLibrary\Source\Core\Console\;$(Debugger_DebugSourcePath)</Debugger_DebugSourcePath>
     </PropertyGroup>
@@ -277,8 +277,6 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="Language.pas"/>
-        <DCCReference Include="Plugins.pas"/>
         <DCCReference Include="PluginsMapFactory.pas"/>
         <BuildConfiguration Include="Debug">
             <Key>Cfg_2</Key>

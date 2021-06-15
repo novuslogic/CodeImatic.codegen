@@ -36,7 +36,7 @@ type
     property PluginName: String read fsPluginName write fsPluginName;
   end;
 
-  TScriptEnginePlugin = class(TPlugin)
+  TPascalScriptPlugin = class(TPlugin)
   private
   protected
     fImp: TPSRuntimeClassImporter;
@@ -202,28 +202,28 @@ begin
   Result := True;
 end;
 
-function TScriptEnginePlugin.CustomOnUses(var aCompiler
+function TPascalScriptPlugin.CustomOnUses(var aCompiler
   : TPSPascalCompiler): boolean;
 begin
   Result := False;
 end;
 
-procedure TScriptEnginePlugin.Initialize(var aImp: TPSRuntimeClassImporter);
+procedure TPascalScriptPlugin.Initialize(var aImp: TPSRuntimeClassImporter);
 begin
   fImp := aImp;
 end;
 
-procedure TScriptEnginePlugin.RegisterFunction(var aExec: TPSExec);
+procedure TPascalScriptPlugin.RegisterFunction(var aExec: TPSExec);
 begin
 
 end;
 
-procedure TScriptEnginePlugin.SetVariantToClass(var aExec: TPSExec);
+procedure TPascalScriptPlugin.SetVariantToClass(var aExec: TPSExec);
 begin
 
 end;
 
-procedure TScriptEnginePlugin.RegisterImport;
+procedure TPascalScriptPlugin.RegisterImport;
 begin
 
 end;

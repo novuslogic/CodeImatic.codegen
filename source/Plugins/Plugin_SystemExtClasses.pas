@@ -10,7 +10,7 @@ uses Classes, Plugin, NovusPlugin, NovusVersionUtils, Project,
   uPSR_dll,  uPSR_dateutils;
 
 type
-  tPlugin_SystemExtBase = class(TScriptEnginePlugin)
+  tPlugin_SystemExtBase = class(TPascalScriptPlugin)
   private
   protected
   public
