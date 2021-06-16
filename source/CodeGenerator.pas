@@ -5,7 +5,7 @@ interface
 Uses Classes, NovusTemplate, NovusList, ExpressionParser, SysUtils,
   Config, NovusStringUtils, Interpreter, Language, Project,
   Output, Variables, NovusUtilities, CodeGeneratorItem, tagtype,
-  NovusBO, NovusFileUtils, Template, PascalScriptEngine, System.IOUtils, Plugin,
+  NovusBO, NovusFileUtils, Template, PascalScript, System.IOUtils, Plugin,
   {TokenProcessor,} Loader, ProjectItem;
 
 Const

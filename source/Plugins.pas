@@ -4,7 +4,7 @@ interface
 
 uses NovusPlugin, Config, Output, Classes, SysUtils, PluginsMapFactory, Plugin,
   Project, ProjectItem, NovusCommandLine,
-  NovusTemplate, PascalScriptEngine, uPSRuntime, uPSCompiler, NovusFileUtils,
+  NovusTemplate, PascalScript, uPSRuntime, uPSCompiler, NovusFileUtils,
   CodeGeneratorItem, Loader, CodeGenerator, Template, TokenProcessor;
 
 type

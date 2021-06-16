@@ -5,7 +5,7 @@ interface
 
 uses
   SysUtils, Classes, NovusTemplate, Config, NovusFileUtils,
-  Properties, NovusStringUtils, Snippits, Plugins, PascalScriptEngine, dialogs,
+  Properties, NovusStringUtils, Snippits, Plugins, PascalScript, dialogs,
   NovusCommandLine,
   CodeGenerator, Output, NovusVersionUtils, Project, ProjectItem, CommandLine;
 

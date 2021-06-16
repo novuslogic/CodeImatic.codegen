@@ -183,7 +183,7 @@
         <DCCReference Include="Properties.pas"/>
         <DCCReference Include="CodeGenerator.pas"/>
         <DCCReference Include="Interpreter.pas"/>
-        <DCCReference Include="PascalScriptEngine.pas"/>
+        <DCCReference Include="PascalScript.pas"/>
         <DCCReference Include="RuntimeProjectItems.pas"/>
         <DCCReference Include="FunctionsParser.pas"/>
         <DCCReference Include="TokenProcessor.pas"/>
