@@ -1,6 +1,10 @@
-08/06/2021
-* Renamed TScriptEnginePlugin to TPascalScriptPlugin
+29/12/2021
 
+* Removed FastMM5 unit
+
+08/06/2021
+
+* Renamed TScriptEnginePlugin to TPascalScriptPlugin
 
 19/05/2021
 

@@ -396,7 +396,6 @@ end;
 function TPlugin_WebServerEngine.RunProjectItems: boolean;
 Var
   loRuntimeProjectItems: tRuntimeProjectItems;
-  I: Integer;
 begin
   Try
     loRuntimeProjectItems:= tRuntimeProjectItems.Create(foOutput, foProject, (foProject.oPlugins as TPlugins));

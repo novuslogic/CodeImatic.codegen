@@ -39,7 +39,6 @@ requires
   NovusCodeLibrary_Plugin,
   NovusCodeLibrary_Env,
   NovusCodeLibrary_WebUtils,
-  NovusCodeLibrary_Indy,
   NovusCodeLibrary_Console;
 
 contains

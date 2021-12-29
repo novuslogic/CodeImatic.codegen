@@ -104,6 +104,7 @@ Var
 begin
   foOutput.Log('Unload Plugins');
 
+  (*
   for I := 0 to fPluginsList.Count - 1 do
   begin
     loPlugin := TPlugin(fPluginsList.Items[I]);
@@ -111,6 +112,9 @@ begin
     loPlugin.Free;
     loPlugin := nil;
   end;
+
+  fPluginsList.Clear;
+  *)
 
   fPluginsList.Clear;
 
@@ -123,7 +127,10 @@ begin
 
       FExternalPlugins.UnloadPlugin(I);
     end;
+
+  fPluginsList.Clear;
 end;
+
 
 procedure TPlugins.RegisterImports;
 var
