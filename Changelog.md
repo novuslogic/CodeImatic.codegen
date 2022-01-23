@@ -1,3 +1,7 @@
+24/01/2022
+
+Updated Codeimatic.codegen for Delphi 11
+
 29/12/2021
 
 * Removed FastMM5 unit

@@ -9,18 +9,18 @@ type
    protected
    private
    public
-     class function CreateTemplate(aIgnoreBlankValue: boolean = false): tTemplate;
+     class function CreateTemplate(aSwapTagNameBlankValue: boolean = True): tTemplate;
    end;
 
 implementation
            
-class function TTemplate.CreateTemplate(aIgnoreBlankValue: boolean = false): tTemplate;
+class function TTemplate.CreateTemplate(aSwapTagNameBlankValue: boolean = True): tTemplate;
 begin
   Result :=  TTemplate.Create;
   Result.StartToken := '<';
   Result.EndToken := '>';
   Result.SecondToken := '%';
-  Result.IgnoreBlankValue := aIgnoreBlankValue;
+  Result.SwapTagNameBlankValue := aSwapTagNameBlankValue;
 end;
 
 end.
