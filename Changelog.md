@@ -1,3 +1,7 @@
+20/02/2022
+
+* Upgrade TokenProcessor with tNovusTokenProcessor
+
 24/01/2022
 
 Updated Codeimatic.codegen for Delphi 11

@@ -2,7 +2,7 @@ unit TokenProcessor;
 
 interface
 
-Uses SysUtils, Classes, TagType, Output;
+Uses SysUtils, Classes, TagType, Output, NovusTokenProcessor;
 
 type
   tTokenProcessorItem = class(Tobject)
@@ -18,29 +18,29 @@ type
        read fTagType write fTagType;
   end;
 
-   tTokenProcessor = class(TStringList)
+   tTokenProcessor = class(TNovusTokenProcessor)
    private
-     fiTokenIndex: Integer;
+//     fiTokenIndex: Integer;
      foOutput: tOutput;
    protected
    public
-     constructor Create; overload;
+  //   constructor Create; overload;
      constructor Create(aOutput: tOutput); overload;
 
-     function ToString: String; override;
+    // function ToString: String; override;
 
-     function GetFirstToken: string;
+//     function GetFirstToken: string;
      function GetFirstTokenProcessorItem: tTokenProcessorItem;
-     function GetNextToken(aIgnoreNextToken: Boolean = false): string; overload;
-     function GetNextToken(aTokenIndex: Integer): string; overload;
-     function IsNextTokenEquals: boolean;
-     function IsNextTokenOpenBracket: boolean;
+//     function GetNextToken(aIgnoreNextToken: Boolean = false): string; overload;
+//     function GetNextToken(aTokenIndex: Integer): string; overload;
+//     function IsNextTokenEquals: boolean;
+//     function IsNextTokenOpenBracket: boolean;
 
-     function EOF: Boolean;
+//     function EOF: Boolean;
 
-     property TokenIndex: Integer
-         read fiTokenIndex
-         write fiTokenIndex;
+//     property TokenIndex: Integer
+//         read fiTokenIndex
+//         write fiTokenIndex;
 
      property oOutput: tOutput
        read foOutput
@@ -50,18 +50,21 @@ type
 implementation
 
 // Token Processor
+(*
 constructor tTokenProcessor.Create;
 begin
   fiTokenIndex:= 0;
 end;
+*)
 
 constructor tTokenProcessor.Create(aOutput: tOutput);
 begin
-  fiTokenIndex:= 0;
+  TokenIndex:= 0;
 
   foOutput := aOutput;
 end;
 
+(*
 function tTokenProcessor.EOF: Boolean;
 begin
   Result := (fiTokenIndex >= Count);
@@ -81,8 +84,9 @@ begin
       Inc(fiTokenIndex);
     end;
 end;
+*)
 
-
+(*
 function tTokenProcessor.GetFirstToken: string;
 begin
   fiTokenIndex:=0;
@@ -90,18 +94,22 @@ begin
   Result := Trim(Strings[fiTokenIndex]);
   Inc(fiTokenIndex);
 end;
-
+*)
 
 
 
 function tTokenProcessor.GetFirstTokenProcessorItem: tTokenProcessorItem;
 begin
-  fiTokenIndex:=0;
+  TokenIndex:=0;
+
   if Count =0 then Exit;
-  Result := tTokenProcessorItem(Objects[fiTokenIndex]);
-  Inc(fiTokenIndex);
+
+  Result := tTokenProcessorItem(Objects[TokenIndex]);
+
+  Next;
 end;
 
+(*
 function tTokenProcessor.GetNextToken(aTokenIndex: Integer): string;
 begin
   Result := '';
@@ -134,5 +142,6 @@ begin
   for I := 0 to Self.Count -1 do
      Result := Result +Trim(Strings[i]);
 end;
+*)
 
 end.
