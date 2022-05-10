@@ -106,7 +106,7 @@ begin
 
   Result := tTokenProcessorItem(Objects[TokenIndex]);
 
-  Next;
+  NextToken;
 end;
 
 (*

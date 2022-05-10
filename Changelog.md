@@ -1,6 +1,6 @@
 20/02/2022
 
-* Upgrade TokenProcessor with tNovusTokenProcessor
+* Upgraded TokenProcessor with tNovusTokenProcessor
 
 24/01/2022
 
