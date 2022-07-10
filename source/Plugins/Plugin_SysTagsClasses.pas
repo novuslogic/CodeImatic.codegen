@@ -2,7 +2,7 @@ unit Plugin_SysTagsClasses;
 
 interface
 
-uses Classes, Plugin, NovusPlugin, NovusVersionUtils, Project,
+uses Classes, Plugin, NovusPlugin,  Project,
   Output, SysUtils, System.Generics.Defaults, runtime, Config,
   APIBase, NovusGUID, CodeGeneratorItem, FunctionsParser, ProjectItem,
   Variables, NovusFileUtils, CodeGenerator, NovusStringUtils, TokenProcessor,
@@ -168,25 +168,22 @@ type
 
   end;
 
-  TPlugin_SysTags = class(TSingletonImplementation, INovusPlugin,
-    IExternalPlugin)
+  TPlugin_SysTags = class(TExternalPlugin)
   private
   protected
     foProject: TProject;
     FPlugin_SysTags: tPlugin_SysTagsBase;
   public
-    function GetPluginName: string; safecall;
+    function GetPluginName: string; override; safecall;
 
-    procedure Initialize; safecall;
-    procedure Finalize; safecall;
-
-    property PluginName: string read GetPluginName;
+    procedure Initialize; override; safecall;
+    procedure Finalize; override; safecall;
 
     function CreatePlugin(aOutput: tOutput; aProject: TProject;
-      aConfigPlugin: tConfigPlugin): TPlugin; safecall;
+      aConfigPlugin: tConfigPlugin): TPlugin; override; safecall;
   end;
 
-function GetPluginObject: INovusPlugin; stdcall;
+function GetPluginObject: TNovusPlugin; stdcall;
 
 implementation
 
@@ -294,7 +291,7 @@ end;
 
 procedure TPlugin_SysTags.Finalize;
 begin
-  // if Assigned(FPlugin_SysTags) then FPlugin_SysTags.Free;
+  if Assigned(FPlugin_SysTags) then FPlugin_SysTags.Free;
 end;
 
 // tPlugin_SysTagsBase
@@ -335,7 +332,7 @@ begin
   end;
 end;
 
-function GetPluginObject: INovusPlugin;
+function GetPluginObject: TNovusPlugin;
 begin
   if (_Plugin_SysTags = nil) then
     _Plugin_SysTags := TPlugin_SysTags.Create;
@@ -861,13 +858,11 @@ end;
 exports GetPluginObject name func_GetPluginObject;
 
 initialization
-
 begin
   _Plugin_SysTags := nil;
 end;
 
 finalization
-
-FreeAndNIL(_Plugin_SysTags);
+  FreeAndNIL(_Plugin_SysTags);
 
 end.

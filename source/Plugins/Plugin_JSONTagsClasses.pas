@@ -140,25 +140,22 @@ type
 
   end;
 
-  TPlugin_JSONTags = class(TSingletonImplementation, INovusPlugin,
-    IExternalPlugin)
+  TPlugin_JSONTags = class(TExternalPlugin)
   private
   protected
     foProject: TProject;
     FPlugin_JSONTags: tPlugin_JSONTagsBase;
   public
-    function GetPluginName: string; safecall;
+    function GetPluginName: string; override; safecall;
 
-    procedure Initialize; safecall;
-    procedure Finalize; safecall;
-
-    property PluginName: string read GetPluginName;
+    procedure Initialize; override; safecall;
+    procedure Finalize; override; safecall;
 
     function CreatePlugin(aOutput: tOutput; aProject: TProject;
-      aConfigPlugin: tConfigPlugin): TPlugin; safecall;
+      aConfigPlugin: tConfigPlugin): TPlugin; override; safecall;
   end;
 
-function GetPluginObject: INovusPlugin; stdcall;
+function GetPluginObject: TNovusPlugin; stdcall;
 function GetJsonValueType(JSONValue: TJSONValue): tJsonValueType;
 
 implementation
@@ -233,7 +230,7 @@ end;
 
 procedure TPlugin_JSONTags.Finalize;
 begin
-  // if Assigned(FPlugin_JSONTags) then FPlugin_JSONTags.Free;
+  if Assigned(FPlugin_JSONTags) then FPlugin_JSONTags.Free;
 end;
 
 // tPlugin_JSONTagsBase
@@ -275,7 +272,7 @@ begin
   end;
 end;
 
-function GetPluginObject: INovusPlugin;
+function GetPluginObject: TNovusPlugin;
 begin
   if (_Plugin_JSONTags = nil) then
     _Plugin_JSONTags := TPlugin_JSONTags.Create;

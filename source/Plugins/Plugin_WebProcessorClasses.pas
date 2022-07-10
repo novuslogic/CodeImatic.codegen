@@ -3,7 +3,7 @@ unit Plugin_WebProcessorClasses;
 interface
 
 uses Winapi.Windows, System.SysUtils, System.Classes,NovusFileUtils,
-  Plugin, NovusPlugin, NovusVersionUtils, Project, NovusTemplate,
+  Plugin, NovusPlugin, Project, NovusTemplate,
   Output, System.Generics.Defaults, runtime, Config, NovusStringUtils,
   APIBase, ProjectItem, TagType, SassProcessorItem,JvSimpleXml,
   MarkdownProcessorItem, LessCssProcessorItem;
@@ -17,25 +17,23 @@ type
       aProject: TProject; aConfigPlugin: tConfigPlugin); override;
   end;
 
-  TPlugin_WebProcessor = class(TSingletonImplementation, INovusPlugin, IExternalPlugin)
+  TPlugin_WebProcessor = class(TExternalPlugin)
   private
   protected
     foOutput: TOutput;
     foProject: TProject;
     FPlugin_WebProcessor: tPlugin_WebProcessorBase;
   public
-    function GetPluginName: string; safecall;
+    function GetPluginName: string; override; safecall;
 
-    procedure Initialize; safecall;
-    procedure Finalize; safecall;
-
-    property PluginName: string read GetPluginName;
+    procedure Initialize; override; safecall;
+    procedure Finalize; override; safecall;
 
     function CreatePlugin(aOutput: tOutput; aProject: TProject;
-      aConfigPlugin: tConfigPlugin): TPlugin; safecall;
+      aConfigPlugin: tConfigPlugin): TPlugin; override; safecall;
   end;
 
-function GetPluginObject: INovusPlugin; stdcall;
+function GetPluginObject: TNovusPlugin; stdcall;
 
 implementation
 
@@ -81,11 +79,11 @@ end;
 
 procedure TPlugin_WebProcessor.Finalize;
 begin
-  // if Assigned(FPlugin_WebProcessor) then FPlugin_WebProcessor.Free;
+  if Assigned(FPlugin_WebProcessor) then FPlugin_WebProcessor.Free;
 end;
 
 
-function GetPluginObject: INovusPlugin;
+function GetPluginObject: TNovusPlugin;
 begin
   if (_Plugin_WebProcessor = nil) then
     _Plugin_WebProcessor := TPlugin_WebProcessor.Create;

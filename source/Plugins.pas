@@ -100,7 +100,7 @@ procedure TPlugins.UnloadPlugins;
 Var
   I: Integer;
   loPlugin: tPlugin;
-  fPluginInfo: PPluginInfo;
+  fPluginInfo: tPluginInfo;
 begin
   foOutput.Log('Unload Plugins');
 
@@ -123,7 +123,7 @@ begin
    for I := FExternalPlugins.PluginCount - 1 downto 0 do
     begin
       fPluginInfo := FExternalPlugins.GetPluginList(i);
-      foOutput.Log('Unload: ' +fPluginInfo^.PluginName);
+      foOutput.Log('Unload: ' +fPluginInfo.PluginName);
 
       FExternalPlugins.UnloadPlugin(I);
     end;
@@ -136,7 +136,7 @@ procedure TPlugins.RegisterImports;
 var
   loPlugin: TPlugin;
   I: Integer;
-  FExternalPlugin: IExternalPlugin;
+  FExternalPlugin: TExternalPlugin;
 begin
   for I := 0 to fPluginsList.Count - 1 do
   begin
@@ -156,7 +156,7 @@ function TPlugins.LoadDBSchemaFiles: boolean;
 var
   loPlugin: TPlugin;
   I: Integer;
-  FExternalPlugin: IExternalPlugin;
+  FExternalPlugin: TExternalPlugin;
 begin
   Result := true;
 
@@ -183,7 +183,7 @@ procedure TPlugins.SetVariantToClasses(aExec: TPSExec);
 var
   loPlugin: TPlugin;
   I: Integer;
-  FExternalPlugin: IExternalPlugin;
+  FExternalPlugin: TExternalPlugin;
 begin
   for I := 0 to fPluginsList.Count - 1 do
   begin
@@ -197,7 +197,7 @@ procedure TPlugins.RegisterFunctions(aExec: TPSExec);
 var
   I: Integer;
   loPlugin: TPlugin;
-  FExternalPlugin: IExternalPlugin;
+  FExternalPlugin: TExternalPlugin;
 begin
   for I := 0 to fPluginsList.Count - 1 do
   begin
@@ -235,7 +235,7 @@ procedure TPlugins.LoadPlugins;
 Var
   I: Integer;
   FPlugin: TPlugin;
-  FExternalPlugin: IExternalPlugin;
+  FExternalPlugin: TExternalPlugin;
   loConfigPlugin: TConfigPlugin;
 begin
   // External Plugin
@@ -252,8 +252,7 @@ begin
         if FExternalPlugins.LoadPlugin(loConfigPlugin.PluginFilenamePathname)
         then
         begin
-          FExternalPlugin :=
-            IExternalPlugin(FExternalPlugins.Plugins
+          FExternalPlugin := TExternalPlugin(FExternalPlugins.Plugins
             [FExternalPlugins.PluginCount - 1]);
 
           fPluginsList.Add(FExternalPlugin.CreatePlugin(foOutput, foProject,

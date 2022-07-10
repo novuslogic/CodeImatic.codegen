@@ -7,7 +7,7 @@ uses
   SysUtils, Classes, NovusTemplate, Config, NovusFileUtils,
   Properties, NovusStringUtils, Snippits, Plugins, PascalScript, dialogs,
   NovusCommandLine,
-  CodeGenerator, Output, NovusVersionUtils, Project, ProjectItem, CommandLine;
+  CodeGenerator, Output, NovusWinVersionUtils, Project, ProjectItem, CommandLine;
 
 type
   tRuntime = class
@@ -262,8 +262,6 @@ begin
 
   foProject.oPlugins := foPlugins;
 
-  // foProject.oProjectConfigLoader.LoadConnections;
-
   RunProjectItems;
 
   if Not foOutput.Failed then
@@ -294,16 +292,16 @@ function tRuntime.GetVersion(aIndex: Integer): string;
 begin
   case aIndex of
     0:
-      Result := TNovusVersionUtils.GetFullVersionNumber;
+      Result := TNovusWinVersionUtils.GetFullVersionNumber;
     1:
-      Result := Trim(TNovusVersionUtils.GetProductName) + ' ' +
-        TNovusVersionUtils.GetFullVersionNumber;
+      Result := Trim(TNovusWinVersionUtils.GetProductName) + ' ' +
+        TNovusWinVersionUtils.GetFullVersionNumber;
   end;
 end;
 
 function tRuntime.GetVersionCopyright: string;
 begin
-  Result := 'CodeImatic.codegen - © Copyright Novuslogic Software 2020 All Rights Reserved';
+  Result := 'CodeImatic.codegen - © Copyright Novuslogic Software 2022 All Rights Reserved';
 end;
 
 Initialization

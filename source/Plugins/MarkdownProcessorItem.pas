@@ -2,7 +2,7 @@ unit MarkdownProcessorItem;
 
 interface
 
-uses Classes, Plugin, NovusPlugin, NovusVersionUtils, Project, NovusTemplate,
+uses Classes, Plugin, NovusPlugin, Project, NovusTemplate,
   Output, SysUtils, System.Generics.Defaults, runtime, Config, NovusStringUtils,
   APIBase, MarkdownDaringFireball, MarkdownProcessor, ProjectItem, TagType,
   Loader, template, CodeGenerator, TagParser;

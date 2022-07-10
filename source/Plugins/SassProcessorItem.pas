@@ -3,7 +3,7 @@ unit SassProcessorItem;
 interface
 
 Uses Winapi.Windows, System.SysUtils, System.Classes, NovusFileUtils,
-  Plugin, NovusPlugin, NovusVersionUtils, Project, NovusTemplate,
+  Plugin, NovusPlugin,  Project, NovusTemplate,
   Output, System.Generics.Defaults, runtime, Config, NovusStringUtils,
   APIBase, ProjectItem, TagType, JvSimpleXml, DelphiLibSass, Loader, template;
 

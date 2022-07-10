@@ -43,25 +43,22 @@ type
 
   end;
 
-  TPlugin_CodeDocsTags = class(TSingletonImplementation, INovusPlugin,
-    IExternalPlugin)
+  TPlugin_CodeDocsTags = class(TExternalPlugin)
   private
   protected
     foProject: TProject;
     FPlugin_CodeDocsTags: tPlugin_CodeDocsTagsBase;
   public
-    function GetPluginName: string; safecall;
+    function GetPluginName: string; override; safecall;
 
-    procedure Initialize; safecall;
-    procedure Finalize; safecall;
-
-    property PluginName: string read GetPluginName;
+    procedure Initialize; override; safecall;
+    procedure Finalize; override; safecall;
 
     function CreatePlugin(aOutput: tOutput; aProject: TProject;
-      aConfigPlugin: tConfigPlugin): TPlugin; safecall;
+      aConfigPlugin: tConfigPlugin): TPlugin; override; safecall;
   end;
 
-function GetPluginObject: INovusPlugin; stdcall;
+function GetPluginObject: TNovusPlugin; stdcall;
 
 implementation
 
@@ -154,7 +151,7 @@ begin
   end;
 end;
 
-function GetPluginObject: INovusPlugin;
+function GetPluginObject: TNovusPlugin;
 begin
   if (_Plugin_CodeDocsTags = nil) then
     _Plugin_CodeDocsTags := TPlugin_CodeDocsTags.Create;

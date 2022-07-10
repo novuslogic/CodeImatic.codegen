@@ -40,3 +40,4 @@ samples/Interpreter/Output/INTERPRETER.TXT
 *.~1~
 *.~2~
 *.pas
+source/Plugins/__recovery/__recovery.ini

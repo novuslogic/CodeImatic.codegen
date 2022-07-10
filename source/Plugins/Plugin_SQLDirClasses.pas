@@ -2,7 +2,7 @@ unit Plugin_SQLDirClasses;
 
 interface
 
-uses Classes,Plugin, NovusPlugin, NovusVersionUtils, Project,
+uses Classes,Plugin, NovusPlugin, Project,
     Output, SysUtils, System.Generics.Defaults,  runtime, Config,
     APIBase, NovusGUID, CodeGeneratorItem, FunctionsParser, ProjectItem,
     Variables, NovusFileUtils, SDEngine, DataProcessor, NovusSQLDirUtils, DB,
@@ -42,23 +42,21 @@ type
     function FieldByName(aConnection: tConnection;aTableName: String; aFieldName: String): TFieldDesc; override;
   end;
 
-  TPlugin_SQLDir = class( TSingletonImplementation, INovusPlugin, IExternalPlugin)
+  TPlugin_SQLDir = class(TExternalPlugin)
   private
   protected
     foProject: TProject;
     FPlugin_SQLDir: tPlugin_SQLDirBase;
   public
-    function GetPluginName: string; safecall;
+    function GetPluginName: string; override; safecall;
 
-    procedure Initialize; safecall;
-    procedure Finalize; safecall;
+    procedure Initialize; override; safecall;
+    procedure Finalize; override; safecall;
 
-    property PluginName: string read GetPluginName;
-
-    function CreatePlugin(aOutput: tOutput; aProject: Tproject; aConfigPlugin: TConfigPlugin): TPlugin; safecall;
+    function CreatePlugin(aOutput: tOutput; aProject: Tproject; aConfigPlugin: TConfigPlugin): TPlugin; override; safecall;
   end;
 
-function GetPluginObject: INovusPlugin; stdcall;
+function GetPluginObject: TNovusPlugin; stdcall;
 
 implementation
 
@@ -89,7 +87,7 @@ procedure tPlugin_SQLDir.Initialize;
 begin
 end;
 
-function tPlugin_SQLDir.CreatePlugin(aOutput: tOutput; aProject: TProject; aConfigPlugin: TConfigPlugin): TPlugin; safecall;
+function tPlugin_SQLDir.CreatePlugin(aOutput: tOutput; aProject: TProject; aConfigPlugin: TConfigPlugin): TPlugin;
 begin
   foProject := aProject;
 
@@ -101,12 +99,10 @@ end;
 
 procedure tPlugin_SQLDir.Finalize;
 begin
-  //if Assigned(FPlugin_SQLDir) then FPlugin_SQLDir.Free;
+  if Assigned(FPlugin_SQLDir) then FPlugin_SQLDir.Free;
 end;
 
 // tPlugin_SQLDirBase
-
-
 function tPlugin_SQLDirBase.CreateConnection: TConnection;
 begin
   Result := TSQLDirConnection.Create(foOutput);
@@ -287,14 +283,13 @@ begin
 end;
 
 
-function GetPluginObject: INovusPlugin;
+function GetPluginObject: TNovusPlugin;
 begin
   if (_Plugin_SQLDir = nil) then _Plugin_SQLDir := TPlugin_SQLDir.Create;
   result := _Plugin_SQLDir;
 end;
 
-exports
-  GetPluginObject name func_GetPluginObject;
+exports GetPluginObject name func_GetPluginObject;
 
 initialization
   begin

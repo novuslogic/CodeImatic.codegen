@@ -4,7 +4,7 @@ interface
 
 Uses
   Winapi.Windows, System.SysUtils, System.Classes, NovusFileUtils,
-  Plugin, NovusPlugin, NovusVersionUtils, Project, NovusTemplate, NovusEnvironment,
+  Plugin, NovusPlugin,  Project, NovusTemplate, NovusEnvironment,
   Output, System.Generics.Defaults, runtime, Config, NovusStringUtils,
   APIBase, ProjectItem, TagType, JvSimpleXml, Loader, template;
 

@@ -1,3 +1,11 @@
+10/07/2022
+
+* Upgraded tp Pre multi Plantform NovuscodeLibrary Delphi 11
+
+09/07/2022
+
+* Refactored for upgraded Novusplugin unit in NovuscodeLibrary
+
 20/02/2022
 
 * Upgraded TokenProcessor with tNovusTokenProcessor

@@ -2,7 +2,7 @@ unit Plugin_SystemExtClasses;
 
 interface
 
-uses Classes, Plugin, NovusPlugin, NovusVersionUtils, Project,
+uses Classes, Plugin, NovusPlugin, Project,
   Output, SysUtils, System.Generics.Defaults, runtime, Config,
   APIBase, uPSRuntime, uPSCompiler,
   uPSC_classes, uPSC_std, uPSR_std, uPSR_classes,
@@ -25,26 +25,23 @@ type
 
   end;
 
-  TPlugin_SystemExt = class(TSingletonImplementation, INovusPlugin,
-    IExternalPlugin)
+  TPlugin_SystemExt = class(TExternalPlugin)
   private
   protected
     foProject: TProject;
     FPlugin_SystemExt: tPlugin_SystemExtBase;
   public
-    function GetPluginName: string; safecall;
+    function GetPluginName: string; override; safecall;
 
-    procedure Initialize; safecall;
-    procedure Finalize; safecall;
-
-    property PluginName: string read GetPluginName;
+    procedure Initialize; override; safecall;
+    procedure Finalize; override; safecall;
 
     function CreatePlugin(aOutput: tOutput; aProject: TProject;
-      aConfigPlugin: tConfigPlugin): TPlugin; safecall;
+      aConfigPlugin: tConfigPlugin): TPlugin; override; safecall;
 
   end;
 
-function GetPluginObject: INovusPlugin; stdcall;
+function GetPluginObject: TNovusPlugin; stdcall;
 
 function CommandSleep(Caller: TPSExec; p: TIFExternalProcRec;
   Global, Stack: TPSStack): Boolean;
@@ -102,11 +99,10 @@ end;
 
 procedure TPlugin_SystemExt.Finalize;
 begin
-  // if Assigned(FPlugin_SystemExt) then FPlugin_SystemExt.Free;
+   if Assigned(FPlugin_SystemExt) then FPlugin_SystemExt.Free;
 end;
 
 // tPlugin_SystemExtBase
-
 function tPlugin_SystemExtBase.CustomOnUses(var aCompiler
   : TPSPascalCompiler): Boolean;
 begin
@@ -169,7 +165,7 @@ begin
   RIRegister_Classes(FImp, True);
 end;
 
-function GetPluginObject: INovusPlugin;
+function GetPluginObject: TNovusPlugin;
 begin
   if (_Plugin_SystemExt = nil) then
     _Plugin_SystemExt := TPlugin_SystemExt.Create;

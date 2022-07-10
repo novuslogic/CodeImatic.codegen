@@ -1,6 +1,3 @@
-{.$define ShareMM}
-{.$define ShareMMIfLibrary}
-{.$define AttemptToUseSharedMM}
 library CodeDocsTags;
 
 uses

@@ -2,7 +2,7 @@ unit Plugin_DBTagsClasses;
 
 interface
 
-uses Classes,Plugin, NovusPlugin, NovusVersionUtils, Project,
+uses Classes,Plugin, NovusPlugin, Project,
     Output, SysUtils, System.Generics.Defaults,  runtime, Config, NovusStringUtils,
     APIBase, NovusGUID, CodeGeneratorItem, FunctionsParser, ProjectItem, TokenParser,
     Variables, NovusFileUtils, CodeGenerator, FieldFunctionParser, DataProcessor,
@@ -85,23 +85,21 @@ type
 
   end;
 
-  TPlugin_DBTags = class( TSingletonImplementation, INovusPlugin, IExternalPlugin)
+  TPlugin_DBTags = class( TExternalPlugin)
   private
   protected
     foProject: TProject;
     FPlugin_DBTags: tPlugin_DBTagsBase;
   public
-    function GetPluginName: string; safecall;
+    function GetPluginName: string; override; safecall;
 
-    procedure Initialize; safecall;
-    procedure Finalize; safecall;
+    procedure Initialize; override; safecall;
+    procedure Finalize; override; safecall;
 
-    property PluginName: string read GetPluginName;
-
-    function CreatePlugin(aOutput: tOutput; aProject: Tproject; aConfigPlugin: TConfigPlugin): TPlugin; safecall;
+    function CreatePlugin(aOutput: tOutput; aProject: Tproject; aConfigPlugin: TConfigPlugin): TPlugin; override; safecall;
   end;
 
-function GetPluginObject: INovusPlugin; stdcall;
+function GetPluginObject: TNovusPlugin; stdcall;
 
 implementation
 
@@ -154,10 +152,9 @@ begin
   Result := FPlugin_DBTags;
 end;
 
-
 procedure tPlugin_DBTags.Finalize;
 begin
-  //if Assigned(FPlugin_DBTags) then FPlugin_DBTags.Free;
+  if Assigned(FPlugin_DBTags) then FPlugin_DBTags.Free;
 end;
 
 // tPlugin_DBTagsBase
@@ -196,7 +193,7 @@ begin
 end;
 
 
-function GetPluginObject: INovusPlugin;
+function GetPluginObject: TNovusPlugin;
 begin
   if (_Plugin_DBTags = nil) then _Plugin_DBTags := TPlugin_DBTags.Create;
   result := _Plugin_DBTags;
@@ -518,8 +515,6 @@ begin
     oOutput.InternalError;
   End;
 end;
-
-
 
 
 

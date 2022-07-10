@@ -78,25 +78,22 @@ type
 
   end;
 
-  TPlugin_XMLTags = class(TSingletonImplementation, INovusPlugin,
-    IExternalPlugin)
+  TPlugin_XMLTags = class(TExternalPlugin)
   private
   protected
     foProject: TProject;
     FPlugin_XMLTags: tPlugin_XMLTagsBase;
   public
-    function GetPluginName: string; safecall;
+    function GetPluginName: string; override; safecall;
 
-    procedure Initialize; safecall;
-    procedure Finalize; safecall;
-
-    property PluginName: string read GetPluginName;
+    procedure Initialize; override; safecall;
+    procedure Finalize; override; safecall;
 
     function CreatePlugin(aOutput: tOutput; aProject: TProject;
-      aConfigPlugin: tConfigPlugin): TPlugin; safecall;
+      aConfigPlugin: tConfigPlugin): TPlugin; override; safecall;
   end;
 
-function GetPluginObject: INovusPlugin; stdcall;
+function GetPluginObject: TNovusPlugin; stdcall;
 
 
 implementation
@@ -192,7 +189,7 @@ end;
 
 procedure TPlugin_XMLTags.Finalize;
 begin
-  // if Assigned(FPlugin_XMLTags) then FPlugin_XMLTags.Free;
+  if Assigned(FPlugin_XMLTags) then FPlugin_XMLTags.Free;
 end;
 
 // tPlugin_XMLTagsBase
@@ -463,7 +460,7 @@ end;
 
 
 
-function GetPluginObject: INovusPlugin;
+function GetPluginObject: TNovusPlugin;
 begin
   if (_Plugin_XMLTags = nil) then
     _Plugin_XMLTags := TPlugin_XMLTags.Create;

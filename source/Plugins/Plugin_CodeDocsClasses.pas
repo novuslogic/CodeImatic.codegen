@@ -3,7 +3,7 @@ unit Plugin_CodeDocsClasses;
 interface
 
 uses Winapi.Windows, System.SysUtils, System.Classes,
-  Plugin, NovusPlugin, NovusVersionUtils, Project, NovusTemplate,
+  Plugin, NovusPlugin, Project, NovusTemplate,
   Output, System.Generics.Defaults, runtime, Config, NovusStringUtils,
   APIBase, ProjectItem, TagType, CodeDocsProcessorItem, JvHtmlParser;
 
@@ -19,30 +19,24 @@ type
       aProject: TProject; aConfigPlugin: tConfigPlugin); override;
   end;
 
-  TPlugin_CodeDocs = class(TSingletonImplementation, INovusPlugin, IExternalPlugin)
+  TPlugin_CodeDocs = class(TExternalPlugin)
   private
-
   protected
     foOutput: TOutput;
     foProject: TProject;
     FPlugin_CodeDocs: tPlugin_CodeDocsBase;
-
   public
+    function GetPluginName: string; override; safecall;
 
-
-    function GetPluginName: string; safecall;
-
-    procedure Initialize; safecall;
-    procedure Finalize; safecall;
-
-    property PluginName: string read GetPluginName;
+    procedure Initialize; override; safecall;
+    procedure Finalize; override; safecall;
 
     function CreatePlugin(aOutput: tOutput; aProject: TProject;
-      aConfigPlugin: tConfigPlugin): TPlugin; safecall;
+      aConfigPlugin: tConfigPlugin): TPlugin; override; safecall;
 
   end;
 
-function GetPluginObject: INovusPlugin; stdcall;
+function GetPluginObject: TNovusPlugin; stdcall;
 
 implementation
 
@@ -87,12 +81,11 @@ end;
 
 procedure TPlugin_CodeDocs.Finalize;
 begin
-  // if Assigned(FPlugin_CodeDocs) then FPlugin_CodeDocs.Free;
+   if Assigned(FPlugin_CodeDocs) then FPlugin_CodeDocs.Free;
 end;
 
 // tPlugin_CodeDocsBase
-
-function GetPluginObject: INovusPlugin;
+function GetPluginObject: TNovusPlugin;
 begin
   if (_Plugin_CodeDocs = nil) then
     _Plugin_CodeDocs := TPlugin_CodeDocs.Create;

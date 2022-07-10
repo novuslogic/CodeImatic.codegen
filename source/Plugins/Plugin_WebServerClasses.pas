@@ -2,7 +2,7 @@ unit Plugin_WebServerClasses;
 
 interface
 
-uses Classes,Plugin, NovusPlugin, NovusVersionUtils,Project, NovusCommandLine,
+uses Classes,Plugin, NovusPlugin, Project, NovusCommandLine,
     Output, SysUtils, System.Generics.Defaults,  runtime, config, TagType,
     APIBase, IdBaseComponent, IdComponent, IdTCPServer, IdHTTPServer, StdCtrls,
     ExtCtrls, HTTPApp, Windows, {NovusConsoleUtils,} Plugin_WebServerEngine;
@@ -31,23 +31,20 @@ type
        write fbIsOpenBrowser;
   end;
 
-  TPlugin_WebServer = class( TSingletonImplementation, INovusPlugin, IExternalPlugin)
+  TPlugin_WebServer = class( TExternalPlugin)
   private
   protected
     FPlugin_WebServer: tPlugin_WebServerBase;
   public
-    function GetPluginName: string; safecall;
+    function GetPluginName: string; override; safecall;
 
-    procedure Initialize; safecall;
-    procedure Finalize; safecall;
+    procedure Initialize; override; safecall;
+    procedure Finalize; override; safecall;
 
-    property PluginName: string read GetPluginName;
-
-    function CreatePlugin(aOutput: tOutput; aProject: TProject; aConfigPlugin: TConfigPlugin): TPlugin; safecall;
-
+    function CreatePlugin(aOutput: tOutput; aProject: TProject; aConfigPlugin: TConfigPlugin): TPlugin; override; safecall;
   end;
 
-function GetPluginObject: INovusPlugin; stdcall;
+function GetPluginObject: TNovusPlugin; stdcall;
 
 implementation
 
@@ -88,7 +85,7 @@ end;
 
 procedure tPlugin_WebServer.Finalize;
 begin
-  //if Assigned(FPlugin_WebServer) then FPlugin_WebServer.Free;
+  if Assigned(FPlugin_WebServer) then FPlugin_WebServer.Free;
 end;
 
 // tPlugin_WebServerBase
@@ -163,7 +160,7 @@ end;
 
 
 
-function GetPluginObject: INovusPlugin;
+function GetPluginObject: TNovusPlugin;
 begin
   if (_Plugin_WebServer = nil) then _Plugin_WebServer := TPlugin_WebServer.Create;
   result := _Plugin_WebServer;

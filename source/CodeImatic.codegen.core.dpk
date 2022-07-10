@@ -37,7 +37,8 @@ requires
   NovusCodeLibrary_XML,
   NovusCodeLibrary_Parser,
   NovusCodeLibrary_Plugin,
-  NovusCodeLibrary_Env,
+  NovusCodeLibrary_Windows,
+  NovusCodeLibrary_OS,
   NovusCodeLibrary_WebUtils,
   NovusCodeLibrary_Console;
 

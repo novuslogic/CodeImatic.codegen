@@ -160,12 +160,14 @@ type
 
   end;
 
-  IExternalPlugin = interface(INovusPlugin)
-    ['{155A396A-9457-4C48-A787-0C9582361B45}']
-
+  TExternalPlugin = class(TNovusPlugin)
+  protected
+  private
+  public
     function CreatePlugin(aOutput: tOutput; aProject: tProject;
-      aConfigPlugin: TConfigPlugin): TPlugin safecall;
+      aConfigPlugin: TConfigPlugin): TPlugin; virtual; safecall;
   end;
+
 
   TPluginClass = class of TPlugin;
 
@@ -568,6 +570,14 @@ function TDataProcessorPlugin.GetDBSchemaFile: string;
 begin
   if foConfigPlugin.oConfigProperties.IsPropertyExists('DBSchemaFile') then
     Result := foConfigPlugin.oConfigProperties.GetProperty('DBSchemaFile');
+end;
+
+
+// TExternalPlugin
+function TExternalPlugin.CreatePlugin(aOutput: tOutput; aProject: tProject;
+      aConfigPlugin: TConfigPlugin): TPlugin;
+begin
+  result := NIL;
 end;
 
 
