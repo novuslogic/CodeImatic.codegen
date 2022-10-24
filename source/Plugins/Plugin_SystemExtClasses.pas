@@ -22,7 +22,6 @@ type
     procedure RegisterFunction(var aExec: TPSExec); override;
     procedure SetVariantToClass(var aExec: TPSExec); override;
     procedure RegisterImport; override;
-
   end;
 
   TPlugin_SystemExt = class(TExternalPlugin)

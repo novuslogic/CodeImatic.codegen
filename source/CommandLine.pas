@@ -188,7 +188,7 @@ constructor tOutputlogCommand.Create;
 begin
   inherited;
 
-  fsOutputlogFilename := csOutputFile;
+  fsOutputlogFilename := csOutputLogFileName;
 
   RegisterOption(clOutputlog, '', false, NIL);
 end;

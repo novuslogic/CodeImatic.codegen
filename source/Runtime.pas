@@ -75,12 +75,12 @@ begin
   fNovusCommandLineResultOption := aCommandLineResult.FindFirstCommandwithOption
     (clOutputlog);
   if Assigned(fNovusCommandLineResultOption) then
-    oConfig.OutputlogFilename := fNovusCommandLineResultOption.Value;
+    oConfig.OutputlogFilename := fNovusCommandLineResultOption.Value.AsString;
 
   fNovusCommandLineResultOption := aCommandLineResult.FindFirstCommandwithOption
     (clworkingdirectory);
   if Assigned(fNovusCommandLineResultOption) then
-    oConfig.workingdirectory := fNovusCommandLineResultOption.Value;
+    oConfig.workingdirectory := fNovusCommandLineResultOption.Value.AsString;
 
   if Trim(oConfig.workingdirectory) = '' then
   begin
@@ -127,7 +127,7 @@ begin
     While (Assigned(fNovusCommandLineResultCommand)) do
     begin
       if not oConfig.oVariablesCmdLine.AddVariableCmdLine
-        (fNovusCommandLineResultCommand.Options.FirstOption.Value) then
+        (fNovusCommandLineResultCommand.Options.FirstOption.Value.AsString) then
       begin
         foProject.Free;
 
@@ -153,7 +153,7 @@ begin
   fNovusCommandLineResultOption := aCommandLineResult.FindFirstCommandwithOption
     (clproject);
   if Assigned(fNovusCommandLineResultOption) then
-    oConfig.ProjectFileName := fNovusCommandLineResultOption.Value;
+    oConfig.ProjectFileName := fNovusCommandLineResultOption.Value.AsString;
 
   If not foProject.LoadProjectFile(oConfig.ProjectFileName, foOutput,
     fsworkingdirectory) then

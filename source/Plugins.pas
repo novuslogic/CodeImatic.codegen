@@ -104,23 +104,7 @@ Var
 begin
   foOutput.Log('Unload Plugins');
 
-  (*
-  for I := 0 to fPluginsList.Count - 1 do
-  begin
-    loPlugin := TPlugin(fPluginsList.Items[I]);
-
-    loPlugin.Free;
-    loPlugin := nil;
-  end;
-
-  fPluginsList.Clear;
-  *)
-
-  fPluginsList.Clear;
-
-  //FExternalPlugins.UnloadAllPlugins;
-
-   for I := FExternalPlugins.PluginCount - 1 downto 0 do
+  for I := FExternalPlugins.PluginCount - 1 downto 0 do
     begin
       fPluginInfo := FExternalPlugins.GetPluginList(i);
       foOutput.Log('Unload: ' +fPluginInfo.PluginName);
@@ -288,7 +272,7 @@ var
 
                 if Assigned(loResultOption) then
                   begin
-                    if uppercase(loResultOption.Value) = uppercase(aPluginName) then
+                    if uppercase(loResultOption.Value.AsString) = uppercase(aPluginName) then
                       begin
                         Result := loResultCommand;
                         break;
