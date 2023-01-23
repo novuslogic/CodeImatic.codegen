@@ -1,6 +1,21 @@
+23/01/2023
+
+* Upgraded NovuscodeLibrary Delphi 11 v.1.0
+* Updated Codeimatic.codegen for Delphi 11.2
+* Rwname SysTags.dll plugin to CodeImatic.codegen.Tags.Sys.dll
+* Rename CodeDocsTags.dll plugin to CodeImatic.codegen.Tags.CodeDocs.dll
+* Rename DBTags.dll plugin to CodeImatic.codegen.Tags.DB.Dll
+* Ranmed JSONTags.dll plugin to CodeImatic.codegen.Tags.JSON.dll 
+* Rename XMLTags.dll plugin to CodeImatic.codegen.Tags.XML.dll
+* Rename CodeDocsProcessor.dll plugin to CodeImatic.codegen.Processor.CodeDocs.dll
+* Rename SQLDir.dll plugin to CodeImatic.codegen.DataProcessor.SQLDir.dll
+* Rename WebProcessor.dll plugin to CodeImatic.codegen.Processor.Web.dll
+* Rename WebServer.dll plugin to CodeImatic.codegen.WebServer.dll
+* Rename SystemExt.dll plugin to CodeImatic.codegen.Pascal.SystemExt.dll
+
 10/07/2022
 
-* Upgraded tp Pre multi Plantform NovuscodeLibrary Delphi 11
+* Upgraded to Pre multi Plantform NovuscodeLibrary Delphi 11 v.1.0
 
 09/07/2022
 
@@ -12,7 +27,7 @@
 
 24/01/2022
 
-Updated Codeimatic.codegen for Delphi 11
+* Updated Codeimatic.codegen for Delphi 11
 
 29/12/2021
 

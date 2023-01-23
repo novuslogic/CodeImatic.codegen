@@ -1,4 +1,4 @@
-library SysTags;
+library CodeImatic.codegen.Tags.Sys;
 
 uses
   System.SysUtils,

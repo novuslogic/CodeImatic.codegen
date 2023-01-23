@@ -1,4 +1,4 @@
-library JSONTags;
+library CodeImatic.codegen.Tags.JSON;
 
 uses
   System.SysUtils,

@@ -2,7 +2,7 @@
 {.$define ShareMMIfLibrary}
 {.$define AttemptToUseSharedMM}
 
-library WebServer;
+library CodeImatic.codegen.WebServer;
 
 uses
  // FastMM4,

@@ -1,4 +1,4 @@
-library CodeDocsProcessor;
+library CodeImatic.codegen.Processor.CodeDocs;
 
 uses
  // FastMM4,

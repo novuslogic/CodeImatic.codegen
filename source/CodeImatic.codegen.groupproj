@@ -9,34 +9,34 @@
         <Projects Include="CodeImatic.codegen.core.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="Plugins\WebServer.dproj">
+        <Projects Include="Plugins\CodeImatic.codegen.WebServer.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="Plugins\WebProcessor.dproj">
+        <Projects Include="Plugins\CodeImatic.codegen.Processor.Web.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="Plugins\SystemExt.dproj">
+        <Projects Include="Plugins\CodeImatic.codegen.Pascal.SystemExt.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="Plugins\CodeDocsProcessor.dproj">
+        <Projects Include="Plugins\CodeImatic.codegen.Processor.CodeDocs.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="Plugins\SysTags.dproj">
+        <Projects Include="Plugins\CodeImatic.codegen.Tags.Sys.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="Plugins\DBTags.dproj">
+        <Projects Include="Plugins\CodeImatic.codegen.Tags.DB.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="Plugins\SQLDir.dproj">
+        <Projects Include="Plugins\CodeImatic.codegen.DataProcessor.SQLDir.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="Plugins\JSONTags.dproj">
+        <Projects Include="Plugins\CodeImatic.codegen.Tags.JSON.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="Plugins\XMLTags.dproj">
+        <Projects Include="Plugins\CodeImatic.codegen.Tags.XML.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="Plugins\CodeDocsTags.dproj">
+        <Projects Include="Plugins\CodeImatic.codegen.Tags.CodeDocs.dproj">
             <Dependencies/>
         </Projects>
     </ItemGroup>
@@ -65,104 +65,104 @@
     <Target Name="CodeImatic_codegen_core:Make">
         <MSBuild Projects="CodeImatic.codegen.core.dproj" Targets="Make"/>
     </Target>
-    <Target Name="WebServer">
-        <MSBuild Projects="Plugins\WebServer.dproj"/>
+    <Target Name="CodeImatic_codegen_WebServer">
+        <MSBuild Projects="Plugins\CodeImatic.codegen.WebServer.dproj"/>
     </Target>
-    <Target Name="WebServer:Clean">
-        <MSBuild Projects="Plugins\WebServer.dproj" Targets="Clean"/>
+    <Target Name="CodeImatic_codegen_WebServer:Clean">
+        <MSBuild Projects="Plugins\CodeImatic.codegen.WebServer.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="WebServer:Make">
-        <MSBuild Projects="Plugins\WebServer.dproj" Targets="Make"/>
+    <Target Name="CodeImatic_codegen_WebServer:Make">
+        <MSBuild Projects="Plugins\CodeImatic.codegen.WebServer.dproj" Targets="Make"/>
     </Target>
-    <Target Name="WebProcessor">
-        <MSBuild Projects="Plugins\WebProcessor.dproj"/>
+    <Target Name="CodeImatic_codegen_Processor_Web">
+        <MSBuild Projects="Plugins\CodeImatic.codegen.Processor.Web.dproj"/>
     </Target>
-    <Target Name="WebProcessor:Clean">
-        <MSBuild Projects="Plugins\WebProcessor.dproj" Targets="Clean"/>
+    <Target Name="CodeImatic_codegen_Processor_Web:Clean">
+        <MSBuild Projects="Plugins\CodeImatic.codegen.Processor.Web.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="WebProcessor:Make">
-        <MSBuild Projects="Plugins\WebProcessor.dproj" Targets="Make"/>
+    <Target Name="CodeImatic_codegen_Processor_Web:Make">
+        <MSBuild Projects="Plugins\CodeImatic.codegen.Processor.Web.dproj" Targets="Make"/>
     </Target>
-    <Target Name="SystemExt">
-        <MSBuild Projects="Plugins\SystemExt.dproj"/>
+    <Target Name="CodeImatic_codegen_Pascal_SystemExt">
+        <MSBuild Projects="Plugins\CodeImatic.codegen.Pascal.SystemExt.dproj"/>
     </Target>
-    <Target Name="SystemExt:Clean">
-        <MSBuild Projects="Plugins\SystemExt.dproj" Targets="Clean"/>
+    <Target Name="CodeImatic_codegen_Pascal_SystemExt:Clean">
+        <MSBuild Projects="Plugins\CodeImatic.codegen.Pascal.SystemExt.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="SystemExt:Make">
-        <MSBuild Projects="Plugins\SystemExt.dproj" Targets="Make"/>
+    <Target Name="CodeImatic_codegen_Pascal_SystemExt:Make">
+        <MSBuild Projects="Plugins\CodeImatic.codegen.Pascal.SystemExt.dproj" Targets="Make"/>
     </Target>
-    <Target Name="CodeDocsProcessor">
-        <MSBuild Projects="Plugins\CodeDocsProcessor.dproj"/>
+    <Target Name="CodeImatic_codegen_Processor_CodeDocs">
+        <MSBuild Projects="Plugins\CodeImatic.codegen.Processor.CodeDocs.dproj"/>
     </Target>
-    <Target Name="CodeDocsProcessor:Clean">
-        <MSBuild Projects="Plugins\CodeDocsProcessor.dproj" Targets="Clean"/>
+    <Target Name="CodeImatic_codegen_Processor_CodeDocs:Clean">
+        <MSBuild Projects="Plugins\CodeImatic.codegen.Processor.CodeDocs.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="CodeDocsProcessor:Make">
-        <MSBuild Projects="Plugins\CodeDocsProcessor.dproj" Targets="Make"/>
+    <Target Name="CodeImatic_codegen_Processor_CodeDocs:Make">
+        <MSBuild Projects="Plugins\CodeImatic.codegen.Processor.CodeDocs.dproj" Targets="Make"/>
     </Target>
-    <Target Name="SysTags">
-        <MSBuild Projects="Plugins\SysTags.dproj"/>
+    <Target Name="CodeImatic_codegen_Tags_Sys">
+        <MSBuild Projects="Plugins\CodeImatic.codegen.Tags.Sys.dproj"/>
     </Target>
-    <Target Name="SysTags:Clean">
-        <MSBuild Projects="Plugins\SysTags.dproj" Targets="Clean"/>
+    <Target Name="CodeImatic_codegen_Tags_Sys:Clean">
+        <MSBuild Projects="Plugins\CodeImatic.codegen.Tags.Sys.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="SysTags:Make">
-        <MSBuild Projects="Plugins\SysTags.dproj" Targets="Make"/>
+    <Target Name="CodeImatic_codegen_Tags_Sys:Make">
+        <MSBuild Projects="Plugins\CodeImatic.codegen.Tags.Sys.dproj" Targets="Make"/>
     </Target>
-    <Target Name="DBTags">
-        <MSBuild Projects="Plugins\DBTags.dproj"/>
+    <Target Name="CodeImatic_codegen_Tags_DB">
+        <MSBuild Projects="Plugins\CodeImatic.codegen.Tags.DB.dproj"/>
     </Target>
-    <Target Name="DBTags:Clean">
-        <MSBuild Projects="Plugins\DBTags.dproj" Targets="Clean"/>
+    <Target Name="CodeImatic_codegen_Tags_DB:Clean">
+        <MSBuild Projects="Plugins\CodeImatic.codegen.Tags.DB.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="DBTags:Make">
-        <MSBuild Projects="Plugins\DBTags.dproj" Targets="Make"/>
+    <Target Name="CodeImatic_codegen_Tags_DB:Make">
+        <MSBuild Projects="Plugins\CodeImatic.codegen.Tags.DB.dproj" Targets="Make"/>
     </Target>
-    <Target Name="SQLDir">
-        <MSBuild Projects="Plugins\SQLDir.dproj"/>
+    <Target Name="CodeImatic_codegen_DataProcessor_SQLDir">
+        <MSBuild Projects="Plugins\CodeImatic.codegen.DataProcessor.SQLDir.dproj"/>
     </Target>
-    <Target Name="SQLDir:Clean">
-        <MSBuild Projects="Plugins\SQLDir.dproj" Targets="Clean"/>
+    <Target Name="CodeImatic_codegen_DataProcessor_SQLDir:Clean">
+        <MSBuild Projects="Plugins\CodeImatic.codegen.DataProcessor.SQLDir.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="SQLDir:Make">
-        <MSBuild Projects="Plugins\SQLDir.dproj" Targets="Make"/>
+    <Target Name="CodeImatic_codegen_DataProcessor_SQLDir:Make">
+        <MSBuild Projects="Plugins\CodeImatic.codegen.DataProcessor.SQLDir.dproj" Targets="Make"/>
     </Target>
-    <Target Name="JSONTags">
-        <MSBuild Projects="Plugins\JSONTags.dproj"/>
+    <Target Name="CodeImatic_codegen_Tags_JSON">
+        <MSBuild Projects="Plugins\CodeImatic.codegen.Tags.JSON.dproj"/>
     </Target>
-    <Target Name="JSONTags:Clean">
-        <MSBuild Projects="Plugins\JSONTags.dproj" Targets="Clean"/>
+    <Target Name="CodeImatic_codegen_Tags_JSON:Clean">
+        <MSBuild Projects="Plugins\CodeImatic.codegen.Tags.JSON.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="JSONTags:Make">
-        <MSBuild Projects="Plugins\JSONTags.dproj" Targets="Make"/>
+    <Target Name="CodeImatic_codegen_Tags_JSON:Make">
+        <MSBuild Projects="Plugins\CodeImatic.codegen.Tags.JSON.dproj" Targets="Make"/>
     </Target>
-    <Target Name="XMLTags">
-        <MSBuild Projects="Plugins\XMLTags.dproj"/>
+    <Target Name="CodeImatic_codegen_Tags_XML">
+        <MSBuild Projects="Plugins\CodeImatic.codegen.Tags.XML.dproj"/>
     </Target>
-    <Target Name="XMLTags:Clean">
-        <MSBuild Projects="Plugins\XMLTags.dproj" Targets="Clean"/>
+    <Target Name="CodeImatic_codegen_Tags_XML:Clean">
+        <MSBuild Projects="Plugins\CodeImatic.codegen.Tags.XML.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="XMLTags:Make">
-        <MSBuild Projects="Plugins\XMLTags.dproj" Targets="Make"/>
+    <Target Name="CodeImatic_codegen_Tags_XML:Make">
+        <MSBuild Projects="Plugins\CodeImatic.codegen.Tags.XML.dproj" Targets="Make"/>
     </Target>
-    <Target Name="CodeDocsTags">
-        <MSBuild Projects="Plugins\CodeDocsTags.dproj"/>
+    <Target Name="CodeImatic_codegen_Tags_CodeDocs">
+        <MSBuild Projects="Plugins\CodeImatic.codegen.Tags.CodeDocs.dproj"/>
     </Target>
-    <Target Name="CodeDocsTags:Clean">
-        <MSBuild Projects="Plugins\CodeDocsTags.dproj" Targets="Clean"/>
+    <Target Name="CodeImatic_codegen_Tags_CodeDocs:Clean">
+        <MSBuild Projects="Plugins\CodeImatic.codegen.Tags.CodeDocs.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="CodeDocsTags:Make">
-        <MSBuild Projects="Plugins\CodeDocsTags.dproj" Targets="Make"/>
+    <Target Name="CodeImatic_codegen_Tags_CodeDocs:Make">
+        <MSBuild Projects="Plugins\CodeImatic.codegen.Tags.CodeDocs.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="CodeImatic_codegen;CodeImatic_codegen_core;WebServer;WebProcessor;SystemExt;CodeDocsProcessor;SysTags;DBTags;SQLDir;JSONTags;XMLTags;CodeDocsTags"/>
+        <CallTarget Targets="CodeImatic_codegen;CodeImatic_codegen_core;CodeImatic_codegen_WebServer;CodeImatic_codegen_Processor_Web;CodeImatic_codegen_Pascal_SystemExt;CodeImatic_codegen_Processor_CodeDocs;CodeImatic_codegen_Tags_Sys;CodeImatic_codegen_Tags_DB;CodeImatic_codegen_DataProcessor_SQLDir;CodeImatic_codegen_Tags_JSON;CodeImatic_codegen_Tags_XML;CodeImatic_codegen_Tags_CodeDocs"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="CodeImatic_codegen:Clean;CodeImatic_codegen_core:Clean;WebServer:Clean;WebProcessor:Clean;SystemExt:Clean;CodeDocsProcessor:Clean;SysTags:Clean;DBTags:Clean;SQLDir:Clean;JSONTags:Clean;XMLTags:Clean;CodeDocsTags:Clean"/>
+        <CallTarget Targets="CodeImatic_codegen:Clean;CodeImatic_codegen_core:Clean;CodeImatic_codegen_WebServer:Clean;CodeImatic_codegen_Processor_Web:Clean;CodeImatic_codegen_Pascal_SystemExt:Clean;CodeImatic_codegen_Processor_CodeDocs:Clean;CodeImatic_codegen_Tags_Sys:Clean;CodeImatic_codegen_Tags_DB:Clean;CodeImatic_codegen_DataProcessor_SQLDir:Clean;CodeImatic_codegen_Tags_JSON:Clean;CodeImatic_codegen_Tags_XML:Clean;CodeImatic_codegen_Tags_CodeDocs:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="CodeImatic_codegen:Make;CodeImatic_codegen_core:Make;WebServer:Make;WebProcessor:Make;SystemExt:Make;CodeDocsProcessor:Make;SysTags:Make;DBTags:Make;SQLDir:Make;JSONTags:Make;XMLTags:Make;CodeDocsTags:Make"/>
+        <CallTarget Targets="CodeImatic_codegen:Make;CodeImatic_codegen_core:Make;CodeImatic_codegen_WebServer:Make;CodeImatic_codegen_Processor_Web:Make;CodeImatic_codegen_Pascal_SystemExt:Make;CodeImatic_codegen_Processor_CodeDocs:Make;CodeImatic_codegen_Tags_Sys:Make;CodeImatic_codegen_Tags_DB:Make;CodeImatic_codegen_DataProcessor_SQLDir:Make;CodeImatic_codegen_Tags_JSON:Make;CodeImatic_codegen_Tags_XML:Make;CodeImatic_codegen_Tags_CodeDocs:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

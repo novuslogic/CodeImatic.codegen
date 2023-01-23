@@ -1,4 +1,4 @@
-library SystemExt;
+library CodeImatic.codegen.Pascal.SystemExt;
 
 uses
   System.SysUtils,

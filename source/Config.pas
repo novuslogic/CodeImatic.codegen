@@ -8,7 +8,7 @@ Uses SysUtils, NovusXMLBO, Registry, Windows, NovusStringUtils, NovusFileUtils,
 
 
 Const
-  csOutputFile = 'codeimatic.codegen.log';
+  csOutputLogFileName = 'codeimatic.codegen.log';
   csConfigfile = 'codeimatic.codegen.config';
   csConfigfileversion = 'codeimatic.codegen1.0';
 
@@ -24,24 +24,19 @@ Type
    public
      constructor Create(aRootProperties: TJvSimpleXmlElem);
      destructor Destroy; override;
-
      property PluginName: String
        read fsPluginName
        write fsPluginName;
-
      property Pluginfilename: string
         read fsPluginfilename
         write fsPluginfilename;
-
      property PluginFilenamePathname: String
        read fsPluginFilenamePathname
        write fsPluginFilenamePathname;
-
      property oConfigProperties: tConfigProperties
        read foConfigProperties
        write foConfigProperties;
    end;
-
 
    TConfig = Class(TNovusXMLBO)
    protected
@@ -144,7 +139,7 @@ begin
 
   fErrorMessages:= TStringlist.Create;
 
-  fsOutputlogFilename := csOutputFile;
+  fsOutputlogFilename := csOutputLogFileName;
 end;
 
 destructor TConfig.Destroy;
@@ -260,14 +255,11 @@ begin
 
   if fsRootPath = '' then
     fsRootPath := TNovusFileUtils.TrailingBackSlash(TNovusStringUtils.RootDirectory);
-
   fsConfigfile := fsRootPath + csConfigfile;
-
   if FileExists(fsConfigfile) then
     begin
       XMLFileName := fsRootPath + csConfigfile;
       Retrieve;
-
       Index := 0;
       fConfigElem := TNovusSimpleXML.FindNode(oXMLDocument.Root, 'config', Index);
       if assigned(fConfigElem) then
@@ -281,21 +273,17 @@ begin
                    For I := 0 to fPlugins.Items.count -1 do
                      begin
                        fsPluginName := fPlugins.Items[i].Name;
-
                        Index := 0;
                        fsPluginFilename := '';
                        fPluginFilename := TNovusSimpleXML.FindNode(fPlugins.Items[i], 'filename', Index);
                        if Assigned(fPluginFilename) then
                          fsPluginFilename := fPluginFilename.Value;
-
                        Index := 0;
                        fPluginProperties := TNovusSimpleXML.FindNode(fPlugins.Items[i], 'properties', Index);
                        loConfigPlugin := TConfigPlugin.Create(fPluginProperties);
-
                        loConfigPlugin.PluginName := fsPluginName;
                        loConfigPlugin.Pluginfilename := fsPluginfilename;
                        loConfigPlugin.PluginFilenamePathname := rootpath + 'plugins\'+ fsPluginfilename;
-
                        Index := 0;
                        fPluginCommandLine := TNovusSimpleXML.FindNode(fPlugins.Items[i], 'commandline', Index);
                        if Assigned(fPluginCommandLine) then
@@ -323,7 +311,6 @@ begin
                              end;
 
                          end;
-
                       fConfigPluginList.Add(loConfigPlugin);
                      end;
                end;
@@ -350,8 +337,10 @@ begin
     end;
 end;
 
-procedure TConfig.AddError(aErrorMessage: string; aExitCode: integer = 0);
-begin
+
+procedure TConfig.AddError(aErrorMessage: string; aExitCode: integer = 0);
+
+begin
   fiExitCode := aExitCode;
   fbErrors := true;
   fErrorMessages.Add(aErrorMessage)
@@ -387,12 +376,17 @@ begin
   fErrorMessages := Value;
 end;
 
-constructor TConfigPlugin.Create;
-begin
-  foConfigProperties:= tConfigProperties.Create(aRootProperties);
-end;
 
-destructor TConfigPlugin.Destroy;
+constructor TConfigPlugin.Create;
+
+begin
+
+  foConfigProperties:= tConfigProperties.Create(aRootProperties);
+
+end;
+
+
+destructor TConfigPlugin.Destroy;
 begin
   foConfigProperties.Free;
 end;

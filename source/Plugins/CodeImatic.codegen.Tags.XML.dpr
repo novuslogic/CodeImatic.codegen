@@ -1,4 +1,4 @@
-library XMLTags;
+library CodeImatic.codegen.Tags.XML;
 
 uses
   System.SysUtils,

@@ -1,4 +1,4 @@
-library SQLDir;
+library CodeImatic.codegen.DataProcessor.SQLDir;
 
 uses
   System.SysUtils,

@@ -2,7 +2,7 @@ unit Plugin_CodeDocsTagsClasses;
 
 interface
 
-uses Classes, Plugin, NovusPlugin, NovusVersionUtils, Project,
+uses Classes, Plugin, NovusPlugin, Project,
   Output, SysUtils, System.Generics.Defaults, runtime, Config,
   APIBase, NovusGUID, CodeGeneratorItem, FunctionsParser, ProjectItem,
   Variables, NovusFileUtils, CodeGenerator, NovusStringUtils, TokenProcessor,

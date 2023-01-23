@@ -1,7 +1,7 @@
 {$define ShareMM}
 {$define ShareMMIfLibrary}
 {$define AttemptToUseSharedMM}
-library DBTags;
+library CodeImatic.codegen.Tags.DB;
 
 uses
  // FastMM4,

@@ -1,4 +1,4 @@
-library CodeDocsTags;
+library CodeImatic.codegen.Tags.CodeDocs;
 
 uses
  // FastMM4,

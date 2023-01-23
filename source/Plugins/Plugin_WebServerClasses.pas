@@ -134,7 +134,7 @@ begin
   loResultOption := aResultCommand.Options.FindOptionByName('command');
   if Assigned(loResultOption) then
     begin
-      if lowercase(Trim(loResultOption.Value)) =  'runwebserver' then
+      if lowercase(Trim(loResultOption.Value.AsString)) =  'runwebserver' then
         IsWebServer := true;
 
 
