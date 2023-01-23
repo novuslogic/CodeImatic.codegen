@@ -1,10 +1,8 @@
 ## Todo
 
-* Codeimatic.share Support
-* Debug Support
-* Lazarus and fpc support.
 * Support for reversable variables names e.g foo$ or $foo, $$foo or foo$$ allowing to be used in Codeimatic.assemebler
-* Support for <%foo%> template 
-
-
-  
+* ZeosLib support https://github.com/frones/ZeosLib
+* AUTOSTART execute pascal before template generation allowing input from console e.g question
+*  codeimatic class e.g codimatic.addvariable
+	* addvariable
+    * addglobalvariable
