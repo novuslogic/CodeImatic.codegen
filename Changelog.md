@@ -1,3 +1,8 @@
+09/02/2023
+
+* All StaticWebSite Samples have been moved to StaticWebsite folder in samples
+* Fixed folder creation when usinf projectitem folder in project file
+
 23/01/2023
 
 * Upgraded NovuscodeLibrary Delphi 11 v.1.0

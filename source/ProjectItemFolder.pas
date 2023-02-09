@@ -103,6 +103,28 @@ begin
     if aSourceFile.IsTemplateFile then
       begin
         Try
+          if not DirectoryExists
+            (Sysutils.ExtractFilePath(aSourceFile.DestFullPathname)) then
+          begin
+            foOutput.Log('create folder: ' + Sysutils.ExtractFilePath
+              (aSourceFile.DestFullPathname));
+
+            Try
+              TDirectory.CreateDirectory
+                (Sysutils.ExtractFilePath(aSourceFile.DestFullPathname));
+            Except
+              foOutput.LogError('failed creating folder: ' +
+                Sysutils.ExtractFilePath(aSourceFile.DestFullPathname));
+
+              Result := false;
+
+              Exit;
+            end;
+          end;
+
+
+          foOutput.Log('process template file: ' + aSourceFile.DestFullPathname );
+
           loProcessor:= TProcessor.Create(foOutput, foProject, foProjectItem, aSourceFile.Processor,
             aSourceFile.FullPathname,
             aSourceFile.DestFullPathname,
@@ -129,7 +151,21 @@ begin
                 Exit;
               end;
 
-         
+            if not DirectoryExists(SysUtils.ExtractFilePath(aSourceFile.DestFullPathname)) then
+              begin
+                foOutput.Log('create folder: ' + SysUtils.ExtractFilePath(aSourceFile.DestFullPathname));
+
+               Try
+                 TDirectory.CreateDirectory(SysUtils.ExtractFilePath(aSourceFile.DestFullPathname) );
+               Except
+                 foOutput.LogError('failed creating folder: ' + SysUtils.ExtractFilePath(aSourceFile.DestFullPathname));
+
+                 Result := False;
+
+                 Exit;
+               end;
+             end;
+
             foOutput.Log('copy file: ' + aSourceFile.DestFullPathname );
 
             TFile.Copy(aSourceFile.FullPathname, aSourceFile.DestFullPathname, foProjectItem.overrideoutput);

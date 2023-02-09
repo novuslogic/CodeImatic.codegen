@@ -186,8 +186,8 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <Debugger_HostApplication>D:\Projects\CodeImatic.codegen\build\CodeImatic.codegen.exe</Debugger_HostApplication>
-        <Debugger_RunParams>-project FinityEngine.ccproject -plugin webserver runwebserver</Debugger_RunParams>
-        <Debugger_CWD>D:\Projects\FinityEngine\Website</Debugger_CWD>
+        <Debugger_RunParams>-project -StaticWebsite.ccproject -plugin webserver runwebserver</Debugger_RunParams>
+        <Debugger_CWD>D:\Projects\CodeImatic.codegen\samples\StaticWebsite\simple2</Debugger_CWD>
         <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
@@ -283,12 +283,12 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
+                <DeployFile LocalName="$(BDS)\Redist\iossimulator\libPCRE.dylib" Class="DependencyModule"/>
                 <DeployFile LocalName="$(BDS)\Redist\iossimulator\libpcre.dylib" Class="DependencyModule">
                     <Platform Name="iOSSimulator">
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="$(BDS)\Redist\iossimulator\libPCRE.dylib" Class="DependencyModule"/>
                 <DeployFile LocalName="$(BDS)\Redist\osx32\libcgsqlite3.dylib" Class="DependencyModule"/>
                 <DeployFile LocalName="$(BDS)\Redist\osx32\libcgunwind.1.0.dylib" Class="DependencyModule">
                     <Platform Name="OSX32">

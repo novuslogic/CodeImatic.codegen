@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<project>
+  <outputconsole>true</outputconsole>
+  <messageslogpath></messageslogpath>
+  <Createoutputdir>true</Createoutputdir>
+  
+  <projectitem folder="[%sourcepath%]">
+    <sourcefiles folder="[%sourcepath%]">
+      <filters>
+      </filters>  
+      <templates>
+         <file name="*.html"></file>
+      </templates>
+    </sourcefiles>
+    <properties>[%propertiespath%]StaticWebsite.xml</properties>
+    <overrideoutput>true</overrideoutput>
+    <deleteoutput>true</deleteoutput>
+    <output>[%outputpath%]</output>
+  </projectitem>
+
+  <projectconfig>
+   <properties> 
+      <outputpath>[%workingdirectory%]Site\</outputpath>
+      <propertiespath>[%workingdirectory%]Properties\</propertiespath>
+      <sourcepath>[%workingdirectory%]Source\</sourcepath>
+   </properties>  
+</projectconfig>
+  
+</project>

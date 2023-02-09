@@ -15,7 +15,6 @@ Type
     foPlugins: tObject;
     foOutput: TOutput;
     fbcreateoutputdir: Boolean;
-  //  foProjectConfig: TProjectConfig;
     foProjectItemList: TNovusList;
     fsBasePath: String;
     fsTemplatePath: String;
@@ -54,10 +53,6 @@ Type
    property Createoutputdir: Boolean
       read fbcreateoutputdir
       write fbcreateoutputdir;
-
-   // property oProjectConfig: TProjectConfig
-   //   read foProjectConfig
-    //  write foProjectConfig;
 
     property oPlugins: tObject
        read GetoPlugins
