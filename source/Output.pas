@@ -5,6 +5,8 @@ interface
 Uses NovusLog, SysUtils, NovusUtilities, uPSRuntime, uPSUtils;
 
 type
+  TErrorTypes = (tETNone, tETOverflow_Error, tETUnderflow_Error, tETSyntax_Error, tETOutOfRangeBranch, tETLabelError, tETTagUnknown, tETFatalError);
+
   Toutput = class(TNovusLogFile)
   private
   protected
@@ -19,7 +21,8 @@ type
 
     procedure Log(const aMsg: string);
     procedure LogFormat(const aFormat: string; const Args: array of const);
-    procedure LogError(const aMsg: String);
+    procedure LogError(const aMsg: String); overload;
+    procedure LogError(aLineNo: Integer; aErrorType: TErrorTypes = tETNone); overload;
 
     procedure InternalError;
     procedure LogException(AException: Exception);
@@ -91,6 +94,30 @@ begin
   Log(lsMessage);
 
   Failed := true;
+end;
+
+procedure Toutput.LogError(aLineNo: Integer; aErrorType: TErrorTypes = tETNone);
+Var
+  lsMsg: String;
+begin
+  case aErrorType of
+    TErrorTypes.tETOverflow_error:
+      lsMsg := SysUtils.format('[Overflow error] (%d)', [aLineNo]);
+    TErrorTypes.tETUnderflow_error:
+      lsMsg := SysUtils.format('[Underflow error] (%d)' , [aLineNo]);
+    TErrorTypes.tETSyntax_Error:
+      lsMsg := SysUtils.format('[Syntax error] (%d)', [aLineNo]);
+    TErrorTypes.tETOutOfRangeBranch:
+      lsMsg := SysUtils.format('[Out of Range Brach] (%d) ', [aLineNo]);
+    TErrorTypes.tETLabelError:
+      lsMsg := SysUtils.format('[Label Error] (%d)', [aLineNo]);
+    TErrorTypes.tETtagUnknown:
+      lsMsg := SysUtils.format('[Tag Unknown]', [aLineNo]);
+    else
+      lsMsg := SysUtils.format('[Error] (%d)', [aLineNo]);
+  end;
+
+  Log(lsMsg);
 end;
 
 end.
