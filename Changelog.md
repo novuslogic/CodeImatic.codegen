@@ -1,7 +1,11 @@
+11/03/2023
+
+*  New Connections element item db plugin 
+
 09/02/2023
 
 * All StaticWebSite Samples have been moved to StaticWebsite folder in samples
-* Fixed folder creation when usinf projectitem folder in project file
+* Fixed folder creation when using projectitem folder in project file
 
 23/01/2023
 
@@ -20,7 +24,7 @@
 
 10/07/2022
 
-* Upgraded to Pre multi Plantform NovuscodeLibrary Delphi 11 v.1.0
+* Upgraded to Pre multi Platform NovuscodeLibrary Delphi 11 v.1.0
 
 09/07/2022
 

@@ -29,7 +29,7 @@ type
 
     function Load: boolean; override;
 
-    procedure LoadProjectConfig(aWorkingdirectory: string);
+    function LoadProjectConfig(aWorkingdirectory: string): boolean;
 
     function IspropertyExists(aPropertyName: String): boolean;
     function Getproperties(aPropertyName: String): String;
@@ -41,7 +41,7 @@ type
     function Getworkingdirectory: string;
     function GetOutputPath: String;
 
-    procedure LoadConnections;
+    function LoadConnections: Boolean;
 
     function CreateProperty(aPropertyName: String): boolean;
 
@@ -142,8 +142,10 @@ begin
 end;
 
 
-procedure tProjectConfigLoader.LoadProjectConfig(aWorkingdirectory: string);
+function tProjectConfigLoader.LoadProjectConfig(aWorkingdirectory: string): boolean;
 begin
+  Result := True;
+
   Load;
 
   fsSearchPath := GetSearchPath;
@@ -152,7 +154,11 @@ begin
     fsworkingdirectory := aWorkingdirectory;
 
 
-  LoadConnections;
+  if Not LoadConnections then
+    begin
+      Result := False;
+      Exit;
+    end;
 end;
 
 function tProjectConfigLoader.GetSearchPath: String;
@@ -257,52 +263,71 @@ begin
   Result := True;
 end;
 
-procedure tProjectConfigLoader.LoadConnections;
+function tProjectConfigLoader.LoadConnections: boolean;
 Var
   loConnectionItem: tConnectionItem;
   lsConnectionName: string;
+  fXmlElemlConnections,
   fXmlElemlConnectionName,
   fXmlElemlDriver: TJvSimpleXmlElem;
   liIndex, i: Integer;
+
 begin
-  if not  Assigned(foConnections) then Exit;
+  Try
+    Result := False;
 
-  //foConnections.oPlugins := foPlugins;
+    if not  Assigned(foConnections) then Exit;
 
-  liIndex := 0;
+    liIndex := 0;
 
-  fXmlElemlConnectionName := TNovusSimpleXML.FindNode(RootNode, 'Connectionname',liIndex);
-  While(fXmlElemlConnectionName <> nil) do
-    begin
-      if fXmlElemlConnectionName.Properties.count > 0 then
-        begin
-          loConnectionItem := tConnectionItem.Create(foOutput, foPlugins);
-          loConnectionItem.Connectionname := fXmlElemlConnectionName.Properties.Value('name');
-          fxmlelemldriver := fxmlelemlconnectionname.items[0];
-          if Assigned(fxmlelemldriver) then
-            begin
-              loConnectionItem.drivername := fxmlelemldriver.Properties.Value('name');
-              if Trim(loConnectionItem.drivername) <> '' then
-                begin
-                  loConnectionItem.auxdriver := getfieldasstring(fxmlelemldriver, 'auxdriver');
-                  loConnectionItem.server := getfieldasstring(fxmlelemldriver, 'server');
-                  loConnectionItem.database := getfieldasstring(fxmlelemldriver, 'database');
-                  loConnectionItem.userid := getfieldasstring(fxmlelemldriver, 'userid');
-                  loConnectionItem.password := getfieldasstring(fxmlelemldriver, 'password');
-                  loConnectionItem.sqllibrary := getfieldasstring(fxmlelemldriver, 'sqllibrary');
-                  loConnectionItem.params := getfieldasstring(fxmlelemldriver, 'params');
-                  loConnectionItem.port := getfieldasinteger(fxmlelemldriver, 'port');
-                end;
-            end;
+    fXmlElemlConnections := TNovusSimpleXML.FindNode(RootNode, 'Connections',liIndex);
+    liIndex := 0;
+    fXmlElemlConnectionName := TNovusSimpleXML.FindNode(fXmlElemlConnections, 'Connectionname',liIndex);
+    While(fXmlElemlConnectionName <> nil) do
+      begin
+        if fXmlElemlConnectionName.Properties.count > 0 then
+          begin
+            loConnectionItem := tConnectionItem.Create(foOutput, foPlugins);
+            loConnectionItem.Connectionname := fXmlElemlConnectionName.Properties.Value('name');
+            fxmlelemldriver := fxmlelemlconnectionname.items[0];
+            if Assigned(fxmlelemldriver) then
+              begin
+                loConnectionItem.drivername := fxmlelemldriver.Properties.Value('name');
+                if Trim(loConnectionItem.drivername) <> '' then
+                  begin
+                    loConnectionItem.auxdriver := getfieldasstring(fxmlelemldriver, 'auxdriver');
+                    loConnectionItem.server := getfieldasstring(fxmlelemldriver, 'server');
+                    loConnectionItem.database := getfieldasstring(fxmlelemldriver, 'database');
+                    loConnectionItem.userid := getfieldasstring(fxmlelemldriver, 'userid');
+                    loConnectionItem.password := getfieldasstring(fxmlelemldriver, 'password');
+                    loConnectionItem.sqllibrary := getfieldasstring(fxmlelemldriver, 'sqllibrary');
+                    loConnectionItem.params := getfieldasstring(fxmlelemldriver, 'params');
+                    loConnectionItem.port := getfieldasinteger(fxmlelemldriver, 'port');
+
+                    Result := True;
+                  end;
+
+              end
+            else
+              begin
+                foOutput.LogError('ConnectionName Driver name not assigned.');
+
+                result := False;
+
+                Exit;
+              end;
 
 
-          foConnections.AddConnection(loConnectionItem);
 
-          fXmlElemlConnectionName := TNovusSimpleXML.FindNode(RootNode, 'Connectionname',liIndex);
-        end
-          else fXmlElemlConnectionName := NIL;
-    end;
+            foConnections.AddConnection(loConnectionItem);
 
+            fXmlElemlConnectionName := TNovusSimpleXML.FindNode(RootNode, 'Connectionname',liIndex);
+          end
+            else fXmlElemlConnectionName := NIL;
+      end;
+  Except
+    FoOutput.InternalError;
+  End;
 end;
 
 

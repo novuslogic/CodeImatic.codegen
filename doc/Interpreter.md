@@ -5,15 +5,6 @@ VARIABLES
 $Foo
 
 
-
-
- 
-
-
-
-
-
-
 System tags
 
 SYS.VERSION - Codegen version

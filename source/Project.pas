@@ -155,7 +155,7 @@ begin
   if not Result then exit;
 
   // Project Config
-  foProjectConfigLoader.LoadProjectConfig(aWorkingdirectory);
+  if not foProjectConfigLoader.LoadProjectConfig(aWorkingdirectory) then Exit;
 
   fsBasePath := GetBasePath;
 

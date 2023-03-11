@@ -37,11 +37,15 @@ requires
   NovusCodeLibrary_XML,
   NovusCodeLibrary_Parser,
   NovusCodeLibrary_Plugin,
+{$IFDEF NovuscodeLibraryWindows}
   NovusCodeLibrary_Windows,
   NovusCodeLibrary_OS,
+{$ELSE}
+  NovusCodeLibrary_Env,
+{$ENDIF}
   NovusCodeLibrary_WebUtils,
   NovusCodeLibrary_Console,
-  PascalScript_Core_D28;
+  PascalScript_Core_D27;
 
 contains
   Output in 'Output.pas',

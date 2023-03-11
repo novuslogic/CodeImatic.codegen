@@ -6,7 +6,7 @@ uses Classes,Plugin, NovusPlugin, Project,
     Output, SysUtils, System.Generics.Defaults,  runtime, Config, NovusStringUtils,
     APIBase, NovusGUID, CodeGeneratorItem, FunctionsParser, ProjectItem, TokenParser,
     Variables, NovusFileUtils, CodeGenerator, FieldFunctionParser, DataProcessor,
-    TableFunctionParser, TokenProcessor, TagBasePlugin;
+    TableFunctionParser, TokenProcessor, TagBasePlugin, Plugins;
 
 
 type
@@ -24,6 +24,16 @@ type
   public
     function Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: TTokenProcessor): String; override;
   end;
+
+  TDBTag_Connection = class(TDBTag)
+  private
+  protected
+    function GetTagName: String; override;
+    procedure OnExecute(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string; aTokenParser: tTokenParser);
+  public
+    function Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: TTokenProcessor): String; override;
+  end;
+
 
   TDBTag_FieldAsSQL = class(TDBTag)
   private
@@ -115,7 +125,8 @@ begin
         TDBTag_FieldTypeByIndex.Create(aOutput),
         TDBTag_TableCount.Create(aOutput),
         TDBTag_Tablenamebyindex.Create(aOutput),
-        TDBTag_FieldAsSQL.Create(aOutput)) ;
+        TDBTag_FieldAsSQL.Create(aOutput),
+        TDBTag_Connection.Create(aOutput)) ;
 end;
 
 
@@ -229,6 +240,83 @@ begin
   Except
     oOutput.InternalError;
   End;
+end;
+
+//  TDBTag_Connection
+function TDBTag_Connection.GetTagName: String;
+begin
+  Result := 'CONNECTION';
+end;
+
+procedure TDBTag_Connection.OnExecute(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string; aTokenParser: tTokenParser);
+begin
+  aToken := IntToStr(aConnectionItem.FieldCount(aTableName));
+end;
+
+
+function TDBTag_Connection.Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: TTokenProcessor): String;
+var
+  loPlugin: tPlugin;
+  loPlugins: tPlugins;
+  loProjectItem: tProjectItem;
+  lsConnectionName: string;
+begin
+  Result := '';
+
+  loPlugins := (aProjectItem.oProject.oPlugins as TPlugins);
+
+  if aTokens.FindNextToken('connectionname') then
+     begin
+       if aTokens.IsNextTokenEquals then
+         begin
+           lsConnectionName := aTokens.GetNextToken;
+
+         end
+       else
+         begin
+           oOutput.LogErrorType(aTagName, tETEqual_Error);
+
+           Exit;
+         end;
+
+     end
+  else
+    begin
+      oOutput.LogErrorType('Connectionname item missing.');
+
+      exit;
+    end;
+
+
+
+
+ (*
+  loPlugin := (loPlugins as TPlugins).FindPlugin(aConnectionItem.DriverName);
+  if Not Assigned(loPlugin) then
+    begin
+//      oOutput.LogError('Error: Cannot find DataProcessor Plugin [' + aConnectionItem.DriverName + ']' );
+
+//      Exit;
+    end;
+    *)
+
+
+
+(*
+  Try
+    Try
+      LFieldFunctionParser:= tFieldFunctionParser.Create(aProjectItem, aTokens, oOutput, aTagName);
+
+      LFieldFunctionParser.OnExecute := OnExecute;
+
+      Result := LFieldFunctionParser.Execute(aProjectItem);
+    Finally
+      LFieldFunctionParser.Free;
+    End;
+  Except
+    oOutput.InternalError;
+  End;
+  *)
 end;
 
 //  TDBTag_FieldNameByIndex

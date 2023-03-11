@@ -5,7 +5,10 @@ interface
 Uses NovusLog, SysUtils, NovusUtilities, uPSRuntime, uPSUtils;
 
 type
-  TErrorTypes = (tETNone, tETOverflow_Error, tETUnderflow_Error, tETSyntax_Error, tETOutOfRangeBranch, tETLabelError, tETTagUnknown, tETFatalError);
+  TErrorTypes = (tETNone, tETOverflow_Error, tETUnderflow_Error,
+                 tETSyntax_Error, tETOutOfRangeBranch, tETLabelError,
+                 tETTagUnknown, tETFatalError,
+                 tETEqual_Error);
 
   Toutput = class(TNovusLogFile)
   private
@@ -22,7 +25,7 @@ type
     procedure Log(const aMsg: string);
     procedure LogFormat(const aFormat: string; const Args: array of const);
     procedure LogError(const aMsg: String); overload;
-    procedure LogError(aLineNo: Integer; aErrorType: TErrorTypes = tETNone); overload;
+    procedure LogErrorType(const aMsg: String; aErrorType: TErrorTypes = tETNone); overload;
 
     procedure InternalError;
     procedure LogException(AException: Exception);
@@ -96,25 +99,27 @@ begin
   Failed := true;
 end;
 
-procedure Toutput.LogError(aLineNo: Integer; aErrorType: TErrorTypes = tETNone);
+procedure Toutput.LogErrorType(const aMsg: String; aErrorType: TErrorTypes = tETNone);
 Var
   lsMsg: String;
 begin
   case aErrorType of
     TErrorTypes.tETOverflow_error:
-      lsMsg := SysUtils.format('[Overflow error] (%d)', [aLineNo]);
+      lsMsg := SysUtils.format('[Overflow error] (%s)', [aMsg]);
     TErrorTypes.tETUnderflow_error:
-      lsMsg := SysUtils.format('[Underflow error] (%d)' , [aLineNo]);
+      lsMsg := SysUtils.format('[Underflow error] (%s)' , [aMsg]);
     TErrorTypes.tETSyntax_Error:
-      lsMsg := SysUtils.format('[Syntax error] (%d)', [aLineNo]);
+      lsMsg := SysUtils.format('[Syntax error] (%s)', [aMsg]);
     TErrorTypes.tETOutOfRangeBranch:
-      lsMsg := SysUtils.format('[Out of Range Brach] (%d) ', [aLineNo]);
+      lsMsg := SysUtils.format('[Out of Range Brach] (%s) ', [aMsg]);
     TErrorTypes.tETLabelError:
-      lsMsg := SysUtils.format('[Label Error] (%d)', [aLineNo]);
+      lsMsg := SysUtils.format('[Label Error] (%s)', [aMsg]);
     TErrorTypes.tETtagUnknown:
-      lsMsg := SysUtils.format('[Tag Unknown]', [aLineNo]);
+      lsMsg := SysUtils.format('[Tag Unknown] (%s)', [aMsg]);
+    TErrorTypes.tETEqual_Error:
+      lsMsg := SysUtils.format('[Equal Error] (%s)', [aMsg]);
     else
-      lsMsg := SysUtils.format('[Error] (%d)', [aLineNo]);
+      lsMsg := SysUtils.format('[Error] (%s)', [aMsg]);
   end;
 
   Log(lsMsg);

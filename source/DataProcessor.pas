@@ -281,10 +281,13 @@ begin
 
   if not Assigned(aConnectionItem) then exit;
 
+
+ // Plugins loaded later moved
+ (*
   loPlugin := (foPlugins as TPlugins).FindPlugin(aConnectionItem.DriverName);
   if Not Assigned(loPlugin) then
     begin
-      foOutput.LogError('Error: Cannot find DataProcessor Plugin [' + aConnectionItem.DriverName + ']' );
+      oOutput.LogError('Error: Cannot find DataProcessor Plugin [' + aConnectionItem.DriverName + ']' );
 
       Exit;
     end;
@@ -292,11 +295,9 @@ begin
   aConnectionItem.foPlugin := loPlugin;
 
   aConnectionItem.CreateConnection;
+  *)
 
   fConnectionList.Add(aConnectionItem);
-
-
-
 end;
 
 // ConnectionList
@@ -324,6 +325,8 @@ Var
   I: Integer;
 
 begin
+  if Not Assigned(foPlugin) then Exit;
+
   foConnection := (foPlugin as tDataProcessorPlugin).CreateConnection;
   foConnection.AuxDriver := AuxDriver;
   foConnection.Server:= Server;
