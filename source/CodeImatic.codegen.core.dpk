@@ -43,9 +43,19 @@ requires
 {$ELSE}
   NovusCodeLibrary_Env,
 {$ENDIF}
+
+{$IFDEF DELPHI11}
+  PascalScript_Core_D28,
+{$ENDIF}
+{$IFDEF DELPHI10_4}
+  PascalScript_Core_D27,
+{$ENDIF}
+
   NovusCodeLibrary_WebUtils,
-  NovusCodeLibrary_Console,
-  PascalScript_Core_D27;
+  NovusCodeLibrary_Console;
+
+
+
 
 contains
   Output in 'Output.pas',
