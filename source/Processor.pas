@@ -206,11 +206,15 @@ begin
    result := false;
 
     Try
+      foOutput.LogFormat('Parse Input Filename [%s] ...', [InputFilename]);
+
       foTemplate.TemplateDoc.LoadFromFile(InputFilename);
 
       foTemplate.ParseTemplate;
 
       foCodeGenerator.oNodeLoader := foNodeLoader;
+
+      foOutput.LogFormat('Processor Output Filename [%s] ...', [InputFilename]);
 
       Result := foCodeGenerator.Execute(OutputFilename);
    Except

@@ -158,7 +158,7 @@ begin
   If not foProject.LoadProjectFile(oConfig.ProjectFileName, foOutput,
     fsworkingdirectory) then
   begin
-    aCommandLineResult.AddError('Project [filename] cannot not be found [' +
+    aCommandLineResult.AddError('Project [filename] cannot not be found or loaded [' +
       oConfig.ProjectFileName + ']');
 
     aCommandLineResult.ExitCode := -5;

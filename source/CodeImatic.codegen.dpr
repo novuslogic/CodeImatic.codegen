@@ -23,7 +23,6 @@ var
 begin
     FComandLineResult := NIL;
 
-
     Try
       TCommandLine.RegisterCommands;
 

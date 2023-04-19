@@ -31,28 +31,7 @@ package CodeImatic.codegen.core;
 
 requires
   rtl,
-  NovusCodeLibrary_Utils,
-  NovusCodeLibrary_Object,
-  NovusCodeLibrary_Log,
-  NovusCodeLibrary_XML,
-  NovusCodeLibrary_Parser,
-  NovusCodeLibrary_Plugin,
-{$IFDEF NovuscodeLibraryWindows}
-  NovusCodeLibrary_Windows,
-  NovusCodeLibrary_OS,
-{$ELSE}
-  NovusCodeLibrary_Env,
-{$ENDIF}
-
-{$IFDEF DELPHI11}
-  PascalScript_Core_D28,
-{$ENDIF}
-{$IFDEF DELPHI10_4}
-  PascalScript_Core_D27,
-{$ENDIF}
-
-  NovusCodeLibrary_WebUtils,
-  NovusCodeLibrary_Console;
+  CodeImatic.share;
 
 
 

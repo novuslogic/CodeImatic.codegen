@@ -1,3 +1,10 @@
+# CodeImatic.codegen - Changelog
+
+19/04/2023
+
+* Fixed Connections element if not used, causing crashing.
+
+
 11/03/2023
 
 *  New Connections element item db plugin 

@@ -153,7 +153,6 @@ begin
   if Trim(fsworkingdirectory) = '' then
     fsworkingdirectory := aWorkingdirectory;
 
-
   if Not LoadConnections then
     begin
       Result := False;
@@ -274,58 +273,63 @@ Var
 
 begin
   Try
-    Result := False;
+    Result := True;
 
     if not  Assigned(foConnections) then Exit;
 
     liIndex := 0;
 
     fXmlElemlConnections := TNovusSimpleXML.FindNode(RootNode, 'Connections',liIndex);
-    liIndex := 0;
-    fXmlElemlConnectionName := TNovusSimpleXML.FindNode(fXmlElemlConnections, 'Connectionname',liIndex);
-    While(fXmlElemlConnectionName <> nil) do
+    if Assigned(fXmlElemlConnections) then
       begin
-        if fXmlElemlConnectionName.Properties.count > 0 then
+        liIndex := 0;
+        fXmlElemlConnectionName := TNovusSimpleXML.FindNode(fXmlElemlConnections, 'Connectionname',liIndex);
+        While(fXmlElemlConnectionName <> nil) do
           begin
-            loConnectionItem := tConnectionItem.Create(foOutput, foPlugins);
-            loConnectionItem.Connectionname := fXmlElemlConnectionName.Properties.Value('name');
-            fxmlelemldriver := fxmlelemlconnectionname.items[0];
-            if Assigned(fxmlelemldriver) then
+            if fXmlElemlConnectionName.Properties.count > 0 then
               begin
-                loConnectionItem.drivername := fxmlelemldriver.Properties.Value('name');
-                if Trim(loConnectionItem.drivername) <> '' then
+                loConnectionItem := tConnectionItem.Create(foOutput, foPlugins);
+                loConnectionItem.Connectionname := fXmlElemlConnectionName.Properties.Value('name');
+                fxmlelemldriver := fxmlelemlconnectionname.items[0];
+                if Assigned(fxmlelemldriver) then
                   begin
-                    loConnectionItem.auxdriver := getfieldasstring(fxmlelemldriver, 'auxdriver');
-                    loConnectionItem.server := getfieldasstring(fxmlelemldriver, 'server');
-                    loConnectionItem.database := getfieldasstring(fxmlelemldriver, 'database');
-                    loConnectionItem.userid := getfieldasstring(fxmlelemldriver, 'userid');
-                    loConnectionItem.password := getfieldasstring(fxmlelemldriver, 'password');
-                    loConnectionItem.sqllibrary := getfieldasstring(fxmlelemldriver, 'sqllibrary');
-                    loConnectionItem.params := getfieldasstring(fxmlelemldriver, 'params');
-                    loConnectionItem.port := getfieldasinteger(fxmlelemldriver, 'port');
+                    loConnectionItem.drivername := fxmlelemldriver.Properties.Value('name');
+                    if Trim(loConnectionItem.drivername) <> '' then
+                      begin
+                        loConnectionItem.auxdriver := getfieldasstring(fxmlelemldriver, 'auxdriver');
+                        loConnectionItem.server := getfieldasstring(fxmlelemldriver, 'server');
+                        loConnectionItem.database := getfieldasstring(fxmlelemldriver, 'database');
+                        loConnectionItem.userid := getfieldasstring(fxmlelemldriver, 'userid');
+                        loConnectionItem.password := getfieldasstring(fxmlelemldriver, 'password');
+                        loConnectionItem.sqllibrary := getfieldasstring(fxmlelemldriver, 'sqllibrary');
+                        loConnectionItem.params := getfieldasstring(fxmlelemldriver, 'params');
+                        loConnectionItem.port := getfieldasinteger(fxmlelemldriver, 'port');
 
-                    Result := True;
+                        Result := True;
+                      end;
+
+                  end
+                else
+                  begin
+                    foOutput.LogError('ConnectionName Driver name not assigned.');
+
+                    result := False;
+
+                    Exit;
                   end;
 
+
+
+                foConnections.AddConnection(loConnectionItem);
+
+                fXmlElemlConnectionName := TNovusSimpleXML.FindNode(RootNode, 'Connectionname',liIndex);
               end
-            else
-              begin
-                foOutput.LogError('ConnectionName Driver name not assigned.');
-
-                result := False;
-
-                Exit;
-              end;
-
-
-
-            foConnections.AddConnection(loConnectionItem);
-
-            fXmlElemlConnectionName := TNovusSimpleXML.FindNode(RootNode, 'Connectionname',liIndex);
-          end
-            else fXmlElemlConnectionName := NIL;
+                else fXmlElemlConnectionName := NIL;
+          end;
       end;
   Except
+    Result := False;
+
     FoOutput.InternalError;
   End;
 end;

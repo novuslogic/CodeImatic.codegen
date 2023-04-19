@@ -325,20 +325,27 @@ begin
        FoProcesorItem.DefaultOutputFilename := DefaultOutputFilename;
 
     // Pass 1
+    foOutput.LogFormat('Pass 1 Output Filename [%s] ...', [DefaultOutputFilename]);
+
     if Not Pass1 then Exit;
 
     // Pass 2
+    foOutput.LogFormat('Pass 2 Output Filename [%s] ...', [DefaultOutputFilename]);
     if DoPreLayout then
       DoPostLayout;
 
-    DoLanguage;
+//    DoLanguage;
 
+    foOutput.LogFormat('Properties Output Filename [%s] ...', [DefaultOutputFilename]);
     DoProperties;
 
+    foOutput.LogFormat('Properties Variables Output Filename [%s] ...', [DefaultOutputFilename]);
     RunPropertyVariables(0, (FCodeGeneratorList.Count - 1));
 
+    foOutput.LogFormat('Interpreter Output Filename [%s] ...', [DefaultOutputFilename]);
     RunInterpreter(0, (FCodeGeneratorList.Count - 1));
 
+    foOutput.LogFormat('After processor Output Filename [%s] ...', [DefaultOutputFilename]);
     DoTrimLines;
 
     FoTemplate.InsertAllTagValues;
@@ -356,6 +363,7 @@ begin
     Exit;
   End;
 
+  foOutput.LogFormat('Saving output Filename [%s] ...', [aOutputFilename]);
   Result := DoOutputFilename(fsSourceFilename, aOutputFilename, FoProcesorItem);
 
   if Result then
