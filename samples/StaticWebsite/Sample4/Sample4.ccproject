@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<project>
+  <outputconsole>true</outputconsole>
+  <messageslogpath></messageslogpath>
+  <Createoutputdir>true</Createoutputdir>
+  
+  <projectitem folder="[%rootpath%]">
+    <sourcefiles folder="[%rootpath%]\Source">
+      <filters>
+         <file name="Include"></file>
+      </filters>  
+      <templates>
+         <file name="*.html"></file>
+         <file name="*.md">
+            <processor>markdown</processor>
+         </file>
+         <file name="*.scss">
+            <processor>sass</processor>
+         </file>
+       </templates>
+    </sourcefiles>
+    <properties>[%propertiespath%]Sample4.xml</properties>
+    <overrideoutput>true</overrideoutput>
+    <output>[%outputpath%]</output>
+  </projectitem>
+
+
+  <projectconfig>
+     <properties> 
+       <outputpath>[%workingdirectory%]Site\</outputpath>
+       <propertiespath>[%workingdirectory%]Properties\</propertiespath>
+       <sourcepath>[%workingdirectory%]Source\</sourcepath>
+       <rootpath>[%workingdirectory%]</rootpath>
+       <searchpath>{%CODEIMATIC_BUILD_INCLUDES%}</searchpath>
+    </properties>
+  </projectconfig>
+</project>

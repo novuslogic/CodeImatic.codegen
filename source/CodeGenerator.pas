@@ -34,16 +34,16 @@ Type
     fsDefaultOutputFilename: String;
   private
     function GetScriptFilename: string;
-    function DoInternalCodeBehine(aFilename: string): boolean;
+    function DoInternalCodeBehine(aPascalFilename: string): boolean;
     procedure DoInternalCode(aScript: String;
       aCodeGeneratorItem: TCodeGeneratorItem);
     procedure DoPluginTags;
     procedure DoLanguage;
    // procedure DoConnections;
     function DoPreProcessor: tProcessorItem;
-    procedure DoCodeBehine;
+    procedure DoCodeBehine(var aPascalFilename: string);
     procedure DoCodeTags;
-    function DoScriptEngine: boolean;
+    function DoPascalCompiler(aPascalFilename: string): boolean;
     function DoPostProcessor(aProcessorItem: tProcessorItem;
       aTemplateFile: String; var aOutputFilename: string): TPluginReturn;
     procedure DoConvert(aProcessorItem: tProcessorItem; aTemplateFile: String;
@@ -273,6 +273,8 @@ begin
 end;
 
 function TCodeGenerator.Pass1: Boolean;
+var
+  lsPascalFilename: String;
 begin
   Result := true;
 
@@ -290,12 +292,12 @@ begin
 
     DoIncludes;
 
-    DoCodeBehine;
+    DoCodeBehine(lsPascalFilename);
 
     DoCodeTags;
 
     if Trim(FScript.text) <> '' then
-      if not DoScriptEngine then
+      if not DoPascalCompiler(lsPascalFilename) then
         begin
           Result := False;
 
@@ -309,12 +311,14 @@ begin
 end;
 
 
-function TCodeGenerator.Execute;
+function TCodeGenerator.Execute(aOutputFilename: String; aDolayout: boolean = false): boolean;
 var
   FoProcesorItem: tProcessorItem;
 begin
   Try
     DefaultOutputFilename := aOutputFilename;
+    if Trim(aOutputFilename) = '' then DefaultOutputFilename := fsSourceFilename; // not a big fan of this need to refactor
+
 
     Result := false;
 
@@ -363,7 +367,9 @@ begin
     Exit;
   End;
 
-  foOutput.LogFormat('Saving output Filename [%s] ...', [aOutputFilename]);
+  if Trim(aOutputFilename) <> '' then
+    foOutput.LogFormat('Saving output Filename [%s] ...', [aOutputFilename]);
+
   Result := DoOutputFilename(fsSourceFilename, aOutputFilename, FoProcesorItem);
 
   if Result then
@@ -1004,7 +1010,7 @@ begin
   end;
 end;
 
-function TCodeGenerator.DoScriptEngine: boolean;
+function TCodeGenerator.DoPascalCompiler(aPascalFilename: string): boolean;
 begin
 
   if (Pos('UNIT', Uppercase(FScript.Strings[0])) = 0) and
@@ -1016,7 +1022,7 @@ begin
 
  
 
-  Result := oRuntime.oScriptEngine.ExecuteScript(FScript.text);
+  Result := oRuntime.oScriptEngine.ExecuteScript(aPascalFilename, FScript.text);
 
 end;
 
@@ -1032,7 +1038,6 @@ var
   FoTemplateTag: TTemplateTag;
   I: Integer;
   FTokenProcessor: tTokenProcessor;
-  lsFilename: String;
 begin
   for I := 0 to FCodeGeneratorList.Count - 1 do
   begin
@@ -1056,12 +1061,12 @@ begin
         begin
           if FTokenProcessor.IsNextTokenEquals then
           begin
-            lsFilename := FTokenProcessor.GetNextToken;
-            if lsFilename = '' then
+            aPascalFilename := FTokenProcessor.GetNextToken;
+            if aPascalFilename = '' then
               foOutput.LogError('CODEBEHINE: Filename not found.')
             else
             begin
-              DoInternalCodeBehine(lsFilename);
+              DoInternalCodeBehine(aPascalFilename);
 
             end;
           end
@@ -1263,13 +1268,13 @@ begin
   Result := TNovusFileUtils.TrailingBackSlash(ExtractFileDir(fsSourceFilename));
 end;
 
-function TCodeGenerator.DoInternalCodeBehine(aFilename: string): boolean;
+function TCodeGenerator.DoInternalCodeBehine(aPascalFilename: string): boolean;
 var
   lsTempFilename: String;
 begin
   Result := false;
 
-  lsTempFilename := LocalWorkingdirectory + aFilename;
+  lsTempFilename := LocalWorkingdirectory + aPascalFilename;
 
   if Not FileExists(lsTempFilename) then
   begin

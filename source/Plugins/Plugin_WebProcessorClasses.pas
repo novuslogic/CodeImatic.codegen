@@ -6,7 +6,7 @@ uses Winapi.Windows, System.SysUtils, System.Classes,NovusFileUtils,
   Plugin, NovusPlugin, Project, NovusTemplate,
   Output, System.Generics.Defaults, runtime, Config, NovusStringUtils,
   APIBase, ProjectItem, TagType, SassProcessorItem,JvSimpleXml,
-  MarkdownProcessorItem, LessCssProcessorItem;
+  MarkdownProcessorItem(*, LessCssProcessorItem*);
 
 type
   tPlugin_WebProcessorBase = class(TProcessorPlugin)
@@ -49,7 +49,7 @@ begin
   Try
     AddProcessorItem(tSassProcessorItem.Create(aConfigPlugin, aOutput, aProject));
     AddProcessorItem(tMarkdownProcessorItem.Create(aConfigPlugin, aOutput, aProject));
-    AddProcessorItem(tLessCssProcessorItem.Create(aConfigPlugin, aOutput, aProject));
+//    AddProcessorItem(tLessCssProcessorItem.Create(aConfigPlugin, aOutput, aProject));
   Except
     aOutput.InternalError;
   End;

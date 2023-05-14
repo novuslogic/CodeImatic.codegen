@@ -1,5 +1,14 @@
 # CodeImatic.codegen - Changelog
 
+14/05/2023
+
+* Start of new Webstatic Sample 4
+* Refactored Messages within log file
+
+12/05/2023
+
+* Removed lesscss support for WebProcessor Plugin now deprecated.
+
 19/04/2023
 
 * Fixed Connections element if not used, causing crashing.
@@ -16,7 +25,7 @@
 
 23/01/2023
 
-* Upgraded NovuscodeLibrary Delphi 11 v.1.0
+* Upgraded NovuscodeLibrary Delphi 11 v0.1.0
 * Updated Codeimatic.codegen for Delphi 11.2
 * Rwname SysTags.dll plugin to CodeImatic.codegen.Tags.Sys.dll
 * Rename CodeDocsTags.dll plugin to CodeImatic.codegen.Tags.CodeDocs.dll

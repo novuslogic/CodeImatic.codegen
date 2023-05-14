@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<properties>
+   <site_title>CodeImatic Build is a PascalScript based build automation engine</site_title>
+   <urlbase>https://localhost:8080/</urlbase>
+   <headerfile>includes\navbar.html</headerfile>
+   <footerfile>includes\footer.html</footerfile>
+   <layoutfile>includes\layout.html</layoutfile>
+   <test>hello world</test>
+</properties>

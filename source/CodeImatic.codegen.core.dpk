@@ -33,9 +33,6 @@ requires
   rtl,
   CodeImatic.share;
 
-
-
-
 contains
   Output in 'Output.pas',
   APIBase in 'Plugins\API\APIBase.pas',
