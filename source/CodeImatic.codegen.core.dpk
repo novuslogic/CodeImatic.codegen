@@ -50,7 +50,6 @@ contains
   TagType in 'TagType.pas',
   TagParser in 'TagParser.pas',
   Processor in 'Processor.pas',
-  Template in 'Template.pas',
   ProjectItemFolder in 'ProjectItemFolder.pas',
   Loader in 'Loader.pas',
   DataProcessor in 'DataProcessor.pas',
@@ -68,7 +67,8 @@ contains
   ProjectConfigLoader in 'ProjectConfigLoader.pas',
   CommandLine in 'CommandLine.pas',
   Plugin in 'Plugin.pas',
-  Language in 'Language.pas';
+  Language in 'Language.pas',
+  Template in 'Template.pas';
 
 end.
 

@@ -39,6 +39,9 @@
         <Projects Include="Plugins\CodeImatic.codegen.Pascal.SystemExt.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="..\..\CodeImatic.share\source\CodeImatic.share.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -155,14 +158,23 @@
     <Target Name="CodeImatic_codegen_Pascal_SystemExt:Make">
         <MSBuild Projects="Plugins\CodeImatic.codegen.Pascal.SystemExt.dproj" Targets="Make"/>
     </Target>
+    <Target Name="CodeImatic_share">
+        <MSBuild Projects="..\..\CodeImatic.share\source\CodeImatic.share.dproj"/>
+    </Target>
+    <Target Name="CodeImatic_share:Clean">
+        <MSBuild Projects="..\..\CodeImatic.share\source\CodeImatic.share.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="CodeImatic_share:Make">
+        <MSBuild Projects="..\..\CodeImatic.share\source\CodeImatic.share.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="CodeImatic_codegen;CodeImatic_codegen_core;CodeImatic_codegen_WebServer;CodeImatic_codegen_Processor_Web;CodeImatic_codegen_Processor_CodeDocs;CodeImatic_codegen_Tags_Sys;CodeImatic_codegen_Tags_DB;CodeImatic_codegen_DataProcessor_SQLDir;CodeImatic_codegen_Tags_JSON;CodeImatic_codegen_Tags_XML;CodeImatic_codegen_Tags_CodeDocs;CodeImatic_codegen_Pascal_SystemExt"/>
+        <CallTarget Targets="CodeImatic_codegen;CodeImatic_codegen_core;CodeImatic_codegen_WebServer;CodeImatic_codegen_Processor_Web;CodeImatic_codegen_Processor_CodeDocs;CodeImatic_codegen_Tags_Sys;CodeImatic_codegen_Tags_DB;CodeImatic_codegen_DataProcessor_SQLDir;CodeImatic_codegen_Tags_JSON;CodeImatic_codegen_Tags_XML;CodeImatic_codegen_Tags_CodeDocs;CodeImatic_codegen_Pascal_SystemExt;CodeImatic_share"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="CodeImatic_codegen:Clean;CodeImatic_codegen_core:Clean;CodeImatic_codegen_WebServer:Clean;CodeImatic_codegen_Processor_Web:Clean;CodeImatic_codegen_Processor_CodeDocs:Clean;CodeImatic_codegen_Tags_Sys:Clean;CodeImatic_codegen_Tags_DB:Clean;CodeImatic_codegen_DataProcessor_SQLDir:Clean;CodeImatic_codegen_Tags_JSON:Clean;CodeImatic_codegen_Tags_XML:Clean;CodeImatic_codegen_Tags_CodeDocs:Clean;CodeImatic_codegen_Pascal_SystemExt:Clean"/>
+        <CallTarget Targets="CodeImatic_codegen:Clean;CodeImatic_codegen_core:Clean;CodeImatic_codegen_WebServer:Clean;CodeImatic_codegen_Processor_Web:Clean;CodeImatic_codegen_Processor_CodeDocs:Clean;CodeImatic_codegen_Tags_Sys:Clean;CodeImatic_codegen_Tags_DB:Clean;CodeImatic_codegen_DataProcessor_SQLDir:Clean;CodeImatic_codegen_Tags_JSON:Clean;CodeImatic_codegen_Tags_XML:Clean;CodeImatic_codegen_Tags_CodeDocs:Clean;CodeImatic_codegen_Pascal_SystemExt:Clean;CodeImatic_share:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="CodeImatic_codegen:Make;CodeImatic_codegen_core:Make;CodeImatic_codegen_WebServer:Make;CodeImatic_codegen_Processor_Web:Make;CodeImatic_codegen_Processor_CodeDocs:Make;CodeImatic_codegen_Tags_Sys:Make;CodeImatic_codegen_Tags_DB:Make;CodeImatic_codegen_DataProcessor_SQLDir:Make;CodeImatic_codegen_Tags_JSON:Make;CodeImatic_codegen_Tags_XML:Make;CodeImatic_codegen_Tags_CodeDocs:Make;CodeImatic_codegen_Pascal_SystemExt:Make"/>
+        <CallTarget Targets="CodeImatic_codegen:Make;CodeImatic_codegen_core:Make;CodeImatic_codegen_WebServer:Make;CodeImatic_codegen_Processor_Web:Make;CodeImatic_codegen_Processor_CodeDocs:Make;CodeImatic_codegen_Tags_Sys:Make;CodeImatic_codegen_Tags_DB:Make;CodeImatic_codegen_DataProcessor_SQLDir:Make;CodeImatic_codegen_Tags_JSON:Make;CodeImatic_codegen_Tags_XML:Make;CodeImatic_codegen_Tags_CodeDocs:Make;CodeImatic_codegen_Pascal_SystemExt:Make;CodeImatic_share:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

@@ -240,7 +240,6 @@
         <DCCReference Include="TagType.pas"/>
         <DCCReference Include="TagParser.pas"/>
         <DCCReference Include="Processor.pas"/>
-        <DCCReference Include="Template.pas"/>
         <DCCReference Include="ProjectItemFolder.pas"/>
         <DCCReference Include="Loader.pas"/>
         <DCCReference Include="DataProcessor.pas"/>
@@ -259,6 +258,7 @@
         <DCCReference Include="CommandLine.pas"/>
         <DCCReference Include="Plugin.pas"/>
         <DCCReference Include="Language.pas"/>
+        <DCCReference Include="Template.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
