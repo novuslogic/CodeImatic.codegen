@@ -132,8 +132,8 @@
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
         <Debugger_CWD>D:\Projects\CodeImatic.codegen\samples\StaticWebsite\Sample4</Debugger_CWD>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=;FileVersion=0.5.0.1281;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName);FileDescription=$(MSBuildProjectName);ProductName=$(MSBuildProjectName)</VerInfo_Keys>
-        <VerInfo_Build>1281</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=;FileVersion=0.5.0.1283;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName);FileDescription=$(MSBuildProjectName);ProductName=$(MSBuildProjectName)</VerInfo_Keys>
+        <VerInfo_Build>1283</VerInfo_Build>
         <Debugger_RunParams>-project Sample4.ccproject -plugin webserver runwebserver</Debugger_RunParams>
         <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
         <Debugger_DebugSourcePath>D:\Delphi Components\NovuscodeLibrary\Source\Core\Utilities\jvcl\;D:\Delphi Components\NovuscodeLibrary\Source\Core\Parser\;$(Debugger_DebugSourcePath)</Debugger_DebugSourcePath>

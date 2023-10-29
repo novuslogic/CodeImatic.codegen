@@ -6,11 +6,11 @@ interface
 uses
   SysUtils, Classes, NovusTemplate, Config, NovusFileUtils,
   Properties, NovusStringUtils, Snippits, Plugins, PascalScript, dialogs,
-  NovusCommandLine,
+  NovusCommandLine, RuntimeBase,
   CodeGenerator, Output, NovusWinVersionUtils, Project, ProjectItem, CommandLine;
 
 type
-  tRuntime = class
+  tRuntime = class(TRuntimeBase)
   protected
   private
     foOutput: tOutput;
