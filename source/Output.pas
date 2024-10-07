@@ -2,7 +2,7 @@ unit Output;
 
 interface
 
-Uses NovusLog, SysUtils, NovusUtilities, uPSRuntime, uPSUtils;
+Uses NovusLogger, SysUtils, NovusUtilities, uPSRuntime, uPSUtils;
 
 type
   TErrorTypes = (tETNone, tETOverflow_Error, tETUnderflow_Error,
@@ -10,15 +10,20 @@ type
                  tETTagUnknown, tETFatalError,
                  tETEqual_Error);
 
-  Toutput = class(TNovusLogFile)
+  Toutput = class
   private
   protected
+    fsFilename: String;
+    fbOutputConsole: Boolean;
     fsLastExParam: tbtstring;
     fLastExError: TPSError;
     fbErrors: Boolean;
     fbFailed: Boolean;
     fbconsoleoutputonly: Boolean;
+
   public
+    function OpenLog: Boolean;
+    procedure CloseLog;
     procedure InitLog(AFilename: String; aOutputConsole: Boolean;
       aConsoleoutputonly: Boolean);
 
@@ -27,6 +32,7 @@ type
     procedure LogError(const aMsg: String); overload;
     procedure LogErrorType(const aMsg: String; aErrorType: TErrorTypes = tETNone); overload;
 
+    procedure WriteExceptLog;
     procedure InternalError;
     procedure LogException(AException: Exception);
 
@@ -39,6 +45,8 @@ type
     property LastExParam: tbtstring read fsLastExParam write fsLastExParam;
 
     property Consoleoutputonly: boolean read fbConsoleoutputonly write fbConsoleoutputonly default true;
+
+    property Filename: String read fsFilename write fsFilename;
   end;
 
 implementation
@@ -46,21 +54,33 @@ implementation
 procedure Toutput.InitLog(AFilename: String; aOutputConsole: Boolean;
   aConsoleoutputonly: Boolean);
 begin
-  OutputConsole := aOutputConsole;
+  fbOutputConsole := aOutputConsole;
 
   fbconsoleoutputonly := aConsoleoutputonly;
 
-  Filename := AFilename;
+  fsFilename := AFilename;
 
   fbErrors := False;
 end;
 
+function Toutput.OpenLog: Boolean;
+begin
+  Result := False;
+end;
+
+procedure Toutput.CloseLog;
+begin
+  //
+end;
+
 procedure Toutput.Log(const aMsg: string);
 begin
+  (*
   if fbconsoleoutputonly then
     Writeln(aMsg)
   else
     WriteLog(aMsg);
+   *)
 end;
 
 procedure Toutput.LogError(const aMsg: String);
@@ -84,6 +104,12 @@ begin
 
   Failed := true;
 end;
+
+procedure Toutput.WriteExceptLog;
+begin
+
+end;
+
 
 procedure Toutput.LogException(AException: Exception);
 var

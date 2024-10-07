@@ -273,7 +273,7 @@ begin
 
           foOutput.Log('Output: ' + fsOutputFile);
 
-          foOutput.Log('Build started ' + foOutput.FormatedNow);
+          foOutput.Log('Build started.');
 
           Try
             loProcessor := TProcessor.Create(foOutput, foProject, Self,
@@ -289,12 +289,12 @@ begin
           if Not foOutput.Failed then
           begin
             if Not foOutput.Errors then
-              foOutput.Log('Build succeeded ' + foOutput.FormatedNow)
+              foOutput.Log('Build succeeded.')
             else
-              foOutput.Log('Build with errors ' + foOutput.FormatedNow);
+              foOutput.Log('Build with errors.');
           end
           else
-            foOutput.LogError('Build failed ' + foOutput.FormatedNow);
+            foOutput.LogError('Build failed.');
 
           result := (Not foOutput.Failed);
 
@@ -302,7 +302,7 @@ begin
       pitFolder:
         begin
           Try
-            foOutput.Log('Build started ' + foOutput.FormatedNow);
+            foOutput.Log('Build started.');
 
             loProjectItemFolder := tProjectItemFolder.Create(foOutput,
               foProject, Self);
@@ -312,12 +312,12 @@ begin
             if Not foOutput.Failed then
             begin
               if Not foOutput.Errors then
-                foOutput.Log('Build succeeded ' + foOutput.FormatedNow)
+                foOutput.Log('Build succeeded.')
               else
-                foOutput.Log('Build with errors ' + foOutput.FormatedNow);
+                foOutput.Log('Build with errors.');
             end
             else
-              foOutput.LogError('Build failed ' + foOutput.FormatedNow);
+              foOutput.LogError('Build failed.');
 
             result := (Not foOutput.Failed);
           Finally

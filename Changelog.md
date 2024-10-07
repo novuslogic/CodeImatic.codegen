@@ -1,5 +1,11 @@
 # CodeImatic.codegen - Changelog
 
+8/10/2024
+
+* Updated for delphi 12
+* Updtaed for NovuscodeLivrary v0.2.0
+
+
 14/05/2023
 
 * Start of new Webstatic Sample 4
