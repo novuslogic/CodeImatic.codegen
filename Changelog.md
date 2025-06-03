@@ -1,5 +1,14 @@
 # CodeImatic.codegen - Changelog
 
+## Release v0.1.1
+
+03/06/2025
+
+* Updated to Codeimatic.Share v0.1.1
+
+
+## Release v0.1.0
+
 8/10/2024
 
 * Updated for delphi 12
