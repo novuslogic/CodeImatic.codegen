@@ -7,13 +7,14 @@ uses
   SysUtils, Classes, NovusTemplate, Config, NovusFileUtils,
   Properties, NovusStringUtils, Snippits, Plugins, PascalScript, dialogs,
   NovusCommandLine,
-  CodeGenerator, Output, NovusWinVersionUtils, Project, ProjectItem, CommandLine;
+  CodeGenerator, CodeImatic.Output, NovusWinVersionUtils, Project,
+  ProjectItem, CommandLine;
 
 type
   tRuntime = class
   protected
   private
-    foOutput: tOutput;
+    foOutput: tcimOutput;
     fsworkingdirectory: string;
     foPlugins: TPlugins;
     foProject: tProject;
@@ -33,7 +34,7 @@ type
     property oScriptEngine: TPascalScriptEngine read foScriptEngine
       write foScriptEngine;
 
-    property oOutput: tOutput read foOutput;
+    property oOutput: tcimOutput read foOutput;
   end;
 
 Var
@@ -108,14 +109,16 @@ begin
     Exit;
   end;
 
-  foOutput := tOutput.Create;
+
 
   oConfig.Consoleoutputonly := false;
   fNovusCommandLineResultCommand := aCommandLineResult.FindFirstCommand
     (clConsoleoutputonly);
   if Assigned(fNovusCommandLineResultCommand) then
     oConfig.Consoleoutputonly := fNovusCommandLineResultCommand.IsCommandOnly;
-  foOutput.Consoleoutputonly := oConfig.Consoleoutputonly;
+  //foOutput.Consoleoutputonly := oConfig.Consoleoutputonly;
+
+  foOutput := tcimOutput.Create(oConfig.Consoleoutputonly, fsworkingdirectory + oConfig.OutputlogFilename);
 
   // var
   fNovusCommandLineResultCommands :=
@@ -170,6 +173,7 @@ begin
 
   end;
 
+  (*
   if foProject.oProjectConfigLoader.Load then
     foOutput.InitLog(tProjectParser.ParseProject(foProject.BasePath, foProject,
       foOutput) + oConfig.OutputlogFilename, foProject.OutputConsole,
@@ -177,6 +181,7 @@ begin
   else
     foOutput.InitLog(foProject.BasePath + oConfig.OutputlogFilename,
       foProject.OutputConsole, oConfig.Consoleoutputonly);
+  *)
 
   if Not oConfig.Consoleoutputonly then
   begin
@@ -195,12 +200,12 @@ begin
     end;
   end;
 
-  foOutput.Log('Logging started');
+  foOutput.oLog.AddLogInformation('Logging started');
 
-  foOutput.Log(GetVersionCopyright);
-  foOutput.Log('Version: ' + GetVersion(0));
+  foOutput.oLog.AddLogInformation(GetVersionCopyright);
+  foOutput.oLog.AddLogInformation('Version: ' + GetVersion(0));
 
-  foOutput.Log('Project: ' + foProject.ProjectFileName);
+  foOutput.oLog.AddLogInformation('Project: ' + foProject.ProjectFileName);
 
   // FoOutput.Log('Project Config: ' + foProject.oProjectConfig.
   // ProjectConfigFileName);
@@ -280,7 +285,7 @@ begin
   begin
     foOutput.CloseLog;
 
-    foOutput.Log('Logging finished');
+    foOutput.oLog.AddLogInformation('Logging finished');
   end;
 
   foOutput.Free;

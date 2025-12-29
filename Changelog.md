@@ -1,5 +1,15 @@
 # CodeImatic.codegen - Changelog
 
+## Release v0.2.0
+
+28/12/2025
+
+* Support for $(CodeImaticFolder)
+* Upgraded to CodeImatic.Share v0.2.0
+* Depprecated CodeImatic.codegen.Processor.CodeDocs and CodeImatic.codegen.Tags.CodeDocs
+
+## Release v0.1.0
+
 8/10/2024
 
 * Updated for delphi 12

@@ -56,24 +56,27 @@ begin
             Exit;
           end
         else
-          oOutput.LogError('Syntax Error: lack ")"');
-         end
+          oOutput.oLog.AddLogError('Syntax Error: lack ")"');
+          oOutput.Failed := true;
+        end
       else
       begin
-        oOutput.LogError('Error: Connectioname "' + FConnectionName +
+        oOutput.oLog.AddLogError('Error: Connectioname "' + FConnectionName +
           '" connected.');
+        oOutput.Failed := true;
       end;
     end
     else
     begin
-      oOutput.LogError('Error: Connectioname cannot be found "' +
+      oOutput.oLog.AddLogError('Error: Connectioname cannot be found "' +
         FConnectionName + '"');
+      oOutput.Failed := true;
     end;
   end
   else
   begin
-    oOutput.LogError('Syntax Error: lack "("');
-
+    oOutput.oLog.AddLogError('Syntax Error: lack "("');
+    oOutput.Failed := true;
   end;
 end;
 

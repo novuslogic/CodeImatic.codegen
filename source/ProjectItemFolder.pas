@@ -2,7 +2,7 @@ unit ProjectItemFolder;
 
 interface
 
-uses Output, ProjectItem, Project, Classes, Sysutils, NovusFileUtils, NovusStringUtils,
+uses CodeImatic.Output, ProjectItem, Project, Classes, Sysutils, NovusFileUtils, NovusStringUtils,
      System.IOUtils;
 
 type
@@ -10,12 +10,12 @@ type
   private
   protected
     foProject: TProject;
-    foOutput: TOutput;
+    foOutput: TcimOutput;
     foProjectItem: tProjectItem;
     procedure GetAllSubFolders(aFolder: String);
     function DoProcessor(aSourceFile: tSourceFile) : boolean;
   public
-    constructor Create(AOutput: TOutput; aProject: TProject;
+    constructor Create(AOutput: TcimOutput; aProject: TProject;
       aProjectItem: tProjectItem);
     destructor Destroy;
 
@@ -26,7 +26,7 @@ implementation
 
 uses Processor, Plugin, Plugins;
 
-constructor tProjectItemFolder.Create(AOutput: TOutput; aProject: TProject;
+constructor tProjectItemFolder.Create(AOutput: TcimOutput; aProject: TProject;
   aProjectItem: tProjectItem);
 begin
   foProject := aProject;
@@ -50,11 +50,11 @@ begin
      begin
        if DirectoryExists(foProjectItem.OutputFile) then
          begin
-           FoOutput.Log('output folder ' + foProjectItem.OutputFile + ' Deleted.');
+           FoOutput.oLog.AddLogInformation('output folder ' + foProjectItem.OutputFile + ' Deleted.');
            Try
              TDirectory.Delete(foProjectItem.OutputFile, true);
            Except
-             fooutput.LogError('Failed remove output folder' + foProjectItem.OutputFile);
+             fooutput.oLog.AddLogError('Failed remove output folder' + foProjectItem.OutputFile);
 
              result := false;
 
@@ -66,7 +66,7 @@ begin
 
     if DirectoryExists(foProjectItem.oSourceFiles.Folder) then
     begin
-      foOutput.Log('Adding Sourcefolder:' +foProjectItem.ItemFolder );
+      foOutput.oLog.AddLogInformation('Adding Sourcefolder:' +foProjectItem.ItemFolder );
 
       GetAllSubFolders(foProjectItem.oSourceFiles.Folder);
 
@@ -74,7 +74,7 @@ begin
     end
     else
     begin
-      foOutput.LogError('Cannot find Sourcefolder:' +foProjectItem.oSourceFiles.Folder );
+      foOutput.oLog.AddLogError('Cannot find Sourcefolder:' +foProjectItem.oSourceFiles.Folder );
 
       Result := False;
     end;
@@ -95,7 +95,7 @@ begin
 
     if aSourceFile.IsFiltered then
       begin
-        foOutput.Log(aSourceFile.FullPathname + ' - Filtered' );
+        foOutput.oLog.AddLogInformation(aSourceFile.FullPathname + ' - Filtered' );
 
         Exit;
       end;
@@ -106,14 +106,14 @@ begin
           if not DirectoryExists
             (Sysutils.ExtractFilePath(aSourceFile.DestFullPathname)) then
           begin
-            foOutput.Log('create folder: ' + Sysutils.ExtractFilePath
+            foOutput.oLog.AddLogInformation('create folder: ' + Sysutils.ExtractFilePath
               (aSourceFile.DestFullPathname));
 
             Try
               TDirectory.CreateDirectory
                 (Sysutils.ExtractFilePath(aSourceFile.DestFullPathname));
             Except
-              foOutput.LogError('failed creating folder: ' +
+              foOutput.oLog.AddLogError('failed creating folder: ' +
                 Sysutils.ExtractFilePath(aSourceFile.DestFullPathname));
 
               Result := false;
@@ -123,7 +123,7 @@ begin
           end;
 
 
-          foOutput.Log('process template file: ' + aSourceFile.DestFullPathname );
+          foOutput.oLog.AddLogInformation('process template file: ' + aSourceFile.DestFullPathname );
 
           loProcessor:= TProcessor.Create(foOutput, foProject, foProjectItem, aSourceFile.Processor,
             aSourceFile.FullPathname,
@@ -145,7 +145,7 @@ begin
            if (not foProjectItem.overrideoutput) and
                 FileExists(aSourceFile.DestFullPathname) then
               begin
-                FoOutput.Log('output ' + TNovusStringUtils.JustFilename
+                foOutput.oLog.AddLogInformation('output ' + TNovusStringUtils.JustFilename
                   (aSourceFile.DestFullPathname) + ' exists - Override Output option off.');
 
                 Exit;
@@ -153,12 +153,12 @@ begin
 
             if not DirectoryExists(SysUtils.ExtractFilePath(aSourceFile.DestFullPathname)) then
               begin
-                foOutput.Log('create folder: ' + SysUtils.ExtractFilePath(aSourceFile.DestFullPathname));
+                foOutput.oLog.AddLogInformation('create folder: ' + SysUtils.ExtractFilePath(aSourceFile.DestFullPathname));
 
                Try
                  TDirectory.CreateDirectory(SysUtils.ExtractFilePath(aSourceFile.DestFullPathname) );
                Except
-                 foOutput.LogError('failed creating folder: ' + SysUtils.ExtractFilePath(aSourceFile.DestFullPathname));
+                 foOutput.oLog.AddLogError('failed creating folder: ' + SysUtils.ExtractFilePath(aSourceFile.DestFullPathname));
 
                  Result := False;
 
@@ -166,7 +166,7 @@ begin
                end;
              end;
 
-            foOutput.Log('copy file: ' + aSourceFile.DestFullPathname );
+            foOutput.oLog.AddLogInformation('copy file: ' + aSourceFile.DestFullPathname );
 
             TFile.Copy(aSourceFile.FullPathname, aSourceFile.DestFullPathname, foProjectItem.overrideoutput);
           end
@@ -174,12 +174,12 @@ begin
          begin
            if not DirectoryExists(aSourceFile.DestFullPathname) then
              begin
-               foOutput.Log('create folder: ' + aSourceFile.DestFullPathname);
+               foOutput.oLog.AddLogInformation('create folder: ' + aSourceFile.DestFullPathname);
 
                Try
                  TDirectory.CreateDirectory(aSourceFile.DestFullPathname );
                Except
-                  foOutput.LogError('failed creating folder: ' + aSourceFile.DestFullPathname);
+                  foOutput.oLog.AddLogError('failed creating folder: ' + aSourceFile.DestFullPathname);
 
                   Result := False;
 
@@ -191,7 +191,7 @@ begin
 
       end;
   Except
-    foOutput.InternalError;
+    foOutput.oLog.AddLogException();
 
     Result := False;
 
@@ -224,7 +224,7 @@ begin
         FindClose(Rec);
       end;
   except
-    foOutput.InternalError;
+    foOutput.oLog.AddLogException();
   end;
 end;
 

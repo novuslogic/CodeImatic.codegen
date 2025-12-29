@@ -3,7 +3,7 @@ unit Project;
 interface
 
 Uses NovusXMLBO, Classes, SysUtils, NovusStringUtils, NovusBO, NovusList,NovusFileUtils,
-     JvSimpleXml, NovusSimpleXML, XMLlist, {ProjectConfig, } Output,
+     JvSimpleXml, NovusSimpleXML, XMLlist, CodeImatic.Output,
      ProjectConfigLoader;
 
 
@@ -13,7 +13,7 @@ Type
   private
     foProjectConfigLoader: TProjectConfigLoader;
     foPlugins: tObject;
-    foOutput: TOutput;
+    foOutput: TcimOutput;
     fbcreateoutputdir: Boolean;
     foProjectItemList: TNovusList;
     fsBasePath: String;
@@ -23,7 +23,7 @@ Type
     function GetoPlugins: TObject;
     procedure SetoPlugins(Value: tObject);
   public
-    constructor Create(aOutput: tOutput); reintroduce;
+    constructor Create(aOutput: tcimOutput); reintroduce;
     destructor Destroy; override;
 
     function GetBasePath: String;
@@ -32,7 +32,7 @@ Type
 
     function GetWorkingdirectory: String;
 
-    function LoadProjectFile(aProjectFilename: String;aOutput: TOutput; aWorkingdirectory: string): boolean;
+    function LoadProjectFile(aProjectFilename: String;aOutput: TcimOutput; aWorkingdirectory: string): boolean;
 
     property oProjectItemList: TNovusList
       read foProjectItemList
@@ -68,7 +68,7 @@ implementation
 uses Runtime, ProjectParser, ProjectItem, ProjectItemLoader, Plugins;
 
 
-constructor TProject.Create(aOutput: tOutput);
+constructor TProject.Create(aOutput: tcimOutput);
 begin
   inherited Create;
 
@@ -137,7 +137,7 @@ begin
   Result := GetFieldAsBoolean(oXMLDocument.Root, 'outputconsole');
 end;
 
-function TProject.LoadProjectFile(aProjectFilename: String; aOutput: TOutput; aWorkingdirectory: string): boolean;
+function TProject.LoadProjectFile(aProjectFilename: String; aOutput: TcimOutput; aWorkingdirectory: string): boolean;
 Var
   fNodeProjectItem: TJvSimpleXmlElem;
   Index: Integer;

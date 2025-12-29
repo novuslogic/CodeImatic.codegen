@@ -2,7 +2,7 @@ unit ProjectParser;
 
 interface
 
-uses ExpressionParser, system.Classes,  Variables, output, SysUtils, Project,
+uses ExpressionParser, system.Classes,  Variables, CodeImatic.Output, SysUtils, Project,
      TagType, tagParser, TokenProcessor, NovusEnvironment;
 
 
@@ -11,7 +11,7 @@ type
    protected
    private
    public
-     class function ParseProject(aItemName: String; aProject: tProject; aOutput: tOutput): String;
+     class function ParseProject(aItemName: String; aProject: tProject; aOutput: tcimOutput): String;
    end;
 
 
@@ -19,7 +19,7 @@ implementation
 
 uses VariablesCmdLine, NovusTemplate, Config, CodeGenerator;
 
-class function tProjectParser.ParseProject(aItemName: String; aProject: tProject; aOutput: tOutput): String;
+class function tProjectParser.ParseProject(aItemName: String; aProject: tProject; aOutput: tcimOutput): String;
 var
   lEParser: tExpressionParser;
   lTokens: tTokenProcessor;

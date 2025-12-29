@@ -2,14 +2,14 @@ unit Properties;
 
 interface
 
-Uses NovusXMLBO, Classes, SysUtils, XMLlist, Project, Output;
+Uses NovusXMLBO, Classes, SysUtils, XMLlist, Project, CodeImatic.Output;
 
 Type
   tProperties = class(TXMLlist)
   protected
   private
     foProject: tProject;
-    FoOutput: TOutput;
+    FoOutput: TcimOutput;
     foProjectItem: tObject;
   public
     constructor Create(aProjectItem: tObject);  reintroduce;
@@ -61,7 +61,7 @@ begin
     if assigned(fVariable) then
       lsGetProperty := fVariable.AsString;
   Except
-    FoOutput.log(APropertyName + ' Projectconfig error.');
+    FoOutput.oLog.AddLogError(APropertyName + ' Projectconfig error.');
 
   End;
 

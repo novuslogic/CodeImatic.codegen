@@ -3,7 +3,7 @@ unit Plugin_SystemExtClasses;
 interface
 
 uses Classes, Plugin, NovusPlugin, Project,
-  Output, SysUtils, System.Generics.Defaults, runtime, Config,
+  CodeImatic.Output, SysUtils, System.Generics.Defaults, runtime, Config,
   APIBase, uPSRuntime, uPSCompiler,
   uPSC_classes, uPSC_std, uPSR_std, uPSR_classes,
   uPSC_dateutils, uPSC_comobj, uPSR_comobj, uPSC_dll,
@@ -14,7 +14,7 @@ type
   private
   protected
   public
-    constructor Create(aOutput: tOutput; aPluginName: String;
+    constructor Create(aOutput: tcimOutput; aPluginName: String;
       aProject: TProject; aConfigPlugin: tConfigPlugin); override;
     destructor Destroy; override;
 
@@ -35,7 +35,7 @@ type
     procedure Initialize; override; safecall;
     procedure Finalize; override; safecall;
 
-    function CreatePlugin(aOutput: tOutput; aProject: TProject;
+    function CreatePlugin(aOutput: tcimOutput; aProject: TProject;
       aConfigPlugin: tConfigPlugin): TPlugin; override; safecall;
 
   end;
@@ -64,7 +64,7 @@ implementation
 var
   _Plugin_SystemExt: TPlugin_SystemExt = nil;
 
-constructor tPlugin_SystemExtBase.Create(aOutput: tOutput; aPluginName: String;
+constructor tPlugin_SystemExtBase.Create(aOutput: tcimOutput; aPluginName: String;
   aProject: TProject; aConfigPlugin: tConfigPlugin);
 begin
   Inherited Create(aOutput, aPluginName, aProject, aConfigPlugin);
@@ -85,7 +85,7 @@ procedure TPlugin_SystemExt.Initialize;
 begin
 end;
 
-function TPlugin_SystemExt.CreatePlugin(aOutput: tOutput; aProject: TProject;
+function TPlugin_SystemExt.CreatePlugin(aOutput: tcimOutput; aProject: TProject;
   aConfigPlugin: tConfigPlugin): TPlugin; safecall;
 begin
   foProject := aProject;
@@ -183,7 +183,7 @@ begin
   end;
   PStart := Stack.Count - 1;
 
-  oRuntime.oOutput.Log(Stack.GetString(PStart));
+  oRuntime.oOutput.oLog.AddLogInformation((Stack.GetString(PStart), '','' );
 
   Result := True;
 end;

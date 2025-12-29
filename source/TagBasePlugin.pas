@@ -2,31 +2,31 @@ unit TagBasePlugin;
 
 interface
 
-Uses Output, ProjectItem, Variables, TokenProcessor;
+Uses CodeImatic.Output, ProjectItem, Variables, TokenProcessor;
 
 type
   TTagBasePlugin = class
   private
-    foOutput: tOutput;
+    foOutput: tcimOutput;
     foProjectItem: tProjectItem;
     foVariables: TVariables;
   protected
     function GetTagName: String; virtual;
   public
-    constructor Create(aOutput: tOutput);
+    constructor Create(aOutput: tcimOutput);
     function Execute(aProjectItem: tProjectItem; aTagName: string;
       aTokens: tTokenProcessor): String; virtual;
 
     property TagName: String read GetTagName;
 
-    property oOutput: tOutput read foOutput;
+    property oOutput: tcimOutput read foOutput;
 
     property oVariables: TVariables read foVariables write foVariables;
   end;
 
 implementation
 
-constructor TTagBasePlugin.Create(aOutput: tOutput);
+constructor TTagBasePlugin.Create(aOutput: tcimOutput);
 begin
   foOutput := aOutput;
 end;

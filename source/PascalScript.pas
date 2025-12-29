@@ -3,7 +3,7 @@ unit PascalScript;
 interface
 
 uses
-  Output,
+  CodeImatic.Output,
   System.Classes,
   System.SysUtils,
   uPSCompiler,
@@ -14,7 +14,7 @@ uses
 type
    TPascalScriptEngine = class
    private
-     foOutput: toutput;
+     foOutput: tcimoutput;
      FCompiler: TPSPascalCompiler;
      FsData: AnsiString;
      FExec: TPSExec;
@@ -24,7 +24,7 @@ type
      procedure CompilerOutputMessage;
      procedure SetVariantToClasses(aExec: TPSExec);
    public
-     constructor Create(aOutput: TOutput);
+     constructor Create(aOutput: TcimOutput);
      destructor Destroy;
 
      function ExecuteScript(aPascalFilename: String; aScript: String; aCompileOnly: boolean = false): boolean;
@@ -81,7 +81,7 @@ begin
     begin
       Try
         Try
-          oruntime.oOutput.Log('Compiling unit ... ' + name + '.pas');
+          oruntime.oOutput.oLog.AddLogInformation('Compiling unit ... ' + name + '.pas');
 
           lList := TStringList.Create;
           lList.LoadFromFile(oruntime.oProject.oProjectConfigLoader.SearchPath + name
@@ -128,7 +128,7 @@ begin
   FCompiler.AllowNoBegin := True;
   FCompiler.AllowNoEnd := True; // AllowNoBegin and AllowNoEnd allows it that begin and end are not required in a script.
 
-  foOutput.Log('Pascal Compiling ... ' + aPascalFilename);
+  foOutput.oLog.AddLogInformation('Pascal Compiling ... ' + aPascalFilename);
 
   if not FCompiler.Compile(aScript) then  // Compile the Pascal script into bytecode.
   begin
@@ -151,7 +151,7 @@ begin
   FCompiler.GetOutput(fsData); // Save the output of the compiler in the string Data.
   FCompiler.Free; // After compiling the script, there is no need for the compiler anymore.
 
-  foOutput.Log('Pascal Executing ... '+ aPascalFilename);
+  foOutput.olog.AddLogInformation('Pascal Executing ... '+ aPascalFilename);
 
 
     Try
@@ -163,7 +163,7 @@ begin
 
       if not FExec.LoadData(fsData) then
       begin
-        foOutput.Log('[Error] : Could not load data: '+TIFErrorToString(FExec.ExceptionCode, FExec.ExceptionString));
+        foOutput.oLog.AddLogError('[Error] : Could not load data: '+TIFErrorToString(FExec.ExceptionCode, FExec.ExceptionString));
 
         foOutput.Failed := true
       end
@@ -175,7 +175,7 @@ begin
 
             if not fbOK then
                begin
-                 foOutput.Log('[Runtime Error] : ' + TIFErrorToString(FExec.ExceptionCode, FExec.ExceptionString) +
+                 foOutput.oLog.AddLogError('[Runtime Error] : ' + TIFErrorToString(FExec.ExceptionCode, FExec.ExceptionString) +
                     ' in ' + IntToStr(FExec.ExceptionProcNo) + ' at ' + IntToSTr(FExec.ExceptionPos));
 
                  foOutput.Failed := true;
@@ -203,7 +203,7 @@ var
 begin
   for i := 0 to FCompiler.MsgCount - 1 do
     begin
-      foOutput.LogError(FCompiler.Msg[i].MessageToString)
+      foOutput.oLog.AddLogError(FCompiler.Msg[i].MessageToString)
     end;
 end;
 

@@ -3,7 +3,7 @@ unit Plugin_SysTagsClasses;
 interface
 
 uses Classes, Plugin, NovusPlugin,  Project,
-  Output, SysUtils, System.Generics.Defaults, runtime, Config,
+  CodeImatic.Output, SysUtils, System.Generics.Defaults, runtime, Config,
   APIBase, NovusGUID, CodeGeneratorItem, FunctionsParser, ProjectItem,
   Variables, NovusFileUtils, CodeGenerator, NovusStringUtils, TokenProcessor,
   TagBasePlugin, TokenParser, System.IOUtils, TagParser, TagType;
@@ -159,7 +159,7 @@ type
   protected
     FSysTags: tSysTags;
   public
-    constructor Create(aOutput: tOutput; aPluginName: String;
+    constructor Create(aOutput: tcimOutput; aPluginName: String;
       aProject: TProject; aConfigPlugin: tConfigPlugin); override;
     destructor Destroy; override;
 
@@ -179,7 +179,7 @@ type
     procedure Initialize; override; safecall;
     procedure Finalize; override; safecall;
 
-    function CreatePlugin(aOutput: tOutput; aProject: TProject;
+    function CreatePlugin(aOutput: tcimOutput; aProject: TProject;
       aConfigPlugin: tConfigPlugin): TPlugin; override; safecall;
   end;
 
@@ -190,7 +190,7 @@ implementation
 var
   _Plugin_SysTags: TPlugin_SysTags = nil;
 
-constructor tPlugin_SysTagsBase.Create(aOutput: tOutput; aPluginName: String;
+constructor tPlugin_SysTagsBase.Create(aOutput: tcimOutput; aPluginName: String;
   aProject: TProject; aConfigPlugin: tConfigPlugin);
 begin
   Inherited Create(aOutput, aPluginName, aProject, aConfigPlugin);
@@ -254,18 +254,18 @@ begin
                Exit;
               end
              else
-                oOutput.LogError('Syntax Error: lack ")"');
+                oOutput.oLog.AddLogError('Syntax Error: lack ")"');
 
 
          end
         else
-          oOutput.LogError('Syntax Error: Cannot find folder [' + ExtractFilePath(FsFilename) +']');
+          oOutput.oLog.AddLogError('Syntax Error: Cannot find folder [' + ExtractFilePath(FsFilename) +']');
       end
     else
-    oOutput.LogError('Syntax Error: string cannot be blank');
+       oOutput.oLog.AddLogError('Syntax Error: string cannot be blank');
   end
    else
-     oOutput.LogError('Syntax Error: lack "("');
+     oOutput.oLog.AddLogError('Syntax Error: lack "("');
 end;
 
 // Plugin_SysTags
@@ -278,7 +278,7 @@ procedure TPlugin_SysTags.Initialize;
 begin
 end;
 
-function TPlugin_SysTags.CreatePlugin(aOutput: tOutput; aProject: TProject;
+function TPlugin_SysTags.CreatePlugin(aOutput: tcimOutput; aProject: TProject;
   aConfigPlugin: tConfigPlugin): TPlugin; safecall;
 begin
   foProject := aProject;
@@ -305,7 +305,7 @@ begin
 
   if liIndex = -1 then
   begin
-    oOutput.LogError('Cannot find sys.' + aTagName);
+    oOutput.oLog.AddLogError('Cannot find sys.' + aTagName);
 
     Exit;
   end;
@@ -364,7 +364,8 @@ begin
       LFunctionParser.Free;
     End;
   Except
-    oOutput.InternalError;
+    oOutput.oLog.AddLogException();
+    oOutput.Failed := True;
   End;
 end;
 
@@ -386,7 +387,8 @@ begin
       aToken := '';
     end;
   Except
-    oOutput.InternalError;
+    oOutput.oLog.AddLogException();
+    oOutput.Failed := True;
   End;
 end;
 
@@ -414,7 +416,8 @@ begin
       LFunctionParser.Free;
     End;
   Except
-    oOutput.InternalError;
+    oOutput.oLog.AddLogException();
+    oOutput.Failed := True;
   End;
 end;
 
@@ -448,7 +451,8 @@ begin
       LFunctionParser.Free;
     End;
   Except
-    oOutput.InternalError;
+    oOutput.oLog.AddLogException();
+    oOutput.Failed := True;
   End;
 end;
 
@@ -482,7 +486,8 @@ begin
       LFunctionParser.Free;
     End;
   Except
-    oOutput.InternalError;
+    oOutput.oLog.AddLogException();
+    oOutput.Failed := True;
   End;
 end;
 
@@ -494,7 +499,9 @@ begin
   FVariable := oVariables.GetVariableByName(aToken);
   if not Assigned(FVariable) then
     begin
-      oOutput.LogError('Syntax Error: "' + aToken + '" not variable not found.');
+      oOutput.oLog.AddLogError('Syntax Error: "' + aToken + '" not variable not found.');
+      oOutput.Failed := True;
+
 
       aToken := 'false';
 
@@ -508,7 +515,8 @@ begin
 
       if not Assigned(FLinkedVariable) then
         begin
-          oOutput.LogError('Syntax Error: "' + FLinkedVariable.Value + '" linked variable not found.');
+          oOutput.oLog.AddLogError('Syntax Error: "' + FLinkedVariable.Value + '" linked variable not found.');
+          oOutput.Failed := True;
 
           Exit;
         end;
@@ -564,7 +572,8 @@ begin
       LFunctionParser.Free;
     End;
   Except
-    oOutput.InternalError;
+    oOutput.oLog.AddLogException();
+    oOutput.Failed := True;
   End;
 end;
 
@@ -596,7 +605,8 @@ begin
       LFunctionParser.Free;
     End;
   Except
-    oOutput.InternalError;
+      oOutput.oLog.AddLogException();
+    oOutput.Failed := True;
   End;
 end;
 
@@ -659,7 +669,8 @@ begin
       LFunctionParser.Free;
     End;
   Except
-    oOutput.InternalError;
+    oOutput.oLog.AddLogException();
+    oOutput.Failed := True;
   End;
 end;
 
@@ -692,7 +703,8 @@ begin
       LFunctionParser.Free;
     End;
   Except
-    oOutput.InternalError;
+    oOutput.oLog.AddLogException();
+    oOutput.Failed := True;
   End;
 end;
 
@@ -705,7 +717,8 @@ begin
   FVariable := oVariables.GetVariableByName(aToken);
   if not Assigned(FVariable) then
     begin
-      oOutput.LogError('Syntax Error: "' + aToken + '" not variable not found.');
+      oOutput.oLog.AddLogError('Syntax Error: "' + aToken + '" not variable not found.');
+      oOutput.Failed := True;
 
       aToken := 'false';
 
@@ -714,7 +727,8 @@ begin
 
   if Not FVariable.IsNumeric then
     begin
-      oOutput.LogError('Syntax Error: "' + aToken + '" is not numeric.');
+      oOutput.oLog.AddLogError('Syntax Error: "' + aToken + '" is not numeric.');
+      oOutput.Failed := True;
 
       aToken := 'false';
 
@@ -753,7 +767,8 @@ begin
       LFunctionParser.Free;
     End;
   Except
-    oOutput.InternalError;
+    oOutput.oLog.AddLogException();
+    oOutput.Failed := True;
   End;
 end;
 
@@ -769,7 +784,8 @@ begin
       FVariable := oVariables.GetVariableByName(aToken);
       if not Assigned(FVariable) then
         begin
-          oOutput.LogError('Syntax Error: "' + aToken + '" not variable not found.');
+          oOutput.olog.AddLogError('Syntax Error: "' + aToken + '" not variable not found.');
+          oOutput.Failed := True;
 
           aToken := 'false';
 
@@ -779,7 +795,8 @@ begin
 
       if not  FVariable.IsString then
         begin
-          oOutput.LogError('Syntax Error: "' + aToken + '" variable must be string type.');
+          oOutput.olog.AddLogError('Syntax Error: "' + aToken + '" variable must be string type.');
+          oOutput.Failed := True;
 
           aToken := 'false';
 
@@ -793,7 +810,8 @@ begin
      if not DirectoryExists(lsFolder) then
        TDirectory.CreateDirectory(lsFolder);
    Except
-     oOutput.InternalError;
+     oOutput.oLog.AddLogException();
+     oOutput.Failed := True;
    End;
 
 end;
@@ -821,7 +839,8 @@ begin
       LFunctionParser.Free;
     End;
   Except
-    oOutput.InternalError;
+    oOutput.oLog.AddLogException();
+    oOutput.Failed := True;
   End;
 end;
 
@@ -834,7 +853,8 @@ begin
   FVariable := oVariables.GetVariableByName(aToken);
   if not Assigned(FVariable) then
     begin
-      oOutput.LogError('Syntax error: "' + aToken + '" not variable not found.');
+      oOutput.oLog.AddLogError('Syntax error: "' + aToken + '" not variable not found.');
+      oOutput.Failed := True;
 
       aToken := 'false';
 
@@ -843,7 +863,8 @@ begin
 
   if Not FVariable.IsNumeric then
     begin
-      oOutput.LogError('Syntax error: "' + aToken + '" is not numeric.');
+      oOutput.oLog.AddLogError('Syntax error: "' + aToken + '" is not numeric.');
+      oOutput.Failed := True;
 
       aToken := 'false';
 

@@ -3,9 +3,9 @@ unit Plugin_JSONTagsClasses;
 interface
 
 uses Classes, Plugin, NovusPlugin,  Project,
-  Output, SysUtils, System.Generics.Defaults, runtime, Config,
+  CodeImatic.Output, SysUtils, System.Generics.Defaults, runtime, Config,
   APIBase, NovusGUID, CodeGeneratorItem, FunctionsParser, ProjectItem,
-  Variables, NovusFileUtils, CodeGenerator, TokenParser,
+  Variables, NovusFileUtils, CodeGenerator, TokenParser, Codeimatic.ErrorTypes,
   {NovusJSONUtils, } System.IOUtils, System.JSON, TokenProcessor, NovusStringUtils,
   TagBasePlugin, FileExistsFunctionParser;
 
@@ -130,7 +130,7 @@ type
   protected
     FJSONTags: tJSONTags;
   public
-    constructor Create(aOutput: tOutput; aPluginName: String;
+    constructor Create(aOutput: tcimOutput; aPluginName: String;
       aProject: TProject; aConfigPlugin: tConfigPlugin); override;
     destructor Destroy; override;
 
@@ -151,7 +151,7 @@ type
     procedure Initialize; override; safecall;
     procedure Finalize; override; safecall;
 
-    function CreatePlugin(aOutput: tOutput; aProject: TProject;
+    function CreatePlugin(aOutput: tcimOutput; aProject: TProject;
       aConfigPlugin: tConfigPlugin): TPlugin; override; safecall;
   end;
 
@@ -177,7 +177,7 @@ begin
     Result := jsObject;
 end;
 
-constructor tPlugin_JSONTagsBase.Create(aOutput: tOutput; aPluginName: String;
+constructor tPlugin_JSONTagsBase.Create(aOutput: tcimOutput; aPluginName: String;
   aProject: TProject; aConfigPlugin: tConfigPlugin);
 begin
   Inherited Create(aOutput, aPluginName, aProject, aConfigPlugin);
@@ -217,7 +217,7 @@ procedure TPlugin_JSONTags.Initialize;
 begin
 end;
 
-function TPlugin_JSONTags.CreatePlugin(aOutput: tOutput; aProject: TProject;
+function TPlugin_JSONTags.CreatePlugin(aOutput: tcimOutput; aProject: TProject;
   aConfigPlugin: tConfigPlugin): TPlugin; safecall;
 begin
   foProject := aProject;
@@ -244,7 +244,7 @@ begin
   liIndex := IsTagExists(aTagName);
   if liIndex = -1 then
   begin
-    oOutput.LogError('Cannot find JOSN.' + aTagName);
+    oOutput.AddLogErrorType('Cannot find JOSN.' + aTagName);
 
     Exit;
   end;
@@ -287,7 +287,7 @@ begin
 
   if AToken= ''  then
     begin
-      Self.oOutput.LogError(
+      Self.oOutput.AddLogErrorType(
       'Blank Variable name.');
 
       Exit;
@@ -297,18 +297,18 @@ begin
 
   if Not Assigned(FVariable) then
   begin
-    Self.oOutput.LogError(aToken +
+    Self.oOutput.AddLogErrorType(aToken +
       ' Object Variable cannot be found.');
     Exit;
   end
   else if Not FVariable.IsObject then
   begin
-    Self.oOutput.LogError('[' + aToken + '] not an Object Variable.');
+    Self.oOutput.AddLogErrorType('[' + aToken + '] not an Object Variable.');
     Exit;
   end
   else if FVariable.Value <> TJSONTag.ClassName then
   begin
-    Self.oOutput.LogError('[' + aToken + '] not ' + TJSONTag.ClassName +
+    Self.oOutput.AddLogErrorType('[' + aToken + '] not ' + TJSONTag.ClassName +
       ' Object Variable.');
     Exit;
   end;
@@ -340,7 +340,7 @@ begin
       LFunctionParser.Free;
     End;
   Except
-    oOutput.InternalError;
+    oOutput.AddLogFailed();
   End;
 end;
 
@@ -355,7 +355,7 @@ begin
     FJSONValue := TJSONObject.ParseJSONValue
       (TEncoding.ASCII.GetBytes(TFile.ReadAllText(aJSONFilename)), 0);
   Except
-    oOutput.LogError('JSONFilename cannot read [' + aJSONFilename + ']');
+    oOutput.AddLogErrorType('JSONFilename cannot read [' + aJSONFilename + ']');
   End;
 
   aToken := Self.oVariables.AddVariableObject(TJSONTag.ClassName, FJSONValue,  true);
@@ -387,7 +387,7 @@ begin
       LFunctionParser.Free;
     End;
   Except
-    oOutput.InternalError;
+    oOutput.AddLogFailed();
   End;
 end;
 
@@ -415,7 +415,7 @@ begin
 
       if Trim(lsElement) = '' then
       begin
-        oOutput.LogError('Syntax Error: Element cannot be blank.');
+        oOutput.AddLogErrorType('Element cannot be blank.', tcimETSyntax_Error);
 
         Exit;
       end;
@@ -438,7 +438,7 @@ begin
 
           end;
         jsArray: begin
-            oOutput.LogError('JSON Array Not Supported.');
+            oOutput.AddLogErrorType('JSON Array Not Supported.', tcimETNot_Supported);
 
         end;
         jsObject:
@@ -490,7 +490,7 @@ begin
       LFunctionParser.Free;
     End;
   Except
-    oOutput.InternalError;
+    oOutput.AddLogFailed();
   End;
 end;
 
@@ -542,7 +542,7 @@ begin
       LFunctionParser.Free;
     End;
   Except
-    oOutput.InternalError;
+    oOutput.AddLogFailed();
   End;
 end;
 
@@ -593,7 +593,7 @@ begin
       LFunctionParser.Free;
     End;
   Except
-    oOutput.InternalError;
+    oOutput.AddLogFailed();
   End;
 end;
 
@@ -641,7 +641,7 @@ begin
       LFunctionParser.Free;
     End;
   Except
-    oOutput.InternalError;
+    oOutput.AddLogFailed();
   End;
 end;
 

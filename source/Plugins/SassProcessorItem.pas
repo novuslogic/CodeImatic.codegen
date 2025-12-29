@@ -4,7 +4,7 @@ interface
 
 Uses Winapi.Windows, System.SysUtils, System.Classes, NovusFileUtils,
   Plugin, NovusPlugin,  Project, NovusTemplate,
-  Output, System.Generics.Defaults, runtime, Config, NovusStringUtils,
+  CodeImatic.Output, System.Generics.Defaults, runtime, Config, NovusStringUtils,
   APIBase, ProjectItem, TagType, JvSimpleXml, DelphiLibSass, Loader, template;
 
 type
@@ -63,7 +63,8 @@ begin
       Except
         Result := TPluginReturn.PRFailed;
 
-        oOutput.InternalError;
+        oOutput.oLog.AddLogException();
+
       End;
     Finally
       if Assigned(fSassprocessor) then
@@ -77,13 +78,14 @@ begin
     begin
       aOutputFilename := ChangeFileExt(aOutputFilename, '.' + outputextension);
 
-      oOutput.Log('New output:' + aOutputFilename);
+      oOutput.olog.AddLogInformation('New output:' + aOutputFilename);
     end;
 
   Except
     Result := TPluginReturn.PRFailed;
 
-    oOutput.InternalError;
+    oOutput.oLog.AddLogException();
+    oOutput.Failed := True;
   End;
 end;
 

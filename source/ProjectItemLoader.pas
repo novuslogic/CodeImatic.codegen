@@ -3,19 +3,19 @@ unit ProjectItemLoader;
 interface
 
 Uses NovusBO, JvSimpleXml, Project, SysUtils, ProjectItem, NovusFileUtils,
-  Loader, Output,  NovusStringUtils,Plugins;
+  Loader, CodeImatic.Output,  NovusStringUtils,Plugins;
 
 Type
   TProjectItemLoader = class(TLoader)
   protected
   private
-    foOutput: tOutput;
+    foOutput: tcimOutput;
     foProject: Tproject;
     foProjectItem: TProjectItem;
     foPlugins: tPlugins;
   public
     constructor Create(aProject: Tproject; aProjectItem: TProjectItem;
-      aNode: TJvSimpleXmlElem; aOutput: tOutput; aPlugins: tPlugins);
+      aNode: TJvSimpleXmlElem; aOutput: tcimOutput; aPlugins: tPlugins);
     destructor Destroy;
 
     function Load: boolean; override;
@@ -24,7 +24,7 @@ Type
 
     class function LoadProjectItem(aProject: Tproject;
       aProjectItem: TProjectItem; aNode: TJvSimpleXmlElem;
-      aOutput: tOutput; aPlugins: tPlugins): boolean;
+      aOutput: tcimOutput; aPlugins: tPlugins): boolean;
   end;
 
 implementation
@@ -32,7 +32,7 @@ implementation
 Uses novusSimpleXML, ProjectParser;
 
 constructor TProjectItemLoader.Create(aProject: Tproject;
-  aProjectItem: TProjectItem; aNode: TJvSimpleXmlElem; aOutput: tOutput;
+  aProjectItem: TProjectItem; aNode: TJvSimpleXmlElem; aOutput: tcimOutput;
      aPlugins: tPlugins);
 begin
   RootNode := aNode;
@@ -52,7 +52,7 @@ end;
 
 class function TProjectItemLoader.LoadProjectItem(aProject: Tproject;
   aProjectItem: TProjectItem; aNode: TJvSimpleXmlElem;
-  aOutput: tOutput; aPlugins: tPlugins): boolean;
+  aOutput: tcimOutput; aPlugins: tPlugins): boolean;
 var
   loProjectItemLoader: TProjectItemLoader;
 begin
@@ -99,7 +99,7 @@ begin
   end
   else
   begin
-    foOutput.LogError('projectitem.folder or projectitem.name required.');
+    foOutput.olog.AddLogError('projectitem.folder or projectitem.name required.');
     Result := False;
 
     exit;
@@ -129,7 +129,7 @@ begin
     foProjectItem.OutputFile := GetValue(FNodeLoader.Value)
   else
    begin
-    foOutput.LogError(foProjectItem.Name + ': projectitem.output required.');
+    foOutput.oLog.AddLogError(foProjectItem.Name + ': projectitem.output required.');
     Result := False;
   end;
 
@@ -149,7 +149,7 @@ begin
        foProjectItem.TemplateFile := GetValue(FNodeLoader.Value);
       if Trim(foProjectItem.TemplateFile) = '' then
          begin
-           foOutput.LogError(foProjectItem.Name + ': projectitem.source or projectitem.template required.');
+           foOutput.oLog.AddLogError(foProjectItem.Name + ': projectitem.source or projectitem.template required.');
            Result := False;
          end;
 
@@ -174,7 +174,7 @@ begin
             end
           else
             begin
-              foOutput.LogError(foProjectItem.Name + ': projectitem.sourcefiles.folder required.');
+              foOutput.oLog.AddLogError(foProjectItem.Name + ': projectitem.sourcefiles.folder required.');
               Result := False;
             end;
 
@@ -209,7 +209,7 @@ begin
                      end
                      else
                      begin
-                       foOutput.LogError(foProjectItem.Name + ': projectitem.sourcefiles.templates.file.name required.');
+                       foOutput.oLog.AddLogError(foProjectItem.Name + ': projectitem.sourcefiles.templates.file.name required.');
                        Result := False;
                        break;
                      end;
@@ -237,7 +237,7 @@ begin
                      end
                    else
                      begin
-                       foOutput.LogError(foProjectItem.Name + ': projectitem.sourcefiles.filters.file.name required.');
+                       foOutput.oLog.AddLogError(foProjectItem.Name + ': projectitem.sourcefiles.filters.file.name required.');
                        Result := False;
                        break;
                      end;

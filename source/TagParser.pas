@@ -2,7 +2,7 @@ unit TagParser;
 
 interface
 
-Uses TagType, SysUtils, output, Classes, TokenProcessor, NovusStringUtils;
+Uses TagType, SysUtils, CodeImatic.Output, Classes, TokenProcessor, NovusStringUtils;
 
 Type
   TTagParser = class(Tobject)
@@ -11,15 +11,15 @@ Type
     foProjectItem: Tobject;
     foCodeGenerator: Tobject;
     fsToken: String;
-    foOutput: tOutput;
+    foOutput: tcimOutput;
     FoTokenProcessor: tTokenProcessor;
 
     function InternalParseTag(aProjectItem: Tobject; aCodeGenerator: Tobject;
-      aToken: string; aTokens: tTokenProcessor; aOutput: tOutput;
+      aToken: string; aTokens: tTokenProcessor; aOutput: tcimOutput;
       aTokenIndex: Integer; aIsTokens: Boolean): TTagType;
   public
     constructor Create(aProjectItem: Tobject; aCodeGenerator: Tobject;
-      aToken: String; aOutput: tOutput); overload;
+      aToken: String; aOutput: tcimOutput); overload;
 
     destructor Destroy; override;
 
@@ -29,13 +29,13 @@ Type
       write FoTokenProcessor;
 
     class function ParseTag(aProjectItem: Tobject; aCodeGenerator: Tobject;
-      aTag: String; aOutput: tOutput): TTagParser;
+      aTag: String; aOutput: tcimOutput): TTagParser;
 
     class function ParseTagType(aProjectItem: Tobject; aCodeGenerator: Tobject;
-      aTag: String; aOutput: tOutput; aIsTokens: Boolean): TTagType; overload;
+      aTag: String; aOutput: tcimOutput; aIsTokens: Boolean): TTagType; overload;
 
     class function ParseTagType(aProjectItem: Tobject; aCodeGenerator: Tobject;
-      aTokens: tTokenProcessor; aOutput: tOutput; aTokenIndex: Integer)
+      aTokens: tTokenProcessor; aOutput: tcimOutput; aTokenIndex: Integer)
       : TTagType; overload;
 
   end;
@@ -45,7 +45,7 @@ implementation
 Uses Runtime, ProjectItem, CodeGenerator, TokenParser, Variables;
 
 constructor TTagParser.Create(aProjectItem: Tobject; aCodeGenerator: Tobject;
-  aToken: String; aOutput: tOutput);
+  aToken: String; aOutput: tcimOutput);
 begin
   foProjectItem := aProjectItem;
   foCodeGenerator := aCodeGenerator;
@@ -130,7 +130,7 @@ begin
 end;
 
 class function TTagParser.ParseTagType(aProjectItem: Tobject;
-  aCodeGenerator: Tobject; aTag: String; aOutput: tOutput; aIsTokens: Boolean)
+  aCodeGenerator: Tobject; aTag: String; aOutput: tcimOutput; aIsTokens: Boolean)
   : TTagType;
 var
   lTagParser: TTagParser;
@@ -148,12 +148,13 @@ begin
       lTagParser.Free;
     End;
   except
-    aOutput.InternalError;
+    aOutput.oLog.AddLogException();
+    aOutput.Failed := True;
   End;
 end;
 
 class function TTagParser.ParseTagType(aProjectItem: Tobject;
-  aCodeGenerator: Tobject; aTokens: tTokenProcessor; aOutput: tOutput;
+  aCodeGenerator: Tobject; aTokens: tTokenProcessor; aOutput: tcimOutput;
   aTokenIndex: Integer): TTagType;
 var
   lTagParser: TTagParser;
@@ -171,7 +172,8 @@ begin
       lTagParser.Free;
     End;
   except
-    aOutput.InternalError;
+    aOutput.oLog.AddLogException();
+    aOutput.Failed := True;
   End;
 
 end;
@@ -179,11 +181,11 @@ end;
 
 function TTagParser.InternalParseTag(aProjectItem: Tobject;
   aCodeGenerator: Tobject; aToken: string; aTokens: tTokenProcessor;
-  aOutput: tOutput; aTokenIndex: Integer; aIsTokens: Boolean): TTagType;
+  aOutput: tcimOutput; aTokenIndex: Integer; aIsTokens: Boolean): TTagType;
 var
   FTokenProcessor: tTokenProcessor;
   lsToken, lsToken1, lsToken2: string;
-  foOutput: tOutput;
+  foOutput: tcimOutput;
 begin
   if Assigned(aTokens) then
   begin
@@ -312,7 +314,7 @@ begin
 end;
 
 class function TTagParser.ParseTag(aProjectItem: Tobject;
-  aCodeGenerator: Tobject; aTag: String; aOutput: tOutput): TTagParser;
+  aCodeGenerator: Tobject; aTag: String; aOutput: tcimOutput): TTagParser;
 begin
   result := TTagParser.Create(aProjectItem, aCodeGenerator, aTag, aOutput);
 end;

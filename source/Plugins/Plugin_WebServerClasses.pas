@@ -3,7 +3,7 @@ unit Plugin_WebServerClasses;
 interface
 
 uses Classes,Plugin, NovusPlugin, Project, NovusCommandLine,
-    Output, SysUtils, System.Generics.Defaults,  runtime, config, TagType,
+    CodeImatic.Output, SysUtils, System.Generics.Defaults,  runtime, config, TagType,
     APIBase, IdBaseComponent, IdComponent, IdTCPServer, IdHTTPServer, StdCtrls,
     ExtCtrls, HTTPApp, Windows, {NovusConsoleUtils,} Plugin_WebServerEngine;
 
@@ -15,7 +15,7 @@ type
     fbIsOpenBrowser: boolean;
     fbIsWebServer: Boolean;
   public
-    constructor Create(aOutput: tOutput; aPluginName: String; aProject: TProject; aConfigPlugin: TConfigPlugin); override;
+    constructor Create(aOutput: tcimOutput; aPluginName: String; aProject: TProject; aConfigPlugin: TConfigPlugin); override;
     destructor Destroy; override;
 
     function IsCommandLine(aResultCommand: INovusCommandLineResultCommand): boolean; override;
@@ -41,7 +41,7 @@ type
     procedure Initialize; override; safecall;
     procedure Finalize; override; safecall;
 
-    function CreatePlugin(aOutput: tOutput; aProject: TProject; aConfigPlugin: TConfigPlugin): TPlugin; override; safecall;
+    function CreatePlugin(aOutput: tcimOutput; aProject: TProject; aConfigPlugin: TConfigPlugin): TPlugin; override; safecall;
   end;
 
 function GetPluginObject: TNovusPlugin; stdcall;
@@ -51,7 +51,7 @@ implementation
 var
   _Plugin_WebServer: TPlugin_WebServer = nil;
 
-constructor tPlugin_WebServerBase.Create(aOutput: tOutput; aPluginName: String; aProject: TProject; aConfigPlugin: TConfigPlugin);
+constructor tPlugin_WebServerBase.Create(aOutput: tcimOutput; aPluginName: String; aProject: TProject; aConfigPlugin: TConfigPlugin);
 begin
   Inherited Create(aOutput,aPluginName, aProject, aConfigPlugin);
 
@@ -75,7 +75,7 @@ procedure tPlugin_WebServer.Initialize;
 begin
 end;
 
-function tPlugin_WebServer.CreatePlugin(aOutput: tOutput; aProject: TProject; aConfigPlugin: TConfigPlugin): TPlugin;
+function tPlugin_WebServer.CreatePlugin(aOutput: tcimOutput; aProject: TProject; aConfigPlugin: TConfigPlugin): TPlugin;
 begin
   FPlugin_WebServer := tPlugin_WebServerBase.Create(aOutput, GetPluginName, aProject, aConfigPlugin);
 
@@ -104,7 +104,7 @@ begin
     begin
       if oProject.OutputConsole = false then
         begin
-          oOutput.Log('Cannot run webserver [runwerbserver] with Project option of OutputConsole = false');
+          oOutput.oLog.AddLogError('Cannot run webserver [runwerbserver] with Project option of OutputConsole = false');
 
           result := False;
         end

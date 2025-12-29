@@ -1,0 +1,13 @@
+unit ErrorTypes;
+
+interface
+
+type
+  TErrorTypes = (tETNone, tETOverflow_Error, tETUnderflow_Error,
+                 tETSyntax_Error, tETOutOfRangeBranch, tETLabelError,
+                 tETTagUnknown, tETFatalError,
+                 tETEqual_Error);
+
+implementation
+
+end.

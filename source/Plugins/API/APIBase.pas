@@ -2,18 +2,18 @@ unit APIBase;
 
 interface
 
-uses Classes,  SysUtils, Output;
+uses Classes,  SysUtils, CodeImatic.Output;
 
 type
    TAPIBase = class(TPersistent)
    protected
    private
-     foOutput: tOutput;
+     foOutput: tcimOutput;
    public
-     constructor Create(aOutput: tOutput); virtual;
+     constructor Create(aOutput: tcimOutput); virtual;
      destructor Destroy; override;
 
-     property oOutput: tOutput
+     property oOutput: tcimOutput
        read foOutput;
    end;
 

@@ -3,18 +3,18 @@ unit projectconfig;
 interface
 
 uses XMLList, NovusTemplate, SysUtils, NovusSimpleXML, JvSimpleXml, novuslist,
-     NovusStringUtils, NovusFileUtils, NovusEnvironment, DataProcessor, output;
+     NovusStringUtils, NovusFileUtils, NovusEnvironment, DataProcessor,
+     CodeImatic.Output;
 
 type
    tProjectConfig = Class(TXMLList)
    private
    protected
      foPlugins: tObject;
-     foOutput: tOutput;
+     foOutput: tcimOutput;
      foConnections: tConnections;
      fsSearchPath: String;
      fsOutputPath:String;
-     //fConnectionNameList: tNovuslist;
      fsTemplatepath: String;
      fsProjectConfigFileName: String;
      fsDBSchemaPath: String;
@@ -28,7 +28,7 @@ type
      function GetOutputPath: String;
      function GetSearchPath: String;
    public
-      constructor Create(aOutput: tOutput); overload;
+      constructor Create(aOutput: tcimOutput); overload;
       destructor Destroy; override;
 
       function Loadproperties(aPropertyName: String): String;
@@ -73,7 +73,7 @@ type
 
 implementation
 
-constructor tProjectConfig.Create(aOutput: tOutput);
+constructor tProjectConfig.Create(aOutput: tcimOutput);
 begin
   inherited Create;
 

@@ -2,7 +2,8 @@ unit TokenParser;
 
 interface
 
-uses ProjectItem, system.Classes, Project, Variables, output, SysUtils, TagType,
+uses ProjectItem, system.Classes, Project, Variables, CodeImatic.Output,
+  SysUtils, TagType,
   NovusStringUtils, TokenProcessor, CodeGeneratorItem;
 
 type
@@ -12,7 +13,7 @@ type
   protected
     fsTagName: String;
     foTokens: tTokenProcessor;
-    foOutput: TOutput;
+    foOutput: TcimOutput;
     foProjectItem: tProjectItem;
     foVariables: TVariables;
   private
@@ -21,20 +22,20 @@ type
     function GetEOF: Boolean;
   public
     constructor Create(aProjectItem: tProjectItem;aTokens: tTokenProcessor;
-      aOutput: TOutput; aTagName: String =''); overload;
+      aOutput: TcimOutput; aTagName: String =''); overload;
 
     class function ParseToken(aObject: Tobject; aToken: String;
-      aProjectItem: tProjectItem; aOutput: TOutput;
+      aProjectItem: tProjectItem; aOutput: TcimOutput;
       ATokens: tTokenProcessor; Var aTokenIndex: Integer;
       aProject: TProject;
       aUseInterpreter : boolean = false): String;
 
-    class function ParseSimpleToken(aToken: string; aOutput: TOutput)
+    class function ParseSimpleToken(aToken: string; aOutput: TcimOutput)
       : tTokenProcessor;
     class function ParseExpressionToken(aObject: Tobject; aToken: String;
       aProjectItem: tProjectItem; aProject: TProject; (*aVariables: TVariables; *)
-      aOutput: TOutput): tTokenProcessor; overload;
-    class function ParseExpressionToken(aToken: string; aOutput: TOutput)
+      aOutput: TcimOutput): tTokenProcessor; overload;
+    class function ParseExpressionToken(aToken: string; aOutput: TcimOutput)
       : tTokenProcessor; overload;
 
     function ParseNextToken(aIgnoreEOF: boolean = false): String;
@@ -46,7 +47,7 @@ type
 
     property oTokens: tTokenProcessor read foTokens write foTokens;
 
-    property oOutput: TOutput read foOutput;
+    property oOutput: tcimOutput read foOutput;
 
     property oProjectItem: tProjectItem read foProjectItem;
 
@@ -62,7 +63,7 @@ implementation
 uses CodeGenerator, Runtime, Interpreter, Config, ExpressionParser,
   TagParser;
 
-class function tTokenParser.ParseSimpleToken(aToken: string; aOutput: TOutput)
+class function tTokenParser.ParseSimpleToken(aToken: string; aOutput: TcimOutput)
   : tTokenProcessor;
 var
   liPos: Integer;
@@ -90,13 +91,13 @@ begin
         Result.Add(lsLastToken);
     end;
   Except
-    aOutput.InternalError;
+    aOutput.oLog.AddLogException();
   End;
 end;
 
 class function tTokenParser.ParseExpressionToken(aObject: Tobject;
   aToken: String; aProjectItem: tProjectItem; aProject: TProject;
-  (*aVariables: TVariables;*) aOutput: TOutput): tTokenProcessor;
+  (*aVariables: TVariables;*) aOutput: TcimOutput): tTokenProcessor;
 Var
   LExpressionParser: tExpressionParser;
   I: Integer;
@@ -124,12 +125,12 @@ begin
         (*aVariables,*) aOutput, NIL, FiIndex, aProject);
     end;
   Except
-    aOutput.InternalError;
+    aOutput.oLog.AddLogException();
   End;
 end;
 
 class function tTokenParser.ParseExpressionToken(aToken: string;
-  aOutput: TOutput): tTokenProcessor;
+  aOutput: TcimOutput): tTokenProcessor;
 Var
   LExpressionParser: tExpressionParser;
   I: Integer;
@@ -153,12 +154,12 @@ begin
     LExpressionParser.ListTokens(Result);
 
   Except
-    aOutput.InternalError;
+    aOutput.oLog.AddLogException();
   End;
 end;
 
 constructor tTokenParser.Create(aProjectItem: tProjectItem;aTokens: tTokenProcessor;
-  aOutput: TOutput; aTagName: String ='');
+  aOutput: TcimOutput; aTagName: String ='');
 begin
   fsTagName := aTagName;
   foProjectItem:= aProjectItem;
@@ -291,7 +292,7 @@ begin
 
       ttUnknown:
         begin
-          aOutput.LogError('Syntax Error: Tag ' + lsToken1 +
+          aOutput.oLog.AddLogError('Syntax Error: Tag ' + lsToken1 +
             ' cannot be found.');
 
         end;
@@ -305,7 +306,7 @@ begin
       loVarable := aProjectItem.oVariables.GetVariableByName(lsValue);
       if Not Assigned(loVarable) then
       begin
-        aOutput.LogError('Syntax Error: variable ' + lsValue +
+        aOutput.oLog.AddLogError('Syntax Error: variable ' + lsValue +
           ' cannot be found.');
       end
       else
@@ -313,7 +314,7 @@ begin
     end
     else
     begin
-      aOutput.LogError('Syntax Error: variable ' + lsValue +
+      aOutput.oLog.AddLogError('Syntax Error: variable ' + lsValue +
         ' cannot be found.');
     end;
   end;

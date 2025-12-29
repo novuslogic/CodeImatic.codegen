@@ -2,7 +2,7 @@ unit Plugin;
 
 interface
 
-uses classes, Output, NovusPlugin, Project, config, NovusTemplate, uPSRuntime,
+uses classes, CodeImatic.Output, NovusPlugin, Project, config, NovusTemplate, uPSRuntime,
   uPSCompiler, NovusList, SysUtils, JvSimpleXml, CodeGeneratorItem, NovusCommandLine,
   NovusShell, System.IoUtils, Loader, Template, DataProcessor, DB, TokenProcessor;
 
@@ -14,10 +14,10 @@ type
   protected
     foConfigPlugin: TConfigPlugin;
     foProject: tProject;
-    foOutput: tOutput;
+    foOutput: tcimOutput;
     fsPluginName: String;
   public
-    constructor Create(aOutput: tOutput; aPluginName: String;
+    constructor Create(aOutput: tcimOutput; aPluginName: String;
       aProject: tProject; aConfigPlugin: TConfigPlugin); virtual;
 
     destructor Destroy; override;
@@ -28,7 +28,7 @@ type
 
     property oProject: tProject read foProject write foProject;
 
-    property oOutput: tOutput read foOutput write foOutput;
+    property oOutput: tcimOutput read foOutput write foOutput;
 
     property oConfigPlugin: TConfigPlugin read foConfigPlugin
       write foConfigPlugin;
@@ -65,7 +65,7 @@ type
     foDBSchema: TDBSchema;
     function GetDBSchemaFile: string;
   public
-    constructor Create(aOutput: tOutput; aPluginName: String;
+    constructor Create(aOutput: tcimOutput; aPluginName: String;
       aProject: tProject; aConfigPlugin: TConfigPlugin); override;
 
     destructor Destroy; override;
@@ -100,7 +100,7 @@ type
     foProject: tProject;
     fsDefaultOutputFilename: String;
     foConfigPlugin: tConfigPlugin;
-    foOutput: TOutput;
+    foOutput: TcimOutput;
   protected
     function GetProcessorName: String; virtual;
     function Getsourceextension: string; virtual;
@@ -109,7 +109,7 @@ type
     function GetConvertFilenameParameters: String;
     function GetProjectItem(aLoader: tLoader; aNodeName: String): String;
   public
-    constructor Create(aConfigPlugin: tConfigPlugin; aOutput: TOutput; aProject: tProject); virtual;
+    constructor Create(aConfigPlugin: tConfigPlugin; aOutput: TcimOutput; aProject: tProject); virtual;
     destructor Destroy; virtual;
 
     function PreProcessor(aProjectItem: tObject; var aFilename: String; var aTemplate: tTemplate; aNodeLoader: tNodeLoader; aCodeGenerator: tObject)
@@ -129,7 +129,7 @@ type
     property ConvertFilenameParameters: String read GetConvertFilenameParameters;
 
 
-    property oOutput: TOutput
+    property oOutput: TcimOutput
       read foOutput;
 
     property DefaultOutputFilename: String
@@ -145,7 +145,7 @@ type
     function GetSingleItem: boolean; virtual;
     procedure AddProcessorItem(aProcessorItem: TProcessorItem);
   public
-    constructor Create(aOutput: tOutput; aPluginName: String;
+    constructor Create(aOutput: tcimOutput; aPluginName: String;
       aProject: tProject; aConfigPlugin: TConfigPlugin); override;
     destructor Destroy;
 
@@ -164,7 +164,7 @@ type
   protected
   private
   public
-    function CreatePlugin(aOutput: tOutput; aProject: tProject;
+    function CreatePlugin(aOutput: tcimOutput; aProject: tProject;
       aConfigPlugin: TConfigPlugin): TPlugin; virtual; safecall;
   end;
 
@@ -245,7 +245,7 @@ begin
   Result := -1;
 end;
 
-constructor TProcessorPlugin.Create(aOutput: tOutput; aPluginName: String;
+constructor TProcessorPlugin.Create(aOutput: tcimOutput; aPluginName: String;
   aProject: tProject; aConfigPlugin: TConfigPlugin);
 begin
   inherited Create(aOutput, aPluginName, aProject, aConfigPlugin);
@@ -315,7 +315,7 @@ begin
   fProcessorItems.Add(aProcessorItem)
 end;
 
-constructor TProcessorItem.Create(aConfigPlugin: tConfigPlugin; aOutput: TOutput; aProject: tProject);
+constructor TProcessorItem.Create(aConfigPlugin: tConfigPlugin; aOutput: TcimOutput; aProject: tProject);
 begin
   foConfigPlugin := aConfigPlugin;
   foOutput := aOutput;
@@ -476,7 +476,8 @@ begin
       Result := loShell.RunCommandCapture(aCommandLine, aOutput);
 
     Except
-      foOutput.InternalError;
+      foOutput.oLog.AddLogException();
+      foOutput.Failed := True;
     End;
   Finally
     loShell.Free;
@@ -493,7 +494,8 @@ begin
     Except
       Result := False;
 
-      oOutput.InternalError;
+      oOutput.oLog.AddLogException();
+      oOutput.Failed := True;
     End;
   Finally
 
@@ -574,7 +576,7 @@ end;
 
 
 // TExternalPlugin
-function TExternalPlugin.CreatePlugin(aOutput: tOutput; aProject: tProject;
+function TExternalPlugin.CreatePlugin(aOutput: tcimOutput; aProject: tProject;
       aConfigPlugin: TConfigPlugin): TPlugin;
 begin
   result := NIL;

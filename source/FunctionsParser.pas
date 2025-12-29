@@ -61,13 +61,13 @@ begin
           Exit;
         end
       else
-        oOutput.LogError('Syntax error: lack ")" not "'+ lsNextToken +'"');
+        oOutput.oLog.AddLogError('Syntax error: lack ")" not "'+ lsNextToken +'"');
 
     end
   else
     begin
 
-      oOutput.LogError('Syntax error: lack "(" not "'+ lsNextToken +'"');
+      oOutput.oLog.AddLogError('Syntax error: lack "(" not "'+ lsNextToken +'"');
     end;
 end;
 
@@ -105,13 +105,13 @@ begin
         end
       else
         begin
-          oOutput.LogError('Syntax error: lack ")" not "'+ lsNextToken +'"' );
+          oOutput.oLog.AddLogError('Syntax error: lack ")" not "'+ lsNextToken +'"' );
         end;
 
     end
   else
     begin
-      oOutput.LogError('Syntax error: lack "(s" not "'+ lsNextToken +'"');
+      oOutput.olog.AddLogError('Syntax error: lack "(s" not "'+ lsNextToken +'"');
     end;
 end;
 
@@ -138,12 +138,12 @@ begin
           Exit;
         end
       else
-        oOutput.LogError('Syntax Error: lack ")"');
+        oOutput.olog.AddLogError('Syntax Error: lack ")"');
 
     end
   else
     begin
-      oOutput.LogError('Syntax Error: lack "("');
+      oOutput.oLog.AddLogError('Syntax Error: lack "("');
     end;
 end;
 

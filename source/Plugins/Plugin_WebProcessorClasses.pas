@@ -4,7 +4,7 @@ interface
 
 uses Winapi.Windows, System.SysUtils, System.Classes,NovusFileUtils,
   Plugin, NovusPlugin, Project, NovusTemplate,
-  Output, System.Generics.Defaults, runtime, Config, NovusStringUtils,
+  CodeImatic.Output, System.Generics.Defaults, runtime, Config, NovusStringUtils,
   APIBase, ProjectItem, TagType, SassProcessorItem,JvSimpleXml,
   MarkdownProcessorItem(*, LessCssProcessorItem*);
 
@@ -13,14 +13,14 @@ type
   private
   protected
   public
-    constructor Create(aOutput: tOutput; aPluginName: String;
+    constructor Create(aOutput: tcimOutput; aPluginName: String;
       aProject: TProject; aConfigPlugin: tConfigPlugin); override;
   end;
 
   TPlugin_WebProcessor = class(TExternalPlugin)
   private
   protected
-    foOutput: TOutput;
+    foOutput: TcimOutput;
     foProject: TProject;
     FPlugin_WebProcessor: tPlugin_WebProcessorBase;
   public
@@ -29,7 +29,7 @@ type
     procedure Initialize; override; safecall;
     procedure Finalize; override; safecall;
 
-    function CreatePlugin(aOutput: tOutput; aProject: TProject;
+    function CreatePlugin(aOutput: tcimOutput; aProject: TProject;
       aConfigPlugin: tConfigPlugin): TPlugin; override; safecall;
   end;
 
@@ -41,7 +41,7 @@ implementation
 var
   _Plugin_WebProcessor: TPlugin_WebProcessor = nil;
 
-constructor tPlugin_WebProcessorBase.Create(aOutput: tOutput; aPluginName: String;
+constructor tPlugin_WebProcessorBase.Create(aOutput: tcimOutput; aPluginName: String;
   aProject: TProject; aConfigPlugin: tConfigPlugin);
 begin
   Inherited Create(aOutput, aPluginName, aProject, aConfigPlugin);
@@ -51,7 +51,8 @@ begin
     AddProcessorItem(tMarkdownProcessorItem.Create(aConfigPlugin, aOutput, aProject));
 //    AddProcessorItem(tLessCssProcessorItem.Create(aConfigPlugin, aOutput, aProject));
   Except
-    aOutput.InternalError;
+    aOutput.oLog.AddLogException();
+    aOutput.Failed := True;
   End;
 end;
 
@@ -65,7 +66,7 @@ procedure TPlugin_WebProcessor.Initialize;
 begin
 end;
 
-function TPlugin_WebProcessor.CreatePlugin(aOutput: tOutput; aProject: TProject;
+function TPlugin_WebProcessor.CreatePlugin(aOutput: tcimOutput; aProject: TProject;
   aConfigPlugin: tConfigPlugin): TPlugin; safecall;
 begin
   foProject := aProject;

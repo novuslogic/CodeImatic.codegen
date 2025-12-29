@@ -2,7 +2,7 @@ unit RuntimeProjectItems;
 
 interface
 
-Uses Output, ProjectItem, NovusFileUtils, Project, ProjectParser,
+Uses CodeImatic.Output, ProjectItem, NovusFileUtils, Project, ProjectParser,
   SysUtils, Plugins,  System.RegularExpressions,
   NovusStringUtils, System.IOUtils;
 
@@ -11,10 +11,10 @@ type
   protected
   private
     foPlugins: tPlugins;
-    foOutput: TOutput;
+    foOutput: TcimOutput;
     foProject: TProject;
   public
-    constructor Create(aOutput: TOutput; aProject: TProject; aPlugins: tPlugins);
+    constructor Create(aOutput: TcimOutput; aProject: TProject; aPlugins: tPlugins);
     destructor Destroy;
 
     function RunProjectItems: boolean;
@@ -52,7 +52,7 @@ begin
 
       if loProjectItem.IgnoreItem then
          begin
-           foOutput.Log('ProjectItem: '+ loProjectItem.Name + ' Ignored.');
+           foOutput.oLog.AddLogInformation('ProjectItem: '+ loProjectItem.Name + ' Ignored.');
 
            Continue;
          end;
@@ -60,7 +60,7 @@ begin
 
       case loProjectItem.ProjectItemType of
          pitItem: begin
-            foOutput.Log('Project Item: ' + loProjectItem.Name);
+            foOutput.oLog.AddLogInformation('Project Item: ' + loProjectItem.Name);
 
             Try
              if foProject.oProjectConfigLoader.Load then
@@ -71,14 +71,14 @@ begin
                loProjectItem.templateFile := TNovusFileUtils.TrailingBackSlash
                  (loProjectItem.templateFile) + loProjectItem.ItemName;
             Except
-              foOutput.LogError('TemplateFile Projectconfig error.');
+              foOutput.oLog.AddLogError('TemplateFile Projectconfig error.');
 
               Break;
             End;
 
             if Not FileExists(loProjectItem.templateFile) then
             begin
-              foOutput.LogError('template ' + loProjectItem.templateFile +
+              foOutput.oLog.AddLogError('template ' + loProjectItem.templateFile +
                 ' cannot be found.');
 
               foOutput.Failed := true;
@@ -92,7 +92,7 @@ begin
 
           if not TNovusFileUtils.IsValidFolder(loProjectItem.ItemFolder) then
           begin
-            foOutput.LogError('Folder ' + loProjectItem.ItemFolder +
+            foOutput.oLog.AddLogError('Folder ' + loProjectItem.ItemFolder +
               ' cannot be found.');
 
             foOutput.Failed := true;
@@ -106,7 +106,7 @@ begin
           if not TNovusFileUtils.IsValidFolder(loProjectItem.oSourceFiles.Folder)
           then
           begin
-            foOutput.LogError('Sourcefiles.Folder ' + loProjectItem.oSourceFiles.Folder
+            foOutput.oLog.AddLogError('Sourcefiles.Folder ' + loProjectItem.oSourceFiles.Folder
               + ' cannot be found.');
 
             foOutput.Failed := true;
@@ -122,7 +122,7 @@ begin
 
      
       Except
-        foOutput.LogError('Output Projectconfig error.');
+        foOutput.oLog.AddLogError('Output Projectconfig error.');
 
         Break;
       End;
@@ -132,7 +132,7 @@ begin
       begin
         if not foProject.Createoutputdir then
         begin
-          foOutput.LogError('output ' + TNovusStringUtils.JustPathname
+          foOutput.oLog.AddLogError('output ' + TNovusStringUtils.JustPathname
             (loProjectItem.OutputFile) + ' directory cannot be found.');
 
           Continue;
@@ -142,7 +142,7 @@ begin
           if Not ForceDirectories(TNovusStringUtils.JustPathname
             (loProjectItem.OutputFile)) then
           begin
-            foOutput.LogError('output ' + TNovusStringUtils.JustPathname
+            foOutput.oLog.AddLogError('output ' + TNovusStringUtils.JustPathname
               (loProjectItem.OutputFile) + ' directory cannot be created.');
 
             Continue;
@@ -156,7 +156,7 @@ begin
         if (not loProjectItem.overrideoutput) and
           FileExists(loProjectItem.OutputFile) then
         begin
-          foOutput.Log('output ' + TNovusStringUtils.JustFilename
+          foOutput.oLog.AddLogInformation('output ' + TNovusStringUtils.JustFilename
             (loProjectItem.OutputFile) +
             ' exists - Override Output option off.');
 
@@ -167,7 +167,7 @@ begin
       begin
         if FileExists(loProjectItem.OutputFile) then
         begin
-          foOutput.Log('output ' + TNovusStringUtils.JustFilename
+          foOutput.oLog.AddLogInformation('output ' + TNovusStringUtils.JustFilename
             (loProjectItem.OutputFile) + ' Deleted.');
 
           TFile.Delete(loProjectItem.OutputFile);
@@ -179,7 +179,7 @@ begin
           loProjectItem.propertiesFile :=
             tProjectParser.ParseProject(loProjectItem.propertiesFile, foProject, foOutput);
       Except
-        foOutput.Log('PropertiesFile Projectconfig error.');
+        foOutput.oLog.AddLogInformation('PropertiesFile Projectconfig error.');
 
         Break;
       End;
@@ -188,7 +188,7 @@ begin
       begin
         if Not FileExists(loProjectItem.propertiesFile) then
         begin
-          foOutput.LogError('properties ' + loProjectItem.propertiesFile +
+          foOutput.oLog.AddLogError('properties ' + loProjectItem.propertiesFile +
             ' cannot be found.');
 
           Continue;
@@ -201,11 +201,11 @@ begin
         loProjectItem.Execute;
       end
       else
-        foOutput.Log('Output: ' + loProjectItem.OutputFile +
+        foOutput.oLog.AddLogInformation('Output: ' + loProjectItem.OutputFile +
           ' is read only or file in use.');
     end;
   Except
-    foOutput.InternalError;
+    foOutput.oLog.AddLogException();
     Result := false;
   End;
 end;

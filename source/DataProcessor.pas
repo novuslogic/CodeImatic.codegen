@@ -3,8 +3,8 @@ unit DataProcessor;
 interface
 
 Uses Classes, NovusList, NovusTemplate, NovusStringParser, SysUtils,
-     NovusStringUtils, {SDEngine,} (*NovusSQLDirUtils,*) NovusUtilities,
-     DB, {SDCommon,} Output, NovusXMLBO, JvSimpleXml;
+     NovusStringUtils, NovusUtilities,
+     DB, CodeImatic.Output, NovusXMLBO, JvSimpleXml;
 
 Type
    TConnection = class(TObject)
@@ -18,11 +18,11 @@ Type
      fsParams: string;
      fsSQLLibrary: string;
      fiPort: Integer;
-     foOutput: tOutput;
+     foOutput: tcimOutput;
      function GetConnected: Boolean; virtual;
      procedure SetConnected(value: boolean); virtual;
    public
-      constructor Create(aOutput: tOutput); virtual;
+      constructor Create(aOutput: tcimOutput); virtual;
       destructor Destroy; virtual;
 
       property Connected: Boolean read GetConnected write SetConnected;
@@ -122,7 +122,7 @@ Type
    protected
      foConnection: tConnection;
      foPlugin: TObject;
-     FoOutput: TOutput;
+     FoOutput: TcimOutput;
      FTableNames: tStringlist;
      fsAuxDriver: String;
      fsDriverName: string;
@@ -139,7 +139,7 @@ Type
      function GetTableNames: tStringList;
      function GetDBSchema: TDBSchema;
    public
-     constructor Create(AOutput: TOutput; aPlugins: TObject); virtual;
+     constructor Create(AOutput: TcimOutput; aPlugins: TObject); virtual;
      destructor  Destroy; override;
 
      function TableCount: Integer;
@@ -216,10 +216,10 @@ Type
    protected
    private
      foPlugins: TObject;
-     foOutput: TOutput;
+     foOutput: TcimOutput;
      fConnectionList: tNovusList;
    public
-     constructor Create(aOutput: TOutput); virtual;
+     constructor Create(aOutput: TcimOutput); virtual;
      destructor  Destroy; override;
 
      function FindConnectionName(AConnectionName: String): TConnectionItem;
@@ -361,7 +361,8 @@ begin
 
     Result := True;
   Except
-    FoOutput.Log('Error: ' + fsConnectionname + ' - ' + TNovusUtilities.GetExceptMess);
+    FoOutput.oLog.AddLogError('Error: ' + fsConnectionname + ' - ' + TNovusUtilities.GetExceptMess);
+    FoOutput.Failed := True;
 
     Result := False;
   End;

@@ -3,7 +3,7 @@ unit Plugin_SQLDirClasses;
 interface
 
 uses Classes,Plugin, NovusPlugin, Project,
-    Output, SysUtils, System.Generics.Defaults,  runtime, Config,
+    CodeImatic.Output, SysUtils, System.Generics.Defaults,  runtime, Config,
     APIBase, NovusGUID, CodeGeneratorItem, FunctionsParser, ProjectItem,
     Variables, NovusFileUtils, SDEngine, DataProcessor, NovusSQLDirUtils, DB,
     SDCommon;
@@ -18,7 +18,7 @@ type
      function GetConnected: Boolean; override;
      procedure SetConnected(value: boolean); override;
   public
-    constructor Create(aOutput: tOutput); override;
+    constructor Create(aOutput: tcimOutput); override;
     destructor Destroy; override;
 
     property Database: TSDDatabase read fSDDatabase;
@@ -30,7 +30,7 @@ type
   private
   protected
   public
-    constructor Create(aOutput: tOutput; aPluginName: String; aProject: TProject; aConfigPlugin: tConfigPlugin); override;
+    constructor Create(aOutput: tcimOutput; aPluginName: String; aProject: TProject; aConfigPlugin: tConfigPlugin); override;
     destructor Destroy; override;
 
     function CreateConnection: TConnection; override;
@@ -53,7 +53,7 @@ type
     procedure Initialize; override; safecall;
     procedure Finalize; override; safecall;
 
-    function CreatePlugin(aOutput: tOutput; aProject: Tproject; aConfigPlugin: TConfigPlugin): TPlugin; override; safecall;
+    function CreatePlugin(aOutput: tcimOutput; aProject: Tproject; aConfigPlugin: TConfigPlugin): TPlugin; override; safecall;
   end;
 
 function GetPluginObject: TNovusPlugin; stdcall;
@@ -63,7 +63,7 @@ implementation
 var
   _Plugin_SQLDir: TPlugin_SQLDir = nil;
 
-constructor tPlugin_SQLDirBase.Create(aOutput: tOutput; aPluginName: String; aProject: TProject; aConfigPlugin: tConfigPlugin);
+constructor tPlugin_SQLDirBase.Create(aOutput: tcimOutput; aPluginName: String; aProject: TProject; aConfigPlugin: tConfigPlugin);
 begin
   Inherited Create(aOutput,aPluginName, aProject, aConfigPlugin);
 end;
@@ -87,7 +87,7 @@ procedure tPlugin_SQLDir.Initialize;
 begin
 end;
 
-function tPlugin_SQLDir.CreatePlugin(aOutput: tOutput; aProject: TProject; aConfigPlugin: TConfigPlugin): TPlugin;
+function tPlugin_SQLDir.CreatePlugin(aOutput: tcimOutput; aProject: TProject; aConfigPlugin: TConfigPlugin): TPlugin;
 begin
   foProject := aProject;
 
@@ -258,12 +258,11 @@ begin
   Try
     fSDDatabase.Connected := Value;
   Except
-    foOutput.WriteExceptLog;
-
+    foOutput.AddLogFailed();
   End;
 end;
 
-constructor TSQLDirConnection.Create(aOutput: tOutput);
+constructor TSQLDirConnection.Create(aOutput: tcimOutput);
 begin
   Inherited create(aOutput);
 

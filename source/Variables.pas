@@ -2,7 +2,8 @@ unit Variables;
 
 interface
 
-Uses Variants, NovusList, SysUtils, Output, NovusGUID, NovusStringUtils, TagType;
+Uses Variants, NovusList, SysUtils,  NovusGUID, NovusStringUtils, TagType,
+      CodeImatic.Output;
 
 Type
   TVariable = class(TObject)
@@ -57,12 +58,12 @@ Type
 
   TVariables = class(TObject)
   protected
-    foOutput: tOutput;
+    foOutput: tcimOutput;
     foVariableList: tNovusList;
     function GetCount: Integer;
   private
   public
-    constructor Create(aOutput: tOutput); virtual;
+    constructor Create(aOutput: tcimOutput); virtual;
     destructor Destroy; override;
 
     procedure ClearVariables;

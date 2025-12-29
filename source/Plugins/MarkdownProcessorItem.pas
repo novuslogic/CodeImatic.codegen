@@ -3,7 +3,7 @@ unit MarkdownProcessorItem;
 interface
 
 uses Classes, Plugin, NovusPlugin, Project, NovusTemplate,
-  Output, SysUtils, System.Generics.Defaults, runtime, Config, NovusStringUtils,
+  CodeImatic.Output, SysUtils, System.Generics.Defaults, runtime, Config, NovusStringUtils,
   APIBase, MarkdownDaringFireball, MarkdownProcessor, ProjectItem, TagType,
   Loader, template, CodeGenerator, TagParser;
 
@@ -84,7 +84,8 @@ begin
     Except
       Result := TPluginReturn.PRFailed;
 
-      oOutput.InternalError;
+      oOutput.oLog.AddLogException();
+
     End;
   Finally
     fMarkdownprocessor.Free;
@@ -99,7 +100,7 @@ function tMarkdownProcessorItem.PostProcessor(aProjectItem: tObject;
 begin
   aOutputFilename := ChangeFileExt(aOutputFilename, '.' + outputextension);
 
-  oOutput.Log('New output:' + aOutputFilename);
+  oOutput.oLog.AddLogInformation('New output:' + aOutputFilename);
 
   Result := TPluginReturn.PRPassed;
 end;

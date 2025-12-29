@@ -2,7 +2,7 @@ unit TokenProcessor;
 
 interface
 
-Uses SysUtils, Classes, TagType, Output, NovusTokenProcessor;
+Uses SysUtils, Classes, TagType, CodeImatic.Output, NovusTokenProcessor;
 
 type
   tTokenProcessorItem = class(Tobject)
@@ -20,12 +20,12 @@ type
 
    tTokenProcessor = class(TNovusTokenProcessor)
    private
-     foOutput: tOutput;
+     foOutput: tcimOutput;
    protected
    public
-     constructor Create(aOutput: tOutput); overload;
+     constructor Create(aOutput: tcimOutput); overload;
      function GetFirstTokenProcessorItem: tTokenProcessorItem;
-     property oOutput: tOutput
+     property oOutput: tcimOutput
        read foOutput
        write foOutput;
    end;
@@ -33,7 +33,7 @@ type
 implementation
 
 // Token Processor
-constructor tTokenProcessor.Create(aOutput: tOutput);
+constructor tTokenProcessor.Create(aOutput: tcimOutput);
 begin
   TokenIndex:= 0;
 

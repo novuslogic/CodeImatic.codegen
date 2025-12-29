@@ -2,13 +2,13 @@ unit CodeGeneratorItem;
 
 interface
 
-uses Project, ExpressionParser, NovusTemplate, Classes, SysUtils, tagType, output,
+uses Project, ExpressionParser, NovusTemplate, Classes, SysUtils, tagType, CodeImatic.Output,
      NovusList, TokenProcessor, NovusGUID;
 
 type
   TCodeGeneratorItem = class(TObject)
   protected
-    foOutput: tOutput;
+    foOutput: tcimOutput;
     foCodeGenerator: TObject;
     foProject: tProject;
     fsDefaultTagName: String;

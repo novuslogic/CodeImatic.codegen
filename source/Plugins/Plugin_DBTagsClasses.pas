@@ -2,12 +2,12 @@ unit Plugin_DBTagsClasses;
 
 interface
 
-uses Classes,Plugin, NovusPlugin, Project,
-    Output, SysUtils, System.Generics.Defaults,  runtime, Config, NovusStringUtils,
-    APIBase, NovusGUID, CodeGeneratorItem, FunctionsParser, ProjectItem, TokenParser,
-    Variables, NovusFileUtils, CodeGenerator, FieldFunctionParser, DataProcessor,
-    TableFunctionParser, TokenProcessor, TagBasePlugin, Plugins;
-
+uses Classes, Plugin, NovusPlugin, Project, CodeImatic.Output,
+  SysUtils, System.Generics.Defaults, runtime, Config, NovusStringUtils,
+  APIBase, NovusGUID, CodeGeneratorItem, FunctionsParser, ProjectItem,
+  TokenParser, CodeImatic.ErrorTypes,
+  Variables, NovusFileUtils, CodeGenerator, FieldFunctionParser, DataProcessor,
+  TableFunctionParser, TokenProcessor, TagBasePlugin, Plugins;
 
 type
   TDBTag = class(tTagBasePlugin)
@@ -20,64 +20,77 @@ type
   private
   protected
     function GetTagName: String; override;
-    procedure OnExecute(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string; aTokenParser: tTokenParser);
+    procedure OnExecute(var aToken: String; aConnectionItem: tConnectionItem;
+      aTableName: string; aTokenParser: tTokenParser);
   public
-    function Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: TTokenProcessor): String; override;
+    function Execute(aProjectItem: tProjectItem; aTagName: string;
+      aTokens: TTokenProcessor): String; override;
   end;
 
   TDBTag_Connection = class(TDBTag)
   private
   protected
     function GetTagName: String; override;
-    procedure OnExecute(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string; aTokenParser: tTokenParser);
+    procedure OnExecute(var aToken: String; aConnectionItem: tConnectionItem;
+      aTableName: string; aTokenParser: tTokenParser);
   public
-    function Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: TTokenProcessor): String; override;
+    function Execute(aProjectItem: tProjectItem; aTagName: string;
+      aTokens: TTokenProcessor): String; override;
   end;
-
 
   TDBTag_FieldAsSQL = class(TDBTag)
   private
   protected
     function GetTagName: String; override;
-    procedure OnExecute(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string; aTokenParser: tTokenParser);
+    procedure OnExecute(var aToken: String; aConnectionItem: tConnectionItem;
+      aTableName: string; aTokenParser: tTokenParser);
   public
-    function Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: TTokenProcessor): String; override;
+    function Execute(aProjectItem: tProjectItem; aTagName: string;
+      aTokens: TTokenProcessor): String; override;
   end;
 
   TDBTag_FieldNameByIndex = class(TDBTag)
   private
   protected
     function GetTagName: String; override;
-    procedure OnExecute(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string; aTokenParser: tTokenParser);
+    procedure OnExecute(var aToken: String; aConnectionItem: tConnectionItem;
+      aTableName: string; aTokenParser: tTokenParser);
   public
-    function Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: TTokenProcessor): String; override;
+    function Execute(aProjectItem: tProjectItem; aTagName: string;
+      aTokens: TTokenProcessor): String; override;
   end;
 
   TDBTag_TableCount = class(TDBTag)
   private
   protected
     function GetTagName: String; override;
-    procedure OnExecute(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string; aTokenParser: tTokenParser);
+    procedure OnExecute(var aToken: String; aConnectionItem: tConnectionItem;
+      aTableName: string; aTokenParser: tTokenParser);
   public
-    function Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: TTokenProcessor): String; override;
+    function Execute(aProjectItem: tProjectItem; aTagName: string;
+      aTokens: TTokenProcessor): String; override;
   end;
 
   TDBTag_Tablenamebyindex = class(TDBTag)
   private
   protected
     function GetTagName: String; override;
-    procedure OnExecute(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string; aTokenParser: tTokenParser);
+    procedure OnExecute(var aToken: String; aConnectionItem: tConnectionItem;
+      aTableName: string; aTokenParser: tTokenParser);
   public
-    function Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: TTokenProcessor): String; override;
+    function Execute(aProjectItem: tProjectItem; aTagName: string;
+      aTokens: TTokenProcessor): String; override;
   end;
 
   TDBTag_FieldTypeByIndex = class(TDBTag)
   private
   protected
     function GetTagName: String; override;
-    procedure OnExecute(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string; aTokenParser: tTokenParser);
+    procedure OnExecute(var aToken: String; aConnectionItem: tConnectionItem;
+      aTableName: string; aTokenParser: tTokenParser);
   public
-    function Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: TTokenProcessor): String; override;
+    function Execute(aProjectItem: tProjectItem; aTagName: string;
+      aTokens: TTokenProcessor): String; override;
   end;
 
   tDBTags = array of TDBTag;
@@ -87,15 +100,17 @@ type
   protected
     FDBTags: tDBTags;
   public
-    constructor Create(aOutput: tOutput; aPluginName: String; aProject: TProject; aConfigPlugin: tConfigPlugin); override;
+    constructor Create(aOutput: tcimOutput; aPluginName: String;
+      aProject: TProject; aConfigPlugin: tConfigPlugin); override;
     destructor Destroy; override;
 
-    function GetTag(aTagName: String; aTokens: TTokenProcessor; aProjectItem: TObject): String; override;
+    function GetTag(aTagName: String; aTokens: TTokenProcessor;
+      aProjectItem: TObject): String; override;
     function IsTagExists(aTagName: String): Integer; override;
 
   end;
 
-  TPlugin_DBTags = class( TExternalPlugin)
+  TPlugin_DBTags = class(TExternalPlugin)
   private
   protected
     foProject: TProject;
@@ -106,7 +121,8 @@ type
     procedure Initialize; override; safecall;
     procedure Finalize; override; safecall;
 
-    function CreatePlugin(aOutput: tOutput; aProject: Tproject; aConfigPlugin: TConfigPlugin): TPlugin; override; safecall;
+    function CreatePlugin(aOutput: tcimOutput; aProject: TProject;
+      aConfigPlugin: tConfigPlugin): TPlugin; override; safecall;
   end;
 
 function GetPluginObject: TNovusPlugin; stdcall;
@@ -116,73 +132,77 @@ implementation
 var
   _Plugin_DBTags: TPlugin_DBTags = nil;
 
-constructor tPlugin_DBTagsBase.Create(aOutput: tOutput; aPluginName: String; aProject: TProject; aConfigPlugin: tConfigPlugin);
+constructor tPlugin_DBTagsBase.Create(aOutput: tcimOutput; aPluginName: String;
+  aProject: TProject; aConfigPlugin: tConfigPlugin);
 begin
-  Inherited Create(aOutput,aPluginName, aProject, aConfigPlugin);
+  Inherited Create(aOutput, aPluginName, aProject, aConfigPlugin);
 
-  FDBTags:= tDBTags.Create(TDBTag_FieldCount.Create(aOutput),
-        TDBTag_FieldNameByIndex.Create(aOutput),
-        TDBTag_FieldTypeByIndex.Create(aOutput),
-        TDBTag_TableCount.Create(aOutput),
-        TDBTag_Tablenamebyindex.Create(aOutput),
-        TDBTag_FieldAsSQL.Create(aOutput),
-        TDBTag_Connection.Create(aOutput)) ;
+  FDBTags := tDBTags.Create(TDBTag_FieldCount.Create(aOutput),
+    TDBTag_FieldNameByIndex.Create(aOutput),
+    TDBTag_FieldTypeByIndex.Create(aOutput), TDBTag_TableCount.Create(aOutput),
+    TDBTag_Tablenamebyindex.Create(aOutput), TDBTag_FieldAsSQL.Create(aOutput),
+    TDBTag_Connection.Create(aOutput));
 end;
 
-
-destructor  tPlugin_DBTagsBase.Destroy;
+destructor tPlugin_DBTagsBase.Destroy;
 Var
   I: Integer;
 begin
-  for I := 0 to Length(FDBTags) -1 do
-   begin
-     FDBTags[i].Free;
-     FDBTags[i] := NIL;
-   end;
+  for I := 0 to Length(FDBTags) - 1 do
+  begin
+    FDBTags[I].Free;
+    FDBTags[I] := NIL;
+  end;
 
   FDBTags := NIL;
   Inherited;
 end;
 
 // Plugin_DBTags
-function tPlugin_DBTags.GetPluginName: string;
+function TPlugin_DBTags.GetPluginName: string;
 begin
   Result := 'DB';
 end;
 
-procedure tPlugin_DBTags.Initialize;
+procedure TPlugin_DBTags.Initialize;
 begin
 end;
 
-function tPlugin_DBTags.CreatePlugin(aOutput: tOutput; aProject: TProject; aConfigPlugin: TConfigPlugin): TPlugin; safecall;
+function TPlugin_DBTags.CreatePlugin(aOutput: tcimOutput; aProject: TProject;
+  aConfigPlugin: tConfigPlugin): TPlugin; safecall;
 begin
   foProject := aProject;
 
-  FPlugin_DBTags := tPlugin_DBTagsBase.Create(aOutput, GetPluginName, foProject, aConfigPlugin);
+  FPlugin_DBTags := tPlugin_DBTagsBase.Create(aOutput, GetPluginName, foProject,
+    aConfigPlugin);
 
   Result := FPlugin_DBTags;
 end;
 
-procedure tPlugin_DBTags.Finalize;
+procedure TPlugin_DBTags.Finalize;
 begin
-  if Assigned(FPlugin_DBTags) then FPlugin_DBTags.Free;
+  if Assigned(FPlugin_DBTags) then
+    FPlugin_DBTags.Free;
 end;
 
 // tPlugin_DBTagsBase
-function tPlugin_DBTagsBase.GetTag(aTagName: String; aTokens: TTokenProcessor; aProjectItem: TObject): String;
+function tPlugin_DBTagsBase.GetTag(aTagName: String; aTokens: TTokenProcessor;
+  aProjectItem: TObject): String;
 Var
   liIndex: Integer;
 begin
   Result := '';
   liIndex := IsTagExists(aTagName);
   if liIndex = -1 then
-   begin
-     oOutput.LogError('Cannot find db.' + aTagname);
+  begin
+    oOutput.oLog.AddLogError('Cannot find db.' + aTagName);
+    oOutput.Failed := True;
 
-     Exit;
-   end;
+    Exit;
+  end;
 
-  Result := FDBTags[liIndex].Execute((aProjectItem as tProjectItem), aTagName, aTokens);
+  Result := FDBTags[liIndex].Execute((aProjectItem as tProjectItem),
+    aTagName, aTokens);
 end;
 
 function tPlugin_DBTagsBase.IsTagExists(aTagName: String): Integer;
@@ -190,46 +210,50 @@ Var
   I: Integer;
 begin
   Result := -1;
-  if aTagName = '' then Exit;
+  if aTagName = '' then
+    Exit;
 
-  for I := 0 to Length(FDBTags) -1 do
-   begin
-     if Uppercase(Trim(aTagName)) = Uppercase(Trim(FDBTags[i].TagName)) then
-       begin
-         Result := i;
+  for I := 0 to Length(FDBTags) - 1 do
+  begin
+    if Uppercase(Trim(aTagName)) = Uppercase(Trim(FDBTags[I].TagName)) then
+    begin
+      Result := I;
 
-         Break;
-       end;
-   end;
+      Break;
+    end;
+  end;
 end;
-
 
 function GetPluginObject: TNovusPlugin;
 begin
-  if (_Plugin_DBTags = nil) then _Plugin_DBTags := TPlugin_DBTags.Create;
-  result := _Plugin_DBTags;
+  if (_Plugin_DBTags = nil) then
+    _Plugin_DBTags := TPlugin_DBTags.Create;
+  Result := _Plugin_DBTags;
 end;
 
-//  TDBTag_FieldCount
+// TDBTag_FieldCount
 function TDBTag_FieldCount.GetTagName: String;
 begin
   Result := 'FIELDCOUNT';
 end;
 
-procedure TDBTag_FieldCount.OnExecute(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string; aTokenParser: tTokenParser);
+procedure TDBTag_FieldCount.OnExecute(var aToken: String;
+  aConnectionItem: tConnectionItem; aTableName: string;
+  aTokenParser: tTokenParser);
 begin
   aToken := IntToStr(aConnectionItem.FieldCount(aTableName));
 end;
 
-
-function TDBTag_FieldCount.Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: TTokenProcessor): String;
+function TDBTag_FieldCount.Execute(aProjectItem: tProjectItem; aTagName: string;
+  aTokens: TTokenProcessor): String;
 var
   LFieldFunctionParser: tFieldFunctionParser;
 begin
 
   Try
     Try
-      LFieldFunctionParser:= tFieldFunctionParser.Create(aProjectItem, aTokens, oOutput, aTagName);
+      LFieldFunctionParser := tFieldFunctionParser.Create(aProjectItem, aTokens,
+        oOutput, aTagName);
 
       LFieldFunctionParser.OnExecute := OnExecute;
 
@@ -238,94 +262,94 @@ begin
       LFieldFunctionParser.Free;
     End;
   Except
-    oOutput.InternalError;
+    oOutput.oLog.AddLogException();
+    oOutput.Failed := True;
   End;
 end;
 
-//  TDBTag_Connection
+// TDBTag_Connection
 function TDBTag_Connection.GetTagName: String;
 begin
   Result := 'CONNECTION';
 end;
 
-procedure TDBTag_Connection.OnExecute(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string; aTokenParser: tTokenParser);
+procedure TDBTag_Connection.OnExecute(var aToken: String;
+  aConnectionItem: tConnectionItem; aTableName: string;
+  aTokenParser: tTokenParser);
 begin
   aToken := IntToStr(aConnectionItem.FieldCount(aTableName));
 end;
 
-
-function TDBTag_Connection.Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: TTokenProcessor): String;
+function TDBTag_Connection.Execute(aProjectItem: tProjectItem; aTagName: string;
+  aTokens: TTokenProcessor): String;
 var
-  loPlugin: tPlugin;
+  loPlugin: TPlugin;
   loPlugins: tPlugins;
   loProjectItem: tProjectItem;
   lsConnectionName: string;
 begin
   Result := '';
 
-  loPlugins := (aProjectItem.oProject.oPlugins as TPlugins);
+  loPlugins := (aProjectItem.oProject.oPlugins as tPlugins);
 
   if aTokens.FindNextToken('connectionname') then
-     begin
-       if aTokens.IsNextTokenEquals then
-         begin
-           lsConnectionName := aTokens.GetNextToken;
+  begin
+    if aTokens.IsNextTokenEquals then
+    begin
+      lsConnectionName := aTokens.GetNextToken;
 
-         end
-       else
-         begin
-           oOutput.LogErrorType(aTagName, tETEqual_Error);
+    end
+    else
+    begin
+      oOutput.AddLogErrorType(aTagName, tcimETEqual_Error);
 
-           Exit;
-         end;
+      Exit;
+    end;
 
-     end
+  end
   else
+  begin
+    oOutput.AddLogErrorType('Connectionname item missing.');
+
+    Exit;
+  end;
+
+  (*
+    loPlugin := (loPlugins as TPlugins).FindPlugin(aConnectionItem.DriverName);
+    if Not Assigned(loPlugin) then
     begin
-      oOutput.LogErrorType('Connectionname item missing.');
+    //      oOutput.LogError('Error: Cannot find DataProcessor Plugin [' + aConnectionItem.DriverName + ']' );
 
-      exit;
+    //      Exit;
     end;
+  *)
 
-
-
-
- (*
-  loPlugin := (loPlugins as TPlugins).FindPlugin(aConnectionItem.DriverName);
-  if Not Assigned(loPlugin) then
-    begin
-//      oOutput.LogError('Error: Cannot find DataProcessor Plugin [' + aConnectionItem.DriverName + ']' );
-
-//      Exit;
-    end;
-    *)
-
-
-
-(*
-  Try
+  (*
     Try
-      LFieldFunctionParser:= tFieldFunctionParser.Create(aProjectItem, aTokens, oOutput, aTagName);
+    Try
+    LFieldFunctionParser:= tFieldFunctionParser.Create(aProjectItem, aTokens, oOutput, aTagName);
 
-      LFieldFunctionParser.OnExecute := OnExecute;
+    LFieldFunctionParser.OnExecute := OnExecute;
 
-      Result := LFieldFunctionParser.Execute(aProjectItem);
+    Result := LFieldFunctionParser.Execute(aProjectItem);
     Finally
-      LFieldFunctionParser.Free;
+    LFieldFunctionParser.Free;
     End;
-  Except
+    Except
     oOutput.InternalError;
-  End;
+    End;
   *)
 end;
 
-//  TDBTag_FieldNameByIndex
+// TDBTag_FieldNameByIndex
 function TDBTag_FieldNameByIndex.GetTagName: String;
 begin
   Result := 'FIELDNAMEBYINDEX';
 end;
 
-procedure TDBTag_FieldNameByIndex.OnExecute(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string;aTokenParser: tTokenParser);
+procedure TDBTag_FieldNameByIndex.OnExecute(var aToken: String;
+  aConnectionItem: tConnectionItem; aTableName: string;
+  aTokenParser: tTokenParser);
 Var
   lsToken: String;
   liFieldIndex: Integer;
@@ -342,33 +366,32 @@ begin
     if Assigned(lFieldDesc) then
     begin
       if aTokenParser.ParseNextToken = ')' then
-        begin
-          aToken := lFieldDesc.FieldName;
+      begin
+        aToken := lFieldDesc.FieldName;
 
-
-        end;
+      end;
 
     end
     else
-      oOutput.LogError('Syntax Error: lack ")"');
+      oOutput.AddLogErrorType('Lacking ")"', tcimETSyntax_Error);
   end
   else
-    oOutput.LogError('Error: Field cannot be found.');
+    oOutput.AddLogErrorType('Field cannot be found.');
 
   if Assigned(lFieldDesc) then
-     lFieldDesc.Free;
+    lFieldDesc.Free;
 
 end;
 
-
-function TDBTag_FieldNameByIndex.Execute(aProjectItem: tProjectItem;aTagName: String;aTokens: TTokenProcessor): String;
+function TDBTag_FieldNameByIndex.Execute(aProjectItem: tProjectItem;
+  aTagName: String; aTokens: TTokenProcessor): String;
 var
   LFieldFunctionParser: tFieldFunctionParser;
 begin
   Try
     Try
-      LFieldFunctionParser:= tFieldFunctionParser.Create(aProjectItem,aTokens, oOutput, aTagName);
-
+      LFieldFunctionParser := tFieldFunctionParser.Create(aProjectItem, aTokens,
+        oOutput, aTagName);
 
       LFieldFunctionParser.OnExecute := OnExecute;
 
@@ -377,7 +400,7 @@ begin
       LFieldFunctionParser.Free;
     End;
   Except
-    oOutput.InternalError;
+    oOutput.AddLogFailed();
   End;
 end;
 
@@ -387,7 +410,9 @@ begin
   Result := 'TABLECOUNT';
 end;
 
-procedure TDBTag_TableCount.OnExecute(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string;aTokenParser: tTokenParser);
+procedure TDBTag_TableCount.OnExecute(var aToken: String;
+  aConnectionItem: tConnectionItem; aTableName: string;
+  aTokenParser: tTokenParser);
 Var
   FFieldType: tFieldType;
   FFieldDesc: tFieldDesc;
@@ -398,15 +423,15 @@ begin
   aToken := IntToStr(aConnectionItem.TableCount);
 end;
 
-
-function TDBTag_TableCount.Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: TTokenProcessor): String;
+function TDBTag_TableCount.Execute(aProjectItem: tProjectItem; aTagName: string;
+  aTokens: TTokenProcessor): String;
 var
   LTableFunctionParser: tTableFunctionParser;
 begin
   Try
     Try
-      LTableFunctionParser:= tTableFunctionParser.Create(aProjectItem,aTokens, oOutput, aTagName);
-
+      LTableFunctionParser := tTableFunctionParser.Create(aProjectItem, aTokens,
+        oOutput, aTagName);
 
       LTableFunctionParser.OnExecute := OnExecute;
 
@@ -415,7 +440,7 @@ begin
       LTableFunctionParser.Free;
     End;
   Except
-    oOutput.InternalError;
+    oOutput.AddLogFailed();
   End;
 end;
 
@@ -425,7 +450,9 @@ begin
   Result := 'FIELDASSQL';
 end;
 
-procedure TDBTag_FieldAsSQL.OnExecute(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string;aTokenParser: tTokenParser);
+procedure TDBTag_FieldAsSQL.OnExecute(var aToken: String;
+  aConnectionItem: tConnectionItem; aTableName: string;
+  aTokenParser: tTokenParser);
 Var
   lsToken: String;
   liTableIndex: Integer;
@@ -433,39 +460,38 @@ Var
   FFieldType: tFieldType;
   FFieldDesc: tFieldDesc;
 begin
-   lsToken := aTokenParser.ParseNextToken;
+  lsToken := aTokenParser.ParseNextToken;
 
-   FFieldDesc := aConnectionItem.FieldByName(aTableName, lsToken);
+  FFieldDesc := aConnectionItem.FieldByName(aTableName, lsToken);
 
-   if Assigned(FFieldDesc) then
-      begin
-        FFieldType := aConnectionItem.oDBSchema.GetFieldType(FFieldDesc,
-            aConnectionItem.AuxDriver);
+  if Assigned(FFieldDesc) then
+  begin
+    FFieldType := aConnectionItem.oDBSchema.GetFieldType(FFieldDesc,
+      aConnectionItem.AuxDriver);
 
-          if FFieldType.SQLFormat = '' then
-            aToken := FFieldDesc.FieldName + ' ' + FFieldType.SqlType
-          else
-            aToken := FFieldDesc.FieldName + ' ' +
-              Format(FFieldType.SQLFormat, [FFieldDesc.Column_Length]);
+    if FFieldType.SQLFormat = '' then
+      aToken := FFieldDesc.FieldName + ' ' + FFieldType.SqlType
+    else
+      aToken := FFieldDesc.FieldName + ' ' + Format(FFieldType.SQLFormat,
+        [FFieldDesc.Column_Length]);
 
-        FFieldType.Free;
-        FFieldDesc.Free;
+    FFieldType.Free;
+    FFieldDesc.Free;
 
-
-      end
-        else
-          oOutput.LogError('Error: Field cannot be found.');
+  end
+  else
+    oOutput.AddLogErrorType('Field cannot be found.');
 end;
 
-
-function TDBTag_FieldAsSQL.Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: TTokenProcessor): String;
+function TDBTag_FieldAsSQL.Execute(aProjectItem: tProjectItem; aTagName: string;
+  aTokens: TTokenProcessor): String;
 var
   LFieldFunctionParser: tFieldFunctionParser;
 begin
   Try
     Try
-      LFieldFunctionParser:= tFieldFunctionParser.Create(aProjectItem,aTokens, oOutput, aTagName);
-
+      LFieldFunctionParser := tFieldFunctionParser.Create(aProjectItem, aTokens,
+        oOutput, aTagName);
 
       LFieldFunctionParser.OnExecute := OnExecute;
 
@@ -474,11 +500,9 @@ begin
       LFieldFunctionParser.Free;
     End;
   Except
-    oOutput.InternalError;
+    oOutput.AddLogFailed();
   End;
 end;
-
-
 
 // TDBTag_Tablenamebyindex
 function TDBTag_Tablenamebyindex.GetTagName: String;
@@ -486,7 +510,9 @@ begin
   Result := 'TABLENAMEBYINDEX';
 end;
 
-procedure TDBTag_Tablenamebyindex.OnExecute(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string;aTokenParser: tTokenParser);
+procedure TDBTag_Tablenamebyindex.OnExecute(var aToken: String;
+  aConnectionItem: tConnectionItem; aTableName: string;
+  aTokenParser: tTokenParser);
 Var
   lsToken: String;
   liTableIndex: Integer;
@@ -494,28 +520,28 @@ begin
   lsToken := aTokenParser.ParseNextToken;
 
   if TNovusStringUtils.IsNumeric(lsToken) then
-     begin
-       liTableIndex := StrToint(lsToken);
+  begin
+    liTableIndex := StrToint(lsToken);
 
-       if aConnectionItem.TableCount > 0 then
-         aToken := aConnectionItem.JustTableNamebyIndex(liTableIndex)
-       else
-         oOutput.LogError('Error: Tablename cannot be found.');
+    if aConnectionItem.TableCount > 0 then
+      aToken := aConnectionItem.JustTableNamebyIndex(liTableIndex)
+    else
+      oOutput.AddLogErrorType('Tablename cannot be found.');
 
-     end
-       else
-         oOutput.LogError('Syntax Error: Index is not a number ');
+  end
+  else
+    oOutput.AddLogErrorType('Index is not a number.', tcimETSyntax_Error);
 end;
 
-
-function TDBTag_Tablenamebyindex.Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: TTokenProcessor): String;
+function TDBTag_Tablenamebyindex.Execute(aProjectItem: tProjectItem;
+  aTagName: string; aTokens: TTokenProcessor): String;
 var
   LTableFunctionParser: tTableFunctionParser;
 begin
   Try
     Try
-      LTableFunctionParser:= tTableFunctionParser.Create(aProjectItem,aTokens, oOutput, aTagName);
-
+      LTableFunctionParser := tTableFunctionParser.Create(aProjectItem, aTokens,
+        oOutput, aTagName);
 
       LTableFunctionParser.OnExecute := OnExecute;
 
@@ -524,17 +550,19 @@ begin
       LTableFunctionParser.Free;
     End;
   Except
-    oOutput.InternalError;
+    oOutput.AddLogFailed();
   End;
 end;
 
-//  TDBTag_FieldTypeByIndex
+// TDBTag_FieldTypeByIndex
 function TDBTag_FieldTypeByIndex.GetTagName: String;
 begin
   Result := 'FIELDTYPEBYINDEX';
 end;
 
-procedure TDBTag_FieldTypeByIndex.OnExecute(var aToken: String; aConnectionItem: tConnectionItem; aTableName: string;aTokenParser: tTokenParser);
+procedure TDBTag_FieldTypeByIndex.OnExecute(var aToken: String;
+  aConnectionItem: tConnectionItem; aTableName: string;
+  aTokenParser: tTokenParser);
 Var
   FFieldType: tFieldType;
   FFieldDesc: tFieldDesc;
@@ -553,45 +581,42 @@ begin
     if Assigned(lFieldDesc) then
     begin
       if aTokenParser.ParseNextToken = ')' then
-        begin
-          Try
-            FFieldType := aConnectionItem.oDBSchema.GetFieldType
-                                (lFieldDesc, aConnectionItem.AuxDriver);
+      begin
+        Try
+          FFieldType := aConnectionItem.oDBSchema.GetFieldType(lFieldDesc,
+            aConnectionItem.AuxDriver);
 
+          if FFieldType.SQLFormat = '' then
+            aToken := FFieldType.SqlType
+          else
+            aToken := Format(FFieldType.SQLFormat, [lFieldDesc.Column_Length]);
 
+        Finally
+          FFieldType.Free;
+        End;
 
-            if FFieldType.SQLFormat = '' then
-              aToken := FFieldType.SqlType
-            else
-              aToken := Format(FFieldType.SQLFormat, [lFieldDesc.Column_Length]);
-
-
-           Finally
-             FFieldType.Free;
-           End;
-
-
-        end;
+      end;
 
     end
     else
-      oOutput.LogError('Syntax Error: lack ")"');
+      oOutput.AddLogErrorType('Lacking ")"', tcimETSyntax_Error);
   end
   else
-    oOutput.LogError('Error: Field cannot be found.');
+    oOutput.AddLogErrorType('Field cannot be found.');
 
   if Assigned(lFieldDesc) then
-     lFieldDesc.Free;
+    lFieldDesc.Free;
 end;
 
-
-function TDBTag_FieldTypeByIndex.Execute(aProjectItem: tProjectItem;aTagName: string;aTokens: TTokenProcessor): String;
+function TDBTag_FieldTypeByIndex.Execute(aProjectItem: tProjectItem;
+  aTagName: string; aTokens: TTokenProcessor): String;
 var
   LFieldFunctionParser: tFieldFunctionParser;
 begin
   Try
     Try
-      LFieldFunctionParser:= tFieldFunctionParser.Create(aProjectItem, aTokens, oOutput, ATagName);
+      LFieldFunctionParser := tFieldFunctionParser.Create(aProjectItem, aTokens,
+        oOutput, aTagName);
 
       LFieldFunctionParser.OnExecute := OnExecute;
 
@@ -600,21 +625,20 @@ begin
       LFieldFunctionParser.Free;
     End;
   Except
-    oOutput.InternalError;
+    oOutput.AddLogFailed();
   End;
 end;
 
-
-
-exports
-  GetPluginObject name func_GetPluginObject;
+exports GetPluginObject name func_GetPluginObject;
 
 initialization
-  begin
-    _Plugin_DBTags := nil;
-  end;
+
+begin
+  _Plugin_DBTags := nil;
+end;
 
 finalization
-  FreeAndNIL(_Plugin_DBTags);
+
+FreeAndNIL(_Plugin_DBTags);
 
 end.

@@ -2,7 +2,7 @@ unit Plugins;
 
 interface
 
-uses NovusPlugin, Config, Output, Classes, SysUtils, PluginsMapFactory, Plugin,
+uses NovusPlugin, Config, CodeImatic.Output, Classes, SysUtils, PluginsMapFactory, Plugin,
   Project, ProjectItem, NovusCommandLine,
   NovusTemplate, PascalScript, uPSRuntime, uPSCompiler, NovusFileUtils,
   CodeGeneratorItem, Loader, CodeGenerator, Template, TokenProcessor;
@@ -13,12 +13,12 @@ type
   protected
     foScriptEngine: tPascalScriptEngine;
     foProject: tProject;
-    foOutput: TOutput;
+    foOutput: TcimOutput;
     FExternalPlugins: TNovusPlugins;
     fPluginsList: TList;
     fImp: TPSRuntimeClassImporter;
   public
-    constructor Create(aOutput: TOutput; aProject: tProject;
+    constructor Create(aOutput: tcimOutput; aProject: tProject;
       aScriptEngine: tPascalScriptEngine);
     destructor Destroy; override;
 
@@ -102,12 +102,12 @@ Var
   loPlugin: tPlugin;
   fPluginInfo: tPluginInfo;
 begin
-  foOutput.Log('Unload Plugins');
+  foOutput.oLog.AddLogInformation('Unload Plugins');
 
   for I := FExternalPlugins.PluginCount - 1 downto 0 do
     begin
       fPluginInfo := FExternalPlugins.GetPluginList(i);
-      foOutput.Log('Unload: ' +fPluginInfo.PluginName);
+      foOutput.oLog.AddLogInformation('Unload: ' +fPluginInfo.PluginName);
 
       FExternalPlugins.UnloadPlugin(I);
     end;
@@ -153,7 +153,7 @@ begin
     begin
       if Not TDataProcessorPlugin(loPlugin).LoadDBSchemaFile then
         begin
-          foOutput.Log('Missing: ' + TDataProcessorPlugin(loPlugin).DBSchemaFile);
+          foOutput.oLog.AddLogError('Missing: ' + TDataProcessorPlugin(loPlugin).DBSchemaFile);
 
           Result := False;
 
@@ -208,7 +208,7 @@ begin
 
     Result := True;
   Except
-    foOutput.WriteExceptLog;
+    foOutput.oLog.AddLogException;
 
     Result := False;
   End;
@@ -223,7 +223,7 @@ Var
   loConfigPlugin: TConfigPlugin;
 begin
   // External Plugin
-  foOutput.Log('Loading plugins');
+  foOutput.oLog.AddLogInformation('Loading plugins');
 
   if oConfig.oConfigPluginList.Count > 0 then
   begin
@@ -241,11 +241,11 @@ begin
 
           fPluginsList.Add(FExternalPlugin.CreatePlugin(foOutput, foProject,
             loConfigPlugin));
-          foOutput.Log('Loaded: ' + FExternalPlugin.PluginName);
+          foOutput.oLog.AddLogInformation('Loaded: ' + FExternalPlugin.PluginName);
         end;
       end
       else
-        foOutput.Log('Missing: ' + loConfigPlugin.PluginFilenamePathname);
+        foOutput.oLog.AddLogError('Missing: ' + loConfigPlugin.PluginFilenamePathname);
     end;
 
   end;

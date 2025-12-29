@@ -4,14 +4,14 @@ interface
 
 uses XMLList, NovusTemplate, SysUtils, NovusSimpleXML, JvSimpleXml, novuslist,
   NovusStringUtils, NovusEnvironment, NovusFileUtils, Loader, DataProcessor,
-  Output;
+  CodeImatic.Output;
 
 type
   tProjectConfigLoader = Class(TLoader)
   private
   protected
     foPlugins: tObject;
-    foOutput: tOutput;
+    foOutput: tcimOutput;
     FoRootNodeLoader: tNodeLoader;
     foProject: tXMLlist;
     fConnectionNameList: tNovuslist;
@@ -24,7 +24,7 @@ type
     fsLanguagesPath: String;
     foConnections: tConnections;
   public
-    constructor Create(aProject: TXMLlist; aOutput: tOutput );
+    constructor Create(aProject: TXMLlist; aOutput: tcimOutput );
     destructor Destroy; override;
 
     function Load: boolean; override;
@@ -78,7 +78,7 @@ implementation
 
 Uses ProjectParser, Project;
 
-constructor tProjectConfigLoader.Create(aProject: TXMLlist; aOutput: tOutput );
+constructor tProjectConfigLoader.Create(aProject: TXMLlist; aOutput: tcimOutput );
 begin
   foProject := aProject;
   foOutput := aOutput;
@@ -188,7 +188,8 @@ begin
 
     Result :=   tProjectParser.ParseProject(lsItemName,  (foProject as TProject), foOutput);
   Except
-    Self.foOutput.InternalError;
+    foOutput.oLog.AddLogException();
+    foOutput.Failed := True;
   End;
 end;
 
@@ -311,7 +312,9 @@ begin
                   end
                 else
                   begin
-                    foOutput.LogError('ConnectionName Driver name not assigned.');
+                    foOutput.oLog.AddLogError('ConnectionName Driver name not assigned.');
+
+                    foOutput.Failed := True;
 
                     result := False;
 
@@ -330,7 +333,8 @@ begin
   Except
     Result := False;
 
-    FoOutput.InternalError;
+    FoOutput.oLog.AddLogException();
+    FoOutput.Failed := True;
   End;
 end;
 

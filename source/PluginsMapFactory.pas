@@ -3,14 +3,14 @@ unit PluginsMapFactory;
 
 interface
 
-Uses Plugin, Output, Contnrs, Project, config;
+Uses Plugin, CodeImatic.Output, Contnrs, Project, config;
 
 type
   TPluginsMapFactory = class(Tobject)
   public
     class procedure RegisterClass(AClass: TClass);
     class function FindClass(AClassName: string): TClass;
-    class function FindPlugin(aClassname: String; aOutput: tOutput;aPluginName: String; aProject: TProject; aConfigPlugin: tConfigPlugin): tPlugin;
+    class function FindPlugin(aClassname: String; aOutput: tcimOutput;aPluginName: String; aProject: TProject; aConfigPlugin: tConfigPlugin): tPlugin;
   end;
 
 var
@@ -43,7 +43,7 @@ begin
   Result := LClass;
 end;
 
-class function TPluginsMapFactory.FindPlugin(aClassname: String; aOutput: tOutput; aPluginName: string; aProject: Tproject; aConfigPlugin: tConfigPlugin): tPlugin;
+class function TPluginsMapFactory.FindPlugin(aClassname: String; aOutput: tcimOutput; aPluginName: string; aProject: Tproject; aConfigPlugin: tConfigPlugin): tPlugin;
 Var
   fc : TPluginClass;
   f : TPlugin;

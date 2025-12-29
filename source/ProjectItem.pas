@@ -4,7 +4,7 @@ interface
 
 Uses NovusBO, JvSimpleXml, Project, SysUtils, NovusSimpleXML,
   ProjectParser,
-  Properties, NovusTemplate, {CodeGenerator,} Output, Template,
+  Properties, NovusTemplate, CodeImatic.Output, Template,
   NovusFileUtils,  Variables,
   NovusList, System.RegularExpressions, NovusUtilities, plugin, Loader;
 
@@ -93,7 +93,7 @@ type
     foNodeLoader: tNodeLoader;
   public
     constructor Create(aProject: tProject; aProjectItem: TProjectItem;
-      aOutput: Toutput); overload;
+      aOutput: TcimOutput); overload;
     destructor Destroy; override;
 
     function AddFile(aFullPathname: string; aFilename: String;
@@ -119,7 +119,7 @@ type
     fProjectItemType: TProjectItemType;
     foSourceFiles: tSourceFiles;
     foProject: tProject;
-    foOutput: Toutput;
+    foOutput: Tcimoutput;
 
     foProperties: tProperties;
 
@@ -135,7 +135,7 @@ type
     fNodeProjectItem: TJvSimpleXmlElem;
     function GetName: String;
   Public
-    constructor Create(aProject: tProject; aOutput: Toutput;
+    constructor Create(aProject: tProject; aOutput: Tcimoutput;
       aNodeProjectItem: TJvSimpleXmlElem);
 
     destructor Destroy; override;
@@ -178,14 +178,14 @@ type
 
     property oVariables : tVariables read foVariables write foVariables;
 
-    property oOutput: tOutput read foOutput write foOutput;
+    property oOutput: tcimOutput read foOutput write foOutput;
   end;
 
 implementation
 
 Uses Config, ProjectItemFolder, Plugins, Processor;
 
-constructor TProjectItem.Create(aProject: tProject; aOutput: Toutput;
+constructor TProjectItem.Create(aProject: tProject; aOutput: Tcimoutput;
   aNodeProjectItem: TJvSimpleXmlElem);
 begin
   foProject := aProject;
@@ -269,11 +269,11 @@ begin
     case Self.ProjectItemType of
       pitItem:
         begin
-          foOutput.Log('Source : ' + fsTemplateFile);
+          foOutput.oLog.AddLogInformation('Source : ' + fsTemplateFile);
 
-          foOutput.Log('Output: ' + fsOutputFile);
+          foOutput.oLog.AddLogInformation('Output: ' + fsOutputFile);
 
-          foOutput.Log('Build started.');
+          foOutput.oLog.AddLogInformation('Build started.');
 
           Try
             loProcessor := TProcessor.Create(foOutput, foProject, Self,
@@ -289,12 +289,12 @@ begin
           if Not foOutput.Failed then
           begin
             if Not foOutput.Errors then
-              foOutput.Log('Build succeeded.')
+              foOutput.oLog.AddLogInformation('Build succeeded.')
             else
-              foOutput.Log('Build with errors.');
+              foOutput.oLog.AddLogError('Build with errors.');
           end
           else
-            foOutput.LogError('Build failed.');
+            foOutput.oLog.AddLogError('Build failed.');
 
           result := (Not foOutput.Failed);
 
@@ -302,7 +302,7 @@ begin
       pitFolder:
         begin
           Try
-            foOutput.Log('Build started.');
+            foOutput.oLog.AddLogInformation('Build started.');
 
             loProjectItemFolder := tProjectItemFolder.Create(foOutput,
               foProject, Self);
@@ -312,12 +312,18 @@ begin
             if Not foOutput.Failed then
             begin
               if Not foOutput.Errors then
-                foOutput.Log('Build succeeded.')
+                foOutput.oLog.AddLogInformation('Build succeeded.')
               else
-                foOutput.Log('Build with errors.');
+                begin
+                  foOutput.oLog.AddLogError('Build with errors.');
+                  foOutput.Failed := true;
+                end;
             end
             else
-              foOutput.LogError('Build failed.');
+              begin
+                foOutput.oLog.AddLogError('Build failed.');
+                foOutput.Failed := true;
+              end;
 
             result := (Not foOutput.Failed);
           Finally
@@ -329,7 +335,8 @@ begin
     end;
 
   Except
-    foOutput.InternalError;
+    foOutput.oLog.AddLogException();
+    foOutput.Failed := true;
   End;
 end;
 
@@ -346,7 +353,7 @@ end;
 
 // tSourceFiles
 constructor tSourceFiles.Create(aProject: tProject; aProjectItem: TProjectItem;
-  aOutput: Toutput);
+  aOutput: Tcimoutput);
 begin
   Initclass(tSourceFile);
 

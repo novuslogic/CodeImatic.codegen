@@ -2,8 +2,8 @@ unit Plugin_XMLTagsClasses;
 
 interface
 
-uses Classes, Plugin, NovusPlugin, Project,
-  Output, SysUtils, System.Generics.Defaults, runtime, Config,
+uses Classes, Plugin, NovusPlugin, Project, CodeImatic.Output,
+  SysUtils, System.Generics.Defaults, runtime, Config,CodeImatic.ErrorTypes,
   APIBase, NovusGUID, CodeGeneratorItem, FunctionsParser, ProjectItem,
   Variables, NovusFileUtils, CodeGenerator, FileExistsFunctionParser, TokenParser,
   {NovusJSONUtils,} System.IOUtils, System.JSON, TokenProcessor, NovusStringUtils,
@@ -68,7 +68,7 @@ type
   protected
     FXMLTags: tXMLTags;
   public
-    constructor Create(aOutput: tOutput; aPluginName: String;
+    constructor Create(aOutput: tcimOutput; aPluginName: String;
       aProject: TProject; aConfigPlugin: tConfigPlugin); override;
     destructor Destroy; override;
 
@@ -89,7 +89,7 @@ type
     procedure Initialize; override; safecall;
     procedure Finalize; override; safecall;
 
-    function CreatePlugin(aOutput: tOutput; aProject: TProject;
+    function CreatePlugin(aOutput: tcimOutput; aProject: TProject;
       aConfigPlugin: tConfigPlugin): TPlugin; override; safecall;
   end;
 
@@ -102,7 +102,7 @@ var
   _Plugin_XMLTags: TPlugin_XMLTags = nil;
 
 
-constructor tPlugin_XMLTagsBase.Create(aOutput: tOutput; aPluginName: String;
+constructor tPlugin_XMLTagsBase.Create(aOutput: tcimOutput; aPluginName: String;
   aProject: TProject; aConfigPlugin: tConfigPlugin);
 begin
   Inherited Create(aOutput, aPluginName, aProject, aConfigPlugin);
@@ -137,7 +137,7 @@ begin
 
   if AToken= ''  then
     begin
-      Self.oOutput.LogError(
+      oOutput.AddLogErrorType(
       'Blank Variable name.');
 
       Exit;
@@ -147,18 +147,18 @@ begin
 
   if Not Assigned(FVariable) then
   begin
-    Self.oOutput.LogError(aToken +
+    oOutput.AddLogErrorType(aToken +
       ' Object Variable cannot be found.');
     Exit;
   end
   else if Not FVariable.IsObject then
   begin
-    Self.oOutput.LogError('[' + aToken + '] not an Object Variable.');
+    oOutput.AddLogErrorType('[' + aToken + '] not an Object Variable.');
     Exit;
   end
   else if FVariable.Value <> tXMLlist.ClassName then
   begin
-    Self.oOutput.LogError('[' + aToken + '] not ' + tXMLlist.ClassName +
+    oOutput.AddLogErrorType('[' + aToken + '] not ' + tXMLlist.ClassName +
       ' Object Variable.');
     Exit;
   end;
@@ -176,7 +176,7 @@ procedure TPlugin_XMLTags.Initialize;
 begin
 end;
 
-function TPlugin_XMLTags.CreatePlugin(aOutput: tOutput; aProject: TProject;
+function TPlugin_XMLTags.CreatePlugin(aOutput: tcimOutput; aProject: TProject;
   aConfigPlugin: tConfigPlugin): TPlugin; safecall;
 begin
   foProject := aProject;
@@ -203,7 +203,7 @@ begin
   liIndex := IsTagExists(aTagName);
   if liIndex = -1 then
   begin
-    oOutput.LogError('Cannot find XML.' + aTagName);
+    oOutput.AddLogErrorType('Cannot find XML.' + aTagName);
 
     Exit;
   end;
@@ -258,7 +258,7 @@ begin
       LFunctionParser.Free;
     End;
   Except
-    oOutput.InternalError;
+    oOutput.AddLogFailed();
   End;
 end;
 
@@ -275,7 +275,7 @@ begin
 
   if Trim(lsElement) = '' then
   begin
-    oOutput.LogError('Syntax Error: Element cannot be blank.');
+    oOutput.AddLogErrorType('Element cannot be blank.', tcimETSyntax_Error);
 
     aToken := '';
 
@@ -288,7 +288,7 @@ begin
     end
     else
       begin
-        oOutput.LogError('Syntax Error: Index is not numeric ');
+        oOutput.AddLogErrorType('Index is not numeric.', tcimETSyntax_Error);
         aToken := '';
       end;
 
@@ -320,7 +320,7 @@ begin
       LFunctionParser.Free;
     End;
   Except
-    oOutput.InternalError;
+    oOutput.AddLogFailed();
   End;
 end;
 
@@ -337,7 +337,7 @@ begin
 
   if Trim(lsElement) = '' then
   begin
-    oOutput.LogError('Syntax Error: Element cannot be blank.');
+    oOutput.AddLogErrorType('Element cannot be blank.', tcimETSyntax_Error);
 
     aToken := '';
 
@@ -350,7 +350,8 @@ begin
     end
     else
       begin
-        oOutput.LogError('Syntax Error: Index is not numeric ');
+        oOutput.AddLogErrorType('Index is not numeric.', tcimETSyntax_Error);
+
         aToken := '';
       end;
 
@@ -385,7 +386,7 @@ begin
       LFunctionParser.Free;
     End;
   Except
-    oOutput.InternalError;
+    oOutput.AddLogFailed();
   End;
 
 end;
@@ -434,7 +435,7 @@ begin
       LFunctionParser.Free;
     End;
   Except
-    oOutput.InternalError;
+    oOutput.AddLogFailed();
   End;
 end;
 

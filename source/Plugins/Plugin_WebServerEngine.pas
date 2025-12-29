@@ -2,7 +2,8 @@ unit Plugin_WebServerEngine;
 
 interface
 
-Uses Output, APIBase, IdBaseComponent, IdComponent, IdTCPServer, IdHTTPServer,
+Uses CodeImatic.Output, APIBase, IdBaseComponent, IdComponent,
+  IdTCPServer, IdHTTPServer,
   StdCtrls,
   ExtCtrls, HTTPApp, Windows, NovusConsole, SysUtils, IdCustomHTTPServer,
   IdContext, Plugins,
@@ -18,37 +19,37 @@ Type
     fbIsOpenBrowser: Boolean;
     fServerIOHandlerSSLOpenSSL: TIdServerIOHandlerSSLOpenSSL;
     fHTTPServer: TIdHTTPServer;
-    foOutput: TOutput;
+    foOutput: TcimOutput;
     foProject: tProject;
     foConfigPlugin: TConfigPlugin;
 
     function ServerIOHandlerSSLOpenSSL1VerifyPeer(Certificate: TIdX509;
-        AOk: Boolean; ADepth, AError: Integer): Boolean;
+      AOk: Boolean; ADepth, AError: Integer): Boolean;
     function GetMIMEType(aURL: String): String;
     procedure ServerIOHandlerSSLOpenSSLGetPassword(var Password: string);
-    procedure HTTPServerCommandGet(AContext: TIdContext;  ARequestInfo: TIdHTTPRequestInfo; AResponseInfo: TIdHTTPResponseInfo);
+    procedure HTTPServerCommandGet(AContext: TIdContext;
+      ARequestInfo: TIdHTTPRequestInfo; AResponseInfo: TIdHTTPResponseInfo);
     procedure HTTPServerCommandError(AContext: TIdContext;
-  ARequestInfo: TIdHTTPRequestInfo; AResponseInfo: TIdHTTPResponseInfo;
-  AException: Exception);
-    procedure HTTPServerException(AContext: TIdContext;
+      ARequestInfo: TIdHTTPRequestInfo; AResponseInfo: TIdHTTPResponseInfo;
       AException: Exception);
+    procedure HTTPServerException(AContext: TIdContext; AException: Exception);
 
     function GetOutputPath: String;
     function GetDefaultDocument: string;
     function GetUseSSL: Boolean;
     function GetSSLPassword: string;
-    function GetPort: integer;
+    function GetPort: Integer;
     function GetSSLPath: String;
     function GetAddress: String;
     function GetServer: String;
     function GetSSLKeyFile: string;
     function GetSSLCertFile: String;
     function GetSSLRootCertFile: String;
-    function Get404:string;
+    function Get404: string;
 
-    function RunProjectItems: boolean;
+    function RunProjectItems: Boolean;
   public
-    constructor Create(aOutput: TOutput; aProject: tProject;
+    constructor Create(aOutput: TcimOutput; aProject: tProject;
       aConfigPlugin: TConfigPlugin; aIsOpenBrowser: Boolean);
     destructor Destroy; override;
 
@@ -62,7 +63,7 @@ Type
 
     property SSLPassword: string read GetSSLPassword;
 
-    property Port: integer read GetPort;
+    property Port: Integer read GetPort;
 
     property SSLPath: string read GetSSLPath;
 
@@ -80,9 +81,9 @@ Type
 implementation
 
 var
-  FCtrlflag: integer;
+  FCtrlflag: Integer;
 
-constructor TPlugin_WebServerEngine.Create(aOutput: TOutput; aProject: tProject;
+constructor TPlugin_WebServerEngine.Create(aOutput: TcimOutput; aProject: tProject;
   aConfigPlugin: TConfigPlugin; aIsOpenBrowser: Boolean);
 begin
   foOutput := aOutput;
@@ -91,30 +92,31 @@ begin
 
   fbIsOpenBrowser := aIsOpenBrowser;
 
-  FHTTPServer := TIdHTTPServer.Create(nil);
+  fHTTPServer := TIdHTTPServer.Create(nil);
 
-  FHTTPServer.OnCommandGet := HTTPServerCommandGet;
+  fHTTPServer.OnCommandGet := HTTPServerCommandGet;
 
-  fServerIOHandlerSSLOpenSSL:= TIdServerIOHandlerSSLOpenSSL.Create(nil);
+  fServerIOHandlerSSLOpenSSL := TIdServerIOHandlerSSLOpenSSL.Create(nil);
 
-  fServerIOHandlerSSLOpenSSL.OnGetPassword := ServerIOHandlerSSLOpenSSLGetPassword;
+  fServerIOHandlerSSLOpenSSL.OnGetPassword :=
+    ServerIOHandlerSSLOpenSSLGetPassword;
 
-  fServerIOHandlerSSLOpenSSL.OnVerifyPeer := ServerIOHandlerSSLOpenSSL1VerifyPeer;
+  fServerIOHandlerSSLOpenSSL.OnVerifyPeer :=
+    ServerIOHandlerSSLOpenSSL1VerifyPeer;
 
-  FHTTPServer.OnException := HTTPServerException;
-  FHTTPServer.OnCommandError := HTTPServerCommandError;
-
+  fHTTPServer.OnException := HTTPServerException;
+  fHTTPServer.OnCommandError := HTTPServerCommandError;
 
 end;
 
 destructor TPlugin_WebServerEngine.Destroy;
 begin
   fServerIOHandlerSSLOpenSSL.Free;
-  FHTTPServer.Free;
+  fHTTPServer.Free;
 end;
 
-function TPlugin_WebServerEngine.ServerIOHandlerSSLOpenSSL1VerifyPeer(Certificate: TIdX509;
-  AOk: Boolean; ADepth, AError: Integer): Boolean;
+function TPlugin_WebServerEngine.ServerIOHandlerSSLOpenSSL1VerifyPeer
+  (Certificate: TIdX509; AOk: Boolean; ADepth, AError: Integer): Boolean;
 begin
   if ADepth = 0 then
     Result := AOk
@@ -138,7 +140,6 @@ begin
 
     end;
   *)
-
 
   Result := True;
 end;
@@ -166,41 +167,44 @@ var
   loKeyEvent: TKeyEvent;
 begin
   Try
-    foOutput.Log('Starting WebServer ...');
+    foOutput.oLog.AddLogInformation('Starting WebServer ...');
 
     if Port = 0 then
     begin
-      foOutput.Log('Cannot start WebServer with port: 0');
+      foOutput.oLog.AddLogError('Cannot start WebServer with port: 0');
 
       Exit;
     end;
 
-  if not TNovusIndyUtils.IsTCPPortUsed(Port, Server) then
+    if not TNovusIndyUtils.IsTCPPortUsed(Port, Server) then
     begin
       try
-        FHTTPServer.DefaultPort := Port;
+        fHTTPServer.DefaultPort := Port;
 
-       // IdOpenSSLSetLibPath('D:\Projects\CodeImatic.codegen\build');
+        // IdOpenSSLSetLibPath('D:\Projects\CodeImatic.codegen\build');
 
         if UseSSL then
         begin
-          FHTTPServer.IOHandler := fServerIOHandlerSSLOpenSSL;
+          fHTTPServer.IOHandler := fServerIOHandlerSSLOpenSSL;
 
-          fServerIOHandlerSSLOpenSSL.SSLOptions.KeyFile:= SSLPath +  SSLKeyFile;
-          fServerIOHandlerSSLOpenSSL.SSLOptions.CertFile:= SSLPath + SSLCertFile;
-          fServerIOHandlerSSLOpenSSL.SSLOptions.RootCertFile:= SSLPath  + SSLRootCertFile;
-         // fServerIOHandlerSSLOpenSSL.SSLOptions.method := sslvSSLv3;
+          fServerIOHandlerSSLOpenSSL.SSLOptions.KeyFile := SSLPath + SSLKeyFile;
+          fServerIOHandlerSSLOpenSSL.SSLOptions.CertFile := SSLPath +
+            SSLCertFile;
+          fServerIOHandlerSSLOpenSSL.SSLOptions.RootCertFile := SSLPath +
+            SSLRootCertFile;
+          // fServerIOHandlerSSLOpenSSL.SSLOptions.method := sslvSSLv3;
 
-       //   fServerIOHandlerSSLOpenSSL.SSLOptions.SSLVersions := [sslvTLSv1,sslvTLSv1_1,sslvTLSv1_2];
+          // fServerIOHandlerSSLOpenSSL.SSLOptions.SSLVersions := [sslvTLSv1,sslvTLSv1_1,sslvTLSv1_2];
 
           fServerIOHandlerSSLOpenSSL.SSLOptions.Mode := sslmServer;
         end;
 
-        foOutput.Log('WebServer address: ' + Address);
+        foOutput.oLog.AddLogInformation('WebServer address: ' + Address);
 
-        FHTTPServer.Active := true;
+        fHTTPServer.Active := True;
 
-        foOutput.Log('WebServer running ... press ctrl-s to stop | ctrl-r to refresh project. | ctrl-b open in default browser');
+        foOutput.oLog.AddLogInformation
+          ('WebServer running ... press ctrl-s to stop | ctrl-r to refresh project. | ctrl-b open in default browser');
 
         stdin := TNovusConsole.GetStdInputHandle;
 
@@ -214,49 +218,51 @@ begin
           if (loKeyEvent.KeyCode <> 0) or (loKeyEvent.ScanCode <> 0) then
           begin
             if FCtrlflag = CTRL_C_EVENT then
-              begin
-                break;
-              end
+            begin
+              break;
+            end
             else
+            begin
+              ch := TNovusConsole.GetAvailableChar(stdin);
+
+              if ch = #19 then
+                break;
+
+              if ch = #02 then
               begin
-                ch := TNovusConsole.GetAvailableChar(stdin);
-
-                if ch = #19 then
-                  break;
-
-                if ch = #02 then
-                  begin
-                    foOutput.Log('Opening default browser ...');
-                    tNovusWebUtils.OpenDefaultWebBrowser(Address);
-                  end;
-
-                if ch = #18 then
-                  begin
-                    RunProjectItems;
-
-                    foOutput.Log('WebServer running ... press ctrl-s to stop | ctrl-r to refresh project. | ctrl-b open in defaultdn browser');
-                  end;
+                foOutput.oLog.AddLogInformation('Opening default browser ...');
+                tNovusWebUtils.OpenDefaultWebBrowser(Address);
               end;
+
+              if ch = #18 then
+              begin
+                RunProjectItems;
+
+                foOutput.oLog.AddLogInformation
+                  ('WebServer running ... press ctrl-s to stop | ctrl-r to refresh project. | ctrl-b open in defaultdn browser');
+              end;
+            end;
           end
           Else
             Sleep(20);
 
         Until false;
 
-        FHTTPServer.Active := false;
+        fHTTPServer.Active := false;
 
-        foOutput.Log('Stopping WebServer.');
+        foOutput.oLog.AddLogInformation('Stopping WebServer.');
       finally
- 
+
       end;
     end
     else
-      foOutput.Log('port not open ... ' + Server + ':' + IntToStr(Port) +
+      foOutput.oLog.AddLogInformation('port not open ... ' + Server + ':' + IntToStr(Port) +
         ' cannot start WebServer.');
   Except
-    foOutput.InternalError;
+    foOutput.oLog.AddLogException();
 
-    foOutput.Log('Cannot start WebServer.');
+
+    foOutput.oLog.AddLogError('Cannot start WebServer.');
   End;
 
 end;
@@ -284,7 +290,7 @@ begin
         AResponseInfo.CharSet := 'UTF-8';
 
         if TNovusFileUtils.IsFileInUse(localurl) then
-          foOutput.Log(localurl + ' ... locked or in use.')
+          foOutput.oLog.AddLogError(localurl + ' ... locked or in use.')
         else
         begin
           fContent := TIdReadFileExclusiveStream.Create(localurl);
@@ -294,7 +300,8 @@ begin
         end;
 
       Except
-        foOutput.InternalError;
+        foOutput.oLog.AddLogException();
+        foOutput.Failed := True;
       end;
 
     end;
@@ -303,7 +310,7 @@ begin
   begin
     AResponseInfo.ResponseNo := 404;
 
-    fContent := TIdReadFileExclusiveStream.Create(OutputPath  + Get404);
+    fContent := TIdReadFileExclusiveStream.Create(OutputPath + Get404);
 
     AResponseInfo.ContentStream := fContent;
     AResponseInfo.ContentLength := fContent.Size;
@@ -331,7 +338,7 @@ begin
     Result := foConfigPlugin.oConfigProperties.GetProperty('SSLPassword');
 end;
 
-function TPlugin_WebServerEngine.GetPort: integer;
+function TPlugin_WebServerEngine.GetPort: Integer;
 begin
   Result := 8080;
   if foConfigPlugin.oConfigProperties.IsPropertyExists('Port') then
@@ -392,31 +399,32 @@ end;
 
 function TPlugin_WebServerEngine.GetMIMEType(aURL: string): string;
 begin
-  Result := TNovusWebUtils.GetMIMEType(aURL);
+  Result := tNovusWebUtils.GetMIMEType(aURL);
 end;
-
 
 procedure TPlugin_WebServerEngine.HTTPServerCommandError(AContext: TIdContext;
   ARequestInfo: TIdHTTPRequestInfo; AResponseInfo: TIdHTTPResponseInfo;
   AException: Exception);
 begin
-  foOutput.LogException(AException);
+  foOutput.oLog.AddLogException(AException);
 end;
 
 procedure TPlugin_WebServerEngine.HTTPServerException(AContext: TIdContext;
   AException: Exception);
 begin
-  if AException.Message = 'Connection Closed Gracefully.' then Exit;
+  if AException.Message = 'Connection Closed Gracefully.' then
+    Exit;
 
-  foOutput.LogException(AException);
+  foOutput.oLog.AddLogException(AException);
 end;
 
-function TPlugin_WebServerEngine.RunProjectItems: boolean;
+function TPlugin_WebServerEngine.RunProjectItems: Boolean;
 Var
   loRuntimeProjectItems: tRuntimeProjectItems;
 begin
   Try
-    loRuntimeProjectItems:= tRuntimeProjectItems.Create(foOutput, foProject, (foProject.oPlugins as TPlugins));
+    loRuntimeProjectItems := tRuntimeProjectItems.Create(foOutput, foProject,
+      (foProject.oPlugins as TPlugins));
 
     Result := loRuntimeProjectItems.RunProjectItems
   Finally

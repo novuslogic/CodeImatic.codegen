@@ -34,7 +34,6 @@ requires
   CodeImatic.share;
 
 contains
-  Output in 'Output.pas',
   APIBase in 'Plugins\API\APIBase.pas',
   Runtime in 'Runtime.pas',
   ExpressionParser in 'ExpressionParser.pas',

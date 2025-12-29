@@ -3,7 +3,7 @@ unit Interpreter;
 interface
 
 Uses
-  Classes, ExpressionParser, SysUtils, DB, NovusStringUtils, Output,
+  Classes, ExpressionParser, SysUtils, DB, NovusStringUtils, CodeImatic.Output,
   NovusList, Variants, Variables, XMLList, NovusGUID, TokenProcessor, TagType,
   CodeGeneratorItem, TokenParser, ProjectItem, StatementParser, NovusUtilities;
 
@@ -124,7 +124,7 @@ Type
       aTagType: TTagType; Var ASkipPOs: Integer): string;
 
   public
-    constructor Create(aCodeGenerator: TObject; aOutput: TOutput;
+    constructor Create(aCodeGenerator: TObject; aOutput: TcimOutput;
       aProjectItem: TProjectItem); overload;
 
     destructor Destroy; override;
@@ -158,7 +158,7 @@ Uses
   TagParser,
   FunctionsParser;
 
-constructor TInterpreter.Create(aCodeGenerator: TObject; aOutput: TOutput;
+constructor TInterpreter.Create(aCodeGenerator: TObject; aOutput: TcimOutput;
   aProjectItem: TProjectItem);
 begin
   inherited Create;
@@ -248,7 +248,7 @@ begin
     end;
 
   Except
-    FoOutput.InternalError;
+    FoOutput.oLog.AddlogException();
   end;
 end;
 
@@ -319,7 +319,7 @@ begin
           end;
      end;
   Except
-    FoOutput.InternalError;
+    FoOutput.oLog.AddLogException();
   end;
 end;
 
@@ -419,7 +419,7 @@ begin
 
               if LNavigatePos.ID = '' then
               begin
-                FoOutput.LogError
+                FoOutput.oLog.AddLogError
                   ('Syntax Error: Block Repeat without EndRepeat.');
 
               end;
@@ -436,15 +436,15 @@ begin
 
             end
             else
-              FoOutput.LogError('Syntax Error: lack ")"');
+              FoOutput.oLog.AddLogError('Syntax Error: lack ")"');
 
           end
           else
-            FoOutput.LogError('Syntax Error: Index is not a number ');
+            FoOutput.oLog.AddLogError('Syntax Error: Index is not a number ');
 
         end
         else
-          FoOutput.LogError('Syntax Error: lack "("');
+          FoOutput.oLog.AddLogError('Syntax Error: lack "("');
       end;
     ttendrepeat:
       begin
@@ -635,10 +635,10 @@ begin
             LStartNavigate.HasRun := true;
           end
         else
-          FoOutput.LogError('Syntax Error: Block EndRepeat without Repeat.');
+          FoOutput.oLog.AddLogError('Syntax Error: Block EndRepeat without Repeat.');
         end
         else
-          FoOutput.LogError('Syntax Error: Block EndRepeat without Repeat.');
+          FoOutput.oLog.AddLogError('Syntax Error: Block EndRepeat without Repeat.');
       end;
   end;
 end;
@@ -728,7 +728,7 @@ begin
 
               if LsToken <> ')' then
               begin
-                FoOutput.LogError('Syntax Error: lack ")"');
+                FoOutput.oLog.AddLogError('Syntax Error: lack ")"');
 
                 Exit;
               end;
@@ -761,11 +761,11 @@ begin
 
           end
           else
-            FoOutput.LogError('Syntax Error: lack "("');
+            FoOutput.oLog.AddLogError('Syntax Error: lack "("');
 
         end
         else
-          FoOutput.LogError('Syntax Error: lack "IF"');
+          FoOutput.olog.AddLogError('Syntax Error: lack "IF"');
       end;
     ttendif:
       begin
@@ -831,10 +831,10 @@ begin
 
                     if Trim(LStartNavigate.StatementParser.
                       ErrorStatementMessage) <> '' then
-                      FoOutput.LogError('Syntax Error: ' +
+                      FoOutput.oLog.AddLogError('Syntax Error: ' +
                         LStartNavigate.StatementParser.ErrorStatementMessage);
                   Except
-                    FoOutput.LogError('Syntax Error: ' +
+                    FoOutput.oLog.AddLogError('Syntax Error: ' +
                       LStartNavigate.StatementParser.ErrorStatementMessage);
                   End;
 
@@ -887,10 +887,10 @@ begin
             ResetToEnd(aTokens, aIndex);
           end
           else
-            FoOutput.LogError('Syntax Error: lack "IF"');
+            FoOutput.oLog.AddLogError('Syntax Error: lack "IF"');
         end
         else
-          FoOutput.LogError('Syntax Error: lack "ENDIF"');
+          FoOutput.oLog.AddLogError('Syntax Error: lack "ENDIF"');
       end;
   end;
 end;
@@ -913,22 +913,22 @@ begin
 
             if GetNextToken(aIndex, aTokens, False, 0) = ')' then
             begin
-              FoOutput.Log(lsLog);
+              FoOutput.oLog.AddLogInformation(lsLog);
 
               ResetToEnd(aTokens, aIndex);
 
               Exit;
             end
             else
-              ooutput.LogError('Syntax Error: lack ")"');
+              ooutput.oLog.AddLogError('Syntax Error: lack ")"');
 
           end
           else
-            FoOutput.LogError('Syntax Error: lack "("');
+            FoOutput.oLog.AddLogError('Syntax Error: lack "("');
 
         end
         else
-          FoOutput.LogError('Syntax Error: lack "LOG"');
+          FoOutput.oLog.AddLogError('Syntax Error: lack "LOG"');
       end;
   end;
 end;
@@ -951,7 +951,7 @@ begin
 
         end
         else
-          FoOutput.LogError('Syntax Error: lack "REM"');
+          FoOutput.oLog.AddLogError('Syntax Error: lack "REM"');
       end;
   end;
 end;
@@ -1063,7 +1063,7 @@ Var
           if Not FVariable1.IsObject then
             FVariable1.Value := FVariable1.Value + aToken
           else
-            FoOutput.LogError('Syntax Error: Cannot add a Object');
+            FoOutput.oLog.AddLogError('Syntax Error: Cannot add a Object');
         end;
    end;
 
@@ -1196,7 +1196,7 @@ begin
           FVariable1.Value := FVariable1.Value -
             TNovusStringUtils.Str2Int(LsValue)
         else
-          FoOutput.LogError('Syntax Error: Is not a number');
+          FoOutput.oLog.AddLogError('Syntax Error: Is not a number');
       end
       else If LStr = '+' then
       begin
@@ -1220,7 +1220,7 @@ begin
              end
            else
              begin
-               FoOutput.LogError('Syntax Error: lack "+"');
+               FoOutput.oLog.AddLogError('Syntax Error: lack "+"');
                break;
              end;
          end;
@@ -1253,7 +1253,7 @@ begin
         if not((foProjectItem as TProjectItem).oProperties.IsPropertyExists
           (lsVariableName1)) then
         begin
-          FoOutput.LogError('Syntax Error: variable "' + lsVariableName1 +
+          FoOutput.olog.AddLogError('Syntax Error: variable "' + lsVariableName1 +
             '" not defined');
 
           FoOutput.Failed := true;
@@ -1268,7 +1268,7 @@ begin
 
     end
      else
-       FoOutput.LogError('Syntax Error: lack "="');
+       FoOutput.oLog.AddLogError('Syntax Error: lack "="');
   end;
 end;
 
@@ -1383,7 +1383,7 @@ begin
     LVariable := oVariables.GetVariableByName
       (tVariables.CleanVariableName(Result));
     if Not Assigned(LVariable) then
-      FoOutput.LogError('Syntax Error: variable ' + Result +
+      FoOutput.oLog.AddLogError('Syntax Error: variable ' + Result +
         ' cannot be found.');
   end;
 end;

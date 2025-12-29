@@ -2,7 +2,7 @@ unit Processor;
 
 interface
 
-Uses Output, Project, ProjectItem, classes, variables, NovusTemplate,
+Uses CodeImatic.Output, Project, ProjectItem, classes, variables, NovusTemplate,
      CodeGenerator, CodeGeneratorItem, Template, Plugin, Plugins, SysUtils, Loader;
 
 type
@@ -12,7 +12,7 @@ type
     fsProcessor: String;
     foProcessorPlugin: tProcessorPlugin;
     foCodeGenerator: tCodegenerator;
-    foOutput: TOutput;
+    foOutput: TcimOutput;
     foTemplate: tTemplate;
     foProjectItem: tProjectItem;
     foProject: tProject;
@@ -27,7 +27,7 @@ type
     procedure Init;
   private
   public
-    constructor Create(aOutput: tOutput;
+    constructor Create(aOutput: tcimOutput;
       aProject: tProject; aProjectItem: TProjectItem;
       aProcessor: String;
       aInputFileName: String;
@@ -38,7 +38,7 @@ type
 
 
 
-   constructor Create(aOutput: tOutput;
+   constructor Create(aOutput: tcimOutput;
       aProject: tProject; aProjectItem: TProjectItem;
       aProcessor: String;
       aInputFileName: String;
@@ -70,7 +70,7 @@ type
 
 implementation
 
-constructor TProcessor.Create(aOutput: tOutput;
+constructor TProcessor.Create(aOutput: tcimOutput;
       aProject: tProject; aProjectItem: TProjectItem;
       aProcessor: String;
       aInputFileName: String;
@@ -99,7 +99,7 @@ begin
 
 end;
 
-constructor TProcessor.Create(aOutput: tOutput;
+constructor TProcessor.Create(aOutput: tcimOutput;
       aProject: tProject; aProjectItem: TProjectItem;
       aProcessor: String;
       aInputFileName: String;
@@ -206,7 +206,7 @@ begin
    result := false;
 
     Try
-      foOutput.LogFormat('Parse Input Filename [%s] ...', [InputFilename]);
+      foOutput.oLog.AddLogInformation(Format('Parse Input Filename [%s] ...', [InputFilename]));
 
       foTemplate.TemplateDoc.LoadFromFile(InputFilename);
 
@@ -214,11 +214,11 @@ begin
 
       foCodeGenerator.oNodeLoader := foNodeLoader;
 
-      foOutput.LogFormat('Processor Output Filename [%s] ...', [InputFilename]);
+      foOutput.oLog.AddLogInformation(Format('Processor Output Filename [%s] ...', [InputFilename]));
 
       Result := foCodeGenerator.Execute(OutputFilename);
    Except
-     foOutput.InternalError;
+     foOutput.oLog.AddLogException();
 
      Result := False;
   End;

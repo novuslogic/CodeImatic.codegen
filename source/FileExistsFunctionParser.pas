@@ -54,15 +54,15 @@ begin
            Exit;
           end
          else
-            oOutput.LogError('Syntax Error: lack ")"');
+           oOutput.oLog.AddLogError('Syntax Error: lack ")"');
 
 
      end
     else
-      oOutput.LogError('Syntax Error: Cannot find filename [' + FsFilename +']');
+      oOutput.oLog.AddLogError('Syntax Error: Cannot find filename [' + FsFilename +']');
   end
    else
-     oOutput.LogError('Syntax Error: lack "("');
+     oOutput.oLog.AddLogError('Syntax Error: lack "("');
 end;
 
 end.
